@@ -28,6 +28,7 @@ def list(
         filename,
         verbose,
 ):
+    """List available extras/isolated"""
 
     if verbose:
         click.echo(f"filename: {filename}")
@@ -88,64 +89,3 @@ def isolated(
 
 if __name__ == "__main__":
     app()
-# from __future__ import annotations
-# import typer
-
-# from typing import Optional
-
-# from typing_extensions import Annotated
-
-# from pyproject2conda.parser import PyProject2Conda
-
-# app = typer.Typer(help="pyproject2conda CLI manager.")
-
-# FILE_OPT = typer.Option('-f','--file')
-# FILE_CLI = Annotated[str | None, FILE_OPT]
-# FILE_CLI = Annotated[str | None, typer.Argument()]
-
-# EXTRAS_OPT = typer.Option('-e','--extras')
-# EXTRAS_CLI = Annotated[list[str] | None, EXTRAS_OPT]
-
-# ISOLATED_OPT = typer.Option('-i','--isolated')
-# ISOLATED_CLI = Annotated[list[str] | None, ISOLATED_OPT]
-
-# @app.command()
-# def main():
-#     """Console script for pyproject2conda."""
-#     print("hello")
-#     print("Replace this message by putting your code into "
-#                "pyproject2conda.cli.main")
-#     print("See click documentation at https://click.palletsprojects.com/")
-#     return 0
-
-
-# @app.command()
-# def list(
-#         # file: FILE_CLI = "pyproject.toml",
-#         file: Annotated[str, typer.Option('-f')] = "pyproject.toml",
-# ):
-
-#     d = PyProject2Conda.from_path(file)
-
-#     print('extras', d.list_extras())
-#     print('isolated', d.list_isolated())
-
-
-# @app.command()
-# def create(
-#         file: FILE_CLI = "pyproject.toml",
-#         extras: EXTRAS_CLI = None,
-#         isolated: ISOLATED_CLI = None,
-# ):
-#     print(files)
-#     print(extras)
-#     print(isolated)
-
-
-
-# @app.command()
-# def other(name: Annotated[Optional[str], typer.Argument()] = None):
-#     if name is None:
-#         print("Hello World!")
-#     else:
-#         print(f"Hello {name}")

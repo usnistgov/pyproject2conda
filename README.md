@@ -66,6 +66,8 @@ conda install -c wpk-nist pyproject2conda
 
 ## Example usage
 
+### Basic usage
+
 Consider the `toml` file [test-pyproject.toml](./tests/test-pyproject.toml).
 
 ```toml
@@ -133,6 +135,38 @@ dependencies:
       - athing
 ```
 
+
+`pyproject2conda` also works with self referenced dependencies:
+```toml
+# ...
+[project.optional-dependencies]
+# ...
+dev-extras = [
+    # p2c: -s additional-thing # this is an additional conda package
+    "matplotlib", # p2c: -s conda-matplotlib
+]
+dev = ["hello[test]", "hello[dev-extras]"]
+# ...
+```
+
+```bash
+$ pyproject2conda create -f tests/test-pyproject.toml dev
+channels:
+  - conda-forge
+dependencies:
+  - bthing-conda
+  - conda-forge::cthing
+  - pandas
+  - conda-forge::pytest
+  - additional-thing
+  - conda-matplotlib
+  - pip
+  - pip:
+      - athing
+```
+
+
+### Usage within python
 `pyproject2conda` can also be used within python:
 
 ```pycon
@@ -164,6 +198,132 @@ dependencies:
       - athing
 
 ```
+
+
+### Configuration
+
+`pyproject2conda` can be configured with a `[tool.pyproject2conda]` section in `pyproject.toml`.
+To specify conda channels use:
+
+```toml
+# Why channel conda-forge appeared above
+[tool.pyproject2conda]
+channels = ["conda-forge"]
+```
+
+Note that specifying channels at the comand line overrides 
+
+
+You can also specify `isolated-dependencies`.  These are dependencies for things that should not include
+package dependencies (things like build dependencies).  For example:
+
+```toml
+[tool.pyproject2conda.isolated-dependencies]
+dist-pypi = [
+    "setuptools",
+    "build", # p2c: -p
+]
+```
+
+These can be accessed using either of the following:
+
+```bash
+$ pyproject2conda isolated -f tests/test-pyproject.toml dist-pypi
+channels:
+  - conda-forge
+dependencies:
+  - setuptools
+  - pip
+  - pip:
+      - build
+
+```
+
+or
+
+```pycon
+>>> from pyproject2conda import PyProject2Conda
+>>> p = PyProject2Conda.from_path("./tests/test-pyproject.toml")
+
+# Basic environment
+>>> print(p.to_conda_yaml(isolated='dist-pypi').strip())
+channels:
+  - conda-forge
+dependencies:
+  - setuptools
+  - pip
+  - pip:
+      - build
+
+```
+
+
+### CLI options
+
+```
+ ➜ pyproject2conda --help
+
+ Usage: pyproject2conda [OPTIONS] COMMAND [ARGS]...
+
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────╮
+│ --help      Show this message and exit.                                                     │
+╰─────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ──────────────────────────────────────────────────────────────────────────────────╮
+│ create      Create yaml file from dependencies and optional-dependencies.                   │
+│ isolated    Create yaml file from [tool.pyproject2conda.isolated-dependencies]              │
+│ list        List available extras/isolated                                                  │
+╰─────────────────────────────────────────────────────────────────────────────────────────────╯
+
+ ➜ pyproject2conda list --help
+
+ Usage: pyproject2conda list [OPTIONS]
+
+ List available extras/isolated
+
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────╮
+│ --file     -f  PATH  input pyproject.toml file                                              │
+│ --verbose  -v                                                                               │
+│ --help               Show this message and exit.                                            │
+╰─────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+ ➜ pyproject2conda create --help
+
+ Usage: pyproject2conda create [OPTIONS] [EXTRAS]...
+
+ Create yaml file from dependencies and optional-dependencies.
+
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────╮
+│ --channel  -c  TEXT  conda channel.  Can be specified multiple times. Overrides             │
+│                      [tool.pyproject2conda.channels]                                        │
+│ --file     -f  PATH  input pyproject.toml file                                              │
+│ --name     -n  TEXT  Name of conda env                                                      │
+│ --output   -o  PATH  File to output results                                                 │
+│ --help               Show this message and exit.                                            │
+╰─────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+ ➜ pyproject2conda isolated --help
+
+ Usage: pyproject2conda isolated [OPTIONS] ISOLATED...
+
+ Create yaml file from [tool.pyproject2conda.isolated-dependencies]
+
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────╮
+│ --channel  -c  TEXT  conda channel.  Can be specified multiple times. Overrides             │
+│                      [tool.pyproject2conda.channels]                                        │
+│ --file     -f  PATH  input pyproject.toml file                                              │
+│ --name     -n  TEXT  Name of conda env                                                      │
+│ --output   -o  PATH  File to output results                                                 │
+│ --help               Show this message and exit.                                            │
+╰─────────────────────────────────────────────────────────────────────────────────────────────╯
+
+```
+
+
+
+
+
 
 <!-- end-docs -->
 
