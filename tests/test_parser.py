@@ -97,6 +97,39 @@ dependencies:
 
     assert dedent(expected) == out
 
+    # test -p option
+    out = d.to_conda_yaml(python="get")
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.8,<3.11
+  - bthing-conda
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing
+    """
+
+    assert dedent(expected) == out
+
+    out = d.to_conda_yaml(python="python=3.9")
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - bthing-conda
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing
+    """
+
+    assert dedent(expected) == out
+
     out = d.to_conda_yaml(channels="hello")
 
     expected = """\

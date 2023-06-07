@@ -116,6 +116,38 @@ dependencies:
 Note that other comments can be mixed in. This also works with extras. For
 example, with the following:
 
+Also, by default, the python version is not included in the resulting conda
+output. To include the specification from pyproject.toml, use `-p/--python`
+option:
+
+```bash
+ ➜ pyproject2conda create -f tests/test-pyproject.toml -p
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.8,<3.11
+  - bthing-conda
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing
+```
+
+To specify a value of python, pass a value with:
+
+```bash
+ ➜ pyproject2conda create -f tests/test-pyproject.toml -p python=3.9
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - bthing-conda
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing
+```
+
 ```toml
 # ...
 [project.optional-dependencies]
@@ -185,10 +217,11 @@ dependencies:
 >>> p = PyProject2Conda.from_path("./tests/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml().strip())
+>>> print(p.to_conda_yaml(python="get").strip())
 channels:
   - conda-forge
 dependencies:
+  - python>=3.8,<3.11
   - bthing-conda
   - conda-forge::cthing
   - pip
@@ -313,6 +346,9 @@ dependencies:
 │ --file     -f  PATH  input pyproject.toml file                              │
 │ --name     -n  TEXT  Name of conda env                                      │
 │ --output   -o  PATH  File to output results                                 │
+│ --python   -p  TEXT  if flag passed without options, include python spec    │
+│                      from pyproject.toml in output.  If value passed, use   │
+│                      this value of python in the output                     │
 │ --help               Show this message and exit.                            │
 ╰─────────────────────────────────────────────────────────────────────────────╯
 
@@ -329,6 +365,9 @@ dependencies:
 │ --file     -f  PATH  input pyproject.toml file                              │
 │ --name     -n  TEXT  Name of conda env                                      │
 │ --output   -o  PATH  File to output results                                 │
+│ --python   -p  TEXT  if flag passed without options, include python spec    │
+│                      from pyproject.toml in output.  If value passed, use   │
+│                      this value of python in the output                     │
 │ --help               Show this message and exit.                            │
 ╰─────────────────────────────────────────────────────────────────────────────╯
 
