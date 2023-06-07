@@ -43,6 +43,17 @@ OUTPUT_CLI = click.option(
 VERBOSE_CLI = click.option("-v", "--verbose", "verbose", is_flag=True, default=False)
 
 
+PYTHON_CLI = click.option(
+    "-p",
+    "--python",
+    "python",
+    is_flag=False,
+    flag_value="get",
+    default=None,
+    help="if flag passed without options, include python spec from pyproject.toml in output.  If value passed, use this value of python in the output",
+)
+
+
 @click.group()
 def app():
     pass
@@ -71,21 +82,41 @@ def list(
 @FILE_CLI
 @NAME_CLI
 @OUTPUT_CLI
+@PYTHON_CLI
 def create(
     extras,
     channel,
     filename,
     name,
     output,
+    python,
 ):
     """Create yaml file from dependencies and optional-dependencies."""
 
     if not channel:
         channel = None
     d = PyProject2Conda.from_path(filename)
-    s = d.to_conda_yaml(extras=extras, channels=channel, name=name, stream=output)
+    s = d.to_conda_yaml(
+        extras=extras, channels=channel, name=name, stream=output, python=python
+    )
     if not output:
         click.echo(s, nl=False)
+
+
+# @app.command("create-conda-req")
+# @EXTRAS_CLI
+# @PYTHON_CLI
+# @FILE_CLI
+# def conda_requirements(
+#         extras,
+#         python,
+#         filename,
+
+# ):
+#     d = PyProject2Conda.from_path(filename)
+
+#     output = d.to_conda_lists(extras=extras)
+#     click.echo(f"{output}")
 
 
 @app.command()
@@ -94,19 +125,21 @@ def create(
 @FILE_CLI
 @NAME_CLI
 @OUTPUT_CLI
+@PYTHON_CLI
 def isolated(
     isolated,
     channel,
     filename,
     name,
     output,
+    python,
 ):
     """Create yaml file from [tool.pyproject2conda.isolated-dependencies]"""
 
     if not channel:
         channel = None
     d = PyProject2Conda.from_path(filename)
-    s = d.to_conda_yaml(isolated=isolated, channels=channel, name=name)
+    s = d.to_conda_yaml(isolated=isolated, channels=channel, name=name, python=python)
     if not output:
         click.echo(s, nl=False)
 

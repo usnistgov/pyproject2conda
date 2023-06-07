@@ -249,7 +249,7 @@ def pyproject_to_conda_lists(
     python: Tstr_opt = None,
 ):
     if python == "get":
-        python = "python" + get_in(["project", "requires-pythong"], data).unwrap()
+        python = "python" + get_in(["project", "requires-python"], data).unwrap()
 
     if channels is None:
         channels = get_in(["tool", "pyproject2conda", "channels"], data, None)
@@ -468,3 +468,16 @@ class PyProject2Conda:
         with open(path, "rb") as f:
             data = tomlkit.load(f)
         return cls(data=data, name=name, channels=channels, python=python)
+
+
+def _list_to_stream(values, stream=None):
+    value = "\n".join(values)
+    if isinstance(stream, (str, Path)):
+        with open(stream, "w") as f:
+            f.write(value)
+
+    elif stream is None:
+        return value
+
+    else:
+        stream.write(value)

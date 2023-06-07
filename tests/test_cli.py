@@ -36,6 +36,43 @@ dependencies:
 
     assert (result.output) == dedent(expected)
 
+    # -p flag
+    result = runner.invoke(
+        app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "-p"]
+    )
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.8,<3.11
+  - bthing-conda
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing
+    """
+
+    assert (result.output) == dedent(expected)
+
+    result = runner.invoke(
+        app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "-p", "python=3.8"]
+    )
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - bthing-conda
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing
+    """
+
+    assert (result.output) == dedent(expected)
+
     result = runner.invoke(
         app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "dev"]
     )
