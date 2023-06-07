@@ -2,7 +2,6 @@
 requires = ["setuptools>=61.2", "setuptools_scm[toml]>=7.0"]
 build-backend = "setuptools.build_meta"
 
-
 [project]
 name = "pyproject2conda"
 authors = [{ name = "William P. Krekelberg", email = "wpk@nist.gov" }]
@@ -26,12 +25,13 @@ classifiers = [
 dynamic = ["readme", "version"]
 requires-python = ">=3.8"
 dependencies = [
-             "tomli",
-             "ruamel.yaml",
-             "tomlkit",
-             "rich-click",
-             "click-default-group",
-             # "typing-extensions; python<3.10",
+    "tomli",
+    "ruamel.yaml",
+    "tomlkit",
+    "rich-click",
+    "click-default-group",
+    # "typing-extensions; python<3.10",
+
 ] # additional packages
 
 [project.urls]
@@ -40,7 +40,6 @@ documentation = "https://pages.nist.gov/pyproject2conda/"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "pytest-xdist", "pytest-sugar"]
-
 
 # dev = []
 # docs = []
@@ -52,9 +51,11 @@ pyproject2conda = "pyproject2conda.cli:app"
 zip-safe = true # if using mypy, must be False
 include-package-data = true
 license-files = ["LICENSE"]
+
 [tool.setuptools.packages.find]
 namespaces = true
 where = ["src"]
+
 ## include = []
 ## exclude = []
 ##
@@ -113,7 +114,6 @@ select = [
     # "ISC",
     # # type-checking imports
     "TCH",
-
 ]
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 # fixable = ["A", "B", "C", "D", "E", "F", "..."]

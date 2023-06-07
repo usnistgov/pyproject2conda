@@ -1,25 +1,22 @@
-
-
 from pyproject2conda import parser
 from textwrap import dedent
+
 
 def test_match_p2c_comment():
     expected = "-c -d"
     for comment in [
-            "#p2c: -c -d",
-            "# p2c: -c -d",
-            "  #p2c: -c -d",
-            "# p2c: -c -d # some other thing",
-            "# some other thing # p2c: -c -d # another thing",
+        "#p2c: -c -d",
+        "# p2c: -c -d",
+        "  #p2c: -c -d",
+        "# p2c: -c -d # some other thing",
+        "# some other thing # p2c: -c -d # another thing",
     ]:
-
         match = parser._match_p2c_comment(comment)
-
 
         assert match == expected
 
-def test_parse_p2c():
 
+def test_parse_p2c():
     def get_expected(pip=False, skip=False, channel=None, package=None):
         if package is None:
             package = []
@@ -31,22 +28,24 @@ def test_parse_p2c():
     assert parser._parse_p2c("--skip") == get_expected(skip=True)
     assert parser._parse_p2c("-s") == get_expected(skip=True)
 
-    assert parser._parse_p2c("-s -c conda-forge") == get_expected(skip=True, channel="conda-forge")
+    assert parser._parse_p2c("-s -c conda-forge") == get_expected(
+        skip=True, channel="conda-forge"
+    )
 
     assert parser._parse_p2c("athing>=0.3,<0.2 ") == get_expected(
-        package=["athing>=0.3,<0.2"])
+        package=["athing>=0.3,<0.2"]
+    )
 
     assert parser._parse_p2c("athing>=0.3,<0.2 bthing ") == get_expected(
         package=["athing>=0.3,<0.2", "bthing"]
     )
 
 
-
 def test_complete():
-
     from tomlkit import parse
 
-    toml = dedent("""\
+    toml = dedent(
+        """\
     [project]
     name = "hello"
     requires-python = ">=3.8,<3.11"
@@ -78,7 +77,8 @@ def test_complete():
     "setuptools",
     "build", # p2c: -p
     ]
-    """)
+    """
+    )
 
     d = parser.PyProject2Conda.from_string(toml)
 
@@ -97,8 +97,6 @@ dependencies:
 
     assert dedent(expected) == out
 
-
-
     out = d.to_conda_yaml(channels="hello")
 
     expected = """\
@@ -113,8 +111,6 @@ dependencies:
     """
 
     assert dedent(expected) == out
-
-
 
     out = d.to_conda_yaml(extras="test")
 
@@ -146,8 +142,6 @@ dependencies:
     """
 
     assert out == dedent(expected)
-
-
 
     expected = """\
 channels:
