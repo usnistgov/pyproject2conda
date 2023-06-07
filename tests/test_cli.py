@@ -7,8 +7,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-def test_list():
 
+def test_list():
     runner = CliRunner()
     result = runner.invoke(app, ["list", "-f", str(ROOT / "test-pyproject.toml")])
     expected = """\
@@ -19,10 +19,7 @@ def test_list():
     assert result.output == dedent(expected)
 
 
-
 def test_create():
-
-
     runner = CliRunner()
     result = runner.invoke(app, ["create", "-f", str(ROOT / "test-pyproject.toml")])
 
@@ -37,10 +34,11 @@ dependencies:
       - athing
     """
 
-
     assert (result.output) == dedent(expected)
 
-    result = runner.invoke(app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "dev"])
+    result = runner.invoke(
+        app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "dev"]
+    )
 
     expected = """\
 channels:
@@ -59,8 +57,9 @@ dependencies:
 
     assert result.output == dedent(expected)
 
-
-    result = runner.invoke(app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "-c","hello"])
+    result = runner.invoke(
+        app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "-c", "hello"]
+    )
 
     expected = """\
 channels:
@@ -75,10 +74,9 @@ dependencies:
 
     assert dedent(expected) == result.output
 
-
-
-    result = runner.invoke(app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "test"])
-
+    result = runner.invoke(
+        app, ["create", "-f", str(ROOT / "test-pyproject.toml"), "test"]
+    )
 
     expected = """\
 channels:
@@ -95,9 +93,9 @@ dependencies:
 
     assert dedent(expected) == result.output
 
-
-
-    result = runner.invoke(app, ["isolated", "-f", str(ROOT / "test-pyproject.toml"), "dist-pypi"])
+    result = runner.invoke(
+        app, ["isolated", "-f", str(ROOT / "test-pyproject.toml"), "dist-pypi"]
+    )
 
     expected = """\
 channels:

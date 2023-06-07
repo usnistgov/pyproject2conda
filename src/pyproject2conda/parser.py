@@ -5,16 +5,15 @@ Parsing (:mod:`pyproject2conda.parser`)
 Main parser to turn pyproject.toml -> environment.yaml
 """
 from __future__ import annotations
-from typing import Any, TypeVar, Type, Optional, Union, Sequence, Mapping
-from pathlib import Path
-import re
-import argparse
-import shlex
 
-from ruamel.yaml import YAML
+import argparse
+import re
+import shlex
+from pathlib import Path
+from typing import Any, Mapping, Optional, Sequence, TypeVar, Union
 
 import tomlkit
-
+from ruamel.yaml import YAML
 
 # -- typing ----------------------------------------------------------------------------
 
@@ -80,7 +79,7 @@ def get_in(
 def _iter_value_comment_pairs(
     array: tomlkit.items.Array,
 ) -> list[tuple(Tstr_opt, Tstr_opt)]:
-    """extract value and comments from array"""
+    """Extract value and comments from array"""
     for v in array._value:
         if v.value is not None and not isinstance(v.value, tomlkit.items.Null):
             value = str(v.value)  # .as_string()
@@ -125,9 +124,7 @@ def get_value_comment_pairs(
     opts: tomlkit.items.Table | None = None,
     include_root: bool = True,
 ) -> list[tuple(Tstr_opt, Tstr_opt)]:
-    """
-    Recursively build dependency, comment pairs from deps and extras.
-    """
+    """Recursively build dependency, comment pairs from deps and extras."""
     if include_root:
         out = list(_iter_value_comment_pairs(deps))
     else:
@@ -185,9 +182,7 @@ def parse_p2c_comment(comment: Tstr_opt) -> Tstr_opt:
 def value_comment_pairs_to_conda(
     value_comment_list: list[tuple(Tstr_opt, Tstr_opt)]
 ) -> dict[str, Any]:
-    """
-    convert raw value/comment pairs to install lines
-    """
+    """Convert raw value/comment pairs to install lines"""
 
     conda_deps = []
     pip_deps = []
@@ -218,14 +213,12 @@ def value_comment_pairs_to_conda(
 
 
 def _pyproject_to_value_comment_pairs(
-        data: tomlkit.toml_document.TOMLDocument,
-        extras: Tstr_seq_opt = None,
-        isolated: Tstr_seq_opt = None,
+    data: tomlkit.toml_document.TOMLDocument,
+    extras: Tstr_seq_opt = None,
+    isolated: Tstr_seq_opt = None,
 ):
-
-
-    project = data['project']
-    package_name = project['name']
+    project = data["project"]
+    package_name = project["name"]
 
     deps = project["dependencies"]
 
@@ -234,7 +227,7 @@ def _pyproject_to_value_comment_pairs(
             package_name=package_name,
             extras=isolated,
             deps=deps,
-            opts=get_in(["tool","pyproject2conda","isolated-dependencies"], data),
+            opts=get_in(["tool", "pyproject2conda", "isolated-dependencies"], data),
             include_root=False,
         )
     else:
@@ -242,11 +235,10 @@ def _pyproject_to_value_comment_pairs(
             package_name=package_name,
             extras=extras,
             deps=deps,
-            opts=get_in(["project","optional-dependencies"], data),
+            opts=get_in(["project", "optional-dependencies"], data),
         )
 
     return value_comment_list
-
 
 
 def pyproject_to_conda_lists(
@@ -256,9 +248,8 @@ def pyproject_to_conda_lists(
     channels: Tstr_seq_opt = None,
     python: Tstr_opt = None,
 ):
-
     if python == "get":
-        python = "python" + get_in(["project","requires-pythong"], data).unwrap()
+        python = "python" + get_in(["project", "requires-pythong"], data).unwrap()
 
     if channels is None:
         channels = get_in(["tool", "pyproject2conda", "channels"], data, None)
@@ -267,9 +258,10 @@ def pyproject_to_conda_lists(
     if isinstance(channels, str):
         channels = [channels]
 
-
     value_comment_list = _pyproject_to_value_comment_pairs(
-        data=data, extras=extras, isolated=isolated,
+        data=data,
+        extras=extras,
+        isolated=isolated,
     )
 
     output = value_comment_pairs_to_conda(value_comment_list)
@@ -355,10 +347,9 @@ def _output_to_yaml(
 
 T = TypeVar("T", bound="PyProject2Conda")
 
+
 class PyProject2Conda:
-    """
-    Wrapper class to transform pyproject.toml -> environment.yaml
-    """
+    """Wrapper class to transform pyproject.toml -> environment.yaml"""
 
     def __init__(
         self,
@@ -381,7 +372,6 @@ class PyProject2Conda:
         python: Tstr_opt = None,
         stream: str | Path | None = None,
     ):
-
         self._check_extras_isolated(extras, isolated)
 
         return pyproject_to_conda(
@@ -394,15 +384,13 @@ class PyProject2Conda:
             stream=stream,
         )
 
-
     def to_conda_lists(
-            self,
-            extras: Tstr_seq_opt = None,
-            isolated: Tstr_seq_opt = None,
-            channels: Tstr_seq_opt = None,
-            python: Tstr_opt = None,
+        self,
+        extras: Tstr_seq_opt = None,
+        isolated: Tstr_seq_opt = None,
+        channels: Tstr_seq_opt = None,
+        python: Tstr_opt = None,
     ) -> dict[str, Any]:
-
         self._check_extras_isolated(extras, isolated)
 
         return pyproject_to_conda_lists(
@@ -414,19 +402,17 @@ class PyProject2Conda:
         )
 
     def to_requirement_list(
-            self,
-            extras: Tstr_seq_opt = None,
-            isolated: Tstr_seq_opt = None,
+        self,
+        extras: Tstr_seq_opt = None,
+        isolated: Tstr_seq_opt = None,
     ) -> list[str]:
-
         self._check_extras_isolated(extras, isolated)
 
         values = _pyproject_to_value_comment_pairs(
             data=self.data, extras=extras, isolated=isolated
         )
 
-        return [x for x,y in values if x is not None]
-
+        return [x for x, y in values if x is not None]
 
     def _check_extras_isolated(self, extras, isolated):
         def _do_test(sent, available):
@@ -435,7 +421,6 @@ class PyProject2Conda:
             for s in sent:
                 if s not in available:
                     raise ValueError(f"{s} not in {available}")
-
 
         if extras:
             _do_test(extras, self.list_extras())
@@ -451,14 +436,14 @@ class PyProject2Conda:
             return []
 
     def list_extras(self):
-        return self._get_opts('project','optional-dependencies')
+        return self._get_opts("project", "optional-dependencies")
 
     def list_isolated(self):
-        return self._get_opts('tool','pyproject2conda','isolated-dependencies')
+        return self._get_opts("tool", "pyproject2conda", "isolated-dependencies")
 
     @classmethod
     def from_string(
-        cls: Type[T],
+        cls: type[T],
         toml_string: str,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
@@ -469,7 +454,7 @@ class PyProject2Conda:
 
     @classmethod
     def from_path(
-        cls: Type[T],
+        cls: type[T],
         path: str | Path,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,

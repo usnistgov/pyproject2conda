@@ -29,13 +29,14 @@ and "help wanted" is open to whoever wants to implement it.
 
 ### Write Documentation
 
-`pyproject2conda` could always use more documentation, whether
-as part of the official `pyproject2conda` docs, in docstrings,
-or even on the web in blog posts, articles, and such.
+`pyproject2conda` could always use more documentation, whether as part of the
+official `pyproject2conda` docs, in docstrings, or even on the web in blog
+posts, articles, and such.
 
 ### Submit Feedback
 
-The best way to send feedback is to file an issue at <https://github.com/wpk-nist-gov/pyproject2conda/issues>.
+The best way to send feedback is to file an issue at
+<https://github.com/wpk-nist-gov/pyproject2conda/issues>.
 
 If you are proposing a feature:
 
@@ -99,8 +100,8 @@ conda env update -n {env-name} environment/tools.yaml
 
 ### Getting the repo
 
-Ready to contribute? Here's how to set up `pyproject2conda` for
-local development.
+Ready to contribute? Here's how to set up `pyproject2conda` for local
+development.
 
 - Fork the `pyproject2conda` repo on GitHub.
 
@@ -155,7 +156,8 @@ local development.
     make mamba-dev
     ```
 
-    This will create a conda environment 'pyproject2conda-env' in the default location.
+    This will create a conda environment 'pyproject2conda-env' in the default
+    location.
 
     To install (an editable version) of the current package:
 
@@ -389,12 +391,13 @@ git tag. For convenience, you can override the version in the makefile (calling
 tox) by setting `version=v{major}.{minor}.{micro}`. This is useful for updating
 the docs, etc.
 
-
-
 ## Creating conda recipe
 
 [grayskull]: https://github.com/conda/grayskull
 
-For the most part, we use [grayskull] to create the conda recipe.  However, I've had
-issues getting it to play nice with `pyproject.toml` for some of the 'extra' variables.
-So, we use grayskull to build the majority of the recipe, and append the file `.recipe-append.yaml`.  For some edge cases (install name different from package name, etc), you'll need to manually edit this file to create the final recipe.
+For the most part, we use [grayskull] to create the conda recipe. However, I've
+had issues getting it to play nice with `pyproject.toml` for some of the 'extra'
+variables. So, we use grayskull to build the majority of the recipe, and append
+the file `.recipe-append.yaml`. For some edge cases (install name different from
+package name, etc), you'll need to manually edit this file to create the final
+recipe.

@@ -8,7 +8,9 @@ test:
 
 about:
   home: https://github.com/wpk-nist-gov/pyproject2conda
-  summary: A script to convert a Python project declared on a pyproject.toml to a conda environment.
+  summary:
+    A script to convert a Python project declared on a pyproject.toml to a conda
+    environment.
   description: |
     A script to convert a Python project declared on a pyproject.toml to a conda environment.
   license: NIST-PD

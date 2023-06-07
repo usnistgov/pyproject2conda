@@ -3,7 +3,6 @@ Top level API (:mod:`pyproject2conda`)
 ======================================
 """
 
-
 from .parser import PyProject2Conda
 
 # updated versioning scheme
@@ -26,4 +25,5 @@ __email__ = "wpk@nist.gov"
 
 __all__ = [
     "__version__",
+    "PyProject2Conda",
 ]
