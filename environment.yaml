@@ -1,0 +1,10 @@
+name: pyproject2conda-env
+channels:
+  - conda-forge
+  - wpk-nist
+dependencies:
+  - python>=3.8
+  - tomli
+  - ruamel.yaml
+  - tomlkit
+  # cli- Click

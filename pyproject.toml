@@ -1,0 +1,276 @@
+[build-system]
+requires = ["setuptools>=61.2", "setuptools_scm[toml]>=7.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pyproject2conda"
+authors = [{ name = "William P. Krekelberg", email = "wpk@nist.gov" }]
+license = { text = "NIST-PD" }
+description = "A script to convert a Python project declared on a pyproject.toml to a conda environment."
+# if using markdown
+# long_description_content_type = text/markdown
+keywords = ["pyproject2conda"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: Public Domain",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+]
+dynamic = ["readme", "version"]
+requires-python = ">=3.8"
+dependencies = [
+             "tomli",
+             "ruamel.yaml",
+             "tomlkit",
+             "rich-click",
+             "click-default-group",
+             # "typing-extensions; python<3.10",
+] # additional packages
+
+[project.urls]
+homepage = "https://github.com/wpk-nist-gov/pyproject2conda"
+documentation = "https://pages.nist.gov/pyproject2conda/"
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov", "pytest-xdist", "pytest-sugar"]
+
+
+# dev = []
+# docs = []
+[project.scripts]
+pyproject2conda = "pyproject2conda.cli:app"
+
+## grayskull still messes some things up, but use scripts/recipe-append.sh for this
+[tool.setuptools]
+zip-safe = true # if using mypy, must be False
+include-package-data = true
+license-files = ["LICENSE"]
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["src"]
+## include = []
+## exclude = []
+##
+[tool.setuptools.dynamic]
+readme = { file = [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+], content-type = "text/markdown" }
+
+[tool.setuptools_scm]
+fallback_version = "999"
+
+[tool.aliases]
+test = "pytest"
+
+[tool.pytest.ini_options]
+addopts = "--verbose --doctest-modules --doctest-glob='*.md'"
+testpaths = ["tests", "README.md"]
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+known_first_party = ["pyproject2conda"]
+
+[tool.ruff]
+fix = true
+line-length = 88
+update-check = false
+target-version = "py38"
+select = [
+    # pyflakes
+    "F",
+    # pycodestyle
+    "E",
+    "W",
+    # isort
+    "I",
+    # pyupgrade
+    "UP",
+    # pydocstyle
+    "D",
+    # # flake8-2020
+    "YTT",
+    # # flake8-bugbear
+    # "B",
+    # flake8-quotes
+    "Q",
+    # # pylint
+    # "PLE", "PLR", "PLW",
+    # # misc lints
+    "PIE",
+    # # tidy imports
+    "TID",
+    # # implicit string concatenation
+    # "ISC",
+    # # type-checking imports
+    "TCH",
+
+]
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+# fixable = ["A", "B", "C", "D", "E", "F", "..."]
+unfixable = []
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "tests/",
+    "src/pyproject2conda/tests",
+]
+ignore = [
+    # # whitespace before ':' - doesn't work well with black
+    # "E203",
+    # module level import not at top of file
+    "E402",
+    # line too long - let black worry about that
+    "E501",
+    # do not assign a lambda expression, use a def
+    "E731",
+    # # line break before binary operator
+    # "W503",
+    # allow black line after docstring
+    "D202",
+    "D105",
+    "D205",
+    # this leads to errors with placing titles in module
+    # docstrings
+    "D400",
+    "D401",
+    "D415",
+    "D102",
+    "D103",
+    # these are useful, but too many errors
+    # due to use of docfiller
+    "D417",
+    "D107",
+    "D203",
+    "D212",
+    # Allow relative imports
+    "TID252",
+]
+per-file-ignores = {  }
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.isort]
+known-first-party = ["pyproject2conda"]
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.nbqa.addopts]
+ruff = ["--fix", "--extend-ignore=D100,B018"]
+
+[tool.flake8]
+docstring-convention = "numpy"
+ignore = [
+    # # whitespace before ':' - doesn't work well with black
+    "E203",
+    # module level import not at top of file
+    "E402",
+    # line too long - let black worry about that
+    "E501",
+    # do not assign a lambda expression, use a def
+    "E731",
+    # # line break before binary operator
+    "W503",
+    # allow black line after docstring
+    "D202",
+    "D105",
+    "D205",
+    # this leads to errors with placing titles in module
+    # docstrings
+    "D400",
+    "D401",
+    "D415",
+    "D102",
+    "D103",
+    # these are useful, but too many errors
+    # due to use of docfiller
+    "D417",
+    "D107",
+    "D203",
+    "D212",
+]
+
+[tool.scriv]
+format = "md"
+md_header_level = "2"
+new_fragment_template = "file: changelog.d/templates/new_fragment.md.j2"
+
+[tool.commitizen]
+use_shortcuts = true
+
+[tool.cruft]
+
+[tool.mypy]
+files = ["src/pyproject2conda"]
+show_error_codes = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unused_configs = true
+exclude = [".eggs", ".tox", "doc", "docs"]
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = []
+
+[[tool.mypy.overrides]]
+ignore_errors = true
+module = []
+
+[tool.pyright]
+include = ["src", "tests"]
+exclude = ["**/__pycache__", ".tox/**", "**/.mypy_cache"]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
+# enable subset of "strict"
+reportDuplicateImport = true
+reportInvalidStubStatement = true
+reportOverlappingOverload = true
+reportPropertyTypeMismatch = true
+reportUntypedClassDecorator = true
+reportUntypedFunctionDecorator = true
+reportUntypedNamedTuple = true
+reportUnusedImport = true
+# disable subset of "basic"
+reportGeneralTypeIssues = false
+reportMissingModuleSource = false
+reportOptionalCall = false
+reportOptionalIterable = false
+reportOptionalMemberAccess = false
+reportOptionalOperand = false
+reportOptionalSubscript = false
+reportPrivateImportUsage = false
+reportUnboundVariable = false
+
+[tool.pytype]
+inputs = ["src", "tests"]

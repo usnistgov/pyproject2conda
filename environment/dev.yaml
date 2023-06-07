@@ -1,0 +1,18 @@
+channels:
+  - conda-forge
+  - wpk-nist
+dependencies:
+  - ipykernel
+  - ipython
+  - pip
+  - pytest
+  - pytest-cov
+  - pytest-xdist
+  - python>=3.8
+  - ruamel.yaml
+  - setuptools-scm
+  - tomli
+  - tomlkit
+  - pip:
+      - pytest-accept
+name: pyproject2conda-env

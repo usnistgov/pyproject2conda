@@ -1,0 +1,9 @@
+# Defer to setuptools_scm
+# manually add not tracked files
+# or prune tracked files
+
+# include README.md
+# recursive-include tests *.py
+# global-exclude *.py[co]
+# prune */*.egg-info
+# recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif

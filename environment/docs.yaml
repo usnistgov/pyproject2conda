@@ -1,0 +1,22 @@
+channels:
+  - conda-forge
+  - wpk-nist
+dependencies:
+  - ipython
+  - pip
+  - python>=3.8
+  - ruamel.yaml
+  - setuptools-scm
+  - tomli
+  - tomlkit
+  - pip:
+      - autodocsumm
+      - ghp-import
+      - myst-nb
+      - pyenchant
+      - sphinx
+      - sphinx-autobuild
+      - sphinx-book-theme
+      - sphinx-copybutton
+      - sphinxcontrib-spelling
+name: pyproject2conda-env

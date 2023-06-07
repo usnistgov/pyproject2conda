@@ -1,0 +1,28 @@
+channels:
+  - conda-forge
+dependencies:
+  - setuptools-scm
+  - ipython
+  ## package deps
+  # - matplotlib
+  # - pandas
+  - pip
+  - pip:
+      - pyenchant
+      # TODO: something goes wonky with sphinx-book-theme and higher versions of sphinx
+      - ghp-import
+      - sphinx
+      ## themes
+      - sphinx-book-theme
+      ## optionals
+      # sphinx-design
+      - sphinx-copybutton
+      - sphinxcontrib-spelling
+      # sphinxext-rediraffe
+      ## autobuild
+      - sphinx-autobuild
+      ## myst
+      # myst-parser
+      - myst-nb
+      ## others
+      - autodocsumm

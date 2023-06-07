@@ -1,0 +1,134 @@
+---
+# pre-commit install
+# pre-commit run --all-files
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+repos:
+  #* Top level
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-toml
+  #* Formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: "v3.0.0-alpha.6"
+    hooks:
+      - id: prettier
+        stages: [commit]
+        additional_dependencies:
+          - prettier-plugin-toml
+  #** markdown
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.6.0
+    hooks:
+      - id: markdownlint-cli2
+        args: ["--style prettier"]
+  #* Linting
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    # Ruff version.
+    rev: "v0.0.261"
+    hooks:
+      - id: ruff
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      # - id: black-jupyter
+      # Move to just black.  use nbqa for notebook formatting
+      - id: black
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: "1.13.0"
+    hooks:
+      - id: blacken-docs
+        additional_dependencies:
+          - black==23.3.0
+        # exclude: ^README.md
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.0
+    hooks:
+      - id: nbqa-ruff
+        additional_dependencies: [ruff]
+      - id: nbqa-black
+        additional_dependencies: [black]
+
+  #* Commit message
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.0.1
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  #* Manual Linting
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: tox
+        args: ["-e", "lint-mypy"]
+        language: system
+        pass_filenames: false
+        # additional_dependencies: [tox]
+        types: [python]
+        require_serial: true
+        stages: [manual]
+      - id: pyright
+        name: pyright
+        entry: pyright
+        args: []
+        language: system
+        pass_filenames: true
+        # additional_dependencies: [tox]
+        types: [python]
+        require_serial: true
+        stages: [manual]
+  # isort, pyupgrade, flake8 defer to ruff
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        stages: [manual]
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.3.1
+    hooks:
+      - id: pyupgrade
+        stages: [manual]
+        args: [--py38-plus]
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        stages: [manual]
+        additional_dependencies:
+          - flake8-docstrings
+          - Flake8-pyproject
+          # - pep8-naming
+          # - flake8-rst-docstrings
+        exclude: ^tests/|^src/pyproject2conda/tests/|^docs/conf.py|^setup.py
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.0
+    hooks:
+      - id: nbqa-pyupgrade
+        additional_dependencies: [pyupgrade]
+        stages: [manual]
+        args: [--py38-plus]
+      - id: nbqa-isort
+        additional_dependencies: [isort]
+        stages: [manual]
+  #** spelling
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+      - id: codespell
+        types_or: [python, rst, markdown, cython, c]
+        additional_dependencies: [tomli]
+        args: [-I, docs/spelling_wordlist.txt]
+        stages: [manual]
