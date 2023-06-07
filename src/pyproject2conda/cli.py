@@ -139,7 +139,9 @@ def isolated(
     if not channel:
         channel = None
     d = PyProject2Conda.from_path(filename)
-    s = d.to_conda_yaml(isolated=isolated, channels=channel, name=name, python=python)
+    s = d.to_conda_yaml(
+        isolated=isolated, channels=channel, name=name, python=python, stream=output
+    )
     if not output:
         click.echo(s, nl=False)
 
