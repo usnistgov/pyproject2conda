@@ -30,7 +30,7 @@ dependencies = [
     "tomlkit",
     "rich-click",
     "click-default-group",
-    # "typing-extensions; python<3.10",
+    # "typing-extensions; python_version<'3.10'",
 
 ] # additional packages
 

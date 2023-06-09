@@ -47,6 +47,10 @@ def _default_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="If specified skip pyproject dependency on this line",
     )
+    parser.add_argument(
+        "-v", "--version", type=str, help="Specify versioning for python"
+    )
+
     parser.add_argument("package", nargs="*")
 
     return parser
@@ -176,61 +180,6 @@ def get_value_comment_pairs(
     return out
 
 
-def _match_p2c_comment(comment: Tstr_opt) -> Tstr_opt:
-    if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
-        return None
-    else:
-        return match.group(1).strip()
-
-
-def _parse_p2c(match: Tstr_opt) -> dict[str, Any] | None:
-    """Parse match from _match_p2c_comment"""
-
-    if match:
-        return vars(_default_parser().parse_args(shlex.split(match)))
-    else:
-        return None
-
-
-def parse_p2c_comment(comment: Tstr_opt) -> dict[str, Any] | None:
-    if match := _match_p2c_comment(comment):
-        return _parse_p2c(match)
-    else:
-        return None
-
-
-def value_comment_pairs_to_conda(
-    value_comment_list: list[tuple[Tstr_opt, Tstr_opt]]
-) -> dict[str, Any]:
-    """Convert raw value/comment pairs to install lines"""
-
-    conda_deps: list[Tstr_opt] = []
-    pip_deps: list[Tstr_opt] = []
-
-    def _check_value(value):
-        if not value:
-            raise ValueError("trying to add value that does not exist")
-
-    for value, comment in value_comment_list:
-        if comment and (parsed := parse_p2c_comment(comment)):
-            if parsed["pip"]:
-                _check_value(value)
-                pip_deps.append(value)
-            elif not parsed["skip"]:
-                _check_value(value)
-
-                if parsed["channel"]:
-                    conda_deps.append("{}::{}".format(parsed["channel"], value))
-                else:
-                    conda_deps.append(value)
-
-            conda_deps.extend(parsed["package"])
-        elif value:
-            conda_deps.append(value)
-
-    return {"dependencies": conda_deps, "pip": pip_deps}
-
-
 def _pyproject_to_value_comment_pairs(
     data: tomlkit.toml_document.TOMLDocument,
     extras: Tstr_seq_opt = None,
@@ -263,12 +212,86 @@ def _pyproject_to_value_comment_pairs(
     return value_comment_list
 
 
+def _match_p2c_comment(comment: Tstr_opt) -> Tstr_opt:
+    if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
+        return None
+    elif re.match(r".*?##\s*p2c:", comment):
+        # This checks for double ##.  If found, ignore line
+        return None
+    else:
+        return match.group(1).strip()
+
+
+def _parse_p2c(match: Tstr_opt) -> dict[str, Any] | None:
+    """Parse match from _match_p2c_comment"""
+
+    if match:
+        return vars(_default_parser().parse_args(shlex.split(match)))
+    else:
+        return None
+
+
+def parse_p2c_comment(comment: Tstr_opt) -> dict[str, Any] | None:
+    if match := _match_p2c_comment(comment):
+        return _parse_p2c(match)
+    else:
+        return None
+
+
+def _test_version(version_string, python_version):
+    from packaging.specifiers import SpecifierSet
+    from packaging.version import Version
+
+    s = SpecifierSet(version_string)
+    v = Version(python_version)
+
+    return v in s
+
+
+def value_comment_pairs_to_conda(
+    value_comment_list: list[tuple[Tstr_opt, Tstr_opt]],
+    python_version: Tstr_opt = None,
+) -> dict[str, Any]:
+    """Convert raw value/comment pairs to install lines"""
+
+    conda_deps: list[Tstr_opt] = []
+    pip_deps: list[Tstr_opt] = []
+
+    def _check_value(value):
+        if not value:
+            raise ValueError("trying to add value that does not exist")
+
+    for value, comment in value_comment_list:
+        if comment and (parsed := parse_p2c_comment(comment)):
+            if parsed["pip"]:
+                _check_value(value)
+                pip_deps.append(value)
+            elif not parsed["skip"]:
+                _check_value(value)
+
+                if parsed["channel"]:
+                    conda_deps.append("{}::{}".format(parsed["channel"], value))
+                else:
+                    conda_deps.append(value)
+
+            if parsed["version"] and python_version:
+                if _test_version(parsed["version"], python_version):
+                    conda_deps.extend(parsed["package"])
+            else:
+                conda_deps.extend(parsed["package"])
+        elif value:
+            conda_deps.append(value)
+
+    return {"dependencies": conda_deps, "pip": pip_deps}
+
+
 def pyproject_to_conda_lists(
     data: tomlkit.toml_document.TOMLDocument,
     extras: Tstr_seq_opt = None,
     isolated: Tstr_seq_opt = None,
     channels: Tstr_seq_opt = None,
     python: Tstr_opt = None,
+    python_version: Tstr_opt = None,
 ) -> dict[str, Any]:
     if python == "get":
         python = "python" + get_in(["project", "requires-python"], data).unwrap()
@@ -286,11 +309,12 @@ def pyproject_to_conda_lists(
         isolated=isolated,
     )
 
-    output = value_comment_pairs_to_conda(value_comment_list)
+    output = value_comment_pairs_to_conda(
+        value_comment_list, python_version=python_version
+    )
 
     if python:
         output["dependencies"].insert(0, python)
-
     if channels:
         output["channels"] = channels
 
@@ -305,6 +329,7 @@ def pyproject_to_conda(
     name: Tstr_opt = None,
     python: Tstr_opt = None,
     stream: str | Path | None = None,
+    python_version: Tstr_opt = None,
 ):
     output = pyproject_to_conda_lists(
         data=data,
@@ -312,6 +337,7 @@ def pyproject_to_conda(
         isolated=isolated,
         channels=channels,
         python=python,
+        python_version=python_version,
     )
     return _output_to_yaml(**output, name=name, stream=stream)
 
@@ -393,6 +419,7 @@ class PyProject2Conda:
         channels: Tstr_seq_opt = None,
         python: Tstr_opt = None,
         stream: str | Path | None = None,
+        python_version: Tstr_opt = None,
     ):
         self._check_extras_isolated(extras, isolated)
 
@@ -404,6 +431,7 @@ class PyProject2Conda:
             channels=channels or self.channels,
             python=python or self.python,
             stream=stream,
+            python_version=python_version,
         )
 
     def to_conda_lists(
@@ -412,6 +440,7 @@ class PyProject2Conda:
         isolated: Tstr_seq_opt = None,
         channels: Tstr_seq_opt = None,
         python: Tstr_opt = None,
+        python_version: Tstr_opt = None,
     ) -> dict[str, Any]:
         self._check_extras_isolated(extras, isolated)
 
@@ -421,6 +450,7 @@ class PyProject2Conda:
             isolated=isolated,
             channels=channels or self.channels,
             python=python or self.python,
+            python_version=python_version,
         )
 
     def to_requirement_list(
@@ -461,6 +491,7 @@ class PyProject2Conda:
         isolated: Tstr_seq_opt = None,
         channels: Tstr_seq_opt = None,
         python: Tstr_opt = None,
+        python_version: Tstr_opt = None,
         prepend_channel: bool = False,
         stream_conda: str | Path | None = None,
         stream_pip: str | Path | None = None,
@@ -470,6 +501,7 @@ class PyProject2Conda:
             isolated=isolated,
             channels=channels,
             python=python,
+            python_version=python_version,
         )
 
         deps = output.get("dependencies", None)
