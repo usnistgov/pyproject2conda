@@ -15,6 +15,7 @@ clean-build:
 # by default, only use a few sections
 grayskull_args ?= --maintainers wpk-nist-gov --sections package source build requirements
 grayskull: clean-recipe
+	-mkdir dist-conda
 	grayskull pypi $(sdist_path) $(grayskull_args) -o dist-conda
 
 # append the rest

@@ -9,7 +9,7 @@ from .parser import PyProject2Conda
 try:
     from importlib.metadata import version as _version
 except ImportError:
-    from importlib_metadata import version as _version  # type: ignore[no-redef]
+    from importlib_metadata import version as _version
 
 try:
     __version__ = _version("pyproject2conda")
