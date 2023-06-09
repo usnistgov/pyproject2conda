@@ -101,8 +101,27 @@ Arguments:   Additional (conda) packages
 
 So, if we run the following, we get:
 
+<!-- [[[cog
+import subprocess
+import shlex
+
+def run_command(cmd, wrapper="bash"):
+    args = shlex.split(cmd)
+    output = subprocess.check_output(args)
+    total = f"$ {cmd}\n{output.decode()}"
+
+    if wrapper:
+        total = f"\n```{wrapper}\n"  + total + "```\n"
+
+    print(total)
+]]] -->
+<!-- [[[end]]] -->
+
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml")]]] -->
+
 ```bash
-$ pyproject2conda create -f test/test-pyproject.toml
+$ pyproject2conda yaml -f tests/test-pyproject.toml
 channels:
   - conda-forge
 dependencies:
@@ -113,6 +132,8 @@ dependencies:
       - athing
 ```
 
+<!-- [[[end]]] -->
+
 Note that other comments can be mixed in. This also works with extras. For
 example, with the following:
 
@@ -120,8 +141,11 @@ Also, by default, the python version is not included in the resulting conda
 output. To include the specification from pyproject.toml, use `-p/--python`
 option:
 
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -p")]]] -->
+
 ```bash
- ➜ pyproject2conda create -f tests/test-pyproject.toml -p
+$ pyproject2conda yaml -f tests/test-pyproject.toml -p
 channels:
   - conda-forge
 dependencies:
@@ -133,10 +157,15 @@ dependencies:
       - athing
 ```
 
+<!-- [[[end]]] -->
+
 To specify a value of python, pass a value with:
 
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -p python=3.9")]]] -->
+
 ```bash
- ➜ pyproject2conda create -f tests/test-pyproject.toml -p python=3.9
+$ pyproject2conda yaml -f tests/test-pyproject.toml -p python=3.9
 channels:
   - conda-forge
 dependencies:
@@ -147,6 +176,8 @@ dependencies:
   - pip:
       - athing
 ```
+
+<!-- [[[end]]] -->
 
 ```toml
 # ...
@@ -162,8 +193,11 @@ test = [
 
 and running the the following gives:
 
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -e test")]]] -->
+
 ```bash
-$ pyproject2conda create -f tests/test-pyproject.toml test
+$ pyproject2conda yaml -f tests/test-pyproject.toml -e test
 channels:
   - conda-forge
 dependencies:
@@ -175,6 +209,8 @@ dependencies:
   - pip:
       - athing
 ```
+
+<!-- [[[end]]] -->
 
 `pyproject2conda` also works with self referenced dependencies:
 
@@ -192,8 +228,11 @@ dev = ["hello[test]", "hello[dev-extras]"]
 
 ```
 
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -e dev")]]] -->
+
 ```bash
-$ pyproject2conda create -f tests/test-pyproject.toml dev
+$ pyproject2conda yaml -f tests/test-pyproject.toml -e dev
 channels:
   - conda-forge
 dependencies:
@@ -207,6 +246,8 @@ dependencies:
   - pip:
       - athing
 ```
+
+<!-- [[[end]]] -->
 
 ### Usage within python
 
@@ -273,8 +314,11 @@ dist-pypi = [
 
 These can be accessed using either of the following:
 
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -i dist-pypi")]]] -->
+
 ```bash
-$ pyproject2conda isolated -f tests/test-pyproject.toml dist-pypi
+$ pyproject2conda yaml -f tests/test-pyproject.toml -i dist-pypi
 channels:
   - conda-forge
 dependencies:
@@ -282,8 +326,9 @@ dependencies:
   - pip
   - pip:
       - build
-
 ```
+
+<!-- [[[end]]] -->
 
 or
 
@@ -305,73 +350,149 @@ dependencies:
 
 ### CLI options
 
+<!-- [[[cog run_command("pyproject2conda --help")]]] -->
+
 ```bash
- ➜ pyproject2conda --help
+$ pyproject2conda --help
+Usage: pyproject2conda [OPTIONS] COMMAND [ARGS]...
 
- Usage: pyproject2conda [OPTIONS] COMMAND [ARGS]...
+Options:
+  --help  Show this message and exit.
 
-╭─ Options ───────────────────────────────────────────────────────────────────╮
-│ --help      Show this message and exit.                                     │
-╰─────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ──────────────────────────────────────────────────────────────────╮
-│ create    Create yaml file from dependencies and optional-dependencies.     │
-│ isolated  Create yaml file from                                             │
-│           [tool.pyproject2conda.isolated-dependencies]                      │
-│ list      List available extras/isolated                                    │
-╰─────────────────────────────────────────────────────────────────────────────╯
-
-
- ➜ pyproject2conda list --help
-
- Usage: pyproject2conda list [OPTIONS]
-
- List available extras/isolated
-
-╭─ Options ───────────────────────────────────────────────────────────────────╮
-│ --file     -f  PATH  input pyproject.toml file                              │
-│ --verbose  -v                                                               │
-│ --help               Show this message and exit.                            │
-╰─────────────────────────────────────────────────────────────────────────────╯
-
-
- ➜ pyproject2conda create --help
-
- Usage: pyproject2conda create [OPTIONS] [EXTRAS]...
-
- Create yaml file from dependencies and optional-dependencies.
-
-╭─ Options ───────────────────────────────────────────────────────────────────╮
-│ --channel  -c  TEXT  conda channel.  Can be specified multiple times.       │
-│                      Overrides [tool.pyproject2conda.channels]              │
-│ --file     -f  PATH  input pyproject.toml file                              │
-│ --name     -n  TEXT  Name of conda env                                      │
-│ --output   -o  PATH  File to output results                                 │
-│ --python   -p  TEXT  if flag passed without options, include python spec    │
-│                      from pyproject.toml in output.  If value passed, use   │
-│                      this value of python in the output                     │
-│ --help               Show this message and exit.                            │
-╰─────────────────────────────────────────────────────────────────────────────╯
-
-
- ➜ pyproject2conda isolated --help
-
- Usage: pyproject2conda isolated [OPTIONS] ISOLATED...
-
- Create yaml file from [tool.pyproject2conda.isolated-dependencies]
-
-╭─ Options ───────────────────────────────────────────────────────────────────╮
-│ --channel  -c  TEXT  conda channel.  Can be specified multiple times.       │
-│                      Overrides [tool.pyproject2conda.channels]              │
-│ --file     -f  PATH  input pyproject.toml file                              │
-│ --name     -n  TEXT  Name of conda env                                      │
-│ --output   -o  PATH  File to output results                                 │
-│ --python   -p  TEXT  if flag passed without options, include python spec    │
-│                      from pyproject.toml in output.  If value passed, use   │
-│                      this value of python in the output                     │
-│ --help               Show this message and exit.                            │
-╰─────────────────────────────────────────────────────────────────────────────╯
-
+Commands:
+  conda-requirements  Create requirement files for conda and pip.
+  json                Create json representation.
+  list                List available extras/isolated
+  requirements        Create requirements.txt for pip depedencies.
+  yaml                Create yaml file from dependencies and...
 ```
+
+<!-- [[[end]]] -->
+
+<!-- [[[cog run_command("pyproject2conda list --help")]]] -->
+
+```bash
+$ pyproject2conda list --help
+Usage: pyproject2conda list [OPTIONS]
+
+  List available extras/isolated
+
+Options:
+  -f, --file PATH  input pyproject.toml file
+  -v, --verbose
+  --help           Show this message and exit.
+```
+
+<!-- [[[end]]] -->
+
+<!-- [[[cog run_command("pyproject2conda yaml --help")]]] -->
+
+```bash
+$ pyproject2conda yaml --help
+Usage: pyproject2conda yaml [OPTIONS]
+
+  Create yaml file from dependencies and optional-dependencies.
+
+Options:
+  -e, --extra TEXT     Extra depenedencies. Can specify multiple times for
+                       multiple extras.
+  -i, --isolated TEXT  Isolated dependencies (under
+                       [tool.pyproject2conda.isolated-dependencies]).  Can
+                       specify multiple times.
+  -c, --channel TEXT   conda channel.  Can specify. Overrides
+                       [tool.pyproject2conda.channels]
+  -f, --file PATH      input pyproject.toml file
+  -n, --name TEXT      Name of conda env
+  -o, --output PATH    File to output results
+  -p, --python TEXT    if flag passed without options, include python spec
+                       from pyproject.toml in output.  If value passed, use
+                       this value of python in the output
+  --help               Show this message and exit.
+```
+
+<!-- [[[end]]] -->
+
+<!-- [[[cog run_command("pyproject2conda requirements --help")]]] -->
+
+```bash
+$ pyproject2conda requirements --help
+Usage: pyproject2conda requirements [OPTIONS]
+
+  Create requirements.txt for pip depedencies.
+
+Options:
+  -e, --extra TEXT     Extra depenedencies. Can specify multiple times for
+                       multiple extras.
+  -i, --isolated TEXT  Isolated dependencies (under
+                       [tool.pyproject2conda.isolated-dependencies]).  Can
+                       specify multiple times.
+  -f, --file PATH      input pyproject.toml file
+  -o, --output PATH    File to output results
+  --help               Show this message and exit.
+```
+
+<!-- [[[end]]] -->
+
+<!-- [[[cog run_command("pyproject2conda conda-requirements --help")]]] -->
+
+```bash
+$ pyproject2conda conda-requirements --help
+Usage: pyproject2conda conda-requirements [OPTIONS] [PATH_CONDA] [PATH_PIP]
+
+  Create requirement files for conda and pip.
+
+  These can be install with, for example,
+
+  conda install --file {path_conda} pip install -r {path_pip}
+
+Options:
+  -e, --extra TEXT     Extra depenedencies. Can specify multiple times for
+                       multiple extras.
+  -i, --isolated TEXT  Isolated dependencies (under
+                       [tool.pyproject2conda.isolated-dependencies]).  Can
+                       specify multiple times.
+  -p, --python TEXT    if flag passed without options, include python spec
+                       from pyproject.toml in output.  If value passed, use
+                       this value of python in the output
+  -c, --channel TEXT   conda channel.  Can specify. Overrides
+                       [tool.pyproject2conda.channels]
+  -f, --file PATH      input pyproject.toml file
+  --prefix TEXT        set conda-output=prefix + 'conda.txt', pip-
+                       output=prefix + 'pip.txt'
+  --prepend-channel
+  --help               Show this message and exit.
+```
+
+<!-- [[[end]]] -->
+
+<!-- [[[cog run_command("pyproject2conda json --help")]]] -->
+
+```bash
+$ pyproject2conda json --help
+Usage: pyproject2conda json [OPTIONS]
+
+  Create json representation.
+
+  Keys are: "dependencies": conda dependencies. "pip": pip dependencies.
+  "channels": conda channels.
+
+Options:
+  -e, --extra TEXT     Extra depenedencies. Can specify multiple times for
+                       multiple extras.
+  -i, --isolated TEXT  Isolated dependencies (under
+                       [tool.pyproject2conda.isolated-dependencies]).  Can
+                       specify multiple times.
+  -p, --python TEXT    if flag passed without options, include python spec
+                       from pyproject.toml in output.  If value passed, use
+                       this value of python in the output
+  -c, --channel TEXT   conda channel.  Can specify. Overrides
+                       [tool.pyproject2conda.channels]
+  -f, --file PATH      input pyproject.toml file
+  -o, --output PATH    File to output results
+  --help               Show this message and exit.
+```
+
+<!-- [[[end]]] -->
 
 <!-- end-docs -->
 
