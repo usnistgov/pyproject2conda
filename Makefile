@@ -320,3 +320,9 @@ auto-changelog: ## autogenerate changelog and print to stdout
 
 commitizen-changelog:
 	cz changelog --unreleased-version unreleased --dry-run --incremental
+
+# --- cog output -- --------------------------------------------------------------------
+
+.PHONY: cog-readme
+cog-readme: ## apply cog to README.md
+	cog -rP README.md

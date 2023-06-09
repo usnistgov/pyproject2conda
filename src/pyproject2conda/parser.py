@@ -76,6 +76,29 @@ def get_in(
         return default
 
 
+def _unique_list(values):
+    """
+    Return only unique values in list.
+    Unlike using set(values), this preserves order.
+    """
+    output = []
+    for v in values:
+        if v not in output:
+            output.append(v)
+    return output
+
+
+def _list_to_str(values, eol=True):
+    if values:
+        output = "\n".join(values)
+        if eol:
+            output += "\n"
+    else:
+        output = ""
+
+    return output
+
+
 def _iter_value_comment_pairs(
     array: tomlkit.items.Array,
 ) -> list[tuple(Tstr_opt, Tstr_opt)]:
@@ -216,6 +239,7 @@ def _pyproject_to_value_comment_pairs(
     data: tomlkit.toml_document.TOMLDocument,
     extras: Tstr_seq_opt = None,
     isolated: Tstr_seq_opt = None,
+    unique: bool = True,
 ):
     project = data["project"]
     package_name = project["name"]
@@ -237,6 +261,9 @@ def _pyproject_to_value_comment_pairs(
             deps=deps,
             opts=get_in(["project", "optional-dependencies"], data),
         )
+
+    if unique:
+        value_comment_list = _unique_list(value_comment_list)
 
     return value_comment_list
 
@@ -411,10 +438,73 @@ class PyProject2Conda:
         values = _pyproject_to_value_comment_pairs(
             data=self.data, extras=extras, isolated=isolated
         )
-
         return [x for x, y in values if x is not None]
 
+    def to_requirements(
+        self,
+        extras: Tstr_opt = None,
+        isolated: Tstr_seq_opt = None,
+        stream: str | Path | None = None,
+    ):
+        """Create requirements.txt like file with pip dependencies."""
+
+        self._check_extras_isolated(extras, isolated)
+
+        reqs = self.to_requirement_list(extras=extras, isolated=isolated)
+
+        s = _list_to_str(reqs)
+
+        if stream:
+            with open(stream, "w") as f:
+                f.write(s)
+        else:
+            return s
+
+    def to_conda_requirements(
+        self,
+        extras: Tstr_opt = None,
+        isolated: Tstr_seq_opt = None,
+        channels: Tstr_seq_opt = None,
+        python: Tstr_opt = None,
+        prepend_channel: bool = False,
+        stream_conda: str | Path | None = None,
+        stream_pip: str | Path | None = None,
+    ):
+        output = self.to_conda_lists(
+            extras=extras,
+            isolated=isolated,
+            channels=channels,
+            python=python,
+        )
+
+        deps = output.get("dependencies", None)
+        reqs = output.get("pip", None)
+
+        channels = output.get("channels", None)
+        if channels and prepend_channel:
+            assert len(channels) == 1
+            channel = channels[0]
+            # add in channel if none exists
+            if deps:
+                deps = [dep if "::" in dep else f"{channel}::{dep}" for dep in deps]
+
+        deps_str = _list_to_str(deps)
+        reqs_str = _list_to_str(reqs)
+
+        if stream_conda and deps_str:
+            with open(stream_conda, "w") as f:
+                f.write(deps_str)
+
+        if stream_pip and reqs_str:
+            with open(stream_pip, "w") as f:
+                f.write(reqs_str)
+
+        return deps_str, reqs_str
+
     def _check_extras_isolated(self, extras, isolated):
+        if extras and isolated:
+            raise ValueError("can only specify extras or isolated, not both.")
+
         def _do_test(sent, available):
             if isinstance(sent, str):
                 sent = [sent]
