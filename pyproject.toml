@@ -41,8 +41,6 @@ documentation = "https://pages.nist.gov/pyproject2conda/"
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "pytest-xdist", "pytest-sugar"]
 
-# dev = []
-# docs = []
 [project.scripts]
 pyproject2conda = "pyproject2conda.cli:app"
 

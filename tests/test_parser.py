@@ -29,7 +29,7 @@ def test_match_p2c_comment():
 
 
 def test_parse_p2c():
-    def get_expected(pip=False, skip=False, channel=None, package=None, version=None):
+    def get_expected(pip=False, skip=False, channel=None, package=None):
         if package is None:
             package = []
         return {
@@ -37,7 +37,6 @@ def test_parse_p2c():
             "skip": skip,
             "channel": channel,
             "package": package,
-            "version": version,
         }
 
     assert parser._parse_p2c("--pip") == get_expected(pip=True)
@@ -72,7 +71,7 @@ def test_complete():
     dependencies = [
     "athing", # p2c: -p # a comment
     "bthing", # p2c: -s bthing-conda
-    "cthing", # p2c: -s -v '<3.10' conda-forge::cthing
+    "cthing; python_version<'3.10'", # p2c: -c conda-forge
     ]
 
     [project.optional-dependencies]
@@ -127,7 +126,7 @@ dependencies:
   - pip:
       - athing
     """
-    assert dedent(expected) == d.to_conda_yaml(python="get")
+    assert dedent(expected) == d.to_conda_yaml(python_include="get")
 
     expected = """\
 channels:
@@ -140,7 +139,7 @@ dependencies:
   - pip:
       - athing
     """
-    assert dedent(expected) == d.to_conda_yaml(python="python=3.9")
+    assert dedent(expected) == d.to_conda_yaml(python_include="python=3.9")
 
     # test passing python_version
     expected = """\
@@ -154,7 +153,7 @@ dependencies:
       - athing
     """
     assert dedent(expected) == d.to_conda_yaml(
-        python="python=3.10", python_version="3.10"
+        python_include="python=3.10", python_version="3.10"
     )
 
     out = d.to_conda_yaml(channels="hello")

@@ -53,14 +53,28 @@ OUTPUT_CLI = click.option(
 VERBOSE_CLI = click.option("-v", "--verbose", "verbose", is_flag=True, default=False)
 
 
-PYTHON_CLI = click.option(
-    "-p",
-    "--python",
-    "python",
+PYTHON_INCLUDE_CLI = click.option(
+    "--python-include",
+    "python_include",
     is_flag=False,
     flag_value="get",
     default=None,
-    help="if flag passed without options, include python spec from pyproject.toml in output.  If value passed, use this value of python in the output",
+    help="""
+    If flag passed without options, include python spec from pyproject.toml in yaml output.  If value passed, use this value (exactly) in the output.
+    So, for example, pass `--python-include "python=3.8"`
+    """,
+)
+
+PYTHON_VERSION_CLI = click.option(
+    "--python-version",
+    "python_version",
+    type=str,
+    default=None,
+    help="""
+    Python version to check `python_verion <=> {python_version}` lines against.  That is, this version is used to limit packages in resulting output.
+    For example, if have a line like   `a-package; python_version < '3.9'`,
+    Using `--python-version 3.10` will not include `a-package`, while `--python-version 3.8` will include `a-package`.
+    """,
 )
 
 
@@ -108,7 +122,8 @@ def list(
 @PYPROJECT_CLI
 @NAME_CLI
 @OUTPUT_CLI
-@PYTHON_CLI
+@PYTHON_INCLUDE_CLI
+@PYTHON_VERSION_CLI
 def yaml(
     extras,
     isolated,
@@ -116,7 +131,8 @@ def yaml(
     filename,
     name,
     output,
-    python,
+    python_include,
+    python_version,
 ):
     """Create yaml file from dependencies and optional-dependencies."""
 
@@ -130,7 +146,8 @@ def yaml(
         channels=channels,
         name=name,
         stream=output,
-        python=python,
+        python_include=python_include,
+        python_version=python_version,
     )
     if not output:
         click.echo(s, nl=False)
@@ -162,7 +179,8 @@ def requirements(
 @app.command()
 @EXTRAS_CLI
 @ISOLATED_CLI
-@PYTHON_CLI
+@PYTHON_INCLUDE_CLI
+@PYTHON_VERSION_CLI
 @CHANNEL_CLI
 @PYPROJECT_CLI
 @click.option(
@@ -182,7 +200,8 @@ def requirements(
 def conda_requirements(
     extras,
     isolated,
-    python,
+    python_include,
+    python_version,
     channels,
     filename,
     prefix,
@@ -215,7 +234,8 @@ def conda_requirements(
     deps, reqs = d.to_conda_requirements(
         extras=extras,
         isolated=isolated,
-        python=python,
+        python_include=python_include,
+        python_version=python_version,
         channels=channels,
         prepend_channel=prepend_channel,
         stream_conda=path_conda,
@@ -230,14 +250,16 @@ def conda_requirements(
 @app.command("json")
 @EXTRAS_CLI
 @ISOLATED_CLI
-@PYTHON_CLI
+@PYTHON_INCLUDE_CLI
+@PYTHON_VERSION_CLI
 @CHANNEL_CLI
 @PYPROJECT_CLI
 @OUTPUT_CLI
 def to_json(
     extras,
     isolated,
-    python,
+    python_include,
+    python_version,
     channels,
     filename,
     output,
@@ -256,7 +278,11 @@ def to_json(
     d = PyProject2Conda.from_path(filename)
 
     result = d.to_conda_lists(
-        extras=extras, isolated=isolated, channels=channels, python=python
+        extras=extras,
+        isolated=isolated,
+        channels=channels,
+        python_include=python_include,
+        python_version=python_version,
     )
 
     if output:
@@ -268,11 +294,11 @@ def to_json(
 
 # @app.command("yaml-conda-req")
 # @EXTRAS_CLI
-# @PYTHON_CLI
+# @PYTHON_INCLUDE_CLI
 # @PYPROJECT_CLI
 # def conda_requirements(
 #         extras,
-#         python,
+#         python_include,
 #         filename,
 
 # ):
@@ -288,14 +314,14 @@ def to_json(
 # @PYPROJECT_CLI
 # @NAME_CLI
 # @OUTPUT_CLI
-# @PYTHON_CLI
+# @PYTHON_INCLUDE_CLI
 # def isolated(
 #     isolated,
 #     channel,
 #     filename,
 #     name,
 #     output,
-#     python,
+#     python_include,
 # ):
 #     """Create yaml file from [tool.pyproject2conda.isolated-dependencies]"""
 
@@ -303,7 +329,7 @@ def to_json(
 #         channel = None
 #     d = PyProject2Conda.from_path(filename)
 #     s = d.to_conda_yaml(
-#         isolated=isolated, channels=channel, name=name, python=python, stream=output
+#         isolated=isolated, channels=channel, name=name, python_include=python_include, stream=output
 #     )
 #     if not output:
 #         click.echo(s, nl=False)
