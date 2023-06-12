@@ -72,50 +72,89 @@ conda install -c wpk-nist pyproject2conda
 
 ### Basic usage
 
+<!-- [[[cog
+import subprocess
+import shlex
+
+def run_command(cmd, wrapper="bash", include_cmd=True):
+    args = shlex.split(cmd)
+    output = subprocess.check_output(args)
+
+    total = output.decode()
+    if include_cmd:
+        total = f"$ {cmd}\n{total}"
+
+    if wrapper:
+        total = f"\n```{wrapper}\n"  + total + "```\n"
+
+    print(total)
+
+def cat_lines(path="tests/test-pyproject.toml", begin=0, end=8, begin_dot=True, end_dot=True):
+    with open(path, 'r') as f:
+        lines = [line.rstrip() for line in f]
+
+    output = '\n'.join(lines[slice(begin, end)])
+
+    if begin_dot:
+        output = "# ...\n" +  output
+
+    if end_dot:
+        output = output + "\n# ..."
+
+    output = "\n```toml\n" + output + "\n```\n"
+    print(output)
+]]] -->
+<!-- [[[end]]] -->
+
 Consider the `toml` file [test-pyproject.toml](./tests/test-pyproject.toml).
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin=0, end=8, begin_dot=False)]]] -->
 
 ```toml
 [project]
 name = "hello"
 requires-python = ">=3.8,<3.11"
 dependencies = [
-  "athing", # p2c: -p # a comment
-  "bthing", # p2c: -s bthing-conda
-  "cthing", # p2c: -c conda-forge
-
+    "athing", # p2c: -p # a comment
+    "bthing", # p2c: -s "bthing-conda"
+    "cthing; python_version < '3.10'", # p2c: -c conda-forge
 ]
 # ...
-
 ```
+
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
 
 Note the comment lines `# p2c:...`. These are special tokens that
 `pyproject2conda` will analyze. The basic options are:
 
-```bash
-Arguments:   Additional (conda) packages
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False)]]] -->
 
--p --pip     Pip install pyproject package on this line.
--s --skip    Skip pyproject package on this line.
--c --channel Add channel to pyproject package on this line
+```bash
+usage: -c [-h] [-c CHANNEL] [-p] [-s] [package ...]
+
+Parser searches for comments '# p2c: [OPTIONS]
+
+positional arguments:
+  package
+
+options:
+  -h, --help            show this help message and exit
+  -c CHANNEL, --channel CHANNEL
+                        Channel to add to the pyproject requirement
+  -p, --pip             If specified, install dependency on pyproject
+                        dependency (on this line) with pip
+  -s, --skip            If specified skip pyproject dependency on this line
 ```
 
-So, if we run the following, we get:
-
-<!-- [[[cog
-import subprocess
-import shlex
-
-def run_command(cmd, wrapper="bash"):
-    args = shlex.split(cmd)
-    output = subprocess.check_output(args)
-    total = f"$ {cmd}\n{output.decode()}"
-
-    if wrapper:
-        total = f"\n```{wrapper}\n"  + total + "```\n"
-
-    print(total)
-]]] -->
 <!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+
+So, if we run the following, we get:
 
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml")]]] -->
@@ -134,18 +173,16 @@ dependencies:
 
 <!-- [[[end]]] -->
 
-Note that other comments can be mixed in. This also works with extras. For
-example, with the following:
+Note that other comments can be mixed in.
 
-Also, by default, the python version is not included in the resulting conda
-output. To include the specification from pyproject.toml, use `-p/--python`
-option:
+By default, the python version is not included in the resulting conda output. To
+include the specification from pyproject.toml, use `-p/--python` option:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -p")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml --python-include")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/test-pyproject.toml -p
+$ pyproject2conda yaml -f tests/test-pyproject.toml --python-include
 channels:
   - conda-forge
 dependencies:
@@ -159,13 +196,13 @@ dependencies:
 
 <!-- [[[end]]] -->
 
-To specify a value of python, pass a value with:
+To specify a specific value of python in the output, pass a value with:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -p python=3.9")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml --python-include python=3.9")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/test-pyproject.toml -p python=3.9
+$ pyproject2conda yaml -f tests/test-pyproject.toml --python-include python=3.9
 channels:
   - conda-forge
 dependencies:
@@ -179,17 +216,56 @@ dependencies:
 
 <!-- [[[end]]] -->
 
+Note that this is for including python in the resulting environment file.
+
+You can also constrain packages by the python version using the standard
+pyproject.toml syntax `"...; python_version < 'some-version-number'"`. For is
+parsed for for both the pip packages and conda packages:
+
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml --python-version 3.10")]]] -->
+
+```bash
+$ pyproject2conda yaml -f tests/test-pyproject.toml --python-version 3.10
+channels:
+  - conda-forge
+dependencies:
+  - bthing-conda
+  - pip
+  - pip:
+      - athing
+```
+
+<!-- [[[end]]] -->
+
+### Installing extras
+
+Given the extra dependency:
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog cat_lines(begin=9, end=21)]]] -->
+
 ```toml
 # ...
 [project.optional-dependencies]
 test = [
-  "pandas",
-  "pytest", # p2c: -c conda-forge
+    "pandas",
+    "pytest", # p2c: -c conda-forge
 
 ]
+dev-extras = [
+    # p2c: -s "additional-thing; python_version < '3.9'" # this is an additional conda package
+    ## p2c: -s "another-thing" # this will be skipped because of ## before p2c.
+    "matplotlib", # p2c: -s conda-matplotlib
+]
+dev = ["hello[test]", "hello[dev-extras]"]
 # ...
-
 ```
+
+<!-- [[[end]]] -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
 
 and running the the following gives:
 
@@ -214,20 +290,6 @@ dependencies:
 
 `pyproject2conda` also works with self referenced dependencies:
 
-```toml
-# ...
-[project.optional-dependencies]
-# ...
-dev-extras = [
-  # p2c: -s additional-thing # this is an additional conda package
-  "matplotlib", # p2c: -s conda-matplotlib
-
-]
-dev = ["hello[test]", "hello[dev-extras]"]
-# ...
-
-```
-
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -e dev")]]] -->
 
@@ -249,6 +311,9 @@ dependencies:
 
 <!-- [[[end]]] -->
 
+This also shows that `p2c` comments without dependencies are also parsed. To
+comment out such lines, make sure `p2c` is preceded by `##`.
+
 ### Usage within python
 
 `pyproject2conda` can also be used within python:
@@ -258,7 +323,7 @@ dependencies:
 >>> p = PyProject2Conda.from_path("./tests/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(python="get").strip())
+>>> print(p.to_conda_yaml(python_include="get").strip())
 channels:
   - conda-forge
 dependencies:
@@ -289,12 +354,19 @@ dependencies:
 `pyproject2conda` can be configured with a `[tool.pyproject2conda]` section in
 `pyproject.toml`. To specify conda channels use:
 
-```toml
-# Why channel conda-forge appeared above
-[tool.pyproject2conda]
-channels = ["conda-forge"]
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin=22, end=24)]]] -->
 
+```toml
+# ...
+[tool.pyproject2conda]
+channels = ['conda-forge']
+# ...
 ```
+
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
 
 Note that specifying channels at the comand line overrides
 
@@ -302,15 +374,23 @@ You can also specify `isolated-dependencies`. These are dependencies for things
 that should not include package dependencies (things like build dependencies).
 For example:
 
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin=25, end=None)]]] -->
+
 ```toml
+# ...
 [tool.pyproject2conda.isolated-dependencies]
 dist-pypi = [
-  "setuptools",
-  "build", # p2c: -p
+    "setuptools",
+    "build", # p2c: -p
 
 ]
-
+# ...
 ```
+
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
 
 These can be accessed using either of the following:
 
@@ -350,6 +430,7 @@ dependencies:
 
 ### CLI options
 
+<!-- prettier-ignore-start -->
 <!-- [[[cog run_command("pyproject2conda --help")]]] -->
 
 ```bash
@@ -394,20 +475,28 @@ Usage: pyproject2conda yaml [OPTIONS]
   Create yaml file from dependencies and optional-dependencies.
 
 Options:
-  -e, --extra TEXT     Extra depenedencies. Can specify multiple times for
-                       multiple extras.
-  -i, --isolated TEXT  Isolated dependencies (under
-                       [tool.pyproject2conda.isolated-dependencies]).  Can
-                       specify multiple times.
-  -c, --channel TEXT   conda channel.  Can specify. Overrides
-                       [tool.pyproject2conda.channels]
-  -f, --file PATH      input pyproject.toml file
-  -n, --name TEXT      Name of conda env
-  -o, --output PATH    File to output results
-  -p, --python TEXT    if flag passed without options, include python spec
-                       from pyproject.toml in output.  If value passed, use
-                       this value of python in the output
-  --help               Show this message and exit.
+  -e, --extra TEXT       Extra depenedencies. Can specify multiple times for
+                         multiple extras.
+  -i, --isolated TEXT    Isolated dependencies (under
+                         [tool.pyproject2conda.isolated-dependencies]).  Can
+                         specify multiple times.
+  -c, --channel TEXT     conda channel.  Can specify. Overrides
+                         [tool.pyproject2conda.channels]
+  -f, --file PATH        input pyproject.toml file
+  -n, --name TEXT        Name of conda env
+  -o, --output PATH      File to output results
+  --python-include TEXT  If flag passed without options, include python spec
+                         from pyproject.toml in yaml output.  If value passed,
+                         use this value (exactly) in the output. So, for
+                         example, pass `--python-include "python=3.8"`
+  --python-version TEXT  Python version to check `python_verion <=>
+                         {python_version}` lines against.  That is, this
+                         version is used to limit packages in resulting
+                         output. For example, if have a line like
+                         `a-package; python_version < '3.9'`, Using `--python-
+                         version 3.10` will not include `a-package`, while
+                         `--python-version 3.8` will include `a-package`.
+  --help                 Show this message and exit.
 ```
 
 <!-- [[[end]]] -->
@@ -446,21 +535,29 @@ Usage: pyproject2conda conda-requirements [OPTIONS] [PATH_CONDA] [PATH_PIP]
   conda install --file {path_conda} pip install -r {path_pip}
 
 Options:
-  -e, --extra TEXT     Extra depenedencies. Can specify multiple times for
-                       multiple extras.
-  -i, --isolated TEXT  Isolated dependencies (under
-                       [tool.pyproject2conda.isolated-dependencies]).  Can
-                       specify multiple times.
-  -p, --python TEXT    if flag passed without options, include python spec
-                       from pyproject.toml in output.  If value passed, use
-                       this value of python in the output
-  -c, --channel TEXT   conda channel.  Can specify. Overrides
-                       [tool.pyproject2conda.channels]
-  -f, --file PATH      input pyproject.toml file
-  --prefix TEXT        set conda-output=prefix + 'conda.txt', pip-
-                       output=prefix + 'pip.txt'
+  -e, --extra TEXT       Extra depenedencies. Can specify multiple times for
+                         multiple extras.
+  -i, --isolated TEXT    Isolated dependencies (under
+                         [tool.pyproject2conda.isolated-dependencies]).  Can
+                         specify multiple times.
+  --python-include TEXT  If flag passed without options, include python spec
+                         from pyproject.toml in yaml output.  If value passed,
+                         use this value (exactly) in the output. So, for
+                         example, pass `--python-include "python=3.8"`
+  --python-version TEXT  Python version to check `python_verion <=>
+                         {python_version}` lines against.  That is, this
+                         version is used to limit packages in resulting
+                         output. For example, if have a line like
+                         `a-package; python_version < '3.9'`, Using `--python-
+                         version 3.10` will not include `a-package`, while
+                         `--python-version 3.8` will include `a-package`.
+  -c, --channel TEXT     conda channel.  Can specify. Overrides
+                         [tool.pyproject2conda.channels]
+  -f, --file PATH        input pyproject.toml file
+  --prefix TEXT          set conda-output=prefix + 'conda.txt', pip-
+                         output=prefix + 'pip.txt'
   --prepend-channel
-  --help               Show this message and exit.
+  --help                 Show this message and exit.
 ```
 
 <!-- [[[end]]] -->
@@ -477,22 +574,31 @@ Usage: pyproject2conda json [OPTIONS]
   "channels": conda channels.
 
 Options:
-  -e, --extra TEXT     Extra depenedencies. Can specify multiple times for
-                       multiple extras.
-  -i, --isolated TEXT  Isolated dependencies (under
-                       [tool.pyproject2conda.isolated-dependencies]).  Can
-                       specify multiple times.
-  -p, --python TEXT    if flag passed without options, include python spec
-                       from pyproject.toml in output.  If value passed, use
-                       this value of python in the output
-  -c, --channel TEXT   conda channel.  Can specify. Overrides
-                       [tool.pyproject2conda.channels]
-  -f, --file PATH      input pyproject.toml file
-  -o, --output PATH    File to output results
-  --help               Show this message and exit.
+  -e, --extra TEXT       Extra depenedencies. Can specify multiple times for
+                         multiple extras.
+  -i, --isolated TEXT    Isolated dependencies (under
+                         [tool.pyproject2conda.isolated-dependencies]).  Can
+                         specify multiple times.
+  --python-include TEXT  If flag passed without options, include python spec
+                         from pyproject.toml in yaml output.  If value passed,
+                         use this value (exactly) in the output. So, for
+                         example, pass `--python-include "python=3.8"`
+  --python-version TEXT  Python version to check `python_verion <=>
+                         {python_version}` lines against.  That is, this
+                         version is used to limit packages in resulting
+                         output. For example, if have a line like
+                         `a-package; python_version < '3.9'`, Using `--python-
+                         version 3.10` will not include `a-package`, while
+                         `--python-version 3.8` will include `a-package`.
+  -c, --channel TEXT     conda channel.  Can specify. Overrides
+                         [tool.pyproject2conda.channels]
+  -f, --file PATH        input pyproject.toml file
+  -o, --output PATH      File to output results
+  --help                 Show this message and exit.
 ```
 
 <!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
 
 <!-- end-docs -->
 

@@ -3,8 +3,8 @@ name = "hello"
 requires-python = ">=3.8,<3.11"
 dependencies = [
     "athing", # p2c: -p # a comment
-    "bthing", # p2c: -s bthing-conda
-    "cthing", # p2c: -c conda-forge
+    "bthing", # p2c: -s "bthing-conda"
+    "cthing; python_version < '3.10'", # p2c: -c conda-forge
 
 ]
 
@@ -15,7 +15,8 @@ test = [
 
 ]
 dev-extras = [
-    # p2c: -s additional-thing # this is an additional conda package
+    # p2c: -s "additional-thing; python_version < '3.9'" # this is an additional conda package
+    ## p2c: -s "another-thing" # this will be skipped because of ## before p2c.
     "matplotlib", # p2c: -s conda-matplotlib
 
 ]

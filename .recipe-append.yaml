@@ -3,6 +3,7 @@ test:
     - pyproject2conda
   commands:
     - pip check
+    - pyproject2conda --help
   requires:
     - pip
 

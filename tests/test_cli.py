@@ -60,7 +60,7 @@ dependencies:
       - athing
     """
 
-    for opt in ["-p", "--python"]:
+    for opt in ["--python-include"]:
         result = do_run(runner, "yaml", opt)
         check_result(result, expected)
 
@@ -76,7 +76,7 @@ dependencies:
   - pip:
       - athing
     """
-    for opt in ["-p", "--python"]:
+    for opt in ["--python-include"]:
         result = do_run(runner, "yaml", opt, "python=3.8")
         check_result(result, expected)
 
@@ -173,7 +173,7 @@ def test_requirements():
     expected = """\
 athing
 bthing
-cthing
+cthing; python_version < '3.10'
     """
 
     result = do_run(runner, "requirements")
@@ -182,7 +182,7 @@ cthing
     expected = """\
 athing
 bthing
-cthing
+cthing; python_version < '3.10'
 pandas
 pytest
 matplotlib
