@@ -29,7 +29,7 @@ dependencies = [
     "ruamel.yaml",
     "tomlkit",
     "rich-click",
-    "click-default-group",
+    "packaging",
     # "typing-extensions; python_version<'3.10'",
 
 ] # additional packages
