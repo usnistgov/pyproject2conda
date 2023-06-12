@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any, Generator, Mapping, Optional, Sequence, TypeVar, Union, cast
 
 import tomlkit
+from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 from ruamel.yaml import YAML
 
 # -- typing ----------------------------------------------------------------------------
@@ -27,7 +29,9 @@ Tstr_seq_opt = Optional[Union[str, Sequence[str]]]
 
 @lru_cache
 def _default_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Parser searches for comments '# p2c: [OPTIONS]"
+    )
 
     parser.add_argument(
         "-c",
@@ -47,6 +51,7 @@ def _default_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="If specified skip pyproject dependency on this line",
     )
+
     parser.add_argument("package", nargs="*")
 
     return parser
@@ -176,61 +181,6 @@ def get_value_comment_pairs(
     return out
 
 
-def _match_p2c_comment(comment: Tstr_opt) -> Tstr_opt:
-    if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
-        return None
-    else:
-        return match.group(1).strip()
-
-
-def _parse_p2c(match: Tstr_opt) -> dict[str, Any] | None:
-    """Parse match from _match_p2c_comment"""
-
-    if match:
-        return vars(_default_parser().parse_args(shlex.split(match)))
-    else:
-        return None
-
-
-def parse_p2c_comment(comment: Tstr_opt) -> dict[str, Any] | None:
-    if match := _match_p2c_comment(comment):
-        return _parse_p2c(match)
-    else:
-        return None
-
-
-def value_comment_pairs_to_conda(
-    value_comment_list: list[tuple[Tstr_opt, Tstr_opt]]
-) -> dict[str, Any]:
-    """Convert raw value/comment pairs to install lines"""
-
-    conda_deps: list[Tstr_opt] = []
-    pip_deps: list[Tstr_opt] = []
-
-    def _check_value(value):
-        if not value:
-            raise ValueError("trying to add value that does not exist")
-
-    for value, comment in value_comment_list:
-        if comment and (parsed := parse_p2c_comment(comment)):
-            if parsed["pip"]:
-                _check_value(value)
-                pip_deps.append(value)
-            elif not parsed["skip"]:
-                _check_value(value)
-
-                if parsed["channel"]:
-                    conda_deps.append("{}::{}".format(parsed["channel"], value))
-                else:
-                    conda_deps.append(value)
-
-            conda_deps.extend(parsed["package"])
-        elif value:
-            conda_deps.append(value)
-
-    return {"dependencies": conda_deps, "pip": pip_deps}
-
-
 def _pyproject_to_value_comment_pairs(
     data: tomlkit.toml_document.TOMLDocument,
     extras: Tstr_seq_opt = None,
@@ -263,15 +213,100 @@ def _pyproject_to_value_comment_pairs(
     return value_comment_list
 
 
+def _match_p2c_comment(comment: Tstr_opt) -> Tstr_opt:
+    if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
+        return None
+    elif re.match(r".*?##\s*p2c:", comment):
+        # This checks for double ##.  If found, ignore line
+        return None
+    else:
+        return match.group(1).strip()
+
+
+def _parse_p2c(match: Tstr_opt) -> dict[str, Any] | None:
+    """Parse match from _match_p2c_comment"""
+
+    if match:
+        return vars(_default_parser().parse_args(shlex.split(match)))
+    else:
+        return None
+
+
+def parse_p2c_comment(comment: Tstr_opt) -> dict[str, Any] | None:
+    if match := _match_p2c_comment(comment):
+        return _parse_p2c(match)
+    else:
+        return None
+
+
+def _limit_deps_by_python_version(
+    deps: list[str], python_version: Tstr_opt = None
+) -> list[str]:
+    if python_version:
+        version = Version(python_version)
+    else:
+        version = None
+
+    matcher = re.compile(
+        r"(?P<dep>.*?);\s*python_version\s*(?P<token>[<=>~]*)\s*[\'|\"](?P<version>.*?)[\'|\"]"
+    )
+
+    output = []
+    for dep in deps:
+        if match := matcher.match(dep):
+            if not version or version in SpecifierSet(
+                match["token"] + match["version"]
+            ):
+                output.append(match["dep"])
+        else:
+            output.append(dep)
+    return output
+
+
+def value_comment_pairs_to_conda(
+    value_comment_list: list[tuple[Tstr_opt, Tstr_opt]],
+) -> dict[str, Any]:
+    """Convert raw value/comment pairs to install lines"""
+
+    conda_deps: list[Tstr_opt] = []
+    pip_deps: list[Tstr_opt] = []
+
+    def _check_value(value):
+        if not value:
+            raise ValueError("trying to add value that does not exist")
+
+    for value, comment in value_comment_list:
+        if comment and (parsed := parse_p2c_comment(comment)):
+            if parsed["pip"]:
+                _check_value(value)
+                pip_deps.append(value)
+            elif not parsed["skip"]:
+                _check_value(value)
+
+                if parsed["channel"]:
+                    conda_deps.append("{}::{}".format(parsed["channel"], value))
+                else:
+                    conda_deps.append(value)
+
+            conda_deps.extend(parsed["package"])
+        elif value:
+            conda_deps.append(value)
+
+    return {"dependencies": conda_deps, "pip": pip_deps}
+
+
 def pyproject_to_conda_lists(
     data: tomlkit.toml_document.TOMLDocument,
     extras: Tstr_seq_opt = None,
     isolated: Tstr_seq_opt = None,
     channels: Tstr_seq_opt = None,
-    python: Tstr_opt = None,
+    python_include: Tstr_opt = None,
+    python_version: Tstr_opt = None,
 ) -> dict[str, Any]:
-    if python == "get":
-        python = "python" + get_in(["project", "requires-python"], data).unwrap()
+    if python_include == "get":
+        python_include = (
+            "python" + get_in(["project", "requires-python"], data).unwrap()
+        )
 
     if channels is None:
         channels_doc = get_in(["tool", "pyproject2conda", "channels"], data, None)
@@ -286,13 +321,19 @@ def pyproject_to_conda_lists(
         isolated=isolated,
     )
 
-    output = value_comment_pairs_to_conda(value_comment_list)
+    output = value_comment_pairs_to_conda(
+        value_comment_list,
+    )
 
-    if python:
-        output["dependencies"].insert(0, python)
-
+    if python_include:
+        output["dependencies"].insert(0, python_include)
     if channels:
         output["channels"] = channels
+
+    # limit python version/remove python_verions <=> part
+    output["dependencies"] = _limit_deps_by_python_version(
+        output["dependencies"], python_version
+    )
 
     return output
 
@@ -303,15 +344,17 @@ def pyproject_to_conda(
     isolated: Tstr_seq_opt = None,
     channels: Tstr_seq_opt = None,
     name: Tstr_opt = None,
-    python: Tstr_opt = None,
+    python_include: Tstr_opt = None,
     stream: str | Path | None = None,
+    python_version: Tstr_opt = None,
 ):
     output = pyproject_to_conda_lists(
         data=data,
         extras=extras,
         isolated=isolated,
         channels=channels,
-        python=python,
+        python_include=python_include,
+        python_version=python_version,
     )
     return _output_to_yaml(**output, name=name, stream=stream)
 
@@ -378,12 +421,12 @@ class PyProject2Conda:
         data: tomlkit.toml_document.TOMLDocument,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
-        python: Tstr_opt = None,
+        python_include: Tstr_opt = None,
     ) -> None:
         self.data = data
         self.name = name
         self.channels = channels
-        self.python = python
+        self.python_include = python_include
 
     def to_conda_yaml(
         self,
@@ -391,8 +434,9 @@ class PyProject2Conda:
         isolated: Tstr_seq_opt = None,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
-        python: Tstr_opt = None,
+        python_include: Tstr_opt = None,
         stream: str | Path | None = None,
+        python_version: Tstr_opt = None,
     ):
         self._check_extras_isolated(extras, isolated)
 
@@ -402,8 +446,9 @@ class PyProject2Conda:
             isolated=isolated,
             name=name or self.name,
             channels=channels or self.channels,
-            python=python or self.python,
+            python_include=python_include or self.python_include,
             stream=stream,
+            python_version=python_version,
         )
 
     def to_conda_lists(
@@ -411,7 +456,8 @@ class PyProject2Conda:
         extras: Tstr_seq_opt = None,
         isolated: Tstr_seq_opt = None,
         channels: Tstr_seq_opt = None,
-        python: Tstr_opt = None,
+        python_include: Tstr_opt = None,
+        python_version: Tstr_opt = None,
     ) -> dict[str, Any]:
         self._check_extras_isolated(extras, isolated)
 
@@ -420,7 +466,8 @@ class PyProject2Conda:
             extras=extras,
             isolated=isolated,
             channels=channels or self.channels,
-            python=python or self.python,
+            python_include=python_include or self.python_include,
+            python_version=python_version,
         )
 
     def to_requirement_list(
@@ -460,7 +507,8 @@ class PyProject2Conda:
         extras: Tstr_opt = None,
         isolated: Tstr_seq_opt = None,
         channels: Tstr_seq_opt = None,
-        python: Tstr_opt = None,
+        python_include: Tstr_opt = None,
+        python_version: Tstr_opt = None,
         prepend_channel: bool = False,
         stream_conda: str | Path | None = None,
         stream_pip: str | Path | None = None,
@@ -469,7 +517,8 @@ class PyProject2Conda:
             extras=extras,
             isolated=isolated,
             channels=channels,
-            python=python,
+            python_include=python_include,
+            python_version=python_version,
         )
 
         deps = output.get("dependencies", None)
@@ -532,10 +581,12 @@ class PyProject2Conda:
         toml_string: str,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
-        python: Tstr_opt = None,
+        python_include: Tstr_opt = None,
     ) -> T:
         data = tomlkit.parse(toml_string)
-        return cls(data=data, name=name, channels=channels, python=python)
+        return cls(
+            data=data, name=name, channels=channels, python_include=python_include
+        )
 
     @classmethod
     def from_path(
@@ -543,7 +594,7 @@ class PyProject2Conda:
         path: str | Path,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
-        python: Tstr_opt = None,
+        python_include: Tstr_opt = None,
     ) -> T:
         path = Path(path)
 
@@ -552,7 +603,9 @@ class PyProject2Conda:
 
         with open(path, "rb") as f:
             data = tomlkit.load(f)
-        return cls(data=data, name=name, channels=channels, python=python)
+        return cls(
+            data=data, name=name, channels=channels, python_include=python_include
+        )
 
 
 def _list_to_stream(values, stream=None):
