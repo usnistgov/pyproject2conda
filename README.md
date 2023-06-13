@@ -132,9 +132,9 @@ Note the comment lines `# p2c:...`. These are special tokens that
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False)]]] -->
+<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False, wrapper="text")]]] -->
 
-```bash
+```text
 usage: -c [-h] [-c CHANNEL] [-p] [-s] [package ...]
 
 Parser searches for comments '# p2c: [OPTIONS]
@@ -385,12 +385,10 @@ dependencies:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=28, end=None)]]] -->
+<!-- [[[cog cat_lines(begin=30, end=None)]]] -->
 
 ```toml
 # ...
-]
-
 [tool.pyproject2conda]
 channels = ['conda-forge']
 # ...
@@ -462,9 +460,9 @@ dependencies:
 ### CLI options
 
 <!-- prettier-ignore-start -->
-<!-- [[[cog run_command("pyproject2conda --help")]]] -->
+<!-- [[[cog run_command("pyproject2conda --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda --help
 Usage: pyproject2conda [OPTIONS] COMMAND [ARGS]...
 
@@ -481,9 +479,9 @@ Commands:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda list --help")]]] -->
+<!-- [[[cog run_command("pyproject2conda list --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda list --help
 Usage: pyproject2conda list [OPTIONS]
 
@@ -497,9 +495,9 @@ Options:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda yaml --help")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda yaml --help
 Usage: pyproject2conda yaml [OPTIONS]
 
@@ -539,9 +537,10 @@ Options:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda requirements --help")]]] -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda requirements --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda requirements --help
 Usage: pyproject2conda requirements [OPTIONS]
 
@@ -566,9 +565,10 @@ Options:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda conda-requirements --help")]]] -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda conda-requirements --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda conda-requirements --help
 Usage: pyproject2conda conda-requirements [OPTIONS] [PATH_CONDA] [PATH_PIP]
 
@@ -613,9 +613,9 @@ Options:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda json --help")]]] -->
+<!-- [[[cog run_command("pyproject2conda json --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda json --help
 Usage: pyproject2conda json [OPTIONS]
 
