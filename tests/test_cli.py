@@ -27,8 +27,7 @@ def test_list():
 
     result = do_run(runner, "list")
     expected = """\
-    extras  : ['test', 'dev-extras', 'dev']
-    isolated: ['dist-pypi']
+    extras  : ['test', 'dev-extras', 'dev', 'dist-pypi']
     """
     check_result(result, expected)
 
@@ -162,8 +161,8 @@ dependencies:
   - pip:
       - build
     """
-    for opt in ["-i", "--isolated"]:
-        result = do_run(runner, "yaml", opt, "dist-pypi")
+    for opt in ["-e", "--extra"]:
+        result = do_run(runner, "yaml", opt, "dist-pypi", "--no-base")
         check_result(result, expected)
 
 
@@ -199,7 +198,7 @@ setuptools
 build
     """
 
-    result = do_run(runner, "requirements", "-i", "dist-pypi")
+    result = do_run(runner, "requirements", "-e", "dist-pypi", "--no-base")
     check_result(result, expected)
 
 

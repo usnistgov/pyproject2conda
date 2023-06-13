@@ -21,14 +21,6 @@ EXTRAS_CLI = click.option(
     multiple=True,
     help="Extra depenedencies. Can specify multiple times for multiple extras.",
 )
-ISOLATED_CLI = click.option(
-    "-i",
-    "--isolated",
-    "isolated",
-    type=str,
-    multiple=True,
-    help="Isolated dependencies (under [tool.pyproject2conda.isolated-dependencies]).  Can specify multiple times.",
-)
 CHANNEL_CLI = click.option(
     "-c",
     "--channel",
@@ -52,15 +44,15 @@ OUTPUT_CLI = click.option(
 
 VERBOSE_CLI = click.option("-v", "--verbose", "verbose", is_flag=True, default=False)
 
-INCLUDE_BASE_CLI = click.option(
-    "--base/--no-base",
+BASE_DEPENDENCIES_CLI = click.option(
+    "--no-base",
     "base",
     is_flag=True,
-    default=None,
+    default=True,
     help="""
-    Default is to include base (project.dependencies) for extras, and exclude these for isolated.
-    However, passing `--base` will always include base dependencies, and `--no-base` will exclude
-    base dependencies.
+    Default is to include base (project.dependencies) with extras.
+    However, passing `--no-base` will exclude base dependencies. This is useful to define
+    environments that should exclude base dependencies (like build, etc) in pyproject.toml.
     """,
 )
 
@@ -117,29 +109,26 @@ def list(
     filename,
     verbose,
 ):
-    """List available extras/isolated"""
+    """List available extras"""
 
     if verbose:
         click.echo(f"filename: {filename}")
 
     d = PyProject2Conda.from_path(filename)
     click.echo(f"extras  : {d.list_extras()}")
-    click.echo(f"isolated: {d.list_isolated()}")
 
 
 @app.command()
 @EXTRAS_CLI
-@ISOLATED_CLI
 @CHANNEL_CLI
 @PYPROJECT_CLI
 @NAME_CLI
 @OUTPUT_CLI
 @PYTHON_INCLUDE_CLI
 @PYTHON_VERSION_CLI
-@INCLUDE_BASE_CLI
+@BASE_DEPENDENCIES_CLI
 def yaml(
     extras,
-    isolated,
     channels,
     filename,
     name,
@@ -156,13 +145,12 @@ def yaml(
     d = PyProject2Conda.from_path(filename)
     s = d.to_conda_yaml(
         extras=extras,
-        isolated=isolated,
         channels=channels,
         name=name,
         stream=output,
         python_include=python_include,
         python_version=python_version,
-        include_root=base,
+        include_base_dependencies=base,
     )
     if not output:
         click.echo(s, nl=False)
@@ -170,13 +158,11 @@ def yaml(
 
 @app.command()
 @EXTRAS_CLI
-@ISOLATED_CLI
 @PYPROJECT_CLI
 @OUTPUT_CLI
-@INCLUDE_BASE_CLI
+@BASE_DEPENDENCIES_CLI
 def requirements(
     extras,
-    isolated,
     filename,
     output,
     base,
@@ -186,9 +172,8 @@ def requirements(
     d = PyProject2Conda.from_path(filename)
     s = d.to_requirements(
         extras=extras,
-        isolated=isolated,
         stream=output,
-        include_root=base,
+        include_base_dependencies=base,
     )
     if not output:
         click.echo(s, nl=False)
@@ -196,12 +181,11 @@ def requirements(
 
 @app.command()
 @EXTRAS_CLI
-@ISOLATED_CLI
 @PYTHON_INCLUDE_CLI
 @PYTHON_VERSION_CLI
 @CHANNEL_CLI
 @PYPROJECT_CLI
-@INCLUDE_BASE_CLI
+@BASE_DEPENDENCIES_CLI
 @click.option(
     "--prefix",
     "prefix",
@@ -218,7 +202,6 @@ def requirements(
 @click.argument("path_pip", type=str, required=False)
 def conda_requirements(
     extras,
-    isolated,
     python_include,
     python_version,
     channels,
@@ -253,14 +236,13 @@ def conda_requirements(
 
     deps, reqs = d.to_conda_requirements(
         extras=extras,
-        isolated=isolated,
         python_include=python_include,
         python_version=python_version,
         channels=channels,
         prepend_channel=prepend_channel,
         stream_conda=path_conda,
         stream_pip=path_pip,
-        include_root=base,
+        include_base_dependencies=base,
     )
 
     if not path_conda:
@@ -270,16 +252,14 @@ def conda_requirements(
 
 @app.command("json")
 @EXTRAS_CLI
-@ISOLATED_CLI
 @PYTHON_INCLUDE_CLI
 @PYTHON_VERSION_CLI
 @CHANNEL_CLI
 @PYPROJECT_CLI
 @OUTPUT_CLI
-@INCLUDE_BASE_CLI
+@BASE_DEPENDENCIES_CLI
 def to_json(
     extras,
-    isolated,
     python_include,
     python_version,
     channels,
@@ -302,11 +282,10 @@ def to_json(
 
     result = d.to_conda_lists(
         extras=extras,
-        isolated=isolated,
         channels=channels,
         python_include=python_include,
         python_version=python_version,
-        include_root=base,
+        include_base_dependencies=base,
     )
 
     if output:

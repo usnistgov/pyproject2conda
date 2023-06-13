@@ -87,15 +87,14 @@ def test_complete():
     "hello[test]",
     "hello[dev-extras]",
     ]
-
-    [tool.pyproject2conda]
-    channels = ['conda-forge']
-
-    [tool.pyproject2conda.isolated-dependencies]
     dist-pypi = [
     "setuptools",
     "build", # p2c: -p
     ]
+
+
+    [tool.pyproject2conda]
+    channels = ['conda-forge']
     """
     )
 
@@ -188,7 +187,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(isolated="dist-pypi")
+    out = d.to_conda_yaml(extras="dist-pypi", include_base_dependencies=False)
 
     expected = """\
 channels:

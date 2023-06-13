@@ -145,10 +145,10 @@ def get_value_comment_pairs(
     deps: tomlkit.items.Array,
     extras: Tstr_seq_opt = None,
     opts: tomlkit.items.Table | None = None,
-    include_root: bool = True,
+    include_base_dependencies: bool = True,
 ) -> list[tuple[Tstr_opt, Tstr_opt]]:
     """Recursively build dependency, comment pairs from deps and extras."""
-    if include_root:
+    if include_base_dependencies:
         out = list(_iter_value_comment_pairs(deps))
     else:
         out = []
@@ -172,7 +172,7 @@ def get_value_comment_pairs(
                         extras=new_extras,
                         deps=deps,
                         opts=opts,
-                        include_root=False,
+                        include_base_dependencies=False,
                     )
                 )
             else:
@@ -184,30 +184,20 @@ def get_value_comment_pairs(
 def _pyproject_to_value_comment_pairs(
     data: tomlkit.toml_document.TOMLDocument,
     extras: Tstr_seq_opt = None,
-    isolated: Tstr_seq_opt = None,
     unique: bool = True,
-    include_root: bool | None = None,
+    include_base_dependencies: bool = True,
 ):
     package_name = cast(str, get_in(["project", "name"], data))
 
     deps = cast(tomlkit.items.Array, get_in(["project", "dependencies"], data))
 
-    if isolated:
-        value_comment_list = get_value_comment_pairs(
-            package_name=package_name,
-            extras=isolated,
-            deps=deps,
-            opts=get_in(["tool", "pyproject2conda", "isolated-dependencies"], data),
-            include_root=False if include_root is None else include_root,
-        )
-    else:
-        value_comment_list = get_value_comment_pairs(
-            package_name=package_name,
-            extras=extras,
-            deps=deps,
-            opts=get_in(["project", "optional-dependencies"], data),
-            include_root=True if include_root is None else include_root,
-        )
+    value_comment_list = get_value_comment_pairs(
+        package_name=package_name,
+        extras=extras,
+        deps=deps,
+        opts=get_in(["project", "optional-dependencies"], data),
+        include_base_dependencies=include_base_dependencies,
+    )
 
     if unique:
         value_comment_list = _unique_list(value_comment_list)
@@ -300,11 +290,10 @@ def value_comment_pairs_to_conda(
 def pyproject_to_conda_lists(
     data: tomlkit.toml_document.TOMLDocument,
     extras: Tstr_seq_opt = None,
-    isolated: Tstr_seq_opt = None,
     channels: Tstr_seq_opt = None,
     python_include: Tstr_opt = None,
     python_version: Tstr_opt = None,
-    include_root: bool | None = None,
+    include_base_dependencies: bool = True,
 ) -> dict[str, Any]:
     if python_include == "get":
         python_include = (
@@ -321,8 +310,7 @@ def pyproject_to_conda_lists(
     value_comment_list = _pyproject_to_value_comment_pairs(
         data=data,
         extras=extras,
-        isolated=isolated,
-        include_root=include_root,
+        include_base_dependencies=include_base_dependencies,
     )
 
     output = value_comment_pairs_to_conda(
@@ -345,22 +333,20 @@ def pyproject_to_conda_lists(
 def pyproject_to_conda(
     data: tomlkit.toml_document.TOMLDocument,
     extras: Tstr_seq_opt = None,
-    isolated: Tstr_seq_opt = None,
     channels: Tstr_seq_opt = None,
     name: Tstr_opt = None,
     python_include: Tstr_opt = None,
     stream: str | Path | None = None,
     python_version: Tstr_opt = None,
-    include_root: bool | None = None,
+    include_base_dependencies: bool = True,
 ):
     output = pyproject_to_conda_lists(
         data=data,
         extras=extras,
-        isolated=isolated,
         channels=channels,
         python_include=python_include,
         python_version=python_version,
-        include_root=include_root,
+        include_base_dependencies=include_base_dependencies,
     )
     return _output_to_yaml(**output, name=name, stream=stream)
 
@@ -437,78 +423,71 @@ class PyProject2Conda:
     def to_conda_yaml(
         self,
         extras: Tstr_seq_opt = None,
-        isolated: Tstr_seq_opt = None,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
         stream: str | Path | None = None,
         python_version: Tstr_opt = None,
-        include_root: bool | None = None,
+        include_base_dependencies: bool = True,
     ):
-        self._check_extras_isolated(extras, isolated)
+        self._check_extras(extras)
 
         return pyproject_to_conda(
             data=self.data,
             extras=extras,
-            isolated=isolated,
             name=name or self.name,
             channels=channels or self.channels,
             python_include=python_include or self.python_include,
             stream=stream,
             python_version=python_version,
-            include_root=include_root,
+            include_base_dependencies=include_base_dependencies,
         )
 
     def to_conda_lists(
         self,
         extras: Tstr_seq_opt = None,
-        isolated: Tstr_seq_opt = None,
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
         python_version: Tstr_opt = None,
-        include_root: bool | None = None,
+        include_base_dependencies: bool | None = None,
     ) -> dict[str, Any]:
-        self._check_extras_isolated(extras, isolated)
+        self._check_extras(extras)
 
         return pyproject_to_conda_lists(
             data=self.data,
             extras=extras,
-            isolated=isolated,
             channels=channels or self.channels,
             python_include=python_include or self.python_include,
             python_version=python_version,
-            include_root=include_root,
+            include_base_dependencies=include_base_dependencies,
         )
 
     def to_requirement_list(
         self,
         extras: Tstr_seq_opt = None,
-        isolated: Tstr_seq_opt = None,
-        include_root: bool | None = None,
+        include_base_dependencies: bool | None = None,
     ) -> list[str]:
-        self._check_extras_isolated(extras, isolated)
+        self._check_extras(extras)
 
         values = _pyproject_to_value_comment_pairs(
             data=self.data,
             extras=extras,
-            isolated=isolated,
-            include_root=include_root,
+            include_base_dependencies=include_base_dependencies,
         )
         return [x for x, y in values if x is not None]
 
     def to_requirements(
         self,
         extras: Tstr_opt = None,
-        isolated: Tstr_seq_opt = None,
-        include_root: bool | None = None,
+        include_base_dependencies: bool | None = None,
         stream: str | Path | None = None,
     ):
         """Create requirements.txt like file with pip dependencies."""
 
-        self._check_extras_isolated(extras, isolated)
+        self._check_extras(extras)
 
         reqs = self.to_requirement_list(
-            extras=extras, isolated=isolated, include_root=include_root
+            extras=extras, include_base_dependencies=include_base_dependencies
         )
 
         s = _list_to_str(reqs)
@@ -522,22 +501,20 @@ class PyProject2Conda:
     def to_conda_requirements(
         self,
         extras: Tstr_opt = None,
-        isolated: Tstr_seq_opt = None,
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
         python_version: Tstr_opt = None,
         prepend_channel: bool = False,
         stream_conda: str | Path | None = None,
         stream_pip: str | Path | None = None,
-        include_root: bool | None = None,
+        include_base_dependencies: bool | None = None,
     ):
         output = self.to_conda_lists(
             extras=extras,
-            isolated=isolated,
             channels=channels,
             python_include=python_include,
             python_version=python_version,
-            include_root=include_root,
+            include_base_dependencies=include_base_dependencies,
         )
 
         deps = output.get("dependencies", None)
@@ -564,10 +541,7 @@ class PyProject2Conda:
 
         return deps_str, reqs_str
 
-    def _check_extras_isolated(self, extras, isolated):
-        if extras and isolated:
-            raise ValueError("can only specify extras or isolated, not both.")
-
+    def _check_extras(self, extras):
         def _do_test(sent, available):
             if isinstance(sent, str):
                 sent = [sent]
@@ -578,9 +552,6 @@ class PyProject2Conda:
         if extras:
             _do_test(extras, self.list_extras())
 
-        if isolated:
-            _do_test(isolated, self.list_isolated())
-
     def _get_opts(self, *keys):
         opts = get_in(keys, self.data, None)
         if opts:
@@ -590,9 +561,6 @@ class PyProject2Conda:
 
     def list_extras(self):
         return self._get_opts("project", "optional-dependencies")
-
-    def list_isolated(self):
-        return self._get_opts("tool", "pyproject2conda", "isolated-dependencies")
 
     @classmethod
     def from_string(
