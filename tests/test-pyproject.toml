@@ -21,13 +21,12 @@ dev-extras = [
 
 ]
 dev = ["hello[test]", "hello[dev-extras]"]
-
-[tool.pyproject2conda]
-channels = ['conda-forge']
-
-[tool.pyproject2conda.isolated-dependencies]
 dist-pypi = [
+    # this is intended to be parsed with --no-base option
     "setuptools",
     "build", # p2c: -p
 
 ]
+
+[tool.pyproject2conda]
+channels = ['conda-forge']

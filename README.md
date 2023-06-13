@@ -244,7 +244,7 @@ Given the extra dependency:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog cat_lines(begin=9, end=21)]]] -->
+<!-- [[[cog cat_lines(begin=9, end=22)]]] -->
 
 ```toml
 # ...
@@ -258,6 +258,7 @@ dev-extras = [
     # p2c: -s "additional-thing; python_version < '3.9'" # this is an additional conda package
     ## p2c: -s "another-thing" # this will be skipped because of ## before p2c.
     "matplotlib", # p2c: -s conda-matplotlib
+
 ]
 dev = ["hello[test]", "hello[dev-extras]"]
 # ...
@@ -356,7 +357,7 @@ dependencies:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=22, end=24)]]] -->
+<!-- [[[cog cat_lines(begin=28, end=None)]]] -->
 
 ```toml
 # ...
@@ -369,22 +370,22 @@ channels = ['conda-forge']
 <!-- prettier-ignore-end -->
 
 Note that specifying channels at the comand line overrides
+`tool.pyproject2conda.channels`.
 
-You can also specify `isolated-dependencies`. These are dependencies for things
-that should not include package dependencies (things like build dependencies).
-For example:
+You can also specify environments without the base dependencies (those under
+`project.dependencies`) by passing the `--no-base` flag. This is useful for
+defining environments for build, etc, that do not require the package be
+installed. For example:
 
 <!-- prettier-ignore-start -->
-<!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=25, end=None)]]] -->
+!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin=22, end=26)]]] -->
 
 ```toml
 # ...
-[tool.pyproject2conda.isolated-dependencies]
-dist-pypi = [
+dist-pypi = [ # this is intended to be parsed with --no-base option
     "setuptools",
     "build", # p2c: -p
-
 ]
 # ...
 ```
@@ -395,10 +396,10 @@ dist-pypi = [
 These can be accessed using either of the following:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -i dist-pypi")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -e dist-pypi --no-base")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/test-pyproject.toml -i dist-pypi
+$ pyproject2conda yaml -f tests/test-pyproject.toml -e dist-pypi --no-base
 channels:
   - conda-forge
 dependencies:
@@ -417,7 +418,7 @@ or
 >>> p = PyProject2Conda.from_path("./tests/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(isolated='dist-pypi').strip())
+>>> print(p.to_conda_yaml(extras='dist-pypi', include_base_dependencies=False).strip())
 channels:
   - conda-forge
 dependencies:
@@ -443,7 +444,7 @@ Options:
 Commands:
   conda-requirements  Create requirement files for conda and pip.
   json                Create json representation.
-  list                List available extras/isolated
+  list                List available extras
   requirements        Create requirements.txt for pip depedencies.
   yaml                Create yaml file from dependencies and...
 ```
@@ -456,7 +457,7 @@ Commands:
 $ pyproject2conda list --help
 Usage: pyproject2conda list [OPTIONS]
 
-  List available extras/isolated
+  List available extras
 
 Options:
   -f, --file PATH  input pyproject.toml file
@@ -477,9 +478,6 @@ Usage: pyproject2conda yaml [OPTIONS]
 Options:
   -e, --extra TEXT       Extra depenedencies. Can specify multiple times for
                          multiple extras.
-  -i, --isolated TEXT    Isolated dependencies (under
-                         [tool.pyproject2conda.isolated-dependencies]).  Can
-                         specify multiple times.
   -c, --channel TEXT     conda channel.  Can specify. Overrides
                          [tool.pyproject2conda.channels]
   -f, --file PATH        input pyproject.toml file
@@ -496,6 +494,11 @@ Options:
                          `a-package; python_version < '3.9'`, Using `--python-
                          version 3.10` will not include `a-package`, while
                          `--python-version 3.8` will include `a-package`.
+  --no-base              Default is to include base (project.dependencies)
+                         with extras. However, passing `--no-base` will
+                         exclude base dependencies. This is useful to define
+                         environments that should exclude base dependencies
+                         (like build, etc) in pyproject.toml.
   --help                 Show this message and exit.
 ```
 
@@ -510,14 +513,16 @@ Usage: pyproject2conda requirements [OPTIONS]
   Create requirements.txt for pip depedencies.
 
 Options:
-  -e, --extra TEXT     Extra depenedencies. Can specify multiple times for
-                       multiple extras.
-  -i, --isolated TEXT  Isolated dependencies (under
-                       [tool.pyproject2conda.isolated-dependencies]).  Can
-                       specify multiple times.
-  -f, --file PATH      input pyproject.toml file
-  -o, --output PATH    File to output results
-  --help               Show this message and exit.
+  -e, --extra TEXT   Extra depenedencies. Can specify multiple times for
+                     multiple extras.
+  -f, --file PATH    input pyproject.toml file
+  -o, --output PATH  File to output results
+  --no-base          Default is to include base (project.dependencies) with
+                     extras. However, passing `--no-base` will exclude base
+                     dependencies. This is useful to define environments that
+                     should exclude base dependencies (like build, etc) in
+                     pyproject.toml.
+  --help             Show this message and exit.
 ```
 
 <!-- [[[end]]] -->
@@ -537,9 +542,6 @@ Usage: pyproject2conda conda-requirements [OPTIONS] [PATH_CONDA] [PATH_PIP]
 Options:
   -e, --extra TEXT       Extra depenedencies. Can specify multiple times for
                          multiple extras.
-  -i, --isolated TEXT    Isolated dependencies (under
-                         [tool.pyproject2conda.isolated-dependencies]).  Can
-                         specify multiple times.
   --python-include TEXT  If flag passed without options, include python spec
                          from pyproject.toml in yaml output.  If value passed,
                          use this value (exactly) in the output. So, for
@@ -554,6 +556,11 @@ Options:
   -c, --channel TEXT     conda channel.  Can specify. Overrides
                          [tool.pyproject2conda.channels]
   -f, --file PATH        input pyproject.toml file
+  --no-base              Default is to include base (project.dependencies)
+                         with extras. However, passing `--no-base` will
+                         exclude base dependencies. This is useful to define
+                         environments that should exclude base dependencies
+                         (like build, etc) in pyproject.toml.
   --prefix TEXT          set conda-output=prefix + 'conda.txt', pip-
                          output=prefix + 'pip.txt'
   --prepend-channel
@@ -576,9 +583,6 @@ Usage: pyproject2conda json [OPTIONS]
 Options:
   -e, --extra TEXT       Extra depenedencies. Can specify multiple times for
                          multiple extras.
-  -i, --isolated TEXT    Isolated dependencies (under
-                         [tool.pyproject2conda.isolated-dependencies]).  Can
-                         specify multiple times.
   --python-include TEXT  If flag passed without options, include python spec
                          from pyproject.toml in yaml output.  If value passed,
                          use this value (exactly) in the output. So, for
@@ -594,6 +598,11 @@ Options:
                          [tool.pyproject2conda.channels]
   -f, --file PATH        input pyproject.toml file
   -o, --output PATH      File to output results
+  --no-base              Default is to include base (project.dependencies)
+                         with extras. However, passing `--no-base` will
+                         exclude base dependencies. This is useful to define
+                         environments that should exclude base dependencies
+                         (like build, etc) in pyproject.toml.
   --help                 Show this message and exit.
 ```
 
