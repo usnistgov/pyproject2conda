@@ -41,11 +41,9 @@ OUTPUT_CLI = click.option(
     default=None,
     help="File to output results",
 )
-
 VERBOSE_CLI = click.option("-v", "--verbose", "verbose", is_flag=True, default=False)
-
 BASE_DEPENDENCIES_CLI = click.option(
-    "--no-base",
+    "--base/--no-base",
     "base",
     is_flag=True,
     default=True,
@@ -55,8 +53,6 @@ BASE_DEPENDENCIES_CLI = click.option(
     environments that should exclude base dependencies (like build, etc) in pyproject.toml.
     """,
 )
-
-
 PYTHON_INCLUDE_CLI = click.option(
     "--python-include",
     "python_include",
@@ -68,7 +64,6 @@ PYTHON_INCLUDE_CLI = click.option(
     So, for example, pass `--python-include "python=3.8"`
     """,
 )
-
 PYTHON_VERSION_CLI = click.option(
     "--python-version",
     "python_version",
@@ -78,6 +73,18 @@ PYTHON_VERSION_CLI = click.option(
     Python version to check `python_verion <=> {python_version}` lines against.  That is, this version is used to limit packages in resulting output.
     For example, if have a line like   `a-package; python_version < '3.9'`,
     Using `--python-version 3.10` will not include `a-package`, while `--python-version 3.8` will include `a-package`.
+    """,
+)
+
+HEADER_CLI = click.option(
+    "--header/--no-header",
+    "header",
+    is_flag=True,
+    default=None,
+    help="""
+    If True (--header) include header line in output.
+    Default is to include the header for output to a file, and
+    not to include header when writing to stdout.
     """,
 )
 
@@ -118,6 +125,19 @@ def list(
     click.echo(f"extras  : {d.list_extras()}")
 
 
+def _get_header_cmd(header, output):
+    if header is None:
+        header = output is not None
+
+    if header:
+        return ""
+        # import sys
+        # from pathlib import Path
+        # return " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
+    else:
+        return None
+
+
 @app.command()
 @EXTRAS_CLI
 @CHANNEL_CLI
@@ -127,6 +147,7 @@ def list(
 @PYTHON_INCLUDE_CLI
 @PYTHON_VERSION_CLI
 @BASE_DEPENDENCIES_CLI
+@HEADER_CLI
 def yaml(
     extras,
     channels,
@@ -136,6 +157,7 @@ def yaml(
     python_include,
     python_version,
     base,
+    header,
 ):
     """Create yaml file from dependencies and optional-dependencies."""
 
@@ -151,6 +173,7 @@ def yaml(
         python_include=python_include,
         python_version=python_version,
         include_base_dependencies=base,
+        header_cmd=_get_header_cmd(header, output),
     )
     if not output:
         click.echo(s, nl=False)
@@ -161,11 +184,13 @@ def yaml(
 @PYPROJECT_CLI
 @OUTPUT_CLI
 @BASE_DEPENDENCIES_CLI
+@HEADER_CLI
 def requirements(
     extras,
     filename,
     output,
     base,
+    header,
 ):
     """Create requirements.txt for pip depedencies."""
 
@@ -174,6 +199,7 @@ def requirements(
         extras=extras,
         stream=output,
         include_base_dependencies=base,
+        header_cmd=_get_header_cmd(header, output),
     )
     if not output:
         click.echo(s, nl=False)
@@ -186,6 +212,7 @@ def requirements(
 @CHANNEL_CLI
 @PYPROJECT_CLI
 @BASE_DEPENDENCIES_CLI
+@HEADER_CLI
 @click.option(
     "--prefix",
     "prefix",
@@ -209,6 +236,7 @@ def conda_requirements(
     base,
     prefix,
     prepend_channel,
+    header,
     # paths,
     path_conda,
     path_pip,
@@ -234,6 +262,8 @@ def conda_requirements(
 
     d = PyProject2Conda.from_path(filename)
 
+    _get_header_cmd(header, path_conda)
+
     deps, reqs = d.to_conda_requirements(
         extras=extras,
         python_include=python_include,
@@ -243,6 +273,7 @@ def conda_requirements(
         stream_conda=path_conda,
         stream_pip=path_pip,
         include_base_dependencies=base,
+        header_cmd=_get_header_cmd(header, path_conda),
     )
 
     if not path_conda:

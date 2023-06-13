@@ -223,7 +223,9 @@ conda-forge::cthing
 athing
         """
 
-        do_run(runner, "conda-requirements", "--prefix", str(d / "hello-"))
+        do_run(
+            runner, "conda-requirements", "--prefix", str(d / "hello-"), "--no-header"
+        )
 
         check_results_conda_req(d / "hello-conda.txt", expected_conda)
         check_results_conda_req(d / "hello-pip.txt", expected_pip)
@@ -233,6 +235,7 @@ athing
             "conda-requirements",
             str(d / "conda-output.txt"),
             str(d / "pip-output.txt"),
+            "--no-header",
         )
 
         check_results_conda_req(d / "conda-output.txt", expected_conda)
@@ -246,6 +249,7 @@ athing
             "--prepend-channel",
             "-c",
             "achannel",
+            "--no-header",
         )
 
         expected_conda = """\
