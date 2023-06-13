@@ -52,6 +52,18 @@ OUTPUT_CLI = click.option(
 
 VERBOSE_CLI = click.option("-v", "--verbose", "verbose", is_flag=True, default=False)
 
+INCLUDE_BASE_CLI = click.option(
+    "--base/--no-base",
+    "base",
+    is_flag=True,
+    default=None,
+    help="""
+    Default is to include base (project.dependencies) for extras, and exclude these for isolated.
+    However, passing `--base` will always include base dependencies, and `--no-base` will exclude
+    base dependencies.
+    """,
+)
+
 
 PYTHON_INCLUDE_CLI = click.option(
     "--python-include",
@@ -124,6 +136,7 @@ def list(
 @OUTPUT_CLI
 @PYTHON_INCLUDE_CLI
 @PYTHON_VERSION_CLI
+@INCLUDE_BASE_CLI
 def yaml(
     extras,
     isolated,
@@ -133,6 +146,7 @@ def yaml(
     output,
     python_include,
     python_version,
+    base,
 ):
     """Create yaml file from dependencies and optional-dependencies."""
 
@@ -148,6 +162,7 @@ def yaml(
         stream=output,
         python_include=python_include,
         python_version=python_version,
+        include_root=base,
     )
     if not output:
         click.echo(s, nl=False)
@@ -158,11 +173,13 @@ def yaml(
 @ISOLATED_CLI
 @PYPROJECT_CLI
 @OUTPUT_CLI
+@INCLUDE_BASE_CLI
 def requirements(
     extras,
     isolated,
     filename,
     output,
+    base,
 ):
     """Create requirements.txt for pip depedencies."""
 
@@ -171,6 +188,7 @@ def requirements(
         extras=extras,
         isolated=isolated,
         stream=output,
+        include_root=base,
     )
     if not output:
         click.echo(s, nl=False)
@@ -183,6 +201,7 @@ def requirements(
 @PYTHON_VERSION_CLI
 @CHANNEL_CLI
 @PYPROJECT_CLI
+@INCLUDE_BASE_CLI
 @click.option(
     "--prefix",
     "prefix",
@@ -204,6 +223,7 @@ def conda_requirements(
     python_version,
     channels,
     filename,
+    base,
     prefix,
     prepend_channel,
     # paths,
@@ -240,6 +260,7 @@ def conda_requirements(
         prepend_channel=prepend_channel,
         stream_conda=path_conda,
         stream_pip=path_pip,
+        include_root=base,
     )
 
     if not path_conda:
@@ -255,6 +276,7 @@ def conda_requirements(
 @CHANNEL_CLI
 @PYPROJECT_CLI
 @OUTPUT_CLI
+@INCLUDE_BASE_CLI
 def to_json(
     extras,
     isolated,
@@ -263,6 +285,7 @@ def to_json(
     channels,
     filename,
     output,
+    base,
 ):
     """
     Create json representation.
@@ -283,6 +306,7 @@ def to_json(
         channels=channels,
         python_include=python_include,
         python_version=python_version,
+        include_root=base,
     )
 
     if output:

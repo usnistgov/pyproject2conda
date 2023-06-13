@@ -186,6 +186,7 @@ def _pyproject_to_value_comment_pairs(
     extras: Tstr_seq_opt = None,
     isolated: Tstr_seq_opt = None,
     unique: bool = True,
+    include_root: bool | None = None,
 ):
     package_name = cast(str, get_in(["project", "name"], data))
 
@@ -197,7 +198,7 @@ def _pyproject_to_value_comment_pairs(
             extras=isolated,
             deps=deps,
             opts=get_in(["tool", "pyproject2conda", "isolated-dependencies"], data),
-            include_root=False,
+            include_root=False if include_root is None else include_root,
         )
     else:
         value_comment_list = get_value_comment_pairs(
@@ -205,6 +206,7 @@ def _pyproject_to_value_comment_pairs(
             extras=extras,
             deps=deps,
             opts=get_in(["project", "optional-dependencies"], data),
+            include_root=True if include_root is None else include_root,
         )
 
     if unique:
@@ -302,6 +304,7 @@ def pyproject_to_conda_lists(
     channels: Tstr_seq_opt = None,
     python_include: Tstr_opt = None,
     python_version: Tstr_opt = None,
+    include_root: bool | None = None,
 ) -> dict[str, Any]:
     if python_include == "get":
         python_include = (
@@ -319,6 +322,7 @@ def pyproject_to_conda_lists(
         data=data,
         extras=extras,
         isolated=isolated,
+        include_root=include_root,
     )
 
     output = value_comment_pairs_to_conda(
@@ -347,6 +351,7 @@ def pyproject_to_conda(
     python_include: Tstr_opt = None,
     stream: str | Path | None = None,
     python_version: Tstr_opt = None,
+    include_root: bool | None = None,
 ):
     output = pyproject_to_conda_lists(
         data=data,
@@ -355,6 +360,7 @@ def pyproject_to_conda(
         channels=channels,
         python_include=python_include,
         python_version=python_version,
+        include_root=include_root,
     )
     return _output_to_yaml(**output, name=name, stream=stream)
 
@@ -437,6 +443,7 @@ class PyProject2Conda:
         python_include: Tstr_opt = None,
         stream: str | Path | None = None,
         python_version: Tstr_opt = None,
+        include_root: bool | None = None,
     ):
         self._check_extras_isolated(extras, isolated)
 
@@ -449,6 +456,7 @@ class PyProject2Conda:
             python_include=python_include or self.python_include,
             stream=stream,
             python_version=python_version,
+            include_root=include_root,
         )
 
     def to_conda_lists(
@@ -458,6 +466,7 @@ class PyProject2Conda:
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
         python_version: Tstr_opt = None,
+        include_root: bool | None = None,
     ) -> dict[str, Any]:
         self._check_extras_isolated(extras, isolated)
 
@@ -468,17 +477,22 @@ class PyProject2Conda:
             channels=channels or self.channels,
             python_include=python_include or self.python_include,
             python_version=python_version,
+            include_root=include_root,
         )
 
     def to_requirement_list(
         self,
         extras: Tstr_seq_opt = None,
         isolated: Tstr_seq_opt = None,
+        include_root: bool | None = None,
     ) -> list[str]:
         self._check_extras_isolated(extras, isolated)
 
         values = _pyproject_to_value_comment_pairs(
-            data=self.data, extras=extras, isolated=isolated
+            data=self.data,
+            extras=extras,
+            isolated=isolated,
+            include_root=include_root,
         )
         return [x for x, y in values if x is not None]
 
@@ -486,13 +500,16 @@ class PyProject2Conda:
         self,
         extras: Tstr_opt = None,
         isolated: Tstr_seq_opt = None,
+        include_root: bool | None = None,
         stream: str | Path | None = None,
     ):
         """Create requirements.txt like file with pip dependencies."""
 
         self._check_extras_isolated(extras, isolated)
 
-        reqs = self.to_requirement_list(extras=extras, isolated=isolated)
+        reqs = self.to_requirement_list(
+            extras=extras, isolated=isolated, include_root=include_root
+        )
 
         s = _list_to_str(reqs)
 
@@ -512,6 +529,7 @@ class PyProject2Conda:
         prepend_channel: bool = False,
         stream_conda: str | Path | None = None,
         stream_pip: str | Path | None = None,
+        include_root: bool | None = None,
     ):
         output = self.to_conda_lists(
             extras=extras,
@@ -519,6 +537,7 @@ class PyProject2Conda:
             channels=channels,
             python_include=python_include,
             python_version=python_version,
+            include_root=include_root,
         )
 
         deps = output.get("dependencies", None)
