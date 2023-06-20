@@ -1,7 +1,7 @@
 {
   "template": "https://github.com/wpk-nist-gov/cookiecutter-pypackage.git",
-  "commit": "a0209ae199aa6f953364fc929e50d41d58082173",
-  "checkout": "feature/markdown",
+  "commit": "49d100c749e6cfa2cba3460ed06e4a06be07cc63",
+  "checkout": "feature/nox",
   "context": {
     "cookiecutter": {
       "full_name": "William P. Krekelberg",

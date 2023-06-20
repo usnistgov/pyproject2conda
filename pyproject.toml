@@ -39,7 +39,72 @@ homepage = "https://github.com/wpk-nist-gov/pyproject2conda"
 documentation = "https://pages.nist.gov/pyproject2conda/"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov", "pytest-xdist", "pytest-sugar"]
+test = [
+    "pytest", #
+    "pytest-xdist",
+    "pytest-cov",
+    "pytest-sugar",
+]
+dev-extras = [
+    "pytest-accept", # p2c: -p
+    "setuptools-scm",
+    "ipython",
+    "ipykernel",
+]
+typing-extras = [
+    # "pytype; python_version < '3.11'",
+    "mypy",
+]
+typing = [
+    "pyproject2conda[typing-extras]", #
+    "pyproject2conda[test]",
+]
+nox = [
+    "nox",
+    "noxopt", # p2c: -p
+    "ruamel.yaml",
+]
+dev = [
+    "pyproject2conda[test]", #
+    "pyproject2conda[typing-extras]",
+    "pyproject2conda[dev-extras]",
+]
+tools = [
+    "pre-commit", #
+    "cruft",
+    "scriv",
+]
+dev-complete = [
+    "pyproject2conda[dev]", #
+    "pyproject2conda[tools]",
+    "pyproject2conda[nox]",
+]
+docs = [
+    "setuptools-scm", #
+    "ipython",
+    "pyenchant",
+    "ghp-import",
+    "sphinx",
+    "sphinx-copybutton",
+    "sphinxcontrib-spelling",
+    "sphinx-autobuild",
+    "myst-nb",
+    "sphinx-book-theme",
+    "autodocsumm",
+]
+# to be parsed with pyproject2conda with --no-base option
+dist-pypi = ["twine", "build"]
+dist-conda = [
+    "anaconda-client", #
+    "grayskull",
+    "conda-build",
+    "conda-verify",
+    "boa",
+    "setuptools-scm",
+]
+
+[tool.pyproject2conda]
+channels = ["conda-forge"]
 
 [project.scripts]
 pyproject2conda = "pyproject2conda.cli:app"
@@ -56,7 +121,6 @@ where = ["src"]
 
 ## include = []
 ## exclude = []
-##
 [tool.setuptools.dynamic]
 readme = { file = [
     "README.md",
@@ -71,7 +135,7 @@ fallback_version = "999"
 test = "pytest"
 
 [tool.pytest.ini_options]
-addopts = "--verbose --doctest-modules --doctest-glob='*.md'"
+addopts = "--doctest-modules --doctest-glob='*.md'"
 testpaths = ["tests", "README.md"]
 
 [tool.isort]
@@ -234,7 +298,7 @@ show_error_codes = true
 warn_unused_ignores = true
 warn_return_any = true
 warn_unused_configs = true
-exclude = [".eggs", ".tox", "doc", "docs"]
+exclude = [".eggs", ".tox", "doc", "docs", ".nox"]
 check_untyped_defs = true
 
 [[tool.mypy.overrides]]

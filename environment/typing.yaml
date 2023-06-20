@@ -12,16 +12,8 @@ dependencies:
   - tomlkit
   - rich-click
   - packaging
+  - mypy
   - pytest
   - pytest-xdist
   - pytest-cov
   - pytest-sugar
-  - mypy
-  - setuptools-scm
-  - ipython
-  - ipykernel
-  - nox
-  - pip
-  - pip:
-      - pytest-accept
-      - noxopt
