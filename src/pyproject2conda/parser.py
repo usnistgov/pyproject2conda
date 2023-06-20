@@ -352,7 +352,7 @@ def pyproject_to_conda(
     return _output_to_yaml(**output, name=name, stream=stream, header_cmd=header_cmd)
 
 
-def _create_header(cmd=None):
+def _create_header(cmd=None) -> str:
     from textwrap import dedent
 
     if cmd:
@@ -388,7 +388,7 @@ def _create_header(cmd=None):
     return header
 
 
-def _add_header(string, header_cmd):
+def _add_header(string: str, header_cmd: str | None) -> str:
     if header_cmd is not None:
         return _create_header(header_cmd) + "\n" + string
     else:
@@ -419,7 +419,7 @@ def _optional_write(string, stream, mode="w"):
         with open(stream, mode) as f:
             f.write(string)
     else:
-        f.write(string)
+        stream.write(string)
 
 
 def _output_to_yaml(
@@ -642,14 +642,14 @@ class PyProject2Conda:
         )
 
 
-def _list_to_stream(values, stream=None):
-    value = "\n".join(values)
-    if isinstance(stream, (str, Path)):
-        with open(stream, "w") as f:
-            f.write(value)
+# def _list_to_stream(values, stream=None):
+#     value = "\n".join(values)
+#     if isinstance(stream, (str, Path)):
+#         with open(stream, "w") as f:
+#             f.write(value)
 
-    elif stream is None:
-        return value
+#     elif stream is None:
+#         return value
 
-    else:
-        stream.write(value)
+#     else:
+#         stream.write(value)

@@ -101,7 +101,9 @@ class AliasedGroup(click.Group):
             return None
         elif len(matches) == 1:
             return click.Group.get_command(self, ctx, matches[0])
-        ctx.fail("Too many matches: %s" % ", ".join(sorted(matches)))
+        ctx.fail(
+            "Too many matches: %s" % ", ".join(sorted(matches))
+        )  # pragma: no cover
 
 
 @click.group(cls=AliasedGroup)
@@ -370,4 +372,4 @@ def to_json(
 
 
 if __name__ == "__main__":
-    app()
+    app()  # pragma: no cover

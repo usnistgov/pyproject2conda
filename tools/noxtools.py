@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import shlex
-import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Literal, cast
 
@@ -36,9 +35,7 @@ def sort_like(values: Collection[Any], like: Sequence[Any]) -> list[Any]:
 
 def update_target(target: str | Path, *deps: str | Path) -> bool:
     """Check if target is older than deps:"""
-
     target_path = Path(target)
-
     deps_path = tuple(map(Path, deps))
 
     for d in deps_path:
@@ -68,6 +65,79 @@ def prepend_flag(flag: str, *args: str) -> list[str]:
         args = args[0]
 
     return sum([[flag, _] for _ in args], [])
+
+
+def open_webpage(path: str | Path | None = None, url: str | None = None):
+    """
+    Open webpage from path or url.
+
+    Useful if want to view webpage with javascript, etc., as well as static html.
+    """
+    import webbrowser
+    from urllib.request import pathname2url
+
+    if path:
+        url = "file://" + pathname2url(str(Path(path).absolute()))
+    if url:
+        webbrowser.open(url)
+
+
+# --- Load user configuration ----------------------------------------------------------
+def load_nox_config(path: str | Path = "./.noxconfig.toml") -> dict[str, Any]:
+    """
+    Load user toml config file.
+
+    File should look something like:
+
+    [nox.python]
+    paths = ["~/.conda/envs/test-3.*/bin"]
+
+    # Extras for environments
+    # for example, could have
+    # dev = ["dev", "nox", "tools"]
+    [nox.extras]
+    dev = ["dev", "nox"]
+
+    """
+    import os
+    from glob import glob
+
+    import tomli
+
+    config = {}
+
+    path = Path(path)
+    if not path.exists():
+        return config
+
+    with path.open("rb") as f:
+        data = tomli.load(f)
+
+    # Python paths
+    try:
+        paths = []
+        for p in data["nox"]["python"]["paths"]:
+            paths.extend(glob(os.path.expanduser(p)))
+
+        paths_str = ":".join(map(str, paths))
+        os.environ["PATH"] = paths_str + ":" + os.environ["PATH"]
+    except KeyError:
+        pass
+
+    # extras:
+    extras = {"dev": ["nox", "dev"]}
+    try:
+        for k, v in data["nox"]["extras"].items():
+            extras[k] = v
+    except KeyError:
+        pass
+
+    config["environment-extras"] = extras
+
+    # for py in PYTHON_ALL_VERSIONS:
+    #     print(f"which python{py}", shutil.which(f"python{py}"))
+
+    return config
 
 
 # --- Nox session utilities ------------------------------------------------------------
@@ -129,8 +199,6 @@ def session_install_package(
 
 
 # --- Create env from lock -------------------------------------------------------------
-
-
 def session_install_envs_lock(
     session: nox.Session,
     lockfile: str | Path,
@@ -180,8 +248,6 @@ def session_install_envs_lock(
 
 
 # --- create env from yaml -------------------------------------------------------------
-
-
 def parse_envs(
     *paths: str | Path,
     remove_python: bool = True,
@@ -293,10 +359,10 @@ def session_install_envs(
 
 def session_install_pip(
     session: nox.Session,
-    requirement_paths: Collection[str] | None = None,
-    constraint_paths: Collection[str] | None = None,
+    requirement_paths: str | Collection[str] | None = None,
+    constraint_paths: str | Collection[str] | None = None,
     extras: str | Collection[str] | None = None,
-    reqs: Collection[str] | None = None,
+    reqs: str | Collection[str] | None = None,
     display_name: str | None = None,
     force_reinstall: bool = False,
     install_package: bool = False,
@@ -305,10 +371,18 @@ def session_install_pip(
     if session_skip_install(session):
         return True
 
+    def _check_param(x):
+        if x is None:
+            return []
+        elif isinstance(x, str):
+            return [x]
+        else:
+            return x
+
+    extras = _check_param(extras)
     if extras:
         install_package = True
-        if not isinstance(extras, str):
-            extras = ",".join(extras)
+        extras = ",".join(extras)
         install_package_args = ["-e", f".[{extras}]"]
     elif install_package:
         install_package_args = ["-e", "."]
@@ -316,10 +390,10 @@ def session_install_pip(
     if install_package and no_deps:
         install_package_args.append("--no-deps")
 
-    requirement_paths = requirement_paths or ()
-    constraint_paths = constraint_paths or ()
-    reqs = reqs or ()
-    paths = requirement_paths + constraint_paths
+    requirement_paths = _check_param(requirement_paths)
+    constraint_paths = _check_param(constraint_paths)
+    reqs = _check_param(reqs)
+    paths = list(requirement_paths) + list(constraint_paths)
 
     unchanged, hashes = env_unchanged(
         session,
@@ -346,60 +420,7 @@ def session_install_pip(
         session.install(*install_package_args)
 
     session_set_ipykernel_display_name(session, display_name)
-
     write_hashfile(hashes, session=session, prefix="pip")
-
-
-def session_install_envs_merge(
-    session,
-    *paths,
-    remove_python=True,
-    deps=None,
-    reqs=None,
-    channels=None,
-    conda_install_kws=None,
-    install_kws=None,
-    display_name=None,
-    force_reinstall=False,
-) -> bool:
-    """Merge files (using conda-merge) and then create env"""
-
-    if session_skip_install(session):
-        return True
-
-    unchanged, hashes = env_unchanged(
-        session, *paths, prefix="env", other=dict(deps=deps, reqs=reqs)
-    )
-    if unchanged and not force_reinstall:
-        return unchanged
-
-    # first create a temporary file for the environment
-    with tempfile.TemporaryDirectory() as d:
-        yaml = Path(d) / "tmp_env.yaml"
-        with yaml.open("w") as f:
-            session.run("conda-merge", *paths, stdout=f, external=True)
-        session.run("cat", str(yaml), external=True, silent=True)
-
-        channels, deps, reqs, _ = parse_envs(
-            yaml, remove_python=remove_python, deps=deps, reqs=reqs, channels=channels
-        )
-
-    if deps:
-        if conda_install_kws is None:
-            conda_install_kws = {}
-        conda_install_kws.update(channel=channels)
-        session.conda_install(*deps, **conda_install_kws)
-
-    if reqs:
-        if install_kws is None:
-            install_kws = {}
-        session.install(*reqs, **install_kws)
-
-    session_set_ipykernel_display_name(session, display_name)
-
-    write_hashfile(hashes, session=session, prefix="env")
-
-    return unchanged
 
 
 # --- Hash environment -----------------------------------------------------------------
@@ -448,12 +469,14 @@ def get_hashes(
 
         other_hashes = {}
         for k, v in other.items():
-            if not isinstance(v, str):
+            if isinstance(v, str):
+                s = v
+            else:
                 try:
-                    v = str(sorted(v))
+                    s = str(sorted(v))
                 except Exception:
-                    v = str(v)
-            other_hashes[k] = hashlib.md5(v.encode("utf-8")).hexdigest()
+                    s = str(v)
+            other_hashes[k] = hashlib.md5(s.encode("utf-8")).hexdigest()
 
         out["other"] = other_hashes
 
@@ -501,32 +524,57 @@ def _get_file_hash(path: str | Path, buff_size=65536) -> str:
     return md5.hexdigest()
 
 
-# from contextlib import contextmanager
-# @contextmanager
-# def check_hashed_env(
-#         session: nox.Session,
-#         *paths: str | Path,
-#         prefix: Literal["env", "lock"],
-#         verbose: bool=True,
-#         recreate_session=False,
-# ):
+# --- Old stuff ------------------------------------------------------------------------
+# def session_install_envs_merge(
+#     session,
+#     *paths,
+#     remove_python=True,
+#     deps=None,
+#     reqs=None,
+#     channels=None,
+#     conda_install_kws=None,
+#     install_kws=None,
+#     display_name=None,
+#     force_reinstall=False,
+# ) -> bool:
+#     """Merge files (using conda-merge) and then create env"""
 
-#     changed, hashes = env_hashes_changed(session, *paths, prefix, verbose=verbose, return_hashes=True)
+#     if session_skip_install(session):
+#         return True
 
+#     unchanged, hashes = env_unchanged(
+#         session, *paths, prefix="env", other=dict(deps=deps, reqs=reqs)
+#     )
+#     if unchanged and not force_reinstall:
+#         return unchanged
 
-#     if changed and recreate_session:
-#         if verbose:
-#             session.log("env changed.  Recreating {session.virtualenv.location_name}")
-#             _reuse_original = session.virtualenv.reuse_existing
-#             _no_install_original = session._runner.global_config.no_install
+#     # first create a temporary file for the environment
+#     with tempfile.TemporaryDirectory() as d:
+#         yaml = Path(d) / "tmp_env.yaml"
+#         with yaml.open("w") as f:
+#             session.run("conda-merge", *paths, stdout=f, external=True)
+#         session.run("cat", str(yaml), external=True, silent=True)
 
-#             session.virtualenv.reuse_existing = False
-#             session._runner.global_config.no_install = False
+#         channels, deps, reqs, _ = parse_envs(
+#             yaml, remove_python=remove_python, deps=deps, reqs=reqs, channels=channels
+#         )
 
-#             session.virtualenv.create()
-#             env_hashes_changed(session, *paths, prefix, verbose=verbose, hashes=hashes)
+#     if deps:
+#         if conda_install_kws is None:
+#             conda_install_kws = {}
+#         conda_install_kws.update(channel=channels)
+#         session.conda_install(*deps, **conda_install_kws)
 
-#             session.virtualenv.reuse_existing = _reuse_original
+#     if reqs:
+#         if install_kws is None:
+#             install_kws = {}
+#         session.install(*reqs, **install_kws)
+
+#     session_set_ipykernel_display_name(session, display_name)
+
+#     write_hashfile(hashes, session=session, prefix="env")
+
+#     return unchanged
 
 
 # def _remove_python_from_yaml(path):
@@ -783,3 +831,61 @@ def _get_file_hash(path: str | Path, buff_size=65536) -> str:
 # #     session.log(f"args {args}")
 # #     session.log(f"external {external}")
 # #     session.run(*args, external=external, **kws)
+
+
+## This should actually go in the noxfile.  Keeping here
+## incase want it again in the future.
+# @group.session(python=PYTHON_DEFAULT_VERSION)
+# def conda_merge(
+#     session: Session,
+#     conda_merge_force: bool = False,
+#     force_reinstall: FORCE_REINSTALL_CLI = False,
+# ):
+#     """Merge environments using conda-merge."""
+#     import tempfile
+#     session_install_envs(
+#         session,
+#         reqs=["conda-merge", "ruamel.yaml"],
+#         force_reinstall=force_reinstall,
+#     )
+
+#     env_base = ROOT / "environment.yaml"
+#     env_dir = ROOT / "environment"
+
+#     def create_env(*extras, others=None, name=None, base=True):
+#         if name is None:
+#             name = extras[0]
+#         env = env_dir / f"{name}.yaml"
+
+#         deps = []
+#         if base:
+#             deps.append(str(env_base))
+#         for extra in extras:
+#             deps.append(str(env_dir / f"{extra}-extras.yaml"))
+
+#         if conda_merge_force or update_target(env, *deps):
+#             session.log(f"creating {env}")
+
+#             args = ["conda-merge"] + deps
+#             with tempfile.TemporaryDirectory() as d:
+#                 tmp_path = Path(d) / "tmp_env.yaml"
+
+#                 with tmp_path.open("w") as f:
+#                     session.run(*args, stdout=f)
+
+#                 run_str = dedent(
+#                     f"""
+#                 from ruamel.yaml import YAML; from pathlib import Path;
+#                 pin, pout = Path("{tmp_path}"), Path("{env}")
+#                 y = YAML(); y.indent(mapping=2, sequence=4, offset=2)
+#                 y.dump(y.load(pin.open("r")), pout.open("w"))
+#                 """
+#                 )
+
+#                 session.run("python", "-c", run_str, silent=True)
+
+#     for extra in ["test", "docs"]:
+#         create_env(extra, base=True)
+
+#     create_env("test", "typing", name="typing", base=True)
+#     create_env("dev", "test", "typing", "nox", name="dev", base=True)
