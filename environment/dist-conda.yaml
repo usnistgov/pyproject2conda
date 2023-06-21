@@ -12,4 +12,3 @@ dependencies:
   - conda-build
   - conda-verify
   - boa
-  - setuptools-scm
