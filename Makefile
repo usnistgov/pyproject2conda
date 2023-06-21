@@ -134,10 +134,10 @@ coverage: ## check code coverage quickly with the default Python
 ################################################################################
 .PHONY: version-scm version-import version
 version-scm: ## check version of package
-	python -m setuptools_scm
+	-python -m setuptools_scm
 
 version-import: ## check version from python import
-	python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
+	-python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
 
 version: version-scm version-import
 

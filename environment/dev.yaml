@@ -17,6 +17,7 @@ dependencies:
   - pytest-cov
   - pytest-sugar
   - mypy
+  - setuptools-scm
   - ipython
   - ipykernel
   - nox
