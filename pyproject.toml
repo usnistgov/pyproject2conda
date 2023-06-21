@@ -47,7 +47,6 @@ test = [
 ]
 dev-extras = [
     "pytest-accept", # p2c: -p
-    "setuptools-scm",
     "ipython",
     "ipykernel",
 ]
@@ -100,7 +99,6 @@ dist-conda = [
     "conda-build",
     "conda-verify",
     "boa",
-    "setuptools-scm",
 ]
 
 [tool.pyproject2conda]
