@@ -135,7 +135,7 @@ coverage: ## check code coverage quickly with the default Python
 .PHONY: version-scm version-import version
 
 version-scm: ## check/update version of package with setuptools-scm
-	nox -s version-scm
+	python -m setuptools_scm
 
 version-import: ## check version from python import
 	-python -c 'import pyproject2conda; print(pyproject2conda.__version__)'

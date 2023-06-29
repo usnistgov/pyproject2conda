@@ -261,36 +261,6 @@ def dev_venv(
     session_run_commands(session, dev_run)
 
 
-# ** version report/update
-@DEFAULT_SESSION_VENV
-def version_scm(
-    session: Session,
-    version: VERSION_CLI = "",
-    force_reinstall: FORCE_REINSTALL_CLI = False,
-):
-    """
-    Get current version from setuptools-scm
-
-    Note that the version of editable installs can get stale.
-    This will show the actual current version.
-    Avoids need to include setuptools-scm in develop/docs/etc.
-    """
-
-    pkg_install_venv(
-        session=session,
-        name="version-scm",
-        install_package=True,
-        reqs=["setuptools_scm"],
-        force_reinstall=force_reinstall,
-        no_deps=True,
-    )
-
-    if version:
-        session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = version
-
-    session.run("python", "-m", "setuptools_scm")
-
-
 # ** pyproject2conda (create environment.yaml and requirement.txt files)
 @DEFAULT_SESSION_VENV
 def pyproject2conda(
@@ -1129,3 +1099,33 @@ def _create_doc_examples_symlinks(session, clean=True):
             session.log(f"linking {target_rel} -> {link}")
 
             os.symlink(target_rel, link)
+
+
+# # ** version report/update
+# @DEFAULT_SESSION_VENV
+# def version_scm(
+#     session: Session,
+#     version: VERSION_CLI = "",
+#     force_reinstall: FORCE_REINSTALL_CLI = False,
+# ):
+#     """
+#     Get current version from setuptools-scm
+
+#     Note that the version of editable installs can get stale.
+#     This will show the actual current version.
+#     Avoids need to include setuptools-scm in develop/docs/etc.
+#     """
+
+#     pkg_install_venv(
+#         session=session,
+#         name="version-scm",
+#         install_package=True,
+#         reqs=["setuptools_scm"],
+#         force_reinstall=force_reinstall,
+#         no_deps=True,
+#     )
+
+#     if version:
+#         session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = version
+
+#     session.run("python", "-m", "setuptools_scm")
