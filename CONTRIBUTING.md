@@ -391,7 +391,7 @@ with the `--version` flag), this will overwrite information in `_version.py` in
 the `src` directory. To refresh the version, run:
 
 ```bash
-nox -s version-scm
+make version-scm
 ```
 
 This scheme avoids having to install `setuptools-scm` (and `setuptools`) in each
