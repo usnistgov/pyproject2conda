@@ -114,3 +114,4 @@ cruft.patch
 /dist-conda/
 /tmp/
 /pyproject2conda-feedstock*/
+/src/**/_version.py

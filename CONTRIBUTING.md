@@ -385,6 +385,18 @@ Versioning is handled with [setuptools_scm].The package version is set by the
 git tag. For convenience, you can override the version with nox setting
 `--version ...`. This is useful for updating the docs, etc.
 
+We use the `write_to` option to [setuptools_scm]. This stores the current
+version in `_version.py`. Note that if you build the package (or, build docs
+with the `--version` flag), this will overwrite information in `_version.py` in
+the `src` directory. To refresh the version, run:
+
+```bash
+nox -s version-scm
+```
+
+This scheme avoids having to install `setuptools-scm` (and `setuptools`) in each
+environment.
+
 ## Notes on [nox]
 
 One downside of using [tox] with this particular workflow is the need for

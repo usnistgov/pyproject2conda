@@ -7,13 +7,9 @@ from .parser import PyProject2Conda
 
 # updated versioning scheme
 try:
-    from importlib.metadata import version as _version
-
-    __version__ = _version("pyproject2conda")
-except Exception:  # pragma: no cover
-    # Local copy or not installed with setuptools.
-    # Disable minimum version checks on downstream libraries.
-    __version__ = "999"  # pragma: no cover
+    from ._version import __version__
+except Exception:
+    __version__ = "999"
 
 
 __author__ = """William P. Krekelberg"""

@@ -47,7 +47,6 @@ test = [
 ]
 dev-extras = [
     "pytest-accept", # p2c: -p
-    "setuptools-scm",
     "ipython",
     "ipykernel",
 ]
@@ -80,8 +79,7 @@ dev-complete = [
     "pyproject2conda[nox]",
 ]
 docs = [
-    "setuptools-scm", #
-    "ipython",
+    "ipython", #
     "pyenchant",
     "ghp-import",
     "sphinx",
@@ -129,6 +127,7 @@ readme = { file = [
 
 [tool.setuptools_scm]
 fallback_version = "999"
+write_to = "src/pyproject2conda/_version.py"
 
 [tool.aliases]
 test = "pytest"

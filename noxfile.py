@@ -100,7 +100,10 @@ TEST_OPTS_CLI = opts_annotated(help="extra arguments/flags to pytest")
 
 FORCE_REINSTALL_CLI = Annotated[
     bool,
-    Option(type=bool, help="If True, force reinstall even if environment unchanged"),
+    Option(
+        type=bool,
+        help="If True, force reinstall requirements and package even if environment unchanged",
+    ),
 ]
 
 VERSION_CLI = Annotated[
@@ -256,6 +259,36 @@ def dev_venv(
         log_session=log_session,
     )
     session_run_commands(session, dev_run)
+
+
+# ** version report/update
+@DEFAULT_SESSION_VENV
+def version_scm(
+    session: Session,
+    version: VERSION_CLI = "",
+    force_reinstall: FORCE_REINSTALL_CLI = False,
+):
+    """
+    Get current version from setuptools-scm
+
+    Note that the version of editable installs can get stale.
+    This will show the actual current version.
+    Avoids need to include setuptools-scm in develop/docs/etc.
+    """
+
+    pkg_install_venv(
+        session=session,
+        name="version-scm",
+        install_package=True,
+        reqs=["setuptools_scm"],
+        force_reinstall=force_reinstall,
+        no_deps=True,
+    )
+
+    if version:
+        session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = version
+
+    session.run("python", "-m", "setuptools_scm")
 
 
 # ** pyproject2conda (create environment.yaml and requirement.txt files)
