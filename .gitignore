@@ -115,3 +115,4 @@ cruft.patch
 /tmp/
 /pyproject2conda-feedstock*/
 /src/**/_version.py
+tuna-loadtime.log
