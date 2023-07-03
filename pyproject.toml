@@ -310,7 +310,7 @@ module = []
 
 [tool.pyright]
 include = ["src", "tests"]
-exclude = ["**/__pycache__", ".tox/**", "**/.mypy_cache"]
+exclude = ["**/__pycache__", ".tox/**", ".nox/**", "**/.mypy_cache"]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
 # enable subset of "strict"
