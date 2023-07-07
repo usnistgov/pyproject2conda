@@ -3,6 +3,7 @@
 
 import rich_click as click
 
+from pyproject2conda import __version__
 from pyproject2conda.parser import PyProject2Conda
 
 PYPROJECT_CLI = click.option(
@@ -107,6 +108,7 @@ class AliasedGroup(click.Group):
 
 
 @click.group(cls=AliasedGroup)
+@click.version_option(version=__version__)
 def app():
     pass
 
