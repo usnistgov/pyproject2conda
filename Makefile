@@ -191,7 +191,7 @@ docs-clean: ## clean docs
 	rm -rf docs/reference/generated/*
 docs-clean-build: docs-clean docs-build ## clean and build
 docs-release: ## release docs.
-	$(NOX) -s docs -- release
+	$(NOX) -s docs -- -d release
 docs-command: ## run arbitrary command with command=...
 	$(NOX) -s docs -- --docs-run $(command)
 
