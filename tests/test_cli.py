@@ -5,7 +5,6 @@ from textwrap import dedent
 
 from pathlib import Path
 import tempfile
-import pytest
 import json
 
 ROOT = Path(__file__).resolve().parent

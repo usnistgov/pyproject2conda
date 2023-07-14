@@ -27,6 +27,7 @@ repos:
         stages: [commit]
         additional_dependencies:
           - prettier-plugin-toml
+        exclude: ^environment/lock/.*[.]yaml
   #** markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.8.1

@@ -6,9 +6,8 @@
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8
-  - anaconda-client
-  - grayskull
-  - conda-build
-  - conda-verify
-  - boa
+  - python=3.11
+  - pytest
+  - pytest-xdist
+  - pytest-cov
+  - pytest-sugar

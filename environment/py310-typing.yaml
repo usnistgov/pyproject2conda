@@ -6,12 +6,14 @@
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8
+  - python=3.10
   - tomli
   - ruamel.yaml
   - tomlkit
   - rich-click
   - packaging
+  - pytype
+  - mypy
   - pytest
   - pytest-xdist
   - pytest-cov

@@ -6,9 +6,8 @@
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8
-  - tomli
-  - ruamel.yaml
-  - tomlkit
-  - rich-click
-  - packaging
+  - python=3.10
+  - pytest
+  - pytest-xdist
+  - pytest-cov
+  - pytest-sugar

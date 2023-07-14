@@ -6,22 +6,14 @@
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8
+  - python=3.11
   - tomli
   - ruamel.yaml
   - tomlkit
   - rich-click
   - packaging
+  - mypy
   - pytest
   - pytest-xdist
   - pytest-cov
   - pytest-sugar
-  - mypy
-  - setuptools-scm
-  - ipython
-  - ipykernel
-  - nox
-  - pip
-  - pip:
-      - pytest-accept
-      - noxopt

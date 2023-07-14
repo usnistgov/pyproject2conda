@@ -52,8 +52,8 @@ dev-extras = [
     "ipykernel",
 ]
 typing-extras = [
-    # "pytype; python_version < '3.11'",
-    "mypy",
+    "pytype; python_version < '3.11'", #
+    "mypy"
 ]
 typing = [
     "pyproject2conda[typing-extras]", #

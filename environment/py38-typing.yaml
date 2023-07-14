@@ -6,19 +6,15 @@
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8
+  - python=3.8
   - tomli
   - ruamel.yaml
   - tomlkit
   - rich-click
   - packaging
-  - ipython
-  - pyenchant
-  - ghp-import
-  - sphinx
-  - sphinx-copybutton
-  - sphinxcontrib-spelling
-  - sphinx-autobuild
-  - myst-nb
-  - sphinx-book-theme
-  - autodocsumm
+  - pytype
+  - mypy
+  - pytest
+  - pytest-xdist
+  - pytest-cov
+  - pytest-sugar
