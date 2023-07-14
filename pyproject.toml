@@ -53,7 +53,7 @@ dev-extras = [
 ]
 typing-extras = [
     "pytype; python_version < '3.11'", #
-    "mypy"
+    "mypy",
 ]
 typing = [
     "pyproject2conda[typing-extras]", #
