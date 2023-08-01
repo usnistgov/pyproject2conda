@@ -595,7 +595,7 @@ def _coverage(session, run, cmd, run_internal):
 
     for c in cmd:
         if c == "combine":
-            paths = list(Path(".nox").glob("test*/tmp/.coverage"))
+            paths = list(Path(".nox").glob("test-3*/tmp/.coverage"))
             if update_target(".coverage", *paths):
                 session.run("coverage", "combine", "--keep", "-a", *map(str, paths))
         elif c == "open":
@@ -944,13 +944,20 @@ def _typing(session, run, cmd, run_internal):
     session_run_commands(session, run)
     if not run and not run_internal and not cmd:
         cmd = ["mypy"]
+
+    if "all" in cmd:
+        cmd = ["mypy", "pyright", "pytype"]
+
+    # set the cache directory for mypy
+    session.env["MYPY_CACHE_DIR"] = str(Path(session.create_tmp()) / ".mypy_cache")
+
     for c in cmd:
         if c == "mypy":
             session.run("mypy", "--color-output")
         elif c == "pyright":
             session.run("pyright", external=True)
         elif c == "pytype":
-            session.run("pytype")
+            session.run("pytype", "-o", str(Path(session.create_tmp()) / ".pytype"))
     session_run_commands(session, run_internal, external=False)
 
 
@@ -958,7 +965,7 @@ def _typing(session, run, cmd, run_internal):
 def typing(
     session: nox.Session,
     typing_cmd: cmd_annotated(  # type: ignore
-        choices=["mypy", "pyright", "pytype"],
+        choices=["mypy", "pyright", "pytype", "all"],
         flags=("--typing-cmd", "-m"),
     ) = (),
     typing_run: RUN_CLI = [],  # noqa
@@ -970,24 +977,6 @@ def typing(
     log_session: bool = False,
 ):
     """Run type checkers (mypy, pyright, pytype)."""
-
-    # create temporary environment file:
-    # from tempfile import TemporaryDirectory
-
-    # with TemporaryDirectory() as d:
-    #     path = Path(d) / "tmp-yaml.yaml"
-
-    #     session.run(
-    #         "pyproject2conda",
-    #         "yaml",
-    #         "-e",
-    #         "typing",
-    #         "--python-version",
-    #         session.python,
-    #         "-o",
-    #         str(path),
-    #         external=True,
-    #     )
 
     pkg_install_condaenv(
         session=session,
@@ -1010,7 +999,7 @@ def typing(
 def typing_venv(
     session: nox.Session,
     typing_cmd: cmd_annotated(  # type: ignore
-        choices=["mypy", "pyright", "pytype"],
+        choices=["mypy", "pyright", "pytype", "all"],
         flags=("--typing-cmd", "-m"),
     ) = (),
     typing_run: RUN_CLI = [],  # noqa
