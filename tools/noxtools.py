@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shlex
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence, cast
+from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence, TextIO, cast
 
 from ruamel.yaml import safe_load
 
@@ -70,7 +70,7 @@ def prepend_flag(flag: str, *args: str | Sequence[str]) -> list[str]:
     return sum([[flag, _] for _ in args_], [])
 
 
-def open_webpage(path: str | Path | None = None, url: str | None = None):
+def open_webpage(path: str | Path | None = None, url: str | None = None) -> None:
     """
     Open webpage from path or url.
 
@@ -260,7 +260,7 @@ def parse_envs(
     """Parse an `environment.yaml` file."""
     import re
 
-    def _default(x) -> set[str]:
+    def _default(x: str | Iterable[str] | None) -> set[str]:
         if x is None:
             return set()
         elif isinstance(x, str):
@@ -274,11 +274,11 @@ def parse_envs(
 
     python_match = re.compile(r"\s*(python)\s*[~<=>].*")
 
-    def _get_context(path):
+    def _get_context(path: str | Path | TextIO) -> TextIO | Path:
         if hasattr(path, "readline"):
             from contextlib import nullcontext
 
-            return nullcontext(path)
+            return nullcontext(path)  # type: ignore
         else:
             return Path(path).open("r")
 
@@ -369,11 +369,11 @@ def session_install_pip(
     force_reinstall: bool = False,
     install_package: bool = False,
     no_deps: bool = False,
-):
+) -> bool:
     if session_skip_install(session):
         return True
 
-    def _check_param(x) -> list[str]:
+    def _check_param(x: None | str | list[str] | Iterable[str]) -> list[str]:
         if x is None:
             return []
         elif isinstance(x, str):
@@ -425,6 +425,8 @@ def session_install_pip(
 
     session_set_ipykernel_display_name(session, display_name)
     write_hashfile(hashes, session=session, prefix="pip")
+
+    return unchanged
 
 
 # --- Hash environment -----------------------------------------------------------------
@@ -515,7 +517,7 @@ def read_hashfile(
     return cast(dict[str, str], data)
 
 
-def _get_file_hash(path: str | Path, buff_size=65536) -> str:
+def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
     import hashlib
 
     md5 = hashlib.md5()

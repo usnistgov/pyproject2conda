@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-untyped-def, no-untyped-call"
 from pyproject2conda.cli import app
 from click.testing import CliRunner
 
@@ -269,8 +270,8 @@ athing
 
     assert result.output == dedent(expected)
 
-    with tempfile.TemporaryDirectory() as d:
-        d = Path(d)
+    with tempfile.TemporaryDirectory() as d_tmp:
+        d = Path(d_tmp)
 
         expected_conda = """\
 bthing-conda
@@ -335,10 +336,10 @@ def test_json():
 
         assert result == expected
 
-    with tempfile.TemporaryDirectory() as d:
-        d = Path(d)
+    with tempfile.TemporaryDirectory() as d_tmp:
+        d = Path(d_tmp)
 
-        expected = {
+        expected = {  # type: ignore
             "dependencies": ["bthing-conda", "conda-forge::cthing"],
             "pip": ["athing"],
             "channels": ["conda-forge"],
@@ -348,7 +349,7 @@ def test_json():
 
         check_results(d / "hello.json", expected)
 
-        expected = {
+        expected = {  # type: ignore
             "dependencies": [
                 "bthing-conda",
                 "conda-forge::cthing",

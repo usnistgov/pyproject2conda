@@ -12,7 +12,8 @@ dependencies:
   - tomlkit
   - rich-click
   - packaging
-  - mypy
+  - mypy >= 1.4.1
+  - types-click
   - pytest
   - pytest-xdist
   - pytest-cov

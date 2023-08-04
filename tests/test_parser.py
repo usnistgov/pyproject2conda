@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def, no-untyped-call"
+from __future__ import annotations
 import tempfile
 import pytest
 from pyproject2conda import parser
@@ -15,7 +17,6 @@ def test_get_in():
 def test_list_to_string():
     assert parser._list_to_str(["a", "b"], eol=True) == "a\nb\n"
     assert parser._list_to_str(["a", "b"], eol=False) == "a\nb"
-
     assert parser._list_to_str(None) == ""
 
 
@@ -82,7 +83,7 @@ def test_parse_p2c():
 
 
 def test_value_comment_pairs():
-    d = [(None, "# p2c: --pip")]
+    d: list[tuple[str | None, str | None]] = [(None, "# p2c: --pip")]
 
     with pytest.raises(ValueError):
         out = parser.value_comment_pairs_to_conda(d)

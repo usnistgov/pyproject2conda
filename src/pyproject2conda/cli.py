@@ -1,5 +1,6 @@
 """Console script for pyproject2conda."""
 
+from __future__ import annotations
 
 import rich_click as click
 
@@ -93,7 +94,7 @@ HEADER_CLI = click.option(
 class AliasedGroup(click.Group):
     """Provide aliasing for commands"""
 
-    def get_command(self, ctx, cmd_name):
+    def get_command(self, ctx, cmd_name):  # type: ignore
         rv = click.Group.get_command(self, ctx, cmd_name)
         if rv is not None:
             return rv
@@ -109,7 +110,7 @@ class AliasedGroup(click.Group):
 
 @click.group(cls=AliasedGroup)
 @click.version_option(version=__version__)
-def app():
+def app() -> None:
     pass
 
 
@@ -117,9 +118,9 @@ def app():
 @PYPROJECT_CLI
 @VERBOSE_CLI
 def list(
-    filename,
-    verbose,
-):
+    filename: str,
+    verbose: bool,
+) -> None:
     """List available extras"""
 
     if verbose:
@@ -129,7 +130,7 @@ def list(
     click.echo(f"extras  : {d.list_extras()}")
 
 
-def _get_header_cmd(header, output):
+def _get_header_cmd(header: bool | None, output: click.Path | None) -> str | None:
     if header is None:
         header = output is not None
 
@@ -151,7 +152,7 @@ def _get_header_cmd(header, output):
 @PYTHON_INCLUDE_CLI
 @PYTHON_VERSION_CLI
 @BASE_DEPENDENCIES_CLI
-@HEADER_CLI
+@HEADER_CLI  # type: ignore[no-untyped-def]
 def yaml(
     extras,
     channels,
@@ -188,7 +189,7 @@ def yaml(
 @PYPROJECT_CLI
 @OUTPUT_CLI
 @BASE_DEPENDENCIES_CLI
-@HEADER_CLI
+@HEADER_CLI  # type: ignore[no-untyped-def]
 def requirements(
     extras,
     filename,
@@ -230,7 +231,7 @@ def requirements(
     default=False,
 )
 @click.argument("path_conda", type=str, required=False)
-@click.argument("path_pip", type=str, required=False)
+@click.argument("path_pip", type=str, required=False)  # type: ignore[no-untyped-def]
 def conda_requirements(
     extras,
     python_include,
@@ -292,7 +293,7 @@ def conda_requirements(
 @CHANNEL_CLI
 @PYPROJECT_CLI
 @OUTPUT_CLI
-@BASE_DEPENDENCIES_CLI
+@BASE_DEPENDENCIES_CLI  # type: ignore[no-untyped-def]
 def to_json(
     extras,
     python_include,

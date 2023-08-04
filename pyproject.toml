@@ -53,7 +53,8 @@ dev-extras = [
 ]
 typing-extras = [
     "pytype; python_version < '3.11'", #
-    "mypy",
+    "mypy >= 1.4.1",
+    "types-click",
 ]
 typing = [
     "pyproject2conda[typing-extras]", #
@@ -136,6 +137,11 @@ test = "pytest"
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --doctest-glob='*.md'"
 testpaths = ["tests", "README.md"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:", "@overload"]
+omit = ["*/vendored/*"]
+include = ["src/*"]
 
 [tool.isort]
 profile = "black"
@@ -291,13 +297,14 @@ use_shortcuts = true
 [tool.cruft]
 
 [tool.mypy]
-files = ["src/pyproject2conda"]
+files = ["src/pyproject2conda", "tests"]
 show_error_codes = true
 warn_unused_ignores = true
 warn_return_any = true
 warn_unused_configs = true
 exclude = [".eggs", ".tox", "doc", "docs", ".nox"]
 check_untyped_defs = true
+strict = true
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
@@ -310,6 +317,8 @@ module = []
 [tool.pyright]
 include = ["src", "tests"]
 exclude = ["**/__pycache__", ".tox/**", ".nox/**", "**/.mypy_cache"]
+# TODO: add strict to pyright
+# strict = ["src"]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
 # enable subset of "strict"

@@ -11,7 +11,22 @@ import re
 import shlex
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Generator, Mapping, Optional, Sequence, TypeVar, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generator,
+    Iterable,
+    Mapping,
+    Optional,
+    Sequence,
+    TextIO,
+    TypeVar,
+    Union,
+    cast,
+)
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 import tomlkit
 from packaging.specifiers import SpecifierSet
@@ -22,6 +37,8 @@ from ruamel.yaml import YAML
 
 Tstr_opt = Optional[str]
 Tstr_seq_opt = Optional[Union[str, Sequence[str]]]
+
+T = TypeVar("T")
 
 
 # --- Default parser -------------------------------------------------------------------
@@ -76,19 +93,19 @@ def get_in(
         return default
 
 
-def _unique_list(values):
+def _unique_list(values: Iterable[T]) -> list[T]:
     """
     Return only unique values in list.
     Unlike using set(values), this preserves order.
     """
-    output = []
+    output: list[T] = []
     for v in values:
         if v not in output:
             output.append(v)
     return output
 
 
-def _list_to_str(values, eol=True):
+def _list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
     if values:
         output = "\n".join(values)
         if eol:
@@ -100,15 +117,17 @@ def _list_to_str(values, eol=True):
 
 
 def _iter_value_comment_pairs(
-    array: tomlkit.items.Array,
+    array: tomlkit.items.Array,  # pyright: ignore
 ) -> Generator[tuple[Tstr_opt, Tstr_opt], None, None]:
     """Extract value and comments from array"""
-    for v in array._value:
-        if v.value is not None and not isinstance(v.value, tomlkit.items.Null):
-            value = str(v.value)  # .as_string()
+    for v in array._value:  # pyright: ignore
+        if v.value is not None and not isinstance(
+            v.value, tomlkit.items.Null
+        ):  # pyright: ignore
+            value = str(v.value)  # pyright: ignore
         else:
             value = None
-        if v.comment:
+        if v.comment:  # pyright: ignore
             comment = v.comment.as_string()
         else:
             comment = None
@@ -186,7 +205,7 @@ def _pyproject_to_value_comment_pairs(
     extras: Tstr_seq_opt = None,
     unique: bool = True,
     include_base_dependencies: bool = True,
-):
+) -> list[tuple[Tstr_opt, Tstr_opt]]:
     package_name = cast(str, get_in(["project", "name"], data))
 
     deps = cast(tomlkit.items.Array, get_in(["project", "dependencies"], data))
@@ -263,7 +282,7 @@ def value_comment_pairs_to_conda(
     conda_deps: list[Tstr_opt] = []
     pip_deps: list[Tstr_opt] = []
 
-    def _check_value(value):
+    def _check_value(value: Any) -> None:
         if not value:
             raise ValueError("trying to add value that does not exist")
 
@@ -336,11 +355,11 @@ def pyproject_to_conda(
     channels: Tstr_seq_opt = None,
     name: Tstr_opt = None,
     python_include: Tstr_opt = None,
-    stream: str | Path | None = None,
+    stream: str | Path | TextIO | None = None,
     python_version: Tstr_opt = None,
     include_base_dependencies: bool = True,
     header_cmd: Tstr_opt = None,
-):
+) -> str:
     output = pyproject_to_conda_lists(
         data=data,
         extras=extras,
@@ -352,7 +371,7 @@ def pyproject_to_conda(
     return _output_to_yaml(**output, name=name, stream=stream, header_cmd=header_cmd)
 
 
-def _create_header(cmd=None) -> str:
+def _create_header(cmd: str | None = None) -> str:
     from textwrap import dedent
 
     if cmd:
@@ -395,7 +414,12 @@ def _add_header(string: str, header_cmd: str | None) -> str:
         return string
 
 
-def _yaml_to_string(data, yaml=None, add_final_eol=False, header_cmd=None) -> str:
+def _yaml_to_string(
+    data: dict[str, Any],
+    yaml: Any = None,
+    add_final_eol: bool = False,
+    header_cmd: str | None = None,
+) -> str:
     import io
 
     if yaml is None:
@@ -412,7 +436,9 @@ def _yaml_to_string(data, yaml=None, add_final_eol=False, header_cmd=None) -> st
     return _add_header(val.decode("utf-8"), header_cmd)
 
 
-def _optional_write(string, stream, mode="w"):
+def _optional_write(
+    string: str, stream: str | Path | TextIO | None, mode: str = "w"
+) -> None:
     if stream is None:
         return
     if isinstance(stream, (str, Path)):
@@ -427,9 +453,9 @@ def _output_to_yaml(
     channels: list[str] | None = None,
     pip: list[str] | None = None,
     name: Tstr_opt = None,
-    stream: str | Path | None = None,
+    stream: str | Path | TextIO | None = None,
     header_cmd: str | None = None,
-):
+) -> str:
     data: dict[str, Any] = {}
     if name:
         data["name"] = name
@@ -449,9 +475,6 @@ def _output_to_yaml(
     _optional_write(s, stream)
 
     return s
-
-
-T = TypeVar("T", bound="PyProject2Conda")
 
 
 class PyProject2Conda:
@@ -475,11 +498,11 @@ class PyProject2Conda:
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
-        stream: str | Path | None = None,
+        stream: str | Path | TextIO | None = None,
         python_version: Tstr_opt = None,
         include_base_dependencies: bool = True,
         header_cmd: str | None = None,
-    ):
+    ) -> str:
         self._check_extras(extras)
 
         return pyproject_to_conda(
@@ -532,8 +555,8 @@ class PyProject2Conda:
         extras: Tstr_opt = None,
         include_base_dependencies: bool = True,
         header_cmd: str | None = None,
-        stream: str | Path | None = None,
-    ):
+        stream: str | Path | TextIO | None = None,
+    ) -> str:
         """Create requirements.txt like file with pip dependencies."""
 
         self._check_extras(extras)
@@ -553,11 +576,11 @@ class PyProject2Conda:
         python_include: Tstr_opt = None,
         python_version: Tstr_opt = None,
         prepend_channel: bool = False,
-        stream_conda: str | Path | None = None,
-        stream_pip: str | Path | None = None,
+        stream_conda: str | Path | TextIO | None = None,
+        stream_pip: str | Path | TextIO | None = None,
         include_base_dependencies: bool = True,
         header_cmd: Tstr_opt = None,
-    ):
+    ) -> tuple[str, str]:
         output = self.to_conda_lists(
             extras=extras,
             channels=channels,
@@ -588,35 +611,38 @@ class PyProject2Conda:
 
         return deps_str, reqs_str
 
-    def _check_extras(self, extras):
-        def _do_test(sent, available):
-            if isinstance(sent, str):
-                sent = [sent]
-            for s in sent:
-                if s not in available:
-                    raise ValueError(f"{s} not in {available}")
+    def _check_extras(self, extras: Tstr_seq_opt) -> None:
+        if extras is None:
+            return
+        elif isinstance(extras, str):
+            sent: Sequence[str] = [extras]
+        else:
+            sent = extras
 
-        if extras:
-            _do_test(extras, self.list_extras())
+        available = self.list_extras()
 
-    def _get_opts(self, *keys):
+        for s in sent:
+            if s not in available:
+                raise ValueError(f"{s} not in {available}")
+
+    def _get_opts(self, *keys: str) -> list[str]:
         opts = get_in(keys, self.data, None)
         if opts:
             return list(opts.keys())
         else:
             return []
 
-    def list_extras(self):
+    def list_extras(self) -> list[str]:
         return self._get_opts("project", "optional-dependencies")
 
     @classmethod
     def from_string(
-        cls: type[T],
+        cls,
         toml_string: str,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
-    ) -> T:
+    ) -> Self:
         data = tomlkit.parse(toml_string)
         return cls(
             data=data, name=name, channels=channels, python_include=python_include
@@ -624,12 +650,12 @@ class PyProject2Conda:
 
     @classmethod
     def from_path(
-        cls: type[T],
+        cls,
         path: str | Path,
         name: Tstr_opt = None,
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
-    ) -> T:
+    ) -> Self:
         path = Path(path)
 
         if not path.exists():

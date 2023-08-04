@@ -13,7 +13,8 @@ dependencies:
   - rich-click
   - packaging
   - pytype
-  - mypy
+  - mypy >= 1.4.1
+  - types-click
   - pytest
   - pytest-xdist
   - pytest-cov
