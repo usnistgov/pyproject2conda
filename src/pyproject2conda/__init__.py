@@ -8,7 +8,7 @@ from .parser import PyProject2Conda
 # updated versioning scheme
 try:
     from ._version import __version__
-except Exception:
+except Exception:  # pragma: no cover
     __version__ = "999"
 
 
