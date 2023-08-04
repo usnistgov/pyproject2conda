@@ -38,6 +38,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
@@ -106,9 +107,12 @@ ENV/
 pyrightconfig.json
 .autoenv.zsh
 .autoenv_leave.zsh
+.noxconfig.toml
+cruft.patch
 /docs/**/generated/
 /monkeytype.sqlite3
-/dist-conda/*
-!/dist-conda/Makefile
+/dist-conda/
+/tmp/
 /pyproject2conda-feedstock*/
-/tmp/*
+/src/**/_version.py
+tuna-loadtime.log

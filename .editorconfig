@@ -42,7 +42,3 @@ trim_trailing_whitespace = false
 indent_size = 2
 max_line_length = 80
 trim_trailing_whitespace = false
-
-
-[*.toml]
-indent_size = 4

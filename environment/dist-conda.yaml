@@ -1,7 +1,0 @@
-dependencies:
-  - anaconda-client
-  - grayskull
-  - conda-build
-  - conda-verify
-  - boa
-  - setuptools-scm

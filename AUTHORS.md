@@ -2,7 +2,7 @@
 
 ## Development Lead
 
-- William P. Krekelberg \<wpk@nist.gov>
+- William P. Krekelberg <wpk@nist.gov>
 
 ## Contributors
 
