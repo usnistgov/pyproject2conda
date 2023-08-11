@@ -209,7 +209,7 @@ def session_install_envs_lock(
     force_reinstall: bool = False,
     install_package: bool = False,
 ) -> bool:
-    """Install depedencies using conda-lock."""
+    """Install dependencies using conda-lock."""
 
     if session_skip_install(session):
         return True

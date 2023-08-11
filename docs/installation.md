@@ -49,6 +49,6 @@ pyproject2conda yaml -o environment/base.yaml
 ```
 
 where options in brackets are options (for environment name, and editable
-install, repectively).
+install, respectively).
 
 [github repo]: https://github.com/wpk-nist-gov/pyproject2conda
