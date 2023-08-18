@@ -404,6 +404,34 @@ multiple scripts/makefiles, while with [nox], most everything is self contained
 in the file `noxfile.py`. [nox] also is allows for a mix of conda and virtualenv
 environments.
 
+We use a mix of conda environments and virtualenv with nox. For example, for
+building the distribution, we use virtualenv, while for development, the default
+is to create a conda environment. To facilitate this, we need to let virtualenv
+know where different python interpreters are. I've had trouble mixing pyenv with
+conda. Instead, I use conda to create multiple invironments to hold different
+python version:
+
+```bash
+$ for version in 3.8 3.9 3.10 3.11; do
+    conda create -n test-${version} python=${version}
+  done
+```
+
+To tell nox where these environments live, create the file `.noxconfig.toml`
+with the following:
+
+```toml
+[nox.python]
+paths = ["~/.conda/envs/test-3.*/bin"]
+
+```
+
+where `~/.conda/envs` should be replaced by whatever prefix you have setup on
+your machine. The `noxfile.py` will add this to the search path for python
+versions when creating virtualenvs. The file `.noxconfig.toml` should not be
+tracked by git. There is also an example file `.noxconfig.example.toml` to get
+you started.
+
 ## Serving the documentation
 
 To view to documentation with js headers/footers, you'll need to serve them:

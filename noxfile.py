@@ -372,7 +372,7 @@ def pyproject2conda(
                 f"{output} up to data.  Pass --pyproject2conda-force to force recreation"
             )
 
-    extras = CONFIG["environment-extras"]
+    extras = CONFIG.get("environment-extras", {"dev": ["dev", "nox"]})
 
     # All versions:
     for env, python_version in product(["test", "typing"], PYTHON_ALL_VERSIONS):
