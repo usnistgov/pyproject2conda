@@ -39,6 +39,7 @@ pip-delete-this-directory.txt
 htmlcov/
 .tox/
 .nox/
+envs/
 .coverage
 .coverage.*
 .cache
@@ -107,7 +108,7 @@ ENV/
 pyrightconfig.json
 .autoenv.zsh
 .autoenv_leave.zsh
-.noxconfig.toml
+config/userconfig.toml
 cruft.patch
 /docs/**/generated/
 /monkeytype.sqlite3
@@ -116,3 +117,4 @@ cruft.patch
 /pyproject2conda-feedstock*/
 /src/**/_version.py
 tuna-loadtime.log
+/environment/py*-dev.yaml

@@ -103,7 +103,7 @@ pre-commit-codespell: ## run codespell. Note that this imports allowed words fro
 ################################################################################
 .PHONY: user-venv user-autoenv-zsh user-all
 user-venv: ## create .venv file with name of conda env
-	echo $${PWD}/.nox/dev > .venv
+	echo $${PWD}/.nox/pyproject2conda/envs/dev > .venv
 
 user-autoenv-zsh: ## create .autoenv.zsh files
 	echo conda activate $$(cat .venv) > .autoenv.zsh
@@ -151,10 +151,10 @@ environment-files-clean: ## clean all created environment/{dev,docs,test}.yaml
 
 .PHONY: environment-files-build
 environment-files-build: pyproject.toml ## rebuild all environment files
-	nox -s pyproject2conda
+	nox -s requirements
 
 environment/%.yaml: pyproject.toml
-	nox -s pyproject2conda
+	nox -s requirements
 
 ################################################################################
 # virtual env
@@ -278,3 +278,16 @@ tuna-import: ## Analyze load time for module
 	python -X importtime -c 'import pyproject2conda' 2> tuna-loadtime.log
 	tuna tuna-loadtime.log
 	rm tuna-loadtime.log
+
+# nbqa-mypy
+NOTEBOOKS ?= examples/usage
+.PHONY: nbqa-mypy nbqa-pyright nbqa-typing
+nbqa-mypy: ## run nbqa mypy
+	nbqa --nbqa-shell mypy $(NOTEBOOKS)
+nbqa-pyright: ## run nbqa pyright
+	nbqa --nbqa-shell pyright $(NOTEBOOKS)
+nbqa-typing: nbqa-mypy nbqa-pyright ## run nbqa mypy/pyright
+
+.PHONY: pytest-nbval
+pytest-nbval:  ## run pytest --nbval
+	pytest --nbval --current-env --sanitize-with=config/nbval.ini $(NOTEBOOKS) -x

@@ -12,13 +12,16 @@ dependencies:
   - tomlkit
   - rich-click
   - packaging
+  - pytest
+  - pytest-xdist
+  - pytest-cov
+  - pytest-sugar
+  - pytype
+  - mypy >= 1.4.1
+  - types-click
+  - setuptools-scm
   - ipython
-  - pyenchant
-  - ghp-import
-  - sphinx >= 5.3.0
-  - sphinx-copybutton
-  - sphinxcontrib-spelling
-  - sphinx-autobuild
-  - myst-nb
-  - sphinx-book-theme
-  - autodocsumm
+  - ipykernel
+  - pip
+  - pip:
+      - pytest-accept

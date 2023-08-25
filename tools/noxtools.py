@@ -14,6 +14,137 @@ if TYPE_CHECKING:
     import nox
 
 
+# --- Top level installation functions -------------------------------------------------
+def py_prefix(python_version: Any) -> str:
+    if isinstance(python_version, str):
+        return "py" + python_version.replace(".", "")
+    else:
+        raise ValueError(f"passed non-string value {python_version}")
+
+
+def session_environment_filename(
+    name: str | None,
+    ext: str | None = None,
+    python_version: str | None = None,
+) -> str:
+    if name is None:
+        raise ValueError("must supply name")
+
+    filename = name
+    if ext is not None:
+        filename = filename + ext
+    if python_version is not None:
+        filename = f"{py_prefix(python_version)}-{filename}"
+    return f"./environment/{filename}"
+
+
+def pkg_install_condaenv(
+    session: nox.Session,
+    name: str,
+    lock: bool = False,
+    display_name: str | None = None,
+    install_package: bool = True,
+    force_reinstall: bool = False,
+    log_session: bool = False,
+    deps: Collection[str] | None = None,
+    reqs: Collection[str] | None = None,
+    channels: Collection[str] | None = None,
+    filename: str | None = None,
+    **kwargs: Any,
+) -> None:
+    """Install requirements.  If need fine control, do it in calling func."""
+
+    def check_filename(filename: str | Path) -> str:
+        if not Path(filename).exists():
+            raise ValueError(f"file {filename} does not exist")
+        session.log(f"Environment file: {filename}")
+        return str(filename)
+
+    if lock:
+        filename = (
+            filename
+            or f"./environment/lock/{py_prefix(session.python)}-{name}-conda-lock.yml"
+        )
+        session_install_envs_lock(
+            session=session,
+            lockfile=check_filename(filename),
+            display_name=display_name,
+            force_reinstall=force_reinstall,
+            install_package=install_package,
+            **kwargs,
+        )
+
+    else:
+        assert isinstance(session.python, str)
+
+        filename = filename or session_environment_filename(
+            name=name,
+            ext=".yaml",
+            python_version=session.python,
+        )
+        session_install_envs(
+            session,
+            check_filename(filename),
+            display_name=display_name,
+            force_reinstall=force_reinstall,
+            deps=deps,
+            reqs=reqs,
+            channels=channels,
+            install_package=install_package,
+            **kwargs,
+        )
+
+    if log_session:
+        session_log_session(session, conda=True)
+
+
+def pkg_install_venv(
+    session: nox.Session,
+    name: str,  # pyright: ignore
+    lock: bool = False,
+    requirement_paths: Collection[str] | None = None,
+    constraint_paths: Collection[str] | None = None,
+    extras: str | Collection[str] | None = None,
+    reqs: Collection[str] | None = None,
+    display_name: str | None = None,
+    force_reinstall: bool = False,
+    install_package: bool = False,
+    no_deps: bool = False,
+    log_session: bool = False,
+) -> None:
+    if lock:
+        raise ValueError("lock not yet supported for install_pip")
+
+    else:
+        session_install_pip(
+            session=session,
+            requirement_paths=requirement_paths,
+            constraint_paths=constraint_paths,
+            extras=extras,
+            reqs=reqs,
+            display_name=display_name,
+            force_reinstall=force_reinstall,
+            install_package=install_package,
+            no_deps=no_deps,
+        )
+
+    if log_session:
+        session_log_session(session, conda=False)
+
+
+def session_log_session(session: nox.Session, conda: bool = True) -> None:
+    logfile = Path(session.create_tmp()) / "env_info.txt"
+
+    session.log(f"writing environment log to {logfile}")
+
+    with logfile.open("w") as f:
+        if conda:
+            session.run("conda", "list", stdout=f)
+        else:
+            session.run("python", "--version", stdout=f)
+            session.run("pip", "list", stdout=f)
+
+
 # --- Basic utilities -------------------------------------------------------------------
 def combine_list_str(opts: list[str]) -> list[str]:
     if opts:
@@ -33,21 +164,25 @@ def sort_like(values: Collection[Any], like: Sequence[Any]) -> list[Any]:
     return sorted(set(values), key=lambda k: sorter[k])
 
 
-def update_target(target: str | Path, *deps: str | Path) -> bool:
+def update_target(
+    target: str | Path, *deps: str | Path, allow_missing: bool = False
+) -> bool:
     """Check if target is older than deps:"""
-    target_path = Path(target)
-    deps_path = tuple(map(Path, deps))
+    target = Path(target)
 
-    for d in deps_path:
-        if not d.exists():
+    deps_filtered = []
+    for d in map(Path, deps):
+        if d.exists():
+            deps_filtered.append(d)
+        elif not allow_missing:
             raise ValueError(f"dependency {d} does not exist")
 
-    if not target_path.exists():
-        update = True
-
+    if not target.exists():
+        return True
     else:
-        target_time = target_path.stat().st_mtime
-        update = any(target_time < dep.stat().st_mtime for dep in deps_path)
+        target_time = target.stat().st_mtime
+
+        update = any(target_time < dep.stat().st_mtime for dep in deps_filtered)
 
     return update
 
@@ -86,7 +221,7 @@ def open_webpage(path: str | Path | None = None, url: str | None = None) -> None
 
 
 # --- Load user configuration ----------------------------------------------------------
-def load_nox_config(path: str | Path = "./.noxconfig.toml") -> dict[str, Any]:
+def load_nox_config(path: str | Path = "./config/userconfig.toml") -> dict[str, Any]:
     """
     Load user toml config file.
 
@@ -101,45 +236,10 @@ def load_nox_config(path: str | Path = "./.noxconfig.toml") -> dict[str, Any]:
     [nox.extras]
     dev = ["dev", "nox"]
     """
-    import os
-    from glob import glob
 
-    import tomli
+    from .projectconfig import ProjectConfig
 
-    config: dict[str, Any] = {}
-
-    path = Path(path)
-    if not path.exists():
-        return config
-
-    with path.open("rb") as f:
-        data = tomli.load(f)
-
-    # Python paths
-    try:
-        paths = []
-        for p in data["nox"]["python"]["paths"]:
-            paths.extend(glob(os.path.expanduser(p)))
-
-        paths_str = ":".join(map(str, paths))
-        os.environ["PATH"] = paths_str + ":" + os.environ["PATH"]
-    except KeyError:
-        pass
-
-    # extras:
-    extras = {"dev": ["nox", "dev"]}
-    try:
-        for k, v in data["nox"]["extras"].items():
-            extras[k] = v
-    except KeyError:
-        pass
-
-    config["environment-extras"] = extras
-
-    # for py in PYTHON_ALL_VERSIONS:
-    #     print(f"which python{py}", shutil.which(f"python{py}"))
-
-    return config
+    return ProjectConfig.from_path(path).to_nox_config()
 
 
 # --- Nox session utilities ------------------------------------------------------------

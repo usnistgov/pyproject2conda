@@ -50,6 +50,8 @@ dev-extras = [
     "pytest-accept", # p2c: -p
     "ipython",
     "ipykernel",
+    # "nbval",
+
 ]
 typing-extras = [
     "pytype; python_version < '3.11'", #
@@ -74,6 +76,7 @@ tools = [
     "pre-commit", #
     "cruft",
     "scriv",
+    "nbqa",
 ]
 dev-complete = [
     "pyproject2conda[dev]", #
@@ -84,7 +87,7 @@ docs = [
     "ipython", #
     "pyenchant",
     "ghp-import",
-    "sphinx",
+    "sphinx >= 5.3.0",
     "sphinx-copybutton",
     "sphinxcontrib-spelling",
     "sphinx-autobuild",
