@@ -35,7 +35,7 @@ dependencies = [
 ] # additional packages
 
 [project.urls]
-homepage = "https://github.com/wpk-nist-gov/pyproject2conda"
+homepage = "https://github.com/usnistgov/pyproject2conda"
 documentation = "https://pages.nist.gov/pyproject2conda/"
 
 [project.optional-dependencies]
