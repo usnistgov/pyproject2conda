@@ -11,10 +11,14 @@ import json
 ROOT = Path(__file__).resolve().parent
 
 
-def do_run(runner, command, *opts, filename=None):
+def do_run(runner, command, *opts, filename=None, must_exist=False):
     if filename is None:
         filename = str(ROOT / "test-pyproject.toml")
-    result = runner.invoke(app, [command, "-f", filename, *opts])
+    filename = Path(filename)
+    if must_exist and not filename.exists():
+        raise ValueError(f"filename {filename} does not exist")
+
+    result = runner.invoke(app, [command, "-f", str(filename), *opts])
     return result
 
 
@@ -131,11 +135,115 @@ dependencies:
     """
 
     for opt in ["-e", "--extra"]:
+        result = do_run(runner, "yaml", opt, "dev", "--no-sort")
+        check_result(result, expected)
+
+    # test if add in "test" gives same answer
+    result = do_run(runner, "yaml", "-e", "dev", "-e", "test", "--no-sort")
+    check_result(result, expected)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - additional-thing
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
+  - pip
+  - pip:
+      - athing
+    """
+
+    for opt in ["-e", "--extra"]:
         result = do_run(runner, "yaml", opt, "dev")
         check_result(result, expected)
 
     # test if add in "test" gives same answer
     result = do_run(runner, "yaml", "-e", "dev", "-e", "test")
+    check_result(result, expected)
+
+    # different ordering
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::cthing
+  - bthing-conda
+  - conda-forge::pytest
+  - pandas
+  - conda-matplotlib
+  - additional-thing
+  - pip
+  - pip:
+      - athing
+    """
+
+    for opt in ["-e", "--extra"]:
+        result = do_run(
+            runner,
+            "yaml",
+            opt,
+            "dev",
+            "--no-sort",
+            filename=ROOT / "test-pyproject-reorder.toml",
+            must_exist=True,
+        )
+        check_result(result, expected)
+
+    # test if add in "test" gives same answer
+    result = do_run(
+        runner,
+        "yaml",
+        "-e",
+        "dev",
+        "-e",
+        "test",
+        "--no-sort",
+        filename=ROOT / "test-pyproject-reorder.toml",
+        must_exist=True,
+    )
+    check_result(result, expected)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - additional-thing
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
+  - pip
+  - pip:
+      - athing
+    """
+
+    for opt in ["-e", "--extra"]:
+        result = do_run(
+            runner,
+            "yaml",
+            opt,
+            "dev",
+            filename=ROOT / "test-pyproject-reorder.toml",
+            must_exist=True,
+        )
+        check_result(result, expected)
+
+    # test if add in "test" gives same answer
+    result = do_run(
+        runner,
+        "yaml",
+        "-e",
+        "dev",
+        "-e",
+        "test",
+        filename=ROOT / "test-pyproject-reorder.toml",
+        must_exist=True,
+    )
     check_result(result, expected)
 
     # override channel
@@ -183,6 +291,21 @@ dependencies:
   - pip:
       - athing
     """
+    result = do_run(runner, "yaml", "-e", "test", "--no-sort")
+    check_result(result, expected)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - pandas
+  - pip
+  - pip:
+      - athing
+    """
     result = do_run(runner, "yaml", "-e", "test")
     check_result(result, expected)
 
@@ -223,6 +346,21 @@ pytest
 matplotlib
     """
 
+    result = do_run(runner, "requirements", "-e", "dev", "--no-sort")
+    check_result(result, expected)
+
+    result = do_run(runner, "requirements", "-e", "dev", "-e", "test", "--no-sort")
+    check_result(result, expected)
+
+    expected = """\
+athing
+bthing
+cthing; python_version < '3.10'
+matplotlib
+pandas
+pytest
+    """
+
     result = do_run(runner, "requirements", "-e", "dev")
     check_result(result, expected)
 
@@ -232,6 +370,14 @@ matplotlib
     expected = """\
 setuptools
 build
+    """
+
+    result = do_run(runner, "requirements", "-e", "dist-pypi", "--no-base", "--no-sort")
+    check_result(result, expected)
+
+    expected = """\
+build
+setuptools
     """
 
     result = do_run(runner, "requirements", "-e", "dist-pypi", "--no-base")
@@ -357,6 +503,23 @@ def test_json():
                 "conda-forge::pytest",
                 "additional-thing",
                 "conda-matplotlib",
+            ],
+            "pip": ["athing"],
+            "channels": ["conda-forge"],
+        }
+
+        do_run(runner, "json", "-o", str(d / "there.json"), "-e", "dev", "--no-sort")
+
+        check_results(d / "there.json", expected)
+
+        expected = {  # type: ignore
+            "dependencies": [
+                "additional-thing",
+                "bthing-conda",
+                "conda-forge::cthing",
+                "conda-forge::pytest",
+                "conda-matplotlib",
+                "pandas",
             ],
             "pip": ["athing"],
             "channels": ["conda-forge"],
