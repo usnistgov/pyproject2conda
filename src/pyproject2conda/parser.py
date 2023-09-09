@@ -276,11 +276,12 @@ def _limit_deps_by_python_version(
 
 def value_comment_pairs_to_conda(
     value_comment_list: list[tuple[Tstr_opt, Tstr_opt]],
+    sort: bool = True,
 ) -> dict[str, Any]:
     """Convert raw value/comment pairs to install lines"""
 
-    conda_deps: list[Tstr_opt] = []
-    pip_deps: list[Tstr_opt] = []
+    conda_deps: list[str] = []
+    pip_deps: list[str] = []
 
     def _check_value(value: Any) -> None:
         if not value:
@@ -290,18 +291,22 @@ def value_comment_pairs_to_conda(
         if comment and (parsed := parse_p2c_comment(comment)):
             if parsed["pip"]:
                 _check_value(value)
-                pip_deps.append(value)
+                pip_deps.append(value)  # type: ignore
             elif not parsed["skip"]:
                 _check_value(value)
 
                 if parsed["channel"]:
                     conda_deps.append("{}::{}".format(parsed["channel"], value))
                 else:
-                    conda_deps.append(value)
+                    conda_deps.append(value)  # type: ignore
 
             conda_deps.extend(parsed["package"])
         elif value:
             conda_deps.append(value)
+
+    if sort:
+        conda_deps = sorted(conda_deps)
+        pip_deps = sorted(pip_deps)
 
     return {"dependencies": conda_deps, "pip": pip_deps}
 
@@ -313,6 +318,7 @@ def pyproject_to_conda_lists(
     python_include: Tstr_opt = None,
     python_version: Tstr_opt = None,
     include_base_dependencies: bool = True,
+    sort: bool = True,
 ) -> dict[str, Any]:
     if python_include == "get":
         python_include = (
@@ -334,6 +340,7 @@ def pyproject_to_conda_lists(
 
     output = value_comment_pairs_to_conda(
         value_comment_list,
+        sort=sort,
     )
 
     if python_include:
@@ -359,6 +366,7 @@ def pyproject_to_conda(
     python_version: Tstr_opt = None,
     include_base_dependencies: bool = True,
     header_cmd: Tstr_opt = None,
+    sort: bool = True,
 ) -> str:
     output = pyproject_to_conda_lists(
         data=data,
@@ -367,6 +375,7 @@ def pyproject_to_conda(
         python_include=python_include,
         python_version=python_version,
         include_base_dependencies=include_base_dependencies,
+        sort=sort,
     )
     return _output_to_yaml(**output, name=name, stream=stream, header_cmd=header_cmd)
 
@@ -502,6 +511,7 @@ class PyProject2Conda:
         python_version: Tstr_opt = None,
         include_base_dependencies: bool = True,
         header_cmd: str | None = None,
+        sort: bool = True,
     ) -> str:
         self._check_extras(extras)
 
@@ -515,6 +525,7 @@ class PyProject2Conda:
             python_version=python_version,
             include_base_dependencies=include_base_dependencies,
             header_cmd=header_cmd,
+            sort=sort,
         )
 
     def to_conda_lists(
@@ -524,6 +535,7 @@ class PyProject2Conda:
         python_include: Tstr_opt = None,
         python_version: Tstr_opt = None,
         include_base_dependencies: bool = True,
+        sort: bool = True,
     ) -> dict[str, Any]:
         self._check_extras(extras)
 
@@ -534,12 +546,14 @@ class PyProject2Conda:
             python_include=python_include or self.python_include,
             python_version=python_version,
             include_base_dependencies=include_base_dependencies,
+            sort=sort,
         )
 
     def to_requirement_list(
         self,
         extras: Tstr_seq_opt = None,
         include_base_dependencies: bool = True,
+        sort: bool = True,
     ) -> list[str]:
         self._check_extras(extras)
 
@@ -548,7 +562,11 @@ class PyProject2Conda:
             extras=extras,
             include_base_dependencies=include_base_dependencies,
         )
-        return [x for x, y in values if x is not None]
+        out = (x for x, y in values if x is not None)
+        if sort:
+            return sorted(out)
+        else:
+            return list(out)
 
     def to_requirements(
         self,
@@ -556,13 +574,16 @@ class PyProject2Conda:
         include_base_dependencies: bool = True,
         header_cmd: str | None = None,
         stream: str | Path | TextIO | None = None,
+        sort: bool = True,
     ) -> str:
         """Create requirements.txt like file with pip dependencies."""
 
         self._check_extras(extras)
 
         reqs = self.to_requirement_list(
-            extras=extras, include_base_dependencies=include_base_dependencies
+            extras=extras,
+            include_base_dependencies=include_base_dependencies,
+            sort=sort,
         )
 
         s = _add_header(_list_to_str(reqs), header_cmd)
@@ -580,6 +601,7 @@ class PyProject2Conda:
         stream_pip: str | Path | TextIO | None = None,
         include_base_dependencies: bool = True,
         header_cmd: Tstr_opt = None,
+        sort: bool = True,
     ) -> tuple[str, str]:
         output = self.to_conda_lists(
             extras=extras,
@@ -587,6 +609,7 @@ class PyProject2Conda:
             python_include=python_include,
             python_version=python_version,
             include_base_dependencies=include_base_dependencies,
+            sort=sort,
         )
 
         deps = output.get("dependencies", None)

@@ -293,7 +293,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(extras="test")
+    out = d.to_conda_yaml(extras="test", sort=False)
 
     expected = """\
 channels:
@@ -303,6 +303,23 @@ dependencies:
   - conda-forge::cthing
   - pandas
   - conda-forge::pytest
+  - pip
+  - pip:
+      - athing
+    """
+
+    assert dedent(expected) == out
+
+    out = d.to_conda_yaml(extras="test", sort=True)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - pandas
   - pip
   - pip:
       - athing
@@ -334,6 +351,23 @@ dependencies:
   - conda-forge::pytest
   - additional-thing
   - conda-matplotlib
+  - pip
+  - pip:
+      - athing
+    """
+
+    assert dedent(expected) == d.to_conda_yaml("dev", sort=False)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - additional-thing
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
   - pip
   - pip:
       - athing

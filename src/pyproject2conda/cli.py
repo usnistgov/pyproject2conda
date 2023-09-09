@@ -55,6 +55,17 @@ BASE_DEPENDENCIES_CLI = click.option(
     environments that should exclude base dependencies (like build, etc) in pyproject.toml.
     """,
 )
+SORT_DEPENDENCIES_CLI = click.option(
+    "--sort/--no-sort",
+    "sort",
+    is_flag=True,
+    default=True,
+    help="""
+    Default is to sort the dependencies (excluding `--python-include`).
+    Pass `--no-sort` to instead place dependencies in order they are gathered.
+    """,
+)
+
 PYTHON_INCLUDE_CLI = click.option(
     "--python-include",
     "python_include",
@@ -152,6 +163,7 @@ def _get_header_cmd(header: bool | None, output: click.Path | None) -> str | Non
 @PYTHON_INCLUDE_CLI
 @PYTHON_VERSION_CLI
 @BASE_DEPENDENCIES_CLI
+@SORT_DEPENDENCIES_CLI
 @HEADER_CLI  # type: ignore[no-untyped-def]
 def yaml(
     extras,
@@ -162,6 +174,7 @@ def yaml(
     python_include,
     python_version,
     base,
+    sort,
     header,
 ):
     """Create yaml file from dependencies and optional-dependencies."""
@@ -179,6 +192,7 @@ def yaml(
         python_version=python_version,
         include_base_dependencies=base,
         header_cmd=_get_header_cmd(header, output),
+        sort=sort,
     )
     if not output:
         click.echo(s, nl=False)
@@ -189,12 +203,14 @@ def yaml(
 @PYPROJECT_CLI
 @OUTPUT_CLI
 @BASE_DEPENDENCIES_CLI
+@SORT_DEPENDENCIES_CLI
 @HEADER_CLI  # type: ignore[no-untyped-def]
 def requirements(
     extras,
     filename,
     output,
     base,
+    sort,
     header,
 ):
     """Create requirements.txt for pip depedencies."""
@@ -205,6 +221,7 @@ def requirements(
         stream=output,
         include_base_dependencies=base,
         header_cmd=_get_header_cmd(header, output),
+        sort=sort,
     )
     if not output:
         click.echo(s, nl=False)
@@ -217,6 +234,7 @@ def requirements(
 @CHANNEL_CLI
 @PYPROJECT_CLI
 @BASE_DEPENDENCIES_CLI
+@SORT_DEPENDENCIES_CLI
 @HEADER_CLI
 @click.option(
     "--prefix",
@@ -241,6 +259,7 @@ def conda_requirements(
     base,
     prefix,
     prepend_channel,
+    sort,
     header,
     # paths,
     path_conda,
@@ -279,6 +298,7 @@ def conda_requirements(
         stream_pip=path_pip,
         include_base_dependencies=base,
         header_cmd=_get_header_cmd(header, path_conda),
+        sort=sort,
     )
 
     if not path_conda:
@@ -292,6 +312,7 @@ def conda_requirements(
 @PYTHON_VERSION_CLI
 @CHANNEL_CLI
 @PYPROJECT_CLI
+@SORT_DEPENDENCIES_CLI
 @OUTPUT_CLI
 @BASE_DEPENDENCIES_CLI  # type: ignore[no-untyped-def]
 def to_json(
@@ -300,6 +321,7 @@ def to_json(
     python_version,
     channels,
     filename,
+    sort,
     output,
     base,
 ):
@@ -322,6 +344,7 @@ def to_json(
         python_include=python_include,
         python_version=python_version,
         include_base_dependencies=base,
+        sort=sort,
     )
 
     if output:

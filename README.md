@@ -280,8 +280,8 @@ channels:
 dependencies:
   - bthing-conda
   - conda-forge::cthing
-  - pandas
   - conda-forge::pytest
+  - pandas
   - pip
   - pip:
       - athing
@@ -299,12 +299,12 @@ $ pyproject2conda yaml -f tests/test-pyproject.toml -e dev
 channels:
   - conda-forge
 dependencies:
+  - additional-thing
   - bthing-conda
   - conda-forge::cthing
-  - pandas
   - conda-forge::pytest
-  - additional-thing
   - conda-matplotlib
+  - pandas
   - pip
   - pip:
       - athing
@@ -370,8 +370,8 @@ channels:
 dependencies:
   - bthing-conda
   - conda-forge::cthing
-  - pandas
   - conda-forge::pytest
+  - pandas
   - pip
   - pip:
       - athing
@@ -467,7 +467,8 @@ $ pyproject2conda --help
 Usage: pyproject2conda [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  --help  Show this message and exit.
+  --version  Show the version and exit.
+  --help     Show this message and exit.
 
 Commands:
   conda-requirements  Create requirement files for conda and pip.
@@ -528,6 +529,9 @@ Options:
                           exclude base dependencies. This is useful to define
                           environments that should exclude base dependencies
                           (like build, etc) in pyproject.toml.
+  --sort / --no-sort      Default is to sort the dependencies (excluding
+                          `--python-include`). Pass `--no-sort` to instead
+                          place dependencies in order they are gathered.
   --header / --no-header  If True (--header) include header line in output.
                           Default is to include the header for output to a
                           file, and not to include header when writing to
@@ -556,6 +560,9 @@ Options:
                           exclude base dependencies. This is useful to define
                           environments that should exclude base dependencies
                           (like build, etc) in pyproject.toml.
+  --sort / --no-sort      Default is to sort the dependencies (excluding
+                          `--python-include`). Pass `--no-sort` to instead
+                          place dependencies in order they are gathered.
   --header / --no-header  If True (--header) include header line in output.
                           Default is to include the header for output to a
                           file, and not to include header when writing to
@@ -601,6 +608,9 @@ Options:
                           exclude base dependencies. This is useful to define
                           environments that should exclude base dependencies
                           (like build, etc) in pyproject.toml.
+  --sort / --no-sort      Default is to sort the dependencies (excluding
+                          `--python-include`). Pass `--no-sort` to instead
+                          place dependencies in order they are gathered.
   --header / --no-header  If True (--header) include header line in output.
                           Default is to include the header for output to a
                           file, and not to include header when writing to
@@ -641,6 +651,9 @@ Options:
   -c, --channel TEXT     conda channel.  Can specify. Overrides
                          [tool.pyproject2conda.channels]
   -f, --file PATH        input pyproject.toml file
+  --sort / --no-sort     Default is to sort the dependencies (excluding
+                         `--python-include`). Pass `--no-sort` to instead
+                         place dependencies in order they are gathered.
   -o, --output PATH      File to output results
   --base / --no-base     Default is to include base (project.dependencies)
                          with extras. However, passing `--no-base` will

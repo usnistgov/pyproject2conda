@@ -291,3 +291,7 @@ nbqa-typing: nbqa-mypy nbqa-pyright ## run nbqa mypy/pyright
 .PHONY: pytest-nbval
 pytest-nbval:  ## run pytest --nbval
 	pytest --nbval --current-env --sanitize-with=config/nbval.ini $(NOTEBOOKS) -x
+
+.PHONY: cog-readme
+cog-readme: ## apply cog to README.md
+	cog -rP README.md
