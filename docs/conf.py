@@ -119,10 +119,10 @@ nb_execution_allow_errors = True
 # - top level variables --------------------------------------------------------
 # set github_username variable to be subbed later.
 # this makes it easy to switch from wpk -> usnistgov later
-github_username = "wpk-nist-gov"
+github_username = "usnistgov"
 
 html_context = {
-    "github_user": "wpk-nist-gov",
+    "github_user": "usnistgov",
     "github_repo": "pyproject2conda",
     "github_version": "main",
     "doc_path": "docs",

@@ -7,7 +7,7 @@ You can contribute in many ways:
 
 ## Types of Contributions
 
-[issues]: https://github.com/wpk-nist-gov/pyproject2conda/issues
+[issues]: https://github.com/usnistgov/pyproject2conda/issues
 
 ### Report Bugs
 
@@ -404,7 +404,7 @@ conda activate {environment-name or -p path/to/environment}
 [conventional-style]: https://www.conventionalcommits.org/en/v1.0.0/
 [commitizen]: https://github.com/commitizen-tools/commitizen
 [nb_conda_kernels]: https://github.com/Anaconda-Platform/nb_conda_kernels
-[pyproject2conda]: https://github.com/wpk-nist-gov/pyproject2conda
+[pyproject2conda]: https://github.com/usnistgov/pyproject2conda
 [nbqa]: https://github.com/nbQA-dev/nbQA
 
 We recommend installing the following tools with [pipx] or [condax]. If you'd

@@ -11,7 +11,7 @@ pip install pyproject2conda
 or
 
 ```bash
-conda install -c wpk-nist pyproject2conda
+conda install -c conda-forge pyproject2conda
 ```
 
 This is the preferred method to install pyproject2conda, as it will always
@@ -24,7 +24,7 @@ The sources for pyproject2conda can be downloaded from the [Github repo].
 You can either clone the public repository:
 
 ```bash
-git clone git://github.com/wpk-nist-gov/pyproject2conda.git
+git clone git://github.com/usnistgov/pyproject2conda.git
 ```
 
 Once you have a copy of the source, you can install it with:
@@ -51,4 +51,4 @@ pyproject2conda yaml -o environment/base.yaml
 where options in brackets are options (for environment name, and editable
 install, respectively).
 
-[github repo]: https://github.com/wpk-nist-gov/pyproject2conda
+[github repo]: https://github.com/usnistgov/pyproject2conda

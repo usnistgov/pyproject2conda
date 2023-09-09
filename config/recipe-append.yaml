@@ -8,7 +8,7 @@ test:
     - pip
 
 about:
-  home: https://github.com/wpk-nist-gov/pyproject2conda
+  home: https://github.com/usnistgov/pyproject2conda
   summary:
     A script to convert a Python project declared on a pyproject.toml to a conda
     environment.
