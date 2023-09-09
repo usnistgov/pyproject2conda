@@ -132,9 +132,9 @@ Note the comment lines `# p2c:...`. These are special tokens that
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False)]]] -->
+<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False, wrapper="text")]]] -->
 
-```bash
+```text
 usage: -c [-h] [-c CHANNEL] [-p] [-s] [package ...]
 
 Parser searches for comments '# p2c: [OPTIONS]
@@ -280,8 +280,8 @@ channels:
 dependencies:
   - bthing-conda
   - conda-forge::cthing
-  - pandas
   - conda-forge::pytest
+  - pandas
   - pip
   - pip:
       - athing
@@ -299,12 +299,12 @@ $ pyproject2conda yaml -f tests/test-pyproject.toml -e dev
 channels:
   - conda-forge
 dependencies:
+  - additional-thing
   - bthing-conda
   - conda-forge::cthing
-  - pandas
   - conda-forge::pytest
-  - additional-thing
   - conda-matplotlib
+  - pandas
   - pip
   - pip:
       - athing
@@ -370,8 +370,8 @@ channels:
 dependencies:
   - bthing-conda
   - conda-forge::cthing
-  - pandas
   - conda-forge::pytest
+  - pandas
   - pip
   - pip:
       - athing
@@ -385,12 +385,10 @@ dependencies:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=28, end=None)]]] -->
+<!-- [[[cog cat_lines(begin=30, end=None)]]] -->
 
 ```toml
 # ...
-]
-
 [tool.pyproject2conda]
 channels = ['conda-forge']
 # ...
@@ -462,14 +460,15 @@ dependencies:
 ### CLI options
 
 <!-- prettier-ignore-start -->
-<!-- [[[cog run_command("pyproject2conda --help")]]] -->
+<!-- [[[cog run_command("pyproject2conda --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda --help
 Usage: pyproject2conda [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  --help  Show this message and exit.
+  --version  Show the version and exit.
+  --help     Show this message and exit.
 
 Commands:
   conda-requirements  Create requirement files for conda and pip.
@@ -481,9 +480,9 @@ Commands:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda list --help")]]] -->
+<!-- [[[cog run_command("pyproject2conda list --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda list --help
 Usage: pyproject2conda list [OPTIONS]
 
@@ -497,9 +496,9 @@ Options:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda yaml --help")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda yaml --help
 Usage: pyproject2conda yaml [OPTIONS]
 
@@ -530,6 +529,9 @@ Options:
                           exclude base dependencies. This is useful to define
                           environments that should exclude base dependencies
                           (like build, etc) in pyproject.toml.
+  --sort / --no-sort      Default is to sort the dependencies (excluding
+                          `--python-include`). Pass `--no-sort` to instead
+                          place dependencies in order they are gathered.
   --header / --no-header  If True (--header) include header line in output.
                           Default is to include the header for output to a
                           file, and not to include header when writing to
@@ -539,9 +541,10 @@ Options:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda requirements --help")]]] -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda requirements --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda requirements --help
 Usage: pyproject2conda requirements [OPTIONS]
 
@@ -557,6 +560,9 @@ Options:
                           exclude base dependencies. This is useful to define
                           environments that should exclude base dependencies
                           (like build, etc) in pyproject.toml.
+  --sort / --no-sort      Default is to sort the dependencies (excluding
+                          `--python-include`). Pass `--no-sort` to instead
+                          place dependencies in order they are gathered.
   --header / --no-header  If True (--header) include header line in output.
                           Default is to include the header for output to a
                           file, and not to include header when writing to
@@ -566,9 +572,10 @@ Options:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda conda-requirements --help")]]] -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda conda-requirements --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda conda-requirements --help
 Usage: pyproject2conda conda-requirements [OPTIONS] [PATH_CONDA] [PATH_PIP]
 
@@ -601,6 +608,9 @@ Options:
                           exclude base dependencies. This is useful to define
                           environments that should exclude base dependencies
                           (like build, etc) in pyproject.toml.
+  --sort / --no-sort      Default is to sort the dependencies (excluding
+                          `--python-include`). Pass `--no-sort` to instead
+                          place dependencies in order they are gathered.
   --header / --no-header  If True (--header) include header line in output.
                           Default is to include the header for output to a
                           file, and not to include header when writing to
@@ -613,9 +623,9 @@ Options:
 
 <!-- [[[end]]] -->
 
-<!-- [[[cog run_command("pyproject2conda json --help")]]] -->
+<!-- [[[cog run_command("pyproject2conda json --help", wrapper="text")]]] -->
 
-```bash
+```text
 $ pyproject2conda json --help
 Usage: pyproject2conda json [OPTIONS]
 
@@ -641,6 +651,9 @@ Options:
   -c, --channel TEXT     conda channel.  Can specify. Overrides
                          [tool.pyproject2conda.channels]
   -f, --file PATH        input pyproject.toml file
+  --sort / --no-sort     Default is to sort the dependencies (excluding
+                         `--python-include`). Pass `--no-sort` to instead
+                         place dependencies in order they are gathered.
   -o, --output PATH      File to output results
   --base / --no-base     Default is to include base (project.dependencies)
                          with extras. However, passing `--no-base` will
@@ -670,7 +683,7 @@ TBD
 
 ## Contact
 
-The author can be reached at wpk@nist.gov.
+The author can be reached at <wpk@nist.gov>.
 
 ## Credits
 

@@ -39,7 +39,74 @@ homepage = "https://github.com/wpk-nist-gov/pyproject2conda"
 documentation = "https://pages.nist.gov/pyproject2conda/"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov", "pytest-xdist", "pytest-sugar"]
+test = [
+    "pytest", #
+    "pytest-xdist",
+    "pytest-cov",
+    "pytest-sugar",
+]
+dev-extras = [
+    "setuptools-scm", #
+    "pytest-accept", # p2c: -p
+    "ipython",
+    "ipykernel",
+    # "nbval",
+
+]
+typing-extras = [
+    "pytype; python_version < '3.11'", #
+    "mypy >= 1.4.1",
+    "types-click",
+]
+typing = [
+    "pyproject2conda[typing-extras]", #
+    "pyproject2conda[test]",
+]
+nox = [
+    "nox",
+    "noxopt", # p2c: -p
+    "ruamel.yaml",
+]
+dev = [
+    "pyproject2conda[test]", #
+    "pyproject2conda[typing-extras]",
+    "pyproject2conda[dev-extras]",
+]
+tools = [
+    "pre-commit", #
+    "cruft",
+    "scriv",
+    "nbqa",
+]
+dev-complete = [
+    "pyproject2conda[dev]", #
+    "pyproject2conda[tools]",
+    "pyproject2conda[nox]",
+]
+docs = [
+    "ipython", #
+    "pyenchant",
+    "ghp-import",
+    "sphinx >= 5.3.0",
+    "sphinx-copybutton",
+    "sphinxcontrib-spelling",
+    "sphinx-autobuild",
+    "myst-nb",
+    "sphinx-book-theme",
+    "autodocsumm",
+]
+# to be parsed with pyproject2conda with --no-base option
+dist-pypi = ["twine", "build"]
+dist-conda = [
+    "anaconda-client", #
+    "grayskull",
+    "conda-build",
+    "conda-verify",
+    "boa",
+]
+
+[tool.pyproject2conda]
+channels = ["conda-forge"]
 
 [project.scripts]
 pyproject2conda = "pyproject2conda.cli:app"
@@ -56,7 +123,6 @@ where = ["src"]
 
 ## include = []
 ## exclude = []
-##
 [tool.setuptools.dynamic]
 readme = { file = [
     "README.md",
@@ -66,13 +132,19 @@ readme = { file = [
 
 [tool.setuptools_scm]
 fallback_version = "999"
+write_to = "src/pyproject2conda/_version.py"
 
 [tool.aliases]
 test = "pytest"
 
 [tool.pytest.ini_options]
-addopts = "--verbose --doctest-modules --doctest-glob='*.md'"
+addopts = "--doctest-modules --doctest-glob='*.md'"
 testpaths = ["tests", "README.md"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:", "@overload"]
+omit = ["*/vendored/*"]
+include = ["src/*"]
 
 [tool.isort]
 profile = "black"
@@ -82,7 +154,6 @@ known_first_party = ["pyproject2conda"]
 [tool.ruff]
 fix = true
 line-length = 88
-update-check = false
 target-version = "py38"
 select = [
     # pyflakes
@@ -229,13 +300,14 @@ use_shortcuts = true
 [tool.cruft]
 
 [tool.mypy]
-files = ["src/pyproject2conda"]
+files = ["src/pyproject2conda", "tests"]
 show_error_codes = true
 warn_unused_ignores = true
 warn_return_any = true
 warn_unused_configs = true
-exclude = [".eggs", ".tox", "doc", "docs"]
+exclude = [".eggs", ".tox", "doc", "docs", ".nox"]
 check_untyped_defs = true
+strict = true
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
@@ -247,7 +319,9 @@ module = []
 
 [tool.pyright]
 include = ["src", "tests"]
-exclude = ["**/__pycache__", ".tox/**", "**/.mypy_cache"]
+exclude = ["**/__pycache__", ".tox/**", ".nox/**", "**/.mypy_cache"]
+# TODO: add strict to pyright
+# strict = ["src"]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
 # enable subset of "strict"

@@ -43,7 +43,7 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '__pycache__' -exec rm -fr {} +
 
 clean-test: ## remove test and coverage artifacts
-	rm -fr .tox/
+	rm -fr .nox/
 	rm -f .coverage
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
@@ -103,7 +103,7 @@ pre-commit-codespell: ## run codespell. Note that this imports allowed words fro
 ################################################################################
 .PHONY: user-venv user-autoenv-zsh user-all
 user-venv: ## create .venv file with name of conda env
-	echo $${PWD}/.tox/dev > .venv
+	echo $${PWD}/.nox/pyproject2conda/envs/dev > .venv
 
 user-autoenv-zsh: ## create .autoenv.zsh files
 	echo conda activate $$(cat .venv) > .autoenv.zsh
@@ -133,170 +133,121 @@ coverage: ## check code coverage quickly with the default Python
 # versioning
 ################################################################################
 .PHONY: version-scm version-import version
-version-scm: ## check version of package
+
+version-scm: ## check/update version of package with setuptools-scm
 	python -m setuptools_scm
 
 version-import: ## check version from python import
-	python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
+	-python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
 
 version: version-scm version-import
 
 ################################################################################
 # Environment files
 ################################################################################
-ENVIRONMENTS = $(addsuffix .yaml,$(addprefix environment/, dev docs test))
-PRETTIER = bash scripts/run-prettier.sh
-
-environment/%.yaml: environment.yaml environment/%-extras.yaml ## create combined environment/{dev,docs,test}.yaml
-	conda-merge $^ > $@
-	$(PRETTIER) $@
-
-environment/dev.yaml: ## development environment yaml file
-environment/test.yaml: ## testing environment yaml file
-enviornment/docs.yaml: ## docs environment yaml file
-
-
-# special for linters
-environment/lint.yaml: environment.yaml $(addsuffix .yaml, $(addprefix environment/, test-extras lint-extras)) ## mypy environment
-	echo $^
-	conda-merge $^ > $@
-	$(PRETTIER) $@
-
-ENVIRONMENTS += environment/lint.yaml
-
 .PHONY: environment-files-clean
 environment-files-clean: ## clean all created environment/{dev,docs,test}.yaml
 	-rm $(ENVIRONMENTS) 2> /dev/null || true
 
 .PHONY: environment-files-build
-environment-files-build: $(ENVIRONMENTS) ## rebuild all environment files
+environment-files-build: pyproject.toml ## rebuild all environment files
+	nox -s requirements
+
+environment/%.yaml: pyproject.toml
+	nox -s requirements
 
 ################################################################################
 # virtual env
 ################################################################################
-.PHONY: mamba-env mamba-dev mamba-env-update mamba-dev-update
+.PHONY: mamba-env-update mamba-dev-update
 
-mamba-env: environment.yaml ## create base environment
+mamba-dev: environment/dev.yaml environment-files-build ## create development environment
 	mamba env create -f $<
 
-mamba-env-update: environment.yaml ## update base environment
-	mamba env update -f $<
-
-mamba-dev: environment/dev.yaml ## create development environment
-	mamba env create -f $<
-
-mamba-dev-update: environment/dev.yaml ## update development environment
+mamba-dev-update: environment/dev.yaml environment-files-build ## update development environment
 	mamba env update -f $<
 
 ################################################################################
-# TOX
+# NOX
 ###############################################################################
-tox_args?=-v
-version?=
-TOX=CONDA_EXE=mamba SETUPTOOLS_SCM_PRETEND_VERSION=$(version) tox $(tox_args)
-
-.PHONY: tox-ipykernel-display-name
-tox-ipykernel-display-name: ## Update display-name for any tox env with ipykernel
-	bash ./scripts/tox-ipykernel-display-name.sh pyproject2conda
-
 ## dev env
+NOX=nox
 .PHONY: dev-env
-dev-env: environment/dev.yaml ## create development environment using tox
-	tox -e dev
+dev-env: environment/py310-dev.yaml ## create development environment using nox
+	$(NOX) -e dev
 
 ## testing
 .PHONY: test-all
-test-all: environment/test.yaml ## run tests on every Python version with tox.  can pass posargs=...
-	$(TOX) -- $(posargs)
+test-all: environment/py310-test.yaml ## run tests on every Python version with nox.
+	$(NOX) -s test
 
 ## docs
-.PHONY: docs-examples-symlink
-docs-examples-symlink: ## create symlinks to notebooks from /examples/ to /docs/examples.
-	bash ./scripts/docs-examples-symlinks.sh
-
-
 .PHONY: docs-build docs-release docs-clean docs-command
 docs-build: ## build docs in isolation
-	$(TOX) -e docs -- build
+	$(NOX) -s docs -- -d build
 docs-clean: ## clean docs
 	rm -rf docs/_build/*
 	rm -rf docs/generated/*
 	rm -rf docs/reference/generated/*
 docs-clean-build: docs-clean docs-build ## clean and build
-docs-release: ## release docs.  use release_args=... to override stuff
-	$(TOX) -e docs -- release
-docs-command: ## run command with command=...
-	$(TOX) -e docs -- command
+docs-release: ## release docs.
+	$(NOX) -s docs -- -d release
+docs-command: ## run arbitrary command with command=...
+	$(NOX) -s docs -- --docs-run $(command)
 
 .PHONY: .docs-spelling docs-nist-pages docs-open docs-livehtml docs-clean-build docs-linkcheck
 docs-spelling: ## run spell check with sphinx
-	$(TOX) -e docs -- spelling
+	$(NOX) -s docs -- -d spelling
 docs-livehtml: ## use autobuild for docs
-	$(TOX) -e docs -- livehtml
+	$(NOX) -s docs -- -d livehtml
 docs-open: ## open the build
-	$(BROWSER) docs/_build/html/index.html
+	$(NOX) -s docs -- -d open
 docs-linkcheck: ## check links
-	$(TOX) -e docs -- linkcheck
+	$(NOX) -s docs -- -d linkcheck
 
-docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: environment/docs.yaml
+docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: environment/py310-docs.yaml
 
-## linting
-.PHONY: lint-mypy lint-pyright lint-pytype lint-all lint-command
-lint-mypy: ## run mypy mypy_args=...
-	$(TOX) -e lint -- mypy
-lint-pyright: ## run pyright pyright_args=...
-	$(TOX) -e lint -- pyright
-lint-pytype: ## run pytype pytype_args=...
-	$(TOX) -e lint -- pytype
-lint-all:
-	$(TOX) -e lint -- all
-lint-command:
-	$(TOX) -e lint -- command
-
-lint-mypy lint-pyright lint-pytype lint-all lint-command: environment/lint.yaml
+## typing
+.PHONY: typing-mypy typing-pyright typing-pytype typing-all typing-command
+typing-mypy: ## run mypy mypy_args=...
+	$(NOX) -s typing -- -m mypy
+typing-pyright: ## run pyright pyright_args=...
+	$(NOX) -s typing -- -m pyright
+typing-pytype: ## run pytype pytype_args=...
+	$(NOX) -s typing -- -m pytype
+typing-all:
+	$(NOX) -s typing -- -m mypy pyright pytype
+typing-command:
+	$(NOX) -s typing -- --typing-run $(command)
+typing-mypy typing-pyright typing-pytype typing-all typing-command: environment/py310-typing.yaml
 
 ## distribution
 .PHONY: dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command
 
 dist-pypi-build: ## build dist
-	$(TOX) -e dist-pypi -- build
+	$(NOX) -s dist-pypi -- -p build
 dist-pypi-testrelease: ## test release on testpypi
-	$(TOX) -e dist-pypi -- testrelease
+	$(NOX) -s dist-pypi -- -p testrelease
 dist-pypi-release: ## release to pypi, can pass posargs=...
-	$(TOX) -e dist-pypi -- release
+	$(NOX) -s dist-pypi -- -p release
 dist-pypi-command: ## run command with command=...
-	$(TOX) -e dist-pypi -- command
-dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: environment/dist-pypi.yaml
+	$(NOX) -s dist-pypi -- --dist-pypi-run $(command)
+dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: environment/py310-dist-pypi.yaml
 
 .PHONY: dist-conda-recipe dist-conda-build dist-conda-command
 dist-conda-recipe: ## build conda recipe can pass posargs=...
-	$(TOX) -e dist-conda -- recipe
+	$(NOX) -s dist-conda -- -c recipe
 dist-conda-build: ## build conda recipe can pass posargs=...
-	$(TOX) -e dist-conda -- build
+	$(NOX) -s dist-conda -- -c build
 dist-conda-command: ## run command with command=...
-	$(TOX) -e dist-conda -- command
-dist-conda-build dist-conda-recipe dist-conda-command: environment/dist-conda.yaml
+	$(NOX) -s dist-conda -- -dist-conda-run $(command)
+dist-conda-build dist-conda-recipe dist-conda-command: environment/py310-dist-conda.yaml
 
-
-## test distribution
-.PHONY: testdist-pypi-remote testdist-conda-remote testdist-pypi-local testdist-conda-local
-
-py?=310
-testdist-pypi-remote: ## testdist-pypi-remote: ## test pypi install, can run as `make test-dist-pypi-remote py=39` to run test-dist-pypi-local-py39.  Can specify version setting, eg,  TEST_VERSION='==0.1.0'.  Note that the the format should be '=={version}'.
-	$(TOX) -e $@-py$(py) -- $(posargs)
-testdist-conda-remote: ## test conda install, can run as `make test-dist-conda-remote py=39` to run test-dist-conda-local-py39
-	$(TOX) -e $@-py$(py) -- $(poasargs)
-testdist-pypi-local: ## test pypi install, can run as `make test-dist-pypi-local py=39` to run test-dist-pypi-local-py39
-	$(TOX) -e $@-py$(py) -- $(posargs)
-testdist-conda-local: ## test conda install, can run as `make test-dist-conda-local py=39` to run test-dist-conda-local-py39
-	$(TOX) -e $@-py$(py) -- $(poasargs)
-
-testdist-pypi-remote testdist-conda-remote testdist-pypi-local testdist-conda-local: environment/test.yaml
 
 ## list all options
-.PHONY: tox-list
-tox-list:
-	$(TOX) -a
+.PHONY: nox-list
+nox-list:
+	$(NOX) --list
 
 
 ################################################################################
@@ -321,7 +272,25 @@ auto-changelog: ## autogenerate changelog and print to stdout
 commitizen-changelog:
 	cz changelog --unreleased-version unreleased --dry-run --incremental
 
-# --- cog output -- --------------------------------------------------------------------
+# tuna analyze load time:
+.PHONY: tuna-analyze
+tuna-import: ## Analyze load time for module
+	python -X importtime -c 'import pyproject2conda' 2> tuna-loadtime.log
+	tuna tuna-loadtime.log
+	rm tuna-loadtime.log
+
+# nbqa-mypy
+NOTEBOOKS ?= examples/usage
+.PHONY: nbqa-mypy nbqa-pyright nbqa-typing
+nbqa-mypy: ## run nbqa mypy
+	nbqa --nbqa-shell mypy $(NOTEBOOKS)
+nbqa-pyright: ## run nbqa pyright
+	nbqa --nbqa-shell pyright $(NOTEBOOKS)
+nbqa-typing: nbqa-mypy nbqa-pyright ## run nbqa mypy/pyright
+
+.PHONY: pytest-nbval
+pytest-nbval:  ## run pytest --nbval
+	pytest --nbval --current-env --sanitize-with=config/nbval.ini $(NOTEBOOKS) -x
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md
