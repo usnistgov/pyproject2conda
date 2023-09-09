@@ -9,7 +9,7 @@
 
 <!-- example -->
 installation
-examples/index
+<!-- examples/index -->
 reference/index
 license
 contributing

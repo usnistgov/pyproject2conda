@@ -1,4 +1,7 @@
-"""Console script for pyproject2conda."""
+"""
+Console script for pyproject2conda (:mod:`pyproject2conda.cli`)
+===============================================================
+"""
 
 from __future__ import annotations
 
