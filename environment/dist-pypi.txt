@@ -3,5 +3,5 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-twine
 build
+twine

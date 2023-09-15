@@ -44,7 +44,7 @@ def pkg_install_condaenv(
     lock: bool = False,
     display_name: str | None = None,
     install_package: bool = True,
-    force_reinstall: bool = False,
+    update: bool = False,
     log_session: bool = False,
     deps: Collection[str] | None = None,
     reqs: Collection[str] | None = None,
@@ -69,7 +69,7 @@ def pkg_install_condaenv(
             session=session,
             lockfile=check_filename(filename),
             display_name=display_name,
-            force_reinstall=force_reinstall,
+            update=update,
             install_package=install_package,
             **kwargs,
         )
@@ -86,7 +86,7 @@ def pkg_install_condaenv(
             session,
             check_filename(filename),
             display_name=display_name,
-            force_reinstall=force_reinstall,
+            update=update,
             deps=deps,
             reqs=reqs,
             channels=channels,
@@ -107,7 +107,7 @@ def pkg_install_venv(
     extras: str | Collection[str] | None = None,
     reqs: Collection[str] | None = None,
     display_name: str | None = None,
-    force_reinstall: bool = False,
+    update: bool = False,
     install_package: bool = False,
     no_deps: bool = False,
     log_session: bool = False,
@@ -123,7 +123,7 @@ def pkg_install_venv(
             extras=extras,
             reqs=reqs,
             display_name=display_name,
-            force_reinstall=force_reinstall,
+            update=update,
             install_package=install_package,
             no_deps=no_deps,
         )
@@ -306,7 +306,7 @@ def session_install_envs_lock(
     lockfile: str | Path,
     extras: str | list[str] | None = None,
     display_name: str | None = None,
-    force_reinstall: bool = False,
+    update: bool = False,
     install_package: bool = False,
 ) -> bool:
     """Install dependencies using conda-lock."""
@@ -317,7 +317,7 @@ def session_install_envs_lock(
     unchanged, hashes = env_unchanged(
         session, lockfile, prefix="lock", other=dict(install_package=install_package)
     )
-    if unchanged and not force_reinstall:
+    if unchanged and not update:
         return unchanged
 
     if extras:
@@ -410,7 +410,7 @@ def session_install_envs(
     conda_install_kws: dict[str, Any] | None = None,
     install_kws: dict[str, Any] | None = None,
     display_name: str | None = None,
-    force_reinstall: bool = False,
+    update: bool = False,
     install_package: bool = False,
 ) -> bool:
     """Parse and install everything. Pass an already merged yaml file."""
@@ -436,7 +436,7 @@ def session_install_envs(
             install_package=install_package,
         ),
     )
-    if unchanged and not force_reinstall:
+    if unchanged and not update:
         return unchanged
 
     if not channels:
@@ -444,9 +444,14 @@ def session_install_envs(
     if deps:
         conda_install_kws = conda_install_kws or {}
         conda_install_kws.update(channel=channels)
+        if update:
+            deps = ["--update-all"] + list(deps)
+
         session.conda_install(*deps, **(conda_install_kws or {}))
 
     if reqs:
+        if update:
+            reqs = ["--upgrade"] + list(reqs)
         session.install(*reqs, **(install_kws or {}))
 
     if install_package:
@@ -466,7 +471,7 @@ def session_install_pip(
     extras: str | Collection[str] | None = None,
     reqs: str | Collection[str] | None = None,
     display_name: str | None = None,
-    force_reinstall: bool = False,
+    update: bool = False,
     install_package: bool = False,
     no_deps: bool = False,
 ) -> bool:
@@ -508,7 +513,7 @@ def session_install_pip(
         ),
     )
 
-    if unchanged and not force_reinstall:
+    if unchanged and not update:
         return unchanged
 
     install_args = (
@@ -518,6 +523,8 @@ def session_install_pip(
     )
 
     if install_args:
+        if update:
+            install_args = ["--upgrade"] + list(install_args)
         session.install(*install_args)
 
     if install_package:
@@ -641,7 +648,7 @@ def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
 #     conda_install_kws=None,
 #     install_kws=None,
 #     display_name=None,
-#     force_reinstall=False,
+#     update=False,
 # ) -> bool:
 #     """Merge files (using conda-merge) and then create env"""
 
@@ -651,7 +658,7 @@ def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
 #     unchanged, hashes = env_unchanged(
 #         session, *paths, prefix="env", other=dict(deps=deps, reqs=reqs)
 #     )
-#     if unchanged and not force_reinstall:
+#     if unchanged and not update:
 #         return unchanged
 
 #     # first create a temporary file for the environment
@@ -945,14 +952,14 @@ def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
 # def conda_merge(
 #     session: Session,
 #     conda_merge_force: bool = False,
-#     force_reinstall: FORCE_REINSTALL_CLI = False,
+#     update: FORCE_REINSTALL_CLI = False,
 # ):
 #     """Merge environments using conda-merge."""
 #     import tempfile
 #     session_install_envs(
 #         session,
 #         reqs=["conda-merge", "ruamel.yaml"],
-#         force_reinstall=force_reinstall,
+#         update=update,
 #     )
 
 #     env_base = ROOT / "environment.yaml"

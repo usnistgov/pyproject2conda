@@ -8,6 +8,6 @@ channels:
 dependencies:
   - python=3.9
   - pytest
-  - pytest-xdist
   - pytest-cov
   - pytest-sugar
+  - pytest-xdist

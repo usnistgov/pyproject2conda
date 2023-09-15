@@ -7,14 +7,14 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
-  - tomli
-  - ruamel.yaml
-  - tomlkit
-  - rich-click
-  - packaging
   - mypy >= 1.4.1
-  - types-click
+  - packaging
   - pytest
-  - pytest-xdist
   - pytest-cov
   - pytest-sugar
+  - pytest-xdist
+  - rich-click
+  - ruamel.yaml
+  - tomli
+  - tomlkit
+  - types-click

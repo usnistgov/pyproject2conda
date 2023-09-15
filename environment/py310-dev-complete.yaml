@@ -7,26 +7,27 @@ channels:
   - conda-forge
 dependencies:
   - python=3.10
-  - tomli
-  - ruamel.yaml
-  - tomlkit
-  - rich-click
-  - packaging
-  - pytest
-  - pytest-xdist
-  - pytest-cov
-  - pytest-sugar
-  - pytype
-  - mypy >= 1.4.1
-  - types-click
-  - setuptools-scm
-  - ipython
   - ipykernel
-  - pre-commit
+  - ipython
+  - mypy >= 1.4.1
   - nbqa
   - nox
+  - packaging
+  - pre-commit
+  - pyright
+  - pytest
+  - pytest-cov
+  - pytest-sugar
+  - pytest-xdist
+  - pytype
+  - rich-click
+  - ruamel.yaml
+  - setuptools-scm
+  - tomli
+  - tomlkit
+  - types-click
   - pip
   - pip:
+      - noxopt
       - pytest-accept
       - scriv
-      - noxopt

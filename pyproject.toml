@@ -72,11 +72,13 @@ dev = [
     "pyproject2conda[typing-extras]",
     "pyproject2conda[dev-extras]",
 ]
+pyright = ["pyright"]
 tools = [
     "pre-commit", #
     # "cruft",
     "scriv", # p2c: -p
     "nbqa",
+    "pyproject2conda[pyright]",
 ]
 dev-complete = [
     "pyproject2conda[dev]", #

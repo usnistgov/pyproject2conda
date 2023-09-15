@@ -68,7 +68,7 @@ repos:
       - id: nbqa-black
         additional_dependencies: [black==23.9.1]
 
-    # * Commit message
+  # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
     rev: 3.9.0
     hooks:
@@ -96,8 +96,8 @@ repos:
         additional_dependencies:
           - flake8-docstrings
           - Flake8-pyproject
-            # - pep8-naming
-            # - flake8-rst-docstrings
+          # - pep8-naming
+          # - flake8-rst-docstrings
         exclude: ^tests/|^src/pyproject2conda/tests/|^docs/conf.py|^setup.py
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.7.0
@@ -119,25 +119,25 @@ repos:
         args: [-I, docs/spelling_wordlist.txt]
         stages: [manual]
 
-    # - repo: local
-    #   hooks:
-    #     - id: mypy
-    #       name: mypy
-    #       entry: tox
-    #       args: ["-e", "lint-mypy"]
-    #       language: system
-    #       pass_filenames: false
-    #       # additional_dependencies: [tox]
-    #       types: [python]
-    #       require_serial: true
-    #       stages: [manual]
-    #     - id: pyright
-    #       name: pyright
-    #       entry: pyright
-    #       args: []
-    #       language: system
-    #       pass_filenames: true
-    #       # additional_dependencies: [tox]
-    #       types: [python]
-    #       require_serial: true
-    #       stages: [manual]
+  # - repo: local
+  #   hooks:
+  #     - id: mypy
+  #       name: mypy
+  #       entry: tox
+  #       args: ["-e", "lint-mypy"]
+  #       language: system
+  #       pass_filenames: false
+  #       # additional_dependencies: [tox]
+  #       types: [python]
+  #       require_serial: true
+  #       stages: [manual]
+  #     - id: pyright
+  #       name: pyright
+  #       entry: pyright
+  #       args: []
+  #       language: system
+  #       pass_filenames: true
+  #       # additional_dependencies: [tox]
+  #       types: [python]
+  #       require_serial: true
+  #       stages: [manual]
