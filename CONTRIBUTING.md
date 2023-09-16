@@ -188,7 +188,7 @@ the search path, and the development environment will include the extras `dev`
 and `nox` from the `project.optional-dependencies` section of the
 `pyproject.toml` file in the development environment.
 
-You can alos create this file using either of the following commands:
+You can also create this file using either of the following commands:
 
 ```bash
 nox -s config -- --python-paths "~/.conda/envs/test-3.*/bin" --dev-extras dev nox...
@@ -226,7 +226,7 @@ following to get help on these options:
 nox -- --help
 ```
 
-Note that these options should be passed _after_ `--`. For exmaple, to build and
+Note that these options should be passed _after_ `--`. For example, to build and
 open the documentation, run:
 
 ```bash

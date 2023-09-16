@@ -295,3 +295,4 @@ pytest-nbval:  ## run pytest --nbval
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md
 	cog -rP README.md
+	pre-commit run markdownlint --files README.md

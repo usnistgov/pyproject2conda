@@ -8,5 +8,6 @@
    :template: autodocsumm/module.rst
 
    parser
+   config
    cli
 ```

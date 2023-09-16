@@ -15,7 +15,7 @@ See the fragment files in
 
 ### Added
 
-- Added `--sort/--no-sort` flag to cli. Default is to sort dependecies. This
+- Added `--sort/--no-sort` flag to cli. Default is to sort dependencies. This
   fixes issues with changing order in `pyproject.toml` leading to different yaml
   files.
 

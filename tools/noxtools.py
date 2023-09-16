@@ -947,7 +947,7 @@ def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
 
 
 ## This should actually go in the noxfile.  Keeping here
-## incase want it again in the future.
+## in case want it again in the future.
 # @group.session(python=PYTHON_DEFAULT_VERSION)
 # def conda_merge(
 #     session: Session,
