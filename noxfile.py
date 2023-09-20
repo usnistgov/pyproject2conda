@@ -245,105 +245,12 @@ def requirements(
         log_session=log_session,
     )
 
-    cmd = ["pyproject2conda", "project", "--verbose"]
-
-    if requirements_force:
-        cmd.extend(["--overwrite", "force"])
-
-    session.run(*cmd)
-
-    # def create_env(
-    #     python_version: str | None = None,
-    #     cmd: Literal["yaml", "requirements"] = "yaml",
-    #     name: str | None = None,
-    #     output: str | None = None,
-    #     extras: str | Sequence[str] | None = None,
-    #     python_include: str | bool = True,
-    #     base: bool = True,
-    # ) -> None:
-    #     def _to_args(flag: str, val: str | Sequence[str] | None) -> list[str]:
-    #         if val is None:
-    #             return []
-    #         if isinstance(val, str):
-    #             val = [val]
-    #         return prepend_flag(flag, *val)
-
-    #     if output is None:
-    #         assert name is not None
-    #         output = session_environment_filename(
-    #             python_version=python_version,
-    #             name=name,
-    #             ext={"yaml": ".yaml", "requirements": ".txt"}[cmd],
-    #         )
-
-    #     if (
-    #         requirements_force
-    #         or update_target(output, "pyproject.toml")
-    #         or update_target(output, "config/userconfig.toml", allow_missing=True)
-    #     ):
-    #         args = [cmd, "-o", output] + _to_args("-e", extras)
-
-    #         if cmd == "yaml":
-    #             if python_version is not None:
-    #                 args.extend(["--python-version", python_version])
-    #             if isinstance(python_include, bool) and python_include:
-    #                 python_include = f"python={python_version}"
-    #             if isinstance(python_include, str):
-    #                 args.extend(["--python-include", python_include])
-
-    #         if not base:
-    #             args.append("--no-base")
-
-    #         session.run("pyproject2conda", *args)
-    #     else:
-    #         session.log(
-    #             f"{output} up to data.  Pass --environments-force to force recreation"
-    #         )
-
-    # extras = load_nox_config().get("environment-extras", {"dev": ["dev", "nox"]})
-    # extras["dev-base"] = ["dev"]
-
-    # # All versions:
-    # for env, python_version in product(["test", "typing"], PYTHON_ALL_VERSIONS):
-    #     create_env(
-    #         name=env,
-    #         extras=extras.get(env, env),
-    #         base=True,
-    #         python_version=python_version,
-    #     )
-
-    # for env, python_version in product(
-    #     ["docs", "dev", "dev-base", "dev-complete"], [PYTHON_DEFAULT_VERSION]
-    # ):
-    #     create_env(
-    #         name=env,
-    #         extras=extras.get(env, env),
-    #         base=True,
-    #         python_version=python_version,
-    #     )
-
-    # # need an isolated set of test requirements
-    # for python_version in PYTHON_ALL_VERSIONS:
-    #     create_env(
-    #         name="test-extras",
-    #         extras="test",
-    #         base=False,
-    #         python_version=python_version,
-    #     )
-
-    # # isolated
-    # for env in ["dist-pypi", "dist-conda"]:
-    #     create_env(
-    #         name=f"{env}",
-    #         extras=env,
-    #         base=False,
-    #         python_version=PYTHON_DEFAULT_VERSION,
-    #     )
-
-    # # isolated requirement files.
-    # # no python versioning for these
-    # for env, extras in [("test-extras", "test"), ("dist-pypi", "dist-pypi")]:
-    #     create_env(name=f"{env}", cmd="requirements", extras=extras, base=False)
+    session.run(
+        "pyproject2conda",
+        "project",
+        "--verbose",
+        *(["--overwrite", "force"] if requirements_force else []),
+    )
 
 
 # ** conda-lock

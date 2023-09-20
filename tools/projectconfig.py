@@ -38,7 +38,7 @@ class ProjectConfig:
     def __init__(
         self,
         python_paths: list[str] | None = None,
-        env_extras: Mapping[str, list[str]] | None = None,
+        env_extras: Mapping[str, Mapping[str, Any]] | None = None,
         copy: bool = True,
     ) -> None:
         python_paths = python_paths or []
@@ -64,11 +64,13 @@ class ProjectConfig:
         )
 
     @staticmethod
-    def _path_to_params(path: str | Path) -> tuple[list[str], dict[str, list[str]]]:
+    def _path_to_params(
+        path: str | Path,
+    ) -> tuple[list[str], dict[str, dict[str, Any]]]:
         path = Path(path)
 
         python_paths: list[str] = []
-        env_extras: dict[str, list[str]] = {}
+        env_extras: dict[str, dict[str, Any]] = {}
 
         if path.exists():
             config = configparser.ConfigParser()
@@ -78,9 +80,9 @@ class ProjectConfig:
             if "nox.python" in config and "paths" in config["nox.python"]:
                 python_paths = json.loads(config["nox.python"]["paths"])
 
-            if "nox.extras" in config:
-                for k, v in config["nox.extras"].items():
-                    env_extras[k] = json.loads(v)
+            for header, table in config.items():
+                if "tool.pyproject2conda" in header:
+                    env_extras[header] = {k: json.loads(v) for k, v in table.items()}
 
         return python_paths, env_extras
 
@@ -96,7 +98,7 @@ class ProjectConfig:
 
     @staticmethod
     def _params_to_string(
-        python_paths: list[str], env_extras: dict[str, list[str]]
+        python_paths: list[str], env_extras: dict[str, Mapping[str, Any]]
     ) -> str:
         import configparser
         import json
@@ -110,9 +112,10 @@ class ProjectConfig:
             config.set("nox.python", "paths", json.dumps(python_paths))
 
         if env_extras:
-            config.add_section("nox.extras")
-            for k, v in env_extras.items():
-                config.set("nox.extras", k, json.dumps(v))
+            for header, table in env_extras.items():
+                config.add_section(header)
+                for k, v in table.items():
+                    config.set(header, k, json.dumps(v))
 
         with StringIO() as f:
             config.write(f)
@@ -130,8 +133,8 @@ class ProjectConfig:
         # [nox.python]
         # paths = ["~/.conda/envs/test-3.*/bin"]
         #
-        # [nox.extras]
-        # dev = ["dev-complete"]
+        # [tool.pyproject2conda.envs.dev]
+        # extras = ["dev-complete"]
         """
         )
 
@@ -226,7 +229,10 @@ def main() -> None:
         n.python_paths = args.python_paths
 
     if args.dev_extras:
-        n.env_extras = {"dev": args.dev_extras}
+        n.env_extras["tool.pyproject2conda.envs.dev"] = {"extras": args.dev_extras}
+
+    # print(n.python_paths)
+    # print(n.env_extras)
 
     n.to_path(args.file)
 

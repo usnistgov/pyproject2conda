@@ -8,11 +8,10 @@
 #
 # This should point to (globbed version) of location of python executables
 # For example, this could be paths = ["~/miniforge3/envs/test-3.*/bin"]
-#
-# [nox.python]
-# paths = ["~/.conda/envs/test-3.*/bin"]
-# Extras for environments
+[nox.python]
+paths = ["~/.conda/envs/test-3.*/bin"]
+
+# Extras for environments (see https://github.com/usnistgov/pyproject2conda)
 # for example, could have
-#
-# [nox.extras]
-# dev = ["dev", "nox", "tools"]
+[tool.pyprojectnox.extras]
+dev = ["dev", "nox", "tools"]
