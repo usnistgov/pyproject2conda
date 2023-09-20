@@ -363,8 +363,12 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-0-2023-09-19">v0.6.0 — 2023-09-19</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 </ul>
 </li>
@@ -390,10 +394,24 @@ document.write(`
 <a class="reference external" href="https://github.com/usnistgov/pyproject2conda">changelog.d</a></p>
 <!-- scriv-insert-here -->
 </section>
-<section id="v0-5-1-2023-09-09">
-<h2>v0.5.1 — 2023-09-09<a class="headerlink" href="#v0-5-1-2023-09-09" title="Permalink to this heading">#</a></h2>
+<section id="v0-6-0-2023-09-19">
+<h2>v0.6.0 — 2023-09-19<a class="headerlink" href="#v0-6-0-2023-09-19" title="Permalink to this heading">#</a></h2>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">project</span></code> subcommand. This uses a configuration in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> to
+build multiple enivonments in one go.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--deps</span></code> and <code class="docutils literal notranslate"><span class="pre">--reqs</span></code> flags to include extra conda and pip requirements.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--overwrite</span></code> to check if output file exists.</p></li>
+<li><p>Now (correctly) using rich_click.</p></li>
+<li><p>Added tests for all new cases, and some edge cases.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-5-1-2023-09-09">
+<h2>v0.5.1 — 2023-09-09<a class="headerlink" href="#v0-5-1-2023-09-09" title="Permalink to this heading">#</a></h2>
+<section id="id1">
+<h3>Added<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">--sort/--no-sort</span></code> flag to cli. Default is to sort dependencies. This
 fixes issues with changing order in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> leading to different yaml
@@ -467,8 +485,12 @@ simplify initial setup. See Contributing for more info.</p></li>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-0-2023-09-19">v0.6.0 — 2023-09-19</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 </ul>
 </li>
