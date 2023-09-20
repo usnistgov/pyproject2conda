@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Contributing &#8212; pyproject2conda v0.5.1 documentation</title>
+    <title>Contributing &#8212; pyproject2conda v0.6.0 documentation</title>
   
   
   
@@ -130,7 +130,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda v0.5.1 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.6.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -149,9 +149,14 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
 
 
-
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
 
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.cli</span></code>)</a></li>
+
+
+
+
+
 
 </ul>
 </li>
@@ -369,6 +374,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-nox">Using nox</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-user-configuration">Setup user configuration</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-interpreters-for-virtualenv-creation">Installing interpreters for virtualenv creation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#see-nox-sessions-options">See nox sessions/options</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-environment-yaml-requirement-txt-files">Creating environment.yaml/requirement.txt files</a></li>
 </ul>
 </li>
@@ -381,6 +387,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-checking">Type checking</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-development-environment">Setup development environment</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bootstrap-development-environment">Bootstrap development environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-create-development-environment">Conda create development environment</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-tools">Development tools</a></li>
 </ul>
 </li>
@@ -557,7 +564,7 @@ search for python interpreters. The variable <code class="docutils literal notra
 the search path, and the development environment will include the extras <code class="docutils literal notranslate"><span class="pre">dev</span></code>
 and <code class="docutils literal notranslate"><span class="pre">nox</span></code> from the <code class="docutils literal notranslate"><span class="pre">project.optional-dependencies</span></code> section of the
 <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file in the development environment.</p>
-<p>You can alos create this file using either of the following commands:</p>
+<p>You can also create this file using either of the following commands:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>-s<span class="w"> </span>config<span class="w"> </span>--<span class="w"> </span>--python-paths<span class="w"> </span><span class="s2">&quot;~/.conda/envs/test-3.*/bin&quot;</span><span class="w"> </span>--dev-extras<span class="w"> </span>dev<span class="w"> </span>nox...
 <span class="c1"># or</span>
 python<span class="w"> </span>tools/projectconfig.py<span class="w">  </span>--python-paths<span class="w"> </span>...<span class="w"> </span>--dev-extras<span class="w"> </span>...
@@ -576,6 +583,23 @@ create multiple invironments to hold different python version:</p>
 </pre></div>
 </div>
 <p>Also, set the variable <code class="docutils literal notranslate"><span class="pre">nox.python.paths</span></code> (see <a class="reference internal" href="#setup-user-configuration"><span class="std std-doc">Setup user configuration</span></a>).</p>
+</section>
+<section id="see-nox-sessions-options">
+<h3>See nox sessions/options<a class="headerlink" href="#see-nox-sessions-options" title="Permalink to this heading">#</a></h3>
+<p>To see all nox session, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>--list
+</pre></div>
+</div>
+<p>We use <a class="reference external" href="https://github.com/rmorshea/noxopt">noxopt</a> to pass command line options to the different sessions. Use the
+following to get help on these options:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>--<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>Note that these options should be passed <em>after</em> <code class="docutils literal notranslate"><span class="pre">--</span></code>. For example, to build and
+open the documentation, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>-s<span class="w"> </span>docs<span class="w"> </span>--<span class="w"> </span>-d<span class="w"> </span>build<span class="w"> </span>open
+</pre></div>
+</div>
 </section>
 <section id="creating-environment-yaml-requirement-txt-files">
 <h3>Creating environment.yaml/requirement.txt files<a class="headerlink" href="#creating-environment-yaml-requirement-txt-files" title="Permalink to this heading">#</a></h3>
@@ -710,30 +734,43 @@ procedure using <a class="reference external" href="https://github.com/pypa/pipx
 <span class="w">     </span>nox<span class="w"> </span>-s<span class="w"> </span>bootstrap<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--python-paths<span class="w"> </span><span class="s2">&quot;~/.conda/envs/test-3.*/bin&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--dev-extras<span class="w"> </span>dev<span class="w"> </span>nox
+
+conda<span class="w"> </span>activate<span class="w"> </span>.nox/<span class="o">{</span>project-name<span class="o">}</span>/envs/dev
 </pre></div>
 </div>
-<p>This will, in isolation, install nox, and run the <code class="docutils literal notranslate"><span class="pre">bootstrap</span></code> session.</p>
-<p>The above commands create a development environment located at
-<code class="docutils literal notranslate"><span class="pre">.nox/{project-name}/envs/dev</span></code>.</p>
+<p>where options <code class="docutils literal notranslate"><span class="pre">--python-paths</span></code> and <code class="docutils literal notranslate"><span class="pre">--dev-extras</span></code> are user specific. This will,
+in isolation, install nox, and run the <code class="docutils literal notranslate"><span class="pre">bootstrap</span></code> session.</p>
 <p>Note that nox environments are under <code class="docutils literal notranslate"><span class="pre">.nox/{project-name}/envs</span></code> instead of under
 <code class="docutils literal notranslate"><span class="pre">.nox</span></code>. This fixes some issues with things like <a class="reference external" href="https://github.com/Anaconda-Platform/nb_conda_kernels">nb_conda_kernels</a>, as well as
 other third party tools that expect conda environment to be located in a
 directory like <code class="docutils literal notranslate"><span class="pre">.../miniforge/envs/env-name</span></code>.</p>
+<p>If you go this route, you may want to use something like
+<a class="reference external" href="https://github.com/Tarrasch/zsh-autoenv">zsh-autoenv</a> (if using zsh shell) or
+<a class="reference external" href="https://github.com/hyperupcall/autoenv">autoenv</a> (if using bash) to auto
+activate the development environment when in the parent directory.</p>
+</section>
+<section id="conda-create-development-environment">
+<h3>Conda create development environment<a class="headerlink" href="#conda-create-development-environment" title="Permalink to this heading">#</a></h3>
 <p>If instead you’d like to just install directly with conda, you can use:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>-n<span class="w"> </span><span class="o">{</span>env-name<span class="o">}]</span><span class="w"> </span>-f<span class="w"> </span>environment/py<span class="o">{</span>version<span class="o">}</span>-dev-base.yaml
-conda<span class="w"> </span>activate<span class="w"> </span><span class="o">{</span>environment-name<span class="w"> </span>or<span class="w"> </span>-p<span class="w"> </span>path/to/environment<span class="o">}</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>-n<span class="w"> </span><span class="o">{</span>env-name<span class="o">}]</span><span class="w"> </span>-f<span class="w"> </span>environment/py<span class="o">{</span>version<span class="o">}</span>-dev-complete.yaml
+conda<span class="w"> </span>activate<span class="w"> </span><span class="o">{</span>env-name<span class="o">}</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--no-deps
 </pre></div>
 </div>
+<p>This installs all optional dependencies except those need to build the docs. For
+that, please use nox.</p>
 </section>
 <section id="development-tools">
 <h3>Development tools<a class="headerlink" href="#development-tools" title="Permalink to this heading">#</a></h3>
 <p>We recommend installing the following tools with <a class="reference external" href="https://github.com/pypa/pipx">pipx</a> or <a class="reference external" href="https://github.com/mariusvniekerk/condax">condax</a>. If you’d
 like to install them in the development environment instead, include the
 “extras” <code class="docutils literal notranslate"><span class="pre">tools</span></code> in the <code class="docutils literal notranslate"><span class="pre">nox.extras.dev</span></code> section of <code class="docutils literal notranslate"><span class="pre">config/userconfig.toml</span></code>
-file:</p>
+file, or run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>-s<span class="w"> </span>config<span class="w"> </span>--<span class="w"> </span>--dev-extras<span class="w"> </span>dev<span class="w"> </span>nox<span class="w"> </span>tools
 </pre></div>
 </div>
+<p>Alternatively, you can just create a conda environment using the commands in
+<a class="reference internal" href="#conda-create-development-environment"><span class="std std-doc">Conda create development environment</span></a>.</p>
 <p>Additional tools are:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://pre-commit.com/">pre-commit</a></p></li>
@@ -744,6 +781,7 @@ file:</p>
 <li><p><a class="reference external" href="https://github.com/usnistgov/pyproject2conda">pyproject2conda</a> (optional)</p></li>
 <li><p><a class="reference external" href="https://github.com/nedbat/cog">cog</a> (optional)</p></li>
 <li><p><a class="reference external" href="https://github.com/nbQA-dev/nbQA">nbqa</a> (optional)</p></li>
+<li><p><a class="reference external" href="https://github.com/microsoft/pyright">pyright</a> (recommended)</p></li>
 </ul>
 <p>These are setup using the following:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">condax/pipx install pre-commit</span>
@@ -754,6 +792,7 @@ file:</p>
 <span class="go">condax/pipx install commitizen</span>
 <span class="go">condax/pipx install cogapp</span>
 <span class="go">condax/pipx install nbqa</span>
+<span class="go">condax/pipx install pyright</span>
 </pre></div>
 </div>
 <p>If you’d like to install a central <a class="reference external" href="https://github.com/wntrblm/nox">nox</a> to be used with this project, use one
@@ -869,6 +908,7 @@ autogenerated when building the package. This scheme avoids having to install
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-nox">Using nox</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-user-configuration">Setup user configuration</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-interpreters-for-virtualenv-creation">Installing interpreters for virtualenv creation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#see-nox-sessions-options">See nox sessions/options</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-environment-yaml-requirement-txt-files">Creating environment.yaml/requirement.txt files</a></li>
 </ul>
 </li>
@@ -881,6 +921,7 @@ autogenerated when building the package. This scheme avoids having to install
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-checking">Type checking</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-development-environment">Setup development environment</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bootstrap-development-environment">Bootstrap development environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-create-development-environment">Conda create development environment</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-tools">Development tools</a></li>
 </ul>
 </li>
@@ -919,7 +960,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-09.
+  Last updated on 2023-09-19.
   <br/>
 </p>
   </div>

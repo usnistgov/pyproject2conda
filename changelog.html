@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Changelog &#8212; pyproject2conda v0.5.1 documentation</title>
+    <title>Changelog &#8212; pyproject2conda v0.6.0 documentation</title>
   
   
   
@@ -130,7 +130,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda v0.5.1 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.6.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -149,9 +149,14 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
 
 
-
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
 
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.cli</span></code>)</a></li>
+
+
+
+
+
 
 </ul>
 </li>
@@ -358,6 +363,11 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -379,6 +389,32 @@ document.write(`
 <p>See the fragment files in
 <a class="reference external" href="https://github.com/usnistgov/pyproject2conda">changelog.d</a></p>
 <!-- scriv-insert-here -->
+</section>
+<section id="v0-5-1-2023-09-09">
+<h2>v0.5.1 — 2023-09-09<a class="headerlink" href="#v0-5-1-2023-09-09" title="Permalink to this heading">#</a></h2>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--sort/--no-sort</span></code> flag to cli. Default is to sort dependencies. This
+fixes issues with changing order in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> leading to different yaml
+files.</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Changed structure of the repo to better support some third party tools.</p></li>
+<li><p>Moved nox environments from <code class="docutils literal notranslate"><span class="pre">.nox</span></code> to <code class="docutils literal notranslate"><span class="pre">.nox/{project-name}/envs</span></code>. This fixes
+issues with ipykernel giving odd names for locally installed environments.</p></li>
+<li><p>Moved repo specific dot files to the <code class="docutils literal notranslate"><span class="pre">config</span></code> directory (e.g.,
+<code class="docutils literal notranslate"><span class="pre">.noxconfig.toml</span></code> to <code class="docutils literal notranslate"><span class="pre">config/userconfig.toml</span></code>). This cleans up the top level
+of the repo.</p></li>
+<li><p>added some support for using <code class="docutils literal notranslate"><span class="pre">nbqa</span></code> to run mypy/pyright on notebooks.</p></li>
+<li><p>Added ability to bootstrap development environment using pipx. This should
+simplify initial setup. See Contributing for more info.</p></li>
+<li><p>Main repo now on usnistgov.</p></li>
+</ul>
+</section>
 </section>
 </section>
 
@@ -431,6 +467,11 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -463,7 +504,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-09.
+  Last updated on 2023-09-19.
   <br/>
 </p>
   </div>

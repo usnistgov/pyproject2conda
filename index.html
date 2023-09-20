@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>pyproject2conda &#8212; pyproject2conda v0.5.1 documentation</title>
+    <title>pyproject2conda &#8212; pyproject2conda v0.6.0 documentation</title>
   
   
   
@@ -129,7 +129,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda v0.5.1 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.6.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -148,9 +148,14 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
 
 
-
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
 
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.cli</span></code>)</a></li>
+
+
+
+
+
 
 </ul>
 </li>
@@ -362,11 +367,23 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick start</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-usage">Example usage</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#specify-python-version">Specify python version</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-extra-conda-dependencies-and-pip-requirements">Adding extra conda dependencies and pip requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#command-aliases">Command “aliases”</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-extras">Installing extras</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header-in-output">Header in output</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-within-python">Usage within python</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-multiple-environments-from-pyproject-toml">Creating multiple environments from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#list">list</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#yaml">yaml</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">requirements</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#project">project</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-requirements">conda-requirements</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#json">json</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -396,7 +413,7 @@ document.write(`
 <!-- other links -->
 <section class="tex2jax_ignore mathjax_ignore" id="pyproject2conda">
 <h1><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code><a class="headerlink" href="#pyproject2conda" title="Permalink to this heading">#</a></h1>
-<p>A script to convert <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> dependecies to <code class="docutils literal notranslate"><span class="pre">environemnt.yaml</span></code> files.</p>
+<p>A script to convert <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> dependencies to <code class="docutils literal notranslate"><span class="pre">environemnt.yaml</span></code> files.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
 <p>The main goal of <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> is to provide a means to keep all basic
@@ -433,26 +450,54 @@ suggestions!</p>
 <h2>Example usage<a class="headerlink" href="#example-usage" title="Permalink to this heading">#</a></h2>
 <section id="basic-usage">
 <h3>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this heading">#</a></h3>
+<!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog
 import subprocess
 import shlex
+from functools import lru_cache
 
-def run_command(cmd, wrapper="bash", include_cmd=True):
+@lru_cache
+def get_pyproject(path):
+    with open(path, 'r') as f:
+        lines = [_.strip() for _ in f]
+    return lines
+
+def run_command(cmd, wrapper="bash", include_cmd=True, bounds=None):
     args = shlex.split(cmd)
     output = subprocess.check_output(args)
 
     total = output.decode()
+
+    if bounds is not None:
+        total = total.split("\n")[bounds[0]:bounds[1]]
+        if bounds[0] is not None:
+            total = ["...\n"] + total
+        if bounds[1] is not None:
+            total = total + ["\n ...\n"]
+
+        total = "\n".join(total)
+
     if include_cmd:
         total = f"$ {cmd}\n{total}"
 
     if wrapper:
-        total = f"\n```{wrapper}\n"  + total + "```\n"
+        total = f"```{wrapper}\n"  + total + "```\n"
 
     print(total)
 
-def cat_lines(path="tests/test-pyproject.toml", begin=0, end=8, begin_dot=True, end_dot=True):
-    with open(path, 'r') as f:
-        lines = [line.rstrip() for line in f]
+def cat_lines(
+        path="tests/data/test-pyproject.toml",
+        begin=None, end=None, begin_dot=None, end_dot=None,
+    ):
+    lines = get_pyproject(path)
+
+    begin_dot = begin_dot or begin is not None
+    end_dot = end_dot or end is not None
+
+    if isinstance(begin, str):
+        begin = lines.index(begin)
+    if isinstance(end, str):
+        end = lines.index(end)
 
     output = '\n'.join(lines[slice(begin, end)])
 
@@ -464,19 +509,23 @@ def cat_lines(path="tests/test-pyproject.toml", begin=0, end=8, begin_dot=True, 
 
     output = "\n```toml\n" + output + "\n```\n"
     print(output)
+
 ]]] -->
 <!-- [[[end]]] -->
-<p>Consider the <code class="docutils literal notranslate"><span class="pre">toml</span></code> file <span class="xref myst">test-pyproject.toml</span>.</p>
+<p>Consider the <code class="docutils literal notranslate"><span class="pre">toml</span></code> file
+<span class="xref myst">test-pyproject.toml</span>.</p>
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=0, end=8, begin_dot=False)]]] -->
+<!-- [[[cog cat_lines(begin=None, end="[project.optional-dependencies]", begin_dot=False)]]] -->
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project]</span>
 <span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;hello&quot;</span>
 <span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&gt;=3.8,&lt;3.11&quot;</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s">&quot;athing&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -p # a comment</span>
-<span class="w">    </span><span class="s">&quot;bthing&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -s &quot;bthing-conda&quot;</span>
-<span class="w">    </span><span class="s">&quot;cthing; python_version &lt; &#39;3.10&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -c conda-forge</span>
+<span class="s">&quot;athing&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -p # a comment</span>
+<span class="s">&quot;bthing&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -s &quot;bthing-conda&quot;</span>
+<span class="s">&quot;cthing; python_version &lt; &#39;3.10&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -c conda-forge</span>
+
+<span class="p">]</span>
 
 <span class="c1"># ...</span>
 </pre></div>
@@ -487,10 +536,10 @@ def cat_lines(path="tests/test-pyproject.toml", begin=0, end=8, begin_dot=True, 
 <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> will analyze. The basic options are:</p>
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False, wrapper="text")]]] -->
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: -c [-h] [-c CHANNEL] [-p] [-s] [package ...]
+<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage: -c [-h] [-c CHANNEL] [-p] [-s] [package ...]
 
-Parser searches for comments &#39;# p2c: [OPTIONS]
+Parser searches for comments &#39;# p2c: [OPTIONS] CONDA-PACKAGES
 
 positional arguments:
   package
@@ -499,8 +548,7 @@ options:
   -h, --help            show this help message and exit
   -c CHANNEL, --channel CHANNEL
                         Channel to add to the pyproject requirement
-  -p, --pip             If specified, install dependency on pyproject
-                        dependency (on this line) with pip
+  -p, --pip             If specified, install pyproject dependency with pip
   -s, --skip            If specified skip pyproject dependency on this line
 </pre></div>
 </div>
@@ -508,8 +556,8 @@ options:
 <!-- prettier-ignore-end -->
 <p>So, if we run the following, we get:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/test-pyproject.toml
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -523,10 +571,10 @@ dependencies:
 <!-- [[[end]]] -->
 <p>Note that other comments can be mixed in.</p>
 <p>By default, the python version is not included in the resulting conda output. To
-include the specification from pyproject.toml, use <code class="docutils literal notranslate"><span class="pre">-p/--python</span></code> option:</p>
+include the specification from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, use <code class="docutils literal notranslate"><span class="pre">--python-include</span></code> option:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml --python-include")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/test-pyproject.toml<span class="w"> </span>--python-include
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-include
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -539,10 +587,13 @@ dependencies:
 </pre></div>
 </div>
 <!-- [[[end]]] -->
+</section>
+<section id="specify-python-version">
+<h3>Specify python version<a class="headerlink" href="#specify-python-version" title="Permalink to this heading">#</a></h3>
 <p>To specify a specific value of python in the output, pass a value with:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml --python-include python=3.9")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/test-pyproject.toml<span class="w"> </span>--python-include<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.9
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include python=3.9")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-include<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.9
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -557,14 +608,89 @@ dependencies:
 <!-- [[[end]]] -->
 <p>Note that this is for including python in the resulting environment file.</p>
 <p>You can also constrain packages by the python version using the standard
-pyproject.toml syntax <code class="docutils literal notranslate"><span class="pre">&quot;...;</span> <span class="pre">python_version</span> <span class="pre">&lt;</span> <span class="pre">'some-version-number'&quot;</span></code>. For is
-parsed for for both the pip packages and conda packages:</p>
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> syntax <code class="docutils literal notranslate"><span class="pre">&quot;...;</span> <span class="pre">python_version</span> <span class="pre">&lt;</span> <span class="pre">'some-version-number'&quot;</span></code>. For is
+parsed for both the pip packages and conda packages:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml --python-version 3.10")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/test-pyproject.toml<span class="w"> </span>--python-version<span class="w"> </span><span class="m">3</span>.10
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-version<span class="w"> </span><span class="m">3</span>.10
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>It is common to want to specify the python version and include it in the
+resulting environment file. You could, for example use:</p>
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 --python-include python=3.10")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="w"> </span>--python-include<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- markdownlint-enable MD013 -->
+<p>Because this is common, you can also just pass the option <code class="docutils literal notranslate"><span class="pre">-p/--python</span></code>:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python 3.10")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.10
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+</section>
+<section id="adding-extra-conda-dependencies-and-pip-requirements">
+<h3>Adding extra conda dependencies and pip requirements<a class="headerlink" href="#adding-extra-conda-dependencies-and-pip-requirements" title="Permalink to this heading">#</a></h3>
+<p>You can also add additional conda and pip dependencies with the flags
+<code class="docutils literal notranslate"><span class="pre">-d/--deps</span></code> and <code class="docutils literal notranslate"><span class="pre">-r/--reqs</span></code>, respectively. Adding the last example:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -d dep -r req")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>-d<span class="w"> </span>dep<span class="w"> </span>-r<span class="w"> </span>req
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>dep
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+<span class="w">      </span>-<span class="w"> </span>req
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>These will also obey dependencies like <code class="docutils literal notranslate"><span class="pre">dep:python_version&lt;={version}</span></code>. Pass the
+flags multiple times to pass multiple dependencies.</p>
+</section>
+<section id="command-aliases">
+<h3>Command “aliases”<a class="headerlink" href="#command-aliases" title="Permalink to this heading">#</a></h3>
+<p>The name <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> can be a bit long to type. For this reason, the
+package also ships with the alias <code class="docutils literal notranslate"><span class="pre">p2c</span></code>, which has the exact same functionality.
+Additionally, the subcommands can be shortened to a unique match:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("p2c y -f tests/data/test-pyproject.toml --python 3.10")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>p2c<span class="w"> </span>y<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.10
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
 <span class="w">  </span>-<span class="w"> </span>bthing-conda
 <span class="w">  </span>-<span class="w"> </span>pip
 <span class="w">  </span>-<span class="w"> </span>pip:
@@ -578,31 +704,38 @@ dependencies:
 <p>Given the extra dependency:</p>
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog cat_lines(begin=9, end=22)]]] -->
+<!-- [[[cog cat_lines(begin="[project.optional-dependencies]", end="[tool.pyproject2conda]")]]] -->
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
-
 <span class="k">[project.optional-dependencies]</span>
 <span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s">&quot;pandas&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s">&quot;pytest&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -c conda-forge</span>
+<span class="s">&quot;pandas&quot;</span><span class="p">,</span>
+<span class="s">&quot;pytest&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -c conda-forge</span>
 
 <span class="p">]</span>
 <span class="n">dev-extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="c1"># p2c: -s &quot;additional-thing; python_version &lt; &#39;3.9&#39;&quot; # this is an additional conda package</span>
-<span class="w">    </span><span class="c1">## p2c: -s &quot;another-thing&quot; # this will be skipped because of ## before p2c.</span>
-<span class="w">    </span><span class="s">&quot;matplotlib&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -s conda-matplotlib</span>
+<span class="c1"># p2c: -s &quot;additional-thing; python_version &lt; &#39;3.9&#39;&quot; # this is an additional conda package</span>
+<span class="c1">## p2c: -s &quot;another-thing&quot; # this will be skipped because of ## before p2c.</span>
+<span class="s">&quot;matplotlib&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -s conda-matplotlib</span>
 
 <span class="p">]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;hello[test]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello[dev-extras]&quot;</span><span class="p">]</span>
+<span class="n">dist-pypi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="c1"># this is intended to be parsed with --no-base option</span>
+<span class="s">&quot;setuptools&quot;</span><span class="p">,</span>
+<span class="s">&quot;build&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -p</span>
+
+<span class="p">]</span>
+
 <span class="c1"># ...</span>
 </pre></div>
 </div>
 <!-- [[[end]]] -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
-<p>and running the the following gives:</p>
+<p>and running the following gives:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -e test")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span>
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e test")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span>
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -618,8 +751,8 @@ dependencies:
 <!-- [[[end]]] -->
 <p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> also works with self referenced dependencies:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -e dev")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span>dev
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dev")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span>dev
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -644,10 +777,14 @@ comment out such lines, make sure <code class="docutils literal notranslate"><sp
 that the files are auto generated. No header is included by default when writing
 to standard output. To override this behavior, pass <code class="docutils literal notranslate"><span class="pre">--header/--noheader</span></code>:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml --header")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/test-pyproject.toml<span class="w"> </span>--header
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --header")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--header
 <span class="c1">#</span>
-<span class="c1"># This file is autogenerated by pyrpoject2conda.</span>
+<span class="c1"># This file is autogenerated by pyproject2conda</span>
+<span class="c1"># with the following command:</span>
+<span class="c1">#</span>
+<span class="c1">#     $ pyproject2conda yaml -f tests/data/test-pyproject.toml --header</span>
+<span class="c1">#</span>
 <span class="c1"># You should not manually edit this file.</span>
 <span class="c1"># Instead edit the corresponding pyproject.toml file.</span>
 <span class="c1">#</span>
@@ -667,7 +804,7 @@ dependencies:
 <h3>Usage within python<a class="headerlink" href="#usage-within-python" title="Permalink to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> can also be used within python:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyproject2conda</span> <span class="kn">import</span> <span class="n">PyProject2Conda</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">PyProject2Conda</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span><span class="s2">&quot;./tests/test-pyproject.toml&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">PyProject2Conda</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span><span class="s2">&quot;./tests/data/test-pyproject.toml&quot;</span><span class="p">)</span>
 
 <span class="go"># Basic environment</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">to_conda_yaml</span><span class="p">(</span><span class="n">python_include</span><span class="o">=</span><span class="s2">&quot;get&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
@@ -703,29 +840,49 @@ dependencies:
 <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>. To specify conda channels use:</p>
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=30, end=None)]]] -->
+<!-- [[[cog cat_lines(begin="[tool.pyproject2conda]", end=None)]]] -->
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
 <span class="k">[tool.pyproject2conda]</span>
 <span class="n">channels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&#39;conda-forge&#39;</span><span class="p">]</span>
-<span class="c1"># ...</span>
+<span class="c1"># these are the same as the default values of `p2c project`</span>
+<span class="n">template_python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;py{py}-{env}&quot;</span>
+<span class="n">template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;{env}&quot;</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;yaml&quot;</span>
+<span class="c1"># options</span>
+<span class="n">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;3.10&quot;</span><span class="p">]</span>
+<span class="c1"># Note that this is relative to the location of pyproject.toml</span>
+<span class="n">user_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;config/userconfig.toml&quot;</span>
+<span class="n">default_envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dist-pypi&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.pyproject2conda.envs.&quot;test-extras&quot;]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">]</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;yaml&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;requirements&quot;</span><span class="p">]</span>
+
+<span class="k">[[tool.pyproject2conda.overrides]]</span>
+<span class="n">envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&#39;test-extras&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dist-pypi&quot;</span><span class="p">]</span>
+<span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+
+<span class="k">[[tool.pyproject2conda.overrides]]</span>
+<span class="n">envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test-extras&quot;</span><span class="p">]</span>
+<span class="n">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;3.10&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
-<p>Note that specifying channels at the comand line overrides
+<p>Note that specifying channels at the command line overrides
 <code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.channels</span></code>.</p>
 <p>You can also specify environments without the base dependencies (those under
 <code class="docutils literal notranslate"><span class="pre">project.dependencies</span></code>) by passing the <code class="docutils literal notranslate"><span class="pre">--no-base</span></code> flag. This is useful for
 defining environments for build, etc, that do not require the package be
 installed. For example:</p>
 <!-- prettier-ignore-start -->
-<p>!– markdownlint-disable-next-line MD013 –&gt;</p>
+<!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog cat_lines(begin=22, end=26)]]] -->
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
 <span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;hello[test]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello[dev-extras]&quot;</span><span class="p">]</span>
 <span class="n">dist-pypi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="c1"># this is intended to be parsed with --no-base option</span>
-<span class="w">    </span><span class="s">&quot;setuptools&quot;</span><span class="p">,</span>
+<span class="c1"># this is intended to be parsed with --no-base option</span>
+<span class="s">&quot;setuptools&quot;</span><span class="p">,</span>
 <span class="c1"># ...</span>
 </pre></div>
 </div>
@@ -733,8 +890,8 @@ installed. For example:</p>
 <!-- prettier-ignore-end -->
 <p>These can be accessed using either of the following:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/test-pyproject.toml -e dist-pypi --no-base")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span>dist-pypi<span class="w"> </span>--no-base
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --no-base")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span>dist-pypi<span class="w"> </span>--no-base
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -747,7 +904,7 @@ dependencies:
 <!-- [[[end]]] -->
 <p>or</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyproject2conda</span> <span class="kn">import</span> <span class="n">PyProject2Conda</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">PyProject2Conda</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span><span class="s2">&quot;./tests/test-pyproject.toml&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">PyProject2Conda</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span><span class="s2">&quot;./tests/data/test-pyproject.toml&quot;</span><span class="p">)</span>
 
 <span class="go"># Basic environment</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">to_conda_yaml</span><span class="p">(</span><span class="n">extras</span><span class="o">=</span><span class="s1">&#39;dist-pypi&#39;</span><span class="p">,</span> <span class="n">include_base_dependencies</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
@@ -762,197 +919,509 @@ dependencies:
 </pre></div>
 </div>
 </section>
-<section id="cli-options">
-<h3>CLI options<a class="headerlink" href="#cli-options" title="Permalink to this heading">#</a></h3>
+<section id="creating-multiple-environments-from-pyproject-toml">
+<h3>Creating multiple environments from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code><a class="headerlink" href="#creating-multiple-environments-from-pyproject-toml" title="Permalink to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> provides a means to create all needed environment/requirement
+files in one go. We configure the environments using the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> files
+in the <code class="docutils literal notranslate"><span class="pre">[tool.pyproject2conda]</span></code> section. For example, example the configuration:</p>
 <!-- prettier-ignore-start -->
-<!-- [[[cog run_command("pyproject2conda --help", wrapper="text")]]] -->
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ pyproject2conda --help
-Usage: pyproject2conda [OPTIONS] COMMAND [ARGS]...
-
-Options:
-  --version  Show the version and exit.
-  --help     Show this message and exit.
-
-Commands:
-  conda-requirements  Create requirement files for conda and pip.
-  json                Create json representation.
-  list                List available extras
-  requirements        Create requirements.txt for pip depedencies.
-  yaml                Create yaml file from dependencies and...
-</pre></div>
-</div>
-<!-- [[[end]]] -->
-<!-- [[[cog run_command("pyproject2conda list --help", wrapper="text")]]] -->
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ pyproject2conda list --help
-Usage: pyproject2conda list [OPTIONS]
-
-  List available extras
-
-Options:
-  -f, --file PATH  input pyproject.toml file
-  -v, --verbose
-  --help           Show this message and exit.
-</pre></div>
-</div>
-<!-- [[[end]]] -->
-<!-- [[[cog run_command("pyproject2conda yaml --help", wrapper="text")]]] -->
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ pyproject2conda yaml --help
-Usage: pyproject2conda yaml [OPTIONS]
-
-  Create yaml file from dependencies and optional-dependencies.
-
-Options:
-  -e, --extra TEXT        Extra depenedencies. Can specify multiple times for
-                          multiple extras.
-  -c, --channel TEXT      conda channel.  Can specify. Overrides
-                          [tool.pyproject2conda.channels]
-  -f, --file PATH         input pyproject.toml file
-  -n, --name TEXT         Name of conda env
-  -o, --output PATH       File to output results
-  --python-include TEXT   If flag passed without options, include python spec
-                          from pyproject.toml in yaml output.  If value
-                          passed, use this value (exactly) in the output. So,
-                          for example, pass `--python-include &quot;python=3.8&quot;`
-  --python-version TEXT   Python version to check `python_verion &lt;=&gt;
-                          {python_version}` lines against.  That is, this
-                          version is used to limit packages in resulting
-                          output. For example, if have a line like
-                          `a-package; python_version &lt; &#39;3.9&#39;`, Using
-                          `--python-version 3.10` will not include
-                          `a-package`, while `--python-version 3.8` will
-                          include `a-package`.
-  --base / --no-base      Default is to include base (project.dependencies)
-                          with extras. However, passing `--no-base` will
-                          exclude base dependencies. This is useful to define
-                          environments that should exclude base dependencies
-                          (like build, etc) in pyproject.toml.
-  --sort / --no-sort      Default is to sort the dependencies (excluding
-                          `--python-include`). Pass `--no-sort` to instead
-                          place dependencies in order they are gathered.
-  --header / --no-header  If True (--header) include header line in output.
-                          Default is to include the header for output to a
-                          file, and not to include header when writing to
-                          stdout.
-  --help                  Show this message and exit.
-</pre></div>
-</div>
-<!-- [[[end]]] -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda requirements --help", wrapper="text")]]] -->
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ pyproject2conda requirements --help
-Usage: pyproject2conda requirements [OPTIONS]
+<!-- [[[cog cat_lines(begin="[tool.pyproject2conda]", end=None)]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
+<span class="k">[tool.pyproject2conda]</span>
+<span class="n">channels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&#39;conda-forge&#39;</span><span class="p">]</span>
+<span class="c1"># these are the same as the default values of `p2c project`</span>
+<span class="n">template_python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;py{py}-{env}&quot;</span>
+<span class="n">template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;{env}&quot;</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;yaml&quot;</span>
+<span class="c1"># options</span>
+<span class="n">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;3.10&quot;</span><span class="p">]</span>
+<span class="c1"># Note that this is relative to the location of pyproject.toml</span>
+<span class="n">user_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;config/userconfig.toml&quot;</span>
+<span class="n">default_envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dist-pypi&quot;</span><span class="p">]</span>
 
-  Create requirements.txt for pip depedencies.
+<span class="k">[tool.pyproject2conda.envs.&quot;test-extras&quot;]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">]</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;yaml&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;requirements&quot;</span><span class="p">]</span>
 
-Options:
-  -e, --extra TEXT        Extra depenedencies. Can specify multiple times for
-                          multiple extras.
-  -f, --file PATH         input pyproject.toml file
-  -o, --output PATH       File to output results
-  --base / --no-base      Default is to include base (project.dependencies)
-                          with extras. However, passing `--no-base` will
-                          exclude base dependencies. This is useful to define
-                          environments that should exclude base dependencies
-                          (like build, etc) in pyproject.toml.
-  --sort / --no-sort      Default is to sort the dependencies (excluding
-                          `--python-include`). Pass `--no-sort` to instead
-                          place dependencies in order they are gathered.
-  --header / --no-header  If True (--header) include header line in output.
-                          Default is to include the header for output to a
-                          file, and not to include header when writing to
-                          stdout.
-  --help                  Show this message and exit.
-</pre></div>
-</div>
-<!-- [[[end]]] -->
-<!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda conda-requirements --help", wrapper="text")]]] -->
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ pyproject2conda conda-requirements --help
-Usage: pyproject2conda conda-requirements [OPTIONS] [PATH_CONDA] [PATH_PIP]
+<span class="k">[[tool.pyproject2conda.overrides]]</span>
+<span class="n">envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&#39;test-extras&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dist-pypi&quot;</span><span class="p">]</span>
+<span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
 
-  Create requirement files for conda and pip.
-
-  These can be install with, for example,
-
-  conda install --file {path_conda} pip install -r {path_pip}
-
-Options:
-  -e, --extra TEXT        Extra depenedencies. Can specify multiple times for
-                          multiple extras.
-  --python-include TEXT   If flag passed without options, include python spec
-                          from pyproject.toml in yaml output.  If value
-                          passed, use this value (exactly) in the output. So,
-                          for example, pass `--python-include &quot;python=3.8&quot;`
-  --python-version TEXT   Python version to check `python_verion &lt;=&gt;
-                          {python_version}` lines against.  That is, this
-                          version is used to limit packages in resulting
-                          output. For example, if have a line like
-                          `a-package; python_version &lt; &#39;3.9&#39;`, Using
-                          `--python-version 3.10` will not include
-                          `a-package`, while `--python-version 3.8` will
-                          include `a-package`.
-  -c, --channel TEXT      conda channel.  Can specify. Overrides
-                          [tool.pyproject2conda.channels]
-  -f, --file PATH         input pyproject.toml file
-  --base / --no-base      Default is to include base (project.dependencies)
-                          with extras. However, passing `--no-base` will
-                          exclude base dependencies. This is useful to define
-                          environments that should exclude base dependencies
-                          (like build, etc) in pyproject.toml.
-  --sort / --no-sort      Default is to sort the dependencies (excluding
-                          `--python-include`). Pass `--no-sort` to instead
-                          place dependencies in order they are gathered.
-  --header / --no-header  If True (--header) include header line in output.
-                          Default is to include the header for output to a
-                          file, and not to include header when writing to
-                          stdout.
-  --prefix TEXT           set conda-output=prefix + &#39;conda.txt&#39;, pip-
-                          output=prefix + &#39;pip.txt&#39;
-  --prepend-channel
-  --help                  Show this message and exit.
-</pre></div>
-</div>
-<!-- [[[end]]] -->
-<!-- [[[cog run_command("pyproject2conda json --help", wrapper="text")]]] -->
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ pyproject2conda json --help
-Usage: pyproject2conda json [OPTIONS]
-
-  Create json representation.
-
-  Keys are: &quot;dependencies&quot;: conda dependencies. &quot;pip&quot;: pip dependencies.
-  &quot;channels&quot;: conda channels.
-
-Options:
-  -e, --extra TEXT       Extra depenedencies. Can specify multiple times for
-                         multiple extras.
-  --python-include TEXT  If flag passed without options, include python spec
-                         from pyproject.toml in yaml output.  If value passed,
-                         use this value (exactly) in the output. So, for
-                         example, pass `--python-include &quot;python=3.8&quot;`
-  --python-version TEXT  Python version to check `python_verion &lt;=&gt;
-                         {python_version}` lines against.  That is, this
-                         version is used to limit packages in resulting
-                         output. For example, if have a line like
-                         `a-package; python_version &lt; &#39;3.9&#39;`, Using `--python-
-                         version 3.10` will not include `a-package`, while
-                         `--python-version 3.8` will include `a-package`.
-  -c, --channel TEXT     conda channel.  Can specify. Overrides
-                         [tool.pyproject2conda.channels]
-  -f, --file PATH        input pyproject.toml file
-  --sort / --no-sort     Default is to sort the dependencies (excluding
-                         `--python-include`). Pass `--no-sort` to instead
-                         place dependencies in order they are gathered.
-  -o, --output PATH      File to output results
-  --base / --no-base     Default is to include base (project.dependencies)
-                         with extras. However, passing `--no-base` will
-                         exclude base dependencies. This is useful to define
-                         environments that should exclude base dependencies
-                         (like build, etc) in pyproject.toml.
-  --help                 Show this message and exit.
+<span class="k">[[tool.pyproject2conda.overrides]]</span>
+<span class="n">envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test-extras&quot;</span><span class="p">]</span>
+<span class="n">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;3.10&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
+<p>run through the command <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span> <span class="pre">project</span></code> (or <code class="docutils literal notranslate"><span class="pre">p2c</span> <span class="pre">project</span></code>):</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry", wrapper="bash", bounds=(None, 45))]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>p2c<span class="w"> </span>project<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--dry
+<span class="c1"># Creating yaml py310-test-extras.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="c1"># Creating yaml py311-test-extras.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="c1"># Creating requirements test-extras.txt</span>
+pandas
+pytest
+<span class="c1"># Creating yaml py310-test.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+<span class="c1"># Creating yaml py311-test.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+<span class="c1"># Creating yaml py310-dev.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+
+<span class="w"> </span>...
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>Note that here, we have used the <code class="docutils literal notranslate"><span class="pre">--dry</span></code> option to just print the output. In
+production, you’d omit this flag, and files according to <code class="docutils literal notranslate"><span class="pre">--template</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--template-python</span></code> would be used.</p>
+<p>The options under <code class="docutils literal notranslate"><span class="pre">[tool.pyproject2conda]</span></code> follow the command line options
+(replace <code class="docutils literal notranslate"><span class="pre">-</span></code> with <code class="docutils literal notranslate"><span class="pre">_</span></code>). To specify an environment, you can either use the
+<code class="docutils literal notranslate"><span class="pre">[tool.pyproject.envs.&quot;environment-name&quot;]</span></code> method, or, if the environment is the
+same as the “extras” name, you can just specify it under
+<code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.default_envs</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pyproject2conda]</span>
+<span class="c1"># ...</span>
+<span class="n">default_envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>is equivalent to</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pyproject2conda.envs.test]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;tests&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To specify a conda environment (<code class="docutils literal notranslate"><span class="pre">yaml</span></code>) file, pass <code class="docutils literal notranslate"><span class="pre">style</span> <span class="pre">=</span> <span class="pre">&quot;yaml&quot;</span></code> (the
+default). To specify a requirements file, pass <code class="docutils literal notranslate"><span class="pre">style</span> <span class="pre">=</span> <span class="pre">&quot;requirements&quot;</span></code>. You can
+specify both to make both.</p>
+<p>Options in a given <code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.envs.&quot;environemnt-name&quot;</span></code> section
+override those at the <code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda</span></code> level. So, for example:</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin='[tool.pyproject2conda.envs."test-extras"]', end='[[tool.pyproject2conda.overrides]]', begin_dot=False)]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
+<span class="k">[tool.pyproject2conda.envs.&quot;test-extras&quot;]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">]</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;yaml&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;requirements&quot;</span><span class="p">]</span>
+
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<p>will override use the two styles instead of the default of <code class="docutils literal notranslate"><span class="pre">yaml</span></code>.</p>
+<p>You can also override options for multiple environments using the
+<code class="docutils literal notranslate"><span class="pre">[[tools.pyproject2conda.overrides]]</span></code> list. Just specify the override option(s)
+and the environments to apply them to. For example, above we specify that the
+base option is <code class="docutils literal notranslate"><span class="pre">False</span></code> for envs <code class="docutils literal notranslate"><span class="pre">test-extras</span></code> and <code class="docutils literal notranslate"><span class="pre">dist-pypi</span></code>, and that the
+python version should be <code class="docutils literal notranslate"><span class="pre">3.10</span></code> and <code class="docutils literal notranslate"><span class="pre">3.11</span></code> for envs <code class="docutils literal notranslate"><span class="pre">test</span></code> and <code class="docutils literal notranslate"><span class="pre">test-extras</span></code>.</p>
+<p>So in all, options are picked up, in order, from the environment definition,
+then the overrides list, and finally, from the default options.</p>
+<p>You can also define “user defined” configurations. This can be done through the
+option <code class="docutils literal notranslate"><span class="pre">--user-config</span></code>. This allows you to define your own environments outside
+of the (most likely source controlled) <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file. For example, we
+have the option <code class="docutils literal notranslate"><span class="pre">user_config=config/userconfig.toml</span></code>.</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(path="./tests/data/config/userconfig.toml", begin=None, end=None)]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pyproject2conda.envs.&quot;user-dev&quot;]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dist-pypi&quot;</span><span class="p">]</span>
+<span class="n">deps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;extra-dep&quot;</span><span class="p">]</span>
+<span class="n">reqs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;extra-req&quot;</span><span class="p">]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;hello&quot;</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<p>Note that the full path of this file is note that the path of the <code class="docutils literal notranslate"><span class="pre">user_conifg</span></code>
+file is relative to them<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file. So, if the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file
+is at <code class="docutils literal notranslate"><span class="pre">a/path/pyproject.toml</span></code>, the path of user configuration files will be
+<code class="docutils literal notranslate"><span class="pre">a/path/config/userconfig.toml</span></code>. We then can run the following:</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev", wrapper="bash")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>p2c<span class="w"> </span>project<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--dry<span class="w"> </span>--envs<span class="w"> </span>user-dev
+<span class="c1"># Creating yaml py310-user-dev.yaml</span>
+name:<span class="w"> </span>hello
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>conda-matplotlib
+<span class="w">  </span>-<span class="w"> </span>extra-dep
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="w">  </span>-<span class="w"> </span>setuptools
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+<span class="w">      </span>-<span class="w"> </span>build
+<span class="w">      </span>-<span class="w"> </span>extra-req
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+</section>
+<section id="cli-options">
+<h3>CLI options<a class="headerlink" href="#cli-options" title="Permalink to this heading">#</a></h3>
+<!-- markdownlint-disable MD013 -->
+<!-- prettier-ignore-start -->
+<!-- [[[cog
+  import os
+  os.environ["COG_MAX_WIDTH"] = "90"
+
+  run_command("pyproject2conda --help", wrapper="bash")
+
+  cmds = [
+    "list",
+    "yaml",
+    "requirements",
+    "project",
+    "conda-requirements",
+    "json"
+  ]
+
+  for cmd in cmds:
+    print(f"#### {cmd}\n")
+    run_command(f"pyproject2conda {cmd} --help", wrapper="bash")
+
+]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>--help
+
+<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+
+╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
+│<span class="w"> </span>--version<span class="w">      </span>Show<span class="w"> </span>the<span class="w"> </span>version<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                              </span>│
+│<span class="w"> </span>--help<span class="w">         </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                             </span>│
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─<span class="w"> </span>Commands<span class="w"> </span>─────────────────────────────────────────────────────────────────────────────╮
+│<span class="w"> </span>conda-requirements<span class="w">  </span>Create<span class="w"> </span>requirement<span class="w"> </span>files<span class="w"> </span><span class="k">for</span><span class="w"> </span>conda<span class="w"> </span>and<span class="w"> </span>pip.<span class="w">                        </span>│
+│<span class="w"> </span>json<span class="w">                </span>Create<span class="w"> </span>json<span class="w"> </span>representation.<span class="w">                                        </span>│
+│<span class="w"> </span>list<span class="w">                </span>List<span class="w"> </span>available<span class="w"> </span>extras<span class="w">                                              </span>│
+│<span class="w"> </span>project<span class="w">             </span>Create<span class="w"> </span>multiple<span class="w"> </span>environment<span class="w"> </span>files<span class="w"> </span>from<span class="w"> </span><span class="sb">`</span>pyproject.toml<span class="sb">`</span><span class="w">            </span>│
+│<span class="w">                     </span>specification.<span class="w">                                                     </span>│
+│<span class="w"> </span>requirements<span class="w">        </span>Create<span class="w"> </span>requirements.txt<span class="w"> </span><span class="k">for</span><span class="w"> </span>pip<span class="w"> </span>dependencies.<span class="w">                      </span>│
+│<span class="w"> </span>yaml<span class="w">                </span>Create<span class="w"> </span>yaml<span class="w"> </span>file<span class="w"> </span>from<span class="w"> </span>dependencies<span class="w"> </span>and<span class="w"> </span>optional-dependencies.<span class="w">      </span>│
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></div>
+</div>
+<section id="list">
+<h4>list<a class="headerlink" href="#list" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>list<span class="w"> </span>--help
+
+<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+
+<span class="w"> </span>List<span class="w"> </span>available<span class="w"> </span>extras
+
+╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
+│<span class="w"> </span>--file<span class="w">     </span>-f<span class="w">  </span>PATH<span class="w">  </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                                         </span>│
+│<span class="w"> </span>--verbose<span class="w">  </span>-v<span class="w">                                                                          </span>│
+│<span class="w"> </span>--help<span class="w">               </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                       </span>│
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></div>
+</div>
+</section>
+<section id="yaml">
+<h4>yaml<a class="headerlink" href="#yaml" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>--help
+
+<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+
+<span class="w"> </span>Create<span class="w"> </span>yaml<span class="w"> </span>file<span class="w"> </span>from<span class="w"> </span>dependencies<span class="w"> </span>and<span class="w"> </span>optional-dependencies.
+
+╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
+│<span class="w"> </span>--file<span class="w">                </span>-f<span class="w">  </span>PATH<span class="w">                </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                </span>│
+│<span class="w"> </span>--extra<span class="w">               </span>-e<span class="w">  </span>TEXT<span class="w">                </span>Extra<span class="w"> </span>depenedencies.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w">         </span>│
+│<span class="w">                                               </span>multiple<span class="w"> </span><span class="nb">times</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>multiple<span class="w"> </span>extras.<span class="w">      </span>│
+│<span class="w"> </span>--channel<span class="w">             </span>-c<span class="w">  </span>TEXT<span class="w">                </span>conda<span class="w"> </span>channel.<span class="w">  </span>Can<span class="w"> </span>specify.<span class="w"> </span>Overrides<span class="w">   </span>│
+│<span class="w">                                               </span><span class="o">[</span>tool.pyproject2conda.channels<span class="o">]</span><span class="w">          </span>│
+│<span class="w"> </span>--output<span class="w">              </span>-o<span class="w">  </span>PATH<span class="w">                </span>File<span class="w"> </span>to<span class="w"> </span>output<span class="w"> </span>results<span class="w">                   </span>│
+│<span class="w"> </span>--name<span class="w">                </span>-n<span class="w">  </span>TEXT<span class="w">                </span>Name<span class="w"> </span>of<span class="w"> </span>conda<span class="w"> </span>env<span class="w">                        </span>│
+│<span class="w"> </span>--python-include<span class="w">          </span>TEXT<span class="w">                </span>If<span class="w"> </span>flag<span class="w"> </span>passed<span class="w"> </span>without<span class="w"> </span>options,<span class="w"> </span>include<span class="w">  </span>│
+│<span class="w">                                               </span>python<span class="w"> </span>spec<span class="w"> </span>from<span class="w"> </span>pyproject.toml<span class="w"> </span><span class="k">in</span><span class="w"> </span>yaml<span class="w">  </span>│
+│<span class="w">                                               </span>output.<span class="w"> </span>If<span class="w"> </span>value<span class="w"> </span>passed,<span class="w"> </span>use<span class="w"> </span>this<span class="w"> </span>value<span class="w">  </span>│
+│<span class="w">                                               </span><span class="o">(</span>exactly<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>output.<span class="w"> </span>So,<span class="w"> </span><span class="k">for</span><span class="w">         </span>│
+│<span class="w">                                               </span>example,<span class="w"> </span>pass<span class="w"> </span><span class="sb">`</span>--python-include<span class="w">          </span>│
+│<span class="w">                                               </span><span class="s2">&quot;python=3.8&quot;</span><span class="sb">`</span><span class="w">                            </span>│
+│<span class="w"> </span>--python-version<span class="w">          </span>TEXT<span class="w">                </span>Python<span class="w"> </span>version<span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span><span class="sb">`</span>python_verion<span class="w">   </span>│
+│<span class="w">                                               </span>&lt;<span class="o">=</span>&gt;<span class="w"> </span><span class="o">{</span>python_version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>lines<span class="w"> </span>against.<span class="w">     </span>│
+│<span class="w">                                               </span>That<span class="w"> </span>is,<span class="w"> </span>this<span class="w"> </span>version<span class="w"> </span>is<span class="w"> </span>used<span class="w"> </span>to<span class="w"> </span>limit<span class="w">   </span>│
+│<span class="w">                                               </span>packages<span class="w"> </span><span class="k">in</span><span class="w"> </span>resulting<span class="w"> </span>output.<span class="w"> </span>For<span class="w">        </span>│
+│<span class="w">                                               </span>example,<span class="w"> </span><span class="k">if</span><span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>line<span class="w"> </span>like<span class="w"> </span><span class="sb">`</span>a-package<span class="p">;</span><span class="w"> </span>│
+│<span class="w">                                               </span>python_version<span class="w"> </span>&lt;<span class="w"> </span><span class="s1">&#39;3.9&#39;</span><span class="sb">`</span>,<span class="w"> </span>Using<span class="w">           </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>not<span class="w"> </span>include<span class="w"> </span>│
+│<span class="w">                                               </span><span class="sb">`</span>a-package<span class="sb">`</span>,<span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="sb">`</span>--python-version<span class="w">     </span>│
+│<span class="w">                                               </span><span class="m">3</span>.8<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>include<span class="w"> </span><span class="sb">`</span>a-package<span class="sb">`</span>.<span class="w">           </span>│
+│<span class="w"> </span>--python<span class="w">              </span>-p<span class="w">  </span>TEXT<span class="w">                </span>Python<span class="w"> </span>version.<span class="w"> </span>Passing<span class="w"> </span><span class="sb">`</span>--python<span class="w">        </span>│
+│<span class="w">                                               </span><span class="o">{</span>version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>is<span class="w"> </span>equivalent<span class="w"> </span>to<span class="w"> </span>passing<span class="w">      </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--python-version<span class="o">={</span>version<span class="o">}</span><span class="w">              </span>│
+│<span class="w">                                               </span>--python-include<span class="o">=</span>python<span class="o">{</span>version<span class="o">}</span><span class="sb">`</span>.<span class="w"> </span>If<span class="w">    </span>│
+│<span class="w">                                               </span>passed,<span class="w"> </span>this<span class="w"> </span>overrides<span class="w"> </span>values<span class="w"> </span>of<span class="w"> </span>passed<span class="w">  </span>│
+│<span class="w">                                               </span>via<span class="w"> </span><span class="sb">`</span>--python-version<span class="sb">`</span><span class="w"> </span>and<span class="w">               </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--python-include<span class="sb">`</span>.<span class="w">                      </span>│
+│<span class="w"> </span>--base/--no-base<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>base<span class="w">               </span>│
+│<span class="w">                                               </span><span class="o">(</span>project.dependencies<span class="o">)</span><span class="w"> </span>with<span class="w"> </span>extras.<span class="w">      </span>│
+│<span class="w">                                               </span>However,<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--no-base<span class="sb">`</span><span class="w"> </span>will<span class="w">        </span>│
+│<span class="w">                                               </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies.<span class="w"> </span>This<span class="w"> </span>is<span class="w">       </span>│
+│<span class="w">                                               </span>useful<span class="w"> </span>to<span class="w"> </span>define<span class="w"> </span>environments<span class="w"> </span>that<span class="w">       </span>│
+│<span class="w">                                               </span>should<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>like<span class="w">   </span>│
+│<span class="w">                                               </span>build,<span class="w"> </span>etc<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>pyproject.toml.<span class="w">           </span>│
+│<span class="w"> </span>--sort/--no-sort<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w">      </span>│
+│<span class="w">                                               </span><span class="o">(</span>excluding<span class="w"> </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w">     </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w">             </span>│
+│<span class="w">                                               </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w"> </span>│
+│<span class="w"> </span>--header/--no-header<span class="w">                          </span>If<span class="w"> </span>True<span class="w"> </span><span class="o">(</span>--header<span class="o">)</span><span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>line<span class="w">   </span>│
+│<span class="w">                                               </span><span class="k">in</span><span class="w"> </span>output.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>the<span class="w">     </span>│
+│<span class="w">                                               </span>header<span class="w"> </span><span class="k">for</span><span class="w"> </span>output<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file,<span class="w"> </span>and<span class="w"> </span>not<span class="w"> </span>to<span class="w">  </span>│
+│<span class="w">                                               </span>include<span class="w"> </span>header<span class="w"> </span>when<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span>stdout.<span class="w">   </span>│
+│<span class="w"> </span>--overwrite<span class="w">           </span>-w<span class="w">  </span><span class="o">[</span>check<span class="p">|</span>force<span class="p">|</span>skip<span class="o">]</span><span class="w">  </span>What<span class="w"> </span>to<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span>exists.<span class="w">        </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>check<span class="w"> </span><span class="o">(</span>default<span class="o">)</span>:<span class="w"> </span>check<span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w">       </span>│
+│<span class="w">                                               </span>exists.<span class="w"> </span>Create<span class="w"> </span><span class="k">if</span><span class="w"> </span>missing.<span class="w"> </span>If<span class="w"> </span>output<span class="w">     </span>│
+│<span class="w">                                               </span>exists<span class="w"> </span>and<span class="w">                               </span>│
+│<span class="w">                                                 </span>passed<span class="w"> </span><span class="sb">`</span>--file<span class="sb">`</span><span class="w"> </span>is<span class="w"> </span>newer,<span class="w"> </span>recreate<span class="w">     </span>│
+│<span class="w">                                               </span>output,<span class="w"> </span><span class="k">else</span><span class="w"> </span>skip.<span class="w">                       </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>skip:<span class="w"> </span>If<span class="w"> </span>output<span class="w"> </span>exists,<span class="w"> </span>skip.<span class="w">          </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>force:<span class="w"> </span>force<span class="w"> </span>recreate<span class="w"> </span>output.<span class="w">          </span>│
+│<span class="w"> </span>--verbose<span class="w">             </span>-v<span class="w">                                                               </span>│
+│<span class="w"> </span>--deps<span class="w">                </span>-d<span class="w">  </span>TEXT<span class="w">                </span>Additional<span class="w"> </span>conda<span class="w"> </span>dependencies.<span class="w">           </span>│
+│<span class="w"> </span>--reqs<span class="w">                </span>-r<span class="w">  </span>TEXT<span class="w">                </span>Additional<span class="w"> </span>pip<span class="w"> </span>requirements.<span class="w">             </span>│
+│<span class="w"> </span>--help<span class="w">                                        </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">              </span>│
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></div>
+</div>
+</section>
+<section id="requirements">
+<h4>requirements<a class="headerlink" href="#requirements" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>requirements<span class="w"> </span>--help
+
+<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>requirements<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+
+<span class="w"> </span>Create<span class="w"> </span>requirements.txt<span class="w"> </span><span class="k">for</span><span class="w"> </span>pip<span class="w"> </span>dependencies.
+
+╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
+│<span class="w"> </span>--extra<span class="w">               </span>-e<span class="w">  </span>TEXT<span class="w">                </span>Extra<span class="w"> </span>depenedencies.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w">         </span>│
+│<span class="w">                                               </span>multiple<span class="w"> </span><span class="nb">times</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>multiple<span class="w"> </span>extras.<span class="w">      </span>│
+│<span class="w"> </span>--file<span class="w">                </span>-f<span class="w">  </span>PATH<span class="w">                </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                </span>│
+│<span class="w"> </span>--output<span class="w">              </span>-o<span class="w">  </span>PATH<span class="w">                </span>File<span class="w"> </span>to<span class="w"> </span>output<span class="w"> </span>results<span class="w">                   </span>│
+│<span class="w"> </span>--base/--no-base<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>base<span class="w">               </span>│
+│<span class="w">                                               </span><span class="o">(</span>project.dependencies<span class="o">)</span><span class="w"> </span>with<span class="w"> </span>extras.<span class="w">      </span>│
+│<span class="w">                                               </span>However,<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--no-base<span class="sb">`</span><span class="w"> </span>will<span class="w">        </span>│
+│<span class="w">                                               </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies.<span class="w"> </span>This<span class="w"> </span>is<span class="w">       </span>│
+│<span class="w">                                               </span>useful<span class="w"> </span>to<span class="w"> </span>define<span class="w"> </span>environments<span class="w"> </span>that<span class="w">       </span>│
+│<span class="w">                                               </span>should<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>like<span class="w">   </span>│
+│<span class="w">                                               </span>build,<span class="w"> </span>etc<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>pyproject.toml.<span class="w">           </span>│
+│<span class="w"> </span>--sort/--no-sort<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w">      </span>│
+│<span class="w">                                               </span><span class="o">(</span>excluding<span class="w"> </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w">     </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w">             </span>│
+│<span class="w">                                               </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w"> </span>│
+│<span class="w"> </span>--header/--no-header<span class="w">                          </span>If<span class="w"> </span>True<span class="w"> </span><span class="o">(</span>--header<span class="o">)</span><span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>line<span class="w">   </span>│
+│<span class="w">                                               </span><span class="k">in</span><span class="w"> </span>output.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>the<span class="w">     </span>│
+│<span class="w">                                               </span>header<span class="w"> </span><span class="k">for</span><span class="w"> </span>output<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file,<span class="w"> </span>and<span class="w"> </span>not<span class="w"> </span>to<span class="w">  </span>│
+│<span class="w">                                               </span>include<span class="w"> </span>header<span class="w"> </span>when<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span>stdout.<span class="w">   </span>│
+│<span class="w"> </span>--overwrite<span class="w">           </span>-w<span class="w">  </span><span class="o">[</span>check<span class="p">|</span>force<span class="p">|</span>skip<span class="o">]</span><span class="w">  </span>What<span class="w"> </span>to<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span>exists.<span class="w">        </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>check<span class="w"> </span><span class="o">(</span>default<span class="o">)</span>:<span class="w"> </span>check<span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w">       </span>│
+│<span class="w">                                               </span>exists.<span class="w"> </span>Create<span class="w"> </span><span class="k">if</span><span class="w"> </span>missing.<span class="w"> </span>If<span class="w"> </span>output<span class="w">     </span>│
+│<span class="w">                                               </span>exists<span class="w"> </span>and<span class="w">                               </span>│
+│<span class="w">                                                 </span>passed<span class="w"> </span><span class="sb">`</span>--file<span class="sb">`</span><span class="w"> </span>is<span class="w"> </span>newer,<span class="w"> </span>recreate<span class="w">     </span>│
+│<span class="w">                                               </span>output,<span class="w"> </span><span class="k">else</span><span class="w"> </span>skip.<span class="w">                       </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>skip:<span class="w"> </span>If<span class="w"> </span>output<span class="w"> </span>exists,<span class="w"> </span>skip.<span class="w">          </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>force:<span class="w"> </span>force<span class="w"> </span>recreate<span class="w"> </span>output.<span class="w">          </span>│
+│<span class="w"> </span>--verbose<span class="w">             </span>-v<span class="w">                                                               </span>│
+│<span class="w"> </span>--reqs<span class="w">                </span>-r<span class="w">  </span>TEXT<span class="w">                </span>Additional<span class="w"> </span>pip<span class="w"> </span>requirements.<span class="w">             </span>│
+│<span class="w"> </span>--help<span class="w">                                        </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">              </span>│
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></div>
+</div>
+</section>
+<section id="project">
+<h4>project<a class="headerlink" href="#project" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>project<span class="w"> </span>--help
+
+<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>project<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+
+<span class="w"> </span>Create<span class="w"> </span>multiple<span class="w"> </span>environment<span class="w"> </span>files<span class="w"> </span>from<span class="w"> </span><span class="sb">`</span>pyproject.toml<span class="sb">`</span><span class="w"> </span>specification.
+
+╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
+│<span class="w"> </span>--file<span class="w">                </span>-f<span class="w">  </span>PATH<span class="w">                </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                </span>│
+│<span class="w"> </span>--envs<span class="w">                    </span>TEXT<span class="w">                </span>List<span class="w"> </span>of<span class="w"> </span>environments<span class="w"> </span>to<span class="w"> </span>build<span class="w"> </span>files<span class="w"> </span><span class="k">for</span>.<span class="w"> </span>│
+│<span class="w">                                               </span>Default<span class="w"> </span>to<span class="w"> </span>building<span class="w"> </span>all<span class="w"> </span>environments<span class="w">     </span>│
+│<span class="w"> </span>--template<span class="w">                </span>TEXT<span class="w">                </span>Template<span class="w"> </span><span class="k">for</span><span class="w"> </span>environments<span class="w"> </span>that<span class="w"> </span><span class="k">do</span><span class="w"> </span>not<span class="w">    </span>│
+│<span class="w">                                               </span>have<span class="w"> </span>a<span class="w"> </span>python<span class="w"> </span>version.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w">       </span>│
+│<span class="w">                                               </span><span class="sb">`</span><span class="o">{</span>env<span class="o">}</span><span class="sb">`</span>.<span class="w">                                 </span>│
+│<span class="w"> </span>--template-python<span class="w">         </span>TEXT<span class="w">                </span>Template<span class="w"> </span><span class="k">for</span><span class="w"> </span>environments<span class="w"> </span>that<span class="w"> </span><span class="k">do</span><span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>│
+│<span class="w">                                               </span>python<span class="w"> </span>version.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w">              </span>│
+│<span class="w">                                               </span><span class="s2">&quot;py{py}-{env}&quot;</span>.<span class="w"> </span>For<span class="w"> </span>example,<span class="w"> </span>with<span class="w">        </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--template-python<span class="o">=</span><span class="s2">&quot;py{py}-{env}&quot;</span><span class="sb">`</span><span class="w"> </span>and<span class="w">   </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--python<span class="o">=</span><span class="m">3</span>.8<span class="sb">`</span><span class="w"> </span>and<span class="w"> </span>environment<span class="w"> </span><span class="s2">&quot;dev&quot;</span>,<span class="w">    </span>│
+│<span class="w">                                               </span>output<span class="w"> </span>would<span class="w"> </span>be<span class="w"> </span><span class="s2">&quot;py38-dev&quot;</span><span class="w">               </span>│
+│<span class="w">                                               </span>*<span class="w"> </span><span class="o">{</span>py<span class="o">}</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s2">&quot;38&quot;</span><span class="w">                           </span>│
+│<span class="w">                                               </span>*<span class="w"> </span><span class="o">{</span>py_version<span class="o">}</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s2">&quot;3.8&quot;</span><span class="w">                  </span>│
+│<span class="w">                                               </span>*<span class="w"> </span><span class="o">{</span>env<span class="o">}</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s2">&quot;dev&quot;</span><span class="w">                         </span>│
+│<span class="w"> </span>--sort/--no-sort<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w">      </span>│
+│<span class="w">                                               </span><span class="o">(</span>excluding<span class="w"> </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w">     </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w">             </span>│
+│<span class="w">                                               </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w"> </span>│
+│<span class="w"> </span>--header/--no-header<span class="w">                          </span>If<span class="w"> </span>True<span class="w"> </span><span class="o">(</span>--header<span class="o">)</span><span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>line<span class="w">   </span>│
+│<span class="w">                                               </span><span class="k">in</span><span class="w"> </span>output.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>the<span class="w">     </span>│
+│<span class="w">                                               </span>header<span class="w"> </span><span class="k">for</span><span class="w"> </span>output<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file,<span class="w"> </span>and<span class="w"> </span>not<span class="w"> </span>to<span class="w">  </span>│
+│<span class="w">                                               </span>include<span class="w"> </span>header<span class="w"> </span>when<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span>stdout.<span class="w">   </span>│
+│<span class="w"> </span>--overwrite<span class="w">           </span>-w<span class="w">  </span><span class="o">[</span>check<span class="p">|</span>force<span class="p">|</span>skip<span class="o">]</span><span class="w">  </span>What<span class="w"> </span>to<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span>exists.<span class="w">        </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>check<span class="w"> </span><span class="o">(</span>default<span class="o">)</span>:<span class="w"> </span>check<span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w">       </span>│
+│<span class="w">                                               </span>exists.<span class="w"> </span>Create<span class="w"> </span><span class="k">if</span><span class="w"> </span>missing.<span class="w"> </span>If<span class="w"> </span>output<span class="w">     </span>│
+│<span class="w">                                               </span>exists<span class="w"> </span>and<span class="w">                               </span>│
+│<span class="w">                                                 </span>passed<span class="w"> </span><span class="sb">`</span>--file<span class="sb">`</span><span class="w"> </span>is<span class="w"> </span>newer,<span class="w"> </span>recreate<span class="w">     </span>│
+│<span class="w">                                               </span>output,<span class="w"> </span><span class="k">else</span><span class="w"> </span>skip.<span class="w">                       </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>skip:<span class="w"> </span>If<span class="w"> </span>output<span class="w"> </span>exists,<span class="w"> </span>skip.<span class="w">          </span>│
+│<span class="w">                                               </span>*<span class="w"> </span>force:<span class="w"> </span>force<span class="w"> </span>recreate<span class="w"> </span>output.<span class="w">          </span>│
+│<span class="w"> </span>--verbose<span class="w">             </span>-v<span class="w">                                                               </span>│
+│<span class="w"> </span>--dry/--no-dry<span class="w">                                </span>If<span class="w"> </span>true,<span class="w"> </span><span class="k">do</span><span class="w"> </span>a<span class="w"> </span>dry<span class="w"> </span>run<span class="w">                    </span>│
+│<span class="w"> </span>--user-config<span class="w">             </span>TEXT<span class="w">                </span>Additional<span class="w"> </span>toml<span class="w"> </span>file<span class="w"> </span>to<span class="w"> </span>supply<span class="w">           </span>│
+│<span class="w">                                               </span>configuration.<span class="w"> </span>This<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>used<span class="w"> </span>to<span class="w">       </span>│
+│<span class="w">                                               </span>override/add<span class="w"> </span>environment<span class="w"> </span>files<span class="w"> </span><span class="k">for</span><span class="w"> </span>your<span class="w">  </span>│
+│<span class="w">                                               </span>own<span class="w"> </span>use<span class="w"> </span><span class="o">(</span>apart<span class="w"> </span>from<span class="w"> </span>project<span class="w"> </span>env<span class="w"> </span>files<span class="o">)</span>.<span class="w">  </span>│
+│<span class="w">                                               </span>The<span class="w"> </span><span class="o">(</span>default<span class="o">)</span><span class="w"> </span>value<span class="w"> </span><span class="sb">`</span>infer<span class="sb">`</span><span class="w"> </span>means<span class="w"> </span>to<span class="w">     </span>│
+│<span class="w">                                               </span>infer<span class="w"> </span>the<span class="w"> </span>configuration<span class="w"> </span>from<span class="w">             </span>│
+│<span class="w">                                               </span><span class="sb">`</span>--filename<span class="sb">`</span>.<span class="w">                            </span>│
+│<span class="w"> </span>--help<span class="w">                                        </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">              </span>│
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></div>
+</div>
+</section>
+<section id="conda-requirements">
+<h4>conda-requirements<a class="headerlink" href="#conda-requirements" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>conda-requirements<span class="w"> </span>--help
+
+<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>conda-requirements<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>PATH_CONDA<span class="o">]</span><span class="w"> </span><span class="o">[</span>PATH_PIP<span class="o">]</span>
+
+<span class="w"> </span>Create<span class="w"> </span>requirement<span class="w"> </span>files<span class="w"> </span><span class="k">for</span><span class="w"> </span>conda<span class="w"> </span>and<span class="w"> </span>pip.
+<span class="w"> </span>These<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>install<span class="w"> </span>with,<span class="w"> </span><span class="k">for</span><span class="w"> </span>example,
+<span class="w"> </span>conda<span class="w"> </span>install<span class="w"> </span>--file<span class="w"> </span><span class="o">{</span>path_conda<span class="o">}</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span><span class="o">{</span>path_pip<span class="o">}</span>
+
+╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
+│<span class="w"> </span>--extra<span class="w">               </span>-e<span class="w">  </span>TEXT<span class="w">  </span>Extra<span class="w"> </span>depenedencies.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w"> </span>multiple<span class="w"> </span><span class="nb">times</span><span class="w"> </span><span class="k">for</span><span class="w">    </span>│
+│<span class="w">                                 </span>multiple<span class="w"> </span>extras.<span class="w">                                       </span>│
+│<span class="w"> </span>--python-include<span class="w">          </span>TEXT<span class="w">  </span>If<span class="w"> </span>flag<span class="w"> </span>passed<span class="w"> </span>without<span class="w"> </span>options,<span class="w"> </span>include<span class="w"> </span>python<span class="w"> </span>spec<span class="w">    </span>│
+│<span class="w">                                 </span>from<span class="w"> </span>pyproject.toml<span class="w"> </span><span class="k">in</span><span class="w"> </span>yaml<span class="w"> </span>output.<span class="w"> </span>If<span class="w"> </span>value<span class="w"> </span>passed,<span class="w">   </span>│
+│<span class="w">                                 </span>use<span class="w"> </span>this<span class="w"> </span>value<span class="w"> </span><span class="o">(</span>exactly<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>output.<span class="w"> </span>So,<span class="w"> </span><span class="k">for</span><span class="w">        </span>│
+│<span class="w">                                 </span>example,<span class="w"> </span>pass<span class="w"> </span><span class="sb">`</span>--python-include<span class="w"> </span><span class="s2">&quot;python=3.8&quot;</span><span class="sb">`</span><span class="w">          </span>│
+│<span class="w"> </span>--python-version<span class="w">          </span>TEXT<span class="w">  </span>Python<span class="w"> </span>version<span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span><span class="sb">`</span>python_verion<span class="w"> </span>&lt;<span class="o">=</span>&gt;<span class="w">             </span>│
+│<span class="w">                                 </span><span class="o">{</span>python_version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>lines<span class="w"> </span>against.<span class="w"> </span>That<span class="w"> </span>is,<span class="w"> </span>this<span class="w"> </span>version<span class="w"> </span>│
+│<span class="w">                                 </span>is<span class="w"> </span>used<span class="w"> </span>to<span class="w"> </span>limit<span class="w"> </span>packages<span class="w"> </span><span class="k">in</span><span class="w"> </span>resulting<span class="w"> </span>output.<span class="w"> </span>For<span class="w">     </span>│
+│<span class="w">                                 </span>example,<span class="w"> </span><span class="k">if</span><span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>line<span class="w"> </span>like<span class="w"> </span><span class="sb">`</span>a-package<span class="p">;</span><span class="w">               </span>│
+│<span class="w">                                 </span>python_version<span class="w"> </span>&lt;<span class="w"> </span><span class="s1">&#39;3.9&#39;</span><span class="sb">`</span>,<span class="w"> </span>Using<span class="w"> </span><span class="sb">`</span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="sb">`</span><span class="w"> </span>│
+│<span class="w">                                 </span>will<span class="w"> </span>not<span class="w"> </span>include<span class="w"> </span><span class="sb">`</span>a-package<span class="sb">`</span>,<span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="sb">`</span>--python-version<span class="w">  </span>│
+│<span class="w">                                 </span><span class="m">3</span>.8<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>include<span class="w"> </span><span class="sb">`</span>a-package<span class="sb">`</span>.<span class="w">                         </span>│
+│<span class="w"> </span>--python<span class="w">              </span>-p<span class="w">  </span>TEXT<span class="w">  </span>Python<span class="w"> </span>version.<span class="w"> </span>Passing<span class="w"> </span><span class="sb">`</span>--python<span class="w"> </span><span class="o">{</span>version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>is<span class="w">        </span>│
+│<span class="w">                                 </span>equivalent<span class="w"> </span>to<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--python-version<span class="o">={</span>version<span class="o">}</span><span class="w">      </span>│
+│<span class="w">                                 </span>--python-include<span class="o">=</span>python<span class="o">{</span>version<span class="o">}</span><span class="sb">`</span>.<span class="w"> </span>If<span class="w"> </span>passed,<span class="w"> </span>this<span class="w">     </span>│
+│<span class="w">                                 </span>overrides<span class="w"> </span>values<span class="w"> </span>of<span class="w"> </span>passed<span class="w"> </span>via<span class="w"> </span><span class="sb">`</span>--python-version<span class="sb">`</span><span class="w"> </span>and<span class="w">  </span>│
+│<span class="w">                                 </span><span class="sb">`</span>--python-include<span class="sb">`</span>.<span class="w">                                    </span>│
+│<span class="w"> </span>--channel<span class="w">             </span>-c<span class="w">  </span>TEXT<span class="w">  </span>conda<span class="w"> </span>channel.<span class="w">  </span>Can<span class="w"> </span>specify.<span class="w"> </span>Overrides<span class="w">                 </span>│
+│<span class="w">                                 </span><span class="o">[</span>tool.pyproject2conda.channels<span class="o">]</span><span class="w">                        </span>│
+│<span class="w"> </span>--file<span class="w">                </span>-f<span class="w">  </span>PATH<span class="w">  </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                              </span>│
+│<span class="w"> </span>--base/--no-base<span class="w">                </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>base<span class="w"> </span><span class="o">(</span>project.dependencies<span class="o">)</span><span class="w"> </span>with<span class="w"> </span>│
+│<span class="w">                                 </span>extras.<span class="w"> </span>However,<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--no-base<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>│
+│<span class="w">                                 </span>dependencies.<span class="w"> </span>This<span class="w"> </span>is<span class="w"> </span>useful<span class="w"> </span>to<span class="w"> </span>define<span class="w"> </span>environments<span class="w">    </span>│
+│<span class="w">                                 </span>that<span class="w"> </span>should<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>like<span class="w"> </span>build,<span class="w">     </span>│
+│<span class="w">                                 </span>etc<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>pyproject.toml.<span class="w">                                </span>│
+│<span class="w"> </span>--sort/--no-sort<span class="w">                </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>excluding<span class="w">         </span>│
+│<span class="w">                                 </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w"> </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w"> </span>│
+│<span class="w">                                 </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w">               </span>│
+│<span class="w"> </span>--header/--no-header<span class="w">            </span>If<span class="w"> </span>True<span class="w"> </span><span class="o">(</span>--header<span class="o">)</span><span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>line<span class="w"> </span><span class="k">in</span><span class="w"> </span>output.<span class="w">      </span>│
+│<span class="w">                                 </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>the<span class="w"> </span>header<span class="w"> </span><span class="k">for</span><span class="w"> </span>output<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file,<span class="w"> </span>│
+│<span class="w">                                 </span>and<span class="w"> </span>not<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>when<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span>stdout.<span class="w">      </span>│
+│<span class="w"> </span>--prefix<span class="w">                  </span>TEXT<span class="w">  </span><span class="nb">set</span><span class="w"> </span>conda-output<span class="o">=</span>prefix<span class="w"> </span>+<span class="w"> </span><span class="s1">&#39;conda.txt&#39;</span>,<span class="w">                 </span>│
+│<span class="w">                                 </span>pip-output<span class="o">=</span>prefix<span class="w"> </span>+<span class="w"> </span><span class="s1">&#39;pip.txt&#39;</span><span class="w">                          </span>│
+│<span class="w"> </span>--prepend-channel<span class="w">                                                                      </span>│
+│<span class="w"> </span>--deps<span class="w">                </span>-d<span class="w">  </span>TEXT<span class="w">  </span>Additional<span class="w"> </span>conda<span class="w"> </span>dependencies.<span class="w">                         </span>│
+│<span class="w"> </span>--reqs<span class="w">                </span>-r<span class="w">  </span>TEXT<span class="w">  </span>Additional<span class="w"> </span>pip<span class="w"> </span>requirements.<span class="w">                           </span>│
+│<span class="w"> </span>--help<span class="w">                          </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                            </span>│
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></div>
+</div>
+</section>
+<section id="json">
+<h4>json<a class="headerlink" href="#json" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>json<span class="w"> </span>--help
+
+<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>json<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+
+<span class="w"> </span>Create<span class="w"> </span>json<span class="w"> </span>representation.
+<span class="w"> </span>Keys<span class="w"> </span>are:<span class="w"> </span><span class="s2">&quot;dependencies&quot;</span>:<span class="w"> </span>conda<span class="w"> </span>dependencies.<span class="w"> </span><span class="s2">&quot;pip&quot;</span>:<span class="w"> </span>pip<span class="w"> </span>dependencies.<span class="w"> </span><span class="s2">&quot;channels&quot;</span>:<span class="w"> </span>conda
+<span class="w"> </span>channels.
+
+╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
+│<span class="w"> </span>--extra<span class="w">           </span>-e<span class="w">  </span>TEXT<span class="w">  </span>Extra<span class="w"> </span>depenedencies.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w"> </span>multiple<span class="w"> </span><span class="nb">times</span><span class="w"> </span><span class="k">for</span><span class="w">        </span>│
+│<span class="w">                             </span>multiple<span class="w"> </span>extras.<span class="w">                                           </span>│
+│<span class="w"> </span>--python-include<span class="w">      </span>TEXT<span class="w">  </span>If<span class="w"> </span>flag<span class="w"> </span>passed<span class="w"> </span>without<span class="w"> </span>options,<span class="w"> </span>include<span class="w"> </span>python<span class="w"> </span>spec<span class="w"> </span>from<span class="w">   </span>│
+│<span class="w">                             </span>pyproject.toml<span class="w"> </span><span class="k">in</span><span class="w"> </span>yaml<span class="w"> </span>output.<span class="w"> </span>If<span class="w"> </span>value<span class="w"> </span>passed,<span class="w"> </span>use<span class="w"> </span>this<span class="w">   </span>│
+│<span class="w">                             </span>value<span class="w"> </span><span class="o">(</span>exactly<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>output.<span class="w"> </span>So,<span class="w"> </span><span class="k">for</span><span class="w"> </span>example,<span class="w"> </span>pass<span class="w">       </span>│
+│<span class="w">                             </span><span class="sb">`</span>--python-include<span class="w"> </span><span class="s2">&quot;python=3.8&quot;</span><span class="sb">`</span><span class="w">                            </span>│
+│<span class="w"> </span>--python-version<span class="w">      </span>TEXT<span class="w">  </span>Python<span class="w"> </span>version<span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span><span class="sb">`</span>python_verion<span class="w"> </span>&lt;<span class="o">=</span>&gt;<span class="w">                 </span>│
+│<span class="w">                             </span><span class="o">{</span>python_version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>lines<span class="w"> </span>against.<span class="w"> </span>That<span class="w"> </span>is,<span class="w"> </span>this<span class="w"> </span>version<span class="w"> </span>is<span class="w">  </span>│
+│<span class="w">                             </span>used<span class="w"> </span>to<span class="w"> </span>limit<span class="w"> </span>packages<span class="w"> </span><span class="k">in</span><span class="w"> </span>resulting<span class="w"> </span>output.<span class="w"> </span>For<span class="w"> </span>example,<span class="w">   </span>│
+│<span class="w">                             </span><span class="k">if</span><span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>line<span class="w"> </span>like<span class="w"> </span><span class="sb">`</span>a-package<span class="p">;</span><span class="w"> </span>python_version<span class="w"> </span>&lt;<span class="w"> </span><span class="s1">&#39;3.9&#39;</span><span class="sb">`</span>,<span class="w">   </span>│
+│<span class="w">                             </span>Using<span class="w"> </span><span class="sb">`</span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>not<span class="w"> </span>include<span class="w">             </span>│
+│<span class="w">                             </span><span class="sb">`</span>a-package<span class="sb">`</span>,<span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="sb">`</span>--python-version<span class="w"> </span><span class="m">3</span>.8<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>include<span class="w">     </span>│
+│<span class="w">                             </span><span class="sb">`</span>a-package<span class="sb">`</span>.<span class="w">                                               </span>│
+│<span class="w"> </span>--channel<span class="w">         </span>-c<span class="w">  </span>TEXT<span class="w">  </span>conda<span class="w"> </span>channel.<span class="w">  </span>Can<span class="w"> </span>specify.<span class="w"> </span>Overrides<span class="w">                     </span>│
+│<span class="w">                             </span><span class="o">[</span>tool.pyproject2conda.channels<span class="o">]</span><span class="w">                            </span>│
+│<span class="w"> </span>--file<span class="w">            </span>-f<span class="w">  </span>PATH<span class="w">  </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                                  </span>│
+│<span class="w"> </span>--sort/--no-sort<span class="w">            </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>excluding<span class="w">             </span>│
+│<span class="w">                             </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w"> </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w">     </span>│
+│<span class="w">                             </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w">                   </span>│
+│<span class="w"> </span>--output<span class="w">          </span>-o<span class="w">  </span>PATH<span class="w">  </span>File<span class="w"> </span>to<span class="w"> </span>output<span class="w"> </span>results<span class="w">                                     </span>│
+│<span class="w"> </span>--base/--no-base<span class="w">            </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>base<span class="w"> </span><span class="o">(</span>project.dependencies<span class="o">)</span><span class="w"> </span>with<span class="w">     </span>│
+│<span class="w">                             </span>extras.<span class="w"> </span>However,<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--no-base<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>exclude<span class="w"> </span>base<span class="w">     </span>│
+│<span class="w">                             </span>dependencies.<span class="w"> </span>This<span class="w"> </span>is<span class="w"> </span>useful<span class="w"> </span>to<span class="w"> </span>define<span class="w"> </span>environments<span class="w"> </span>that<span class="w">   </span>│
+│<span class="w">                             </span>should<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>like<span class="w"> </span>build,<span class="w"> </span>etc<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w">      </span>│
+│<span class="w">                             </span>pyproject.toml.<span class="w">                                            </span>│
+│<span class="w"> </span>--deps<span class="w">            </span>-d<span class="w">  </span>TEXT<span class="w">  </span>Additional<span class="w"> </span>conda<span class="w"> </span>dependencies.<span class="w">                             </span>│
+│<span class="w"> </span>--reqs<span class="w">            </span>-r<span class="w">  </span>TEXT<span class="w">  </span>Additional<span class="w"> </span>pip<span class="w"> </span>requirements.<span class="w">                               </span>│
+│<span class="w"> </span>--help<span class="w">                      </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                </span>│
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<!-- markdownlint-enable MD013 -->
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -964,6 +1433,7 @@ Options:
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Indices and tables</a></li>
 </ul>
 </div>
+</section>
 </section>
 </section>
 </section>
@@ -1013,11 +1483,23 @@ Options:
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick start</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-usage">Example usage</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#specify-python-version">Specify python version</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-extra-conda-dependencies-and-pip-requirements">Adding extra conda dependencies and pip requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#command-aliases">Command “aliases”</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-extras">Installing extras</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header-in-output">Header in output</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-within-python">Usage within python</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-multiple-environments-from-pyproject-toml">Creating multiple environments from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#list">list</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#yaml">yaml</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">requirements</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#project">project</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-requirements">conda-requirements</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#json">json</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1052,7 +1534,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-09.
+  Last updated on 2023-09-19.
   <br/>
 </p>
   </div>

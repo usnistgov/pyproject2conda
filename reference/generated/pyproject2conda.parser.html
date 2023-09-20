@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Parsing (pyproject2conda.parser) &#8212; pyproject2conda v0.5.1 documentation</title>
+    <title>Parsing (pyproject2conda.parser) &#8212; pyproject2conda v0.6.0 documentation</title>
   
   
   
@@ -57,7 +57,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/generated/pyproject2conda.parser';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Console script for pyproject2conda (pyproject2conda.cli)" href="pyproject2conda.cli.html" />
+    <link rel="next" title="Read/use config/pyproject.toml file (config)" href="pyproject2conda.config.html" />
     <link rel="prev" title="API Reference" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -130,7 +130,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda v0.5.1 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.6.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -149,9 +149,14 @@
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
 
 
-
+<li class="toctree-l2"><a class="reference internal" href="pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
 
 <li class="toctree-l2"><a class="reference internal" href="pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.cli</span></code>)</a></li>
+
+
+
+
+
 
 </ul>
 </li>
@@ -358,8 +363,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.get_in"><code class="docutils literal notranslate"><span class="pre">get_in()</span></code></a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.get_value_comment_pairs"><code class="docutils literal notranslate"><span class="pre">get_value_comment_pairs()</span></code></a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.value_comment_pairs_to_conda"><code class="docutils literal notranslate"><span class="pre">value_comment_pairs_to_conda()</span></code></a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.PyProject2Conda"><code class="docutils literal notranslate"><span class="pre">PyProject2Conda</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.PyProject2Conda.to_requirements"><code class="docutils literal notranslate"><span class="pre">PyProject2Conda.to_requirements()</span></code></a></li>
@@ -384,15 +387,6 @@ document.write(`
 <p><strong>Functions:</strong></p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.parser.get_in" title="pyproject2conda.parser.get_in"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_in</span></code></a>(keys, nested_dict[, default])</p></td>
-<td><p><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}}}</span>
-</pre></div>
-</div>
-</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.parser.get_value_comment_pairs" title="pyproject2conda.parser.get_value_comment_pairs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_value_comment_pairs</span></code></a>(package_name, deps)</p></td>
-<td><p>Recursively build dependency, comment pairs from deps and extras.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.parser.value_comment_pairs_to_conda" title="pyproject2conda.parser.value_comment_pairs_to_conda"><code class="xref py py-obj docutils literal notranslate"><span class="pre">value_comment_pairs_to_conda</span></code></a>(value_comment_list)</p></td>
 <td><p>Convert raw value/comment pairs to install lines</p></td>
 </tr>
@@ -407,30 +401,14 @@ document.write(`
 </tbody>
 </table>
 <dl class="py function">
-<dt class="sig sig-object py" id="pyproject2conda.parser.get_in">
-<span class="sig-prename descclassname"><span class="pre">pyproject2conda.parser.</span></span><span class="sig-name descname"><span class="pre">get_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/parser.py#L78-L93"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.parser.get_in" title="Permalink to this definition">#</a></dt>
-<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}}}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_in</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">],</span> <span class="n">foo</span><span class="p">)</span>
-<span class="go">{&#39;c&#39;: 1}</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyproject2conda.parser.get_value_comment_pairs">
-<span class="sig-prename descclassname"><span class="pre">pyproject2conda.parser.</span></span><span class="sig-name descname"><span class="pre">get_value_comment_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extras</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_base_dependencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/parser.py#L162-L200"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.parser.get_value_comment_pairs" title="Permalink to this definition">#</a></dt>
-<dd><p>Recursively build dependency, comment pairs from deps and extras.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="pyproject2conda.parser.value_comment_pairs_to_conda">
-<span class="sig-prename descclassname"><span class="pre">pyproject2conda.parser.</span></span><span class="sig-name descname"><span class="pre">value_comment_pairs_to_conda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_comment_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/parser.py#L277-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.parser.value_comment_pairs_to_conda" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.parser.</span></span><span class="sig-name descname"><span class="pre">value_comment_pairs_to_conda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_comment_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/parser.py#L259-L301"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.parser.value_comment_pairs_to_conda" title="Permalink to this definition">#</a></dt>
 <dd><p>Convert raw value/comment pairs to install lines</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyproject2conda.parser.PyProject2Conda">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyproject2conda.parser.</span></span><span class="sig-name descname"><span class="pre">PyProject2Conda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/parser.py#L489-L691"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.parser.PyProject2Conda" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyproject2conda.parser.</span></span><span class="sig-name descname"><span class="pre">PyProject2Conda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/parser.py#L487-L708"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.parser.PyProject2Conda" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Wrapper class to transform pyproject.toml -&gt; environment.yaml</p>
 <p><strong>Methods:</strong></p>
@@ -443,7 +421,7 @@ document.write(`
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyproject2conda.parser.PyProject2Conda.to_requirements">
-<span class="sig-name descname"><span class="pre">to_requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extras</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_base_dependencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_cmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/parser.py#L571-L591"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.parser.PyProject2Conda.to_requirements" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extras</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_base_dependencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_cmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/parser.py#L582-L604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.parser.PyProject2Conda.to_requirements" title="Permalink to this definition">#</a></dt>
 <dd><p>Create requirements.txt like file with pip dependencies.</p>
 </dd></dl>
 
@@ -472,11 +450,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="pyproject2conda.cli.html"
+       href="pyproject2conda.config.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.cli</span></code>)</p>
+        <p class="prev-next-title">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -499,8 +477,6 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.get_in"><code class="docutils literal notranslate"><span class="pre">get_in()</span></code></a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.get_value_comment_pairs"><code class="docutils literal notranslate"><span class="pre">get_value_comment_pairs()</span></code></a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.value_comment_pairs_to_conda"><code class="docutils literal notranslate"><span class="pre">value_comment_pairs_to_conda()</span></code></a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.PyProject2Conda"><code class="docutils literal notranslate"><span class="pre">PyProject2Conda</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.parser.PyProject2Conda.to_requirements"><code class="docutils literal notranslate"><span class="pre">PyProject2Conda.to_requirements()</span></code></a></li>
@@ -539,7 +515,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-09.
+  Last updated on 2023-09-19.
   <br/>
 </p>
   </div>

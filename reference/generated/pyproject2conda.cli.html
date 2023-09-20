@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Console script for pyproject2conda (pyproject2conda.cli) &#8212; pyproject2conda v0.5.1 documentation</title>
+    <title>Console script for pyproject2conda (pyproject2conda.cli) &#8212; pyproject2conda v0.6.0 documentation</title>
   
   
   
@@ -58,7 +58,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="License" href="../../license.html" />
-    <link rel="prev" title="Parsing (pyproject2conda.parser)" href="pyproject2conda.parser.html" />
+    <link rel="prev" title="Read/use config/pyproject.toml file (config)" href="pyproject2conda.config.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -130,7 +130,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda v0.5.1 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.6.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -149,9 +149,14 @@
 <li class="toctree-l2"><a class="reference internal" href="pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
 
 
-
+<li class="toctree-l2"><a class="reference internal" href="pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
 
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.cli</span></code>)</a></li>
+
+
+
+
+
 
 </ul>
 </li>
@@ -362,6 +367,11 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.AliasedGroup.get_command"><code class="docutils literal notranslate"><span class="pre">AliasedGroup.get_command()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.yaml"><code class="docutils literal notranslate"><span class="pre">yaml()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.requirements"><code class="docutils literal notranslate"><span class="pre">requirements()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.project"><code class="docutils literal notranslate"><span class="pre">project()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.conda_requirements"><code class="docutils literal notranslate"><span class="pre">conda_requirements()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.to_json"><code class="docutils literal notranslate"><span class="pre">to_json()</span></code></a></li>
 </ul>
 
             </nav>
@@ -385,10 +395,30 @@ document.write(`
 </tr>
 </tbody>
 </table>
+<p><strong>Functions:</strong></p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.cli.yaml" title="pyproject2conda.cli.yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yaml</span></code></a>(filename, extras[, channels, output, ...])</p></td>
+<td><p>Create yaml file from dependencies and optional-dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.cli.requirements" title="pyproject2conda.cli.requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requirements</span></code></a>(filename, extras[, output, ...])</p></td>
+<td><p>Create requirements.txt for pip dependencies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.cli.project" title="pyproject2conda.cli.project"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project</span></code></a>(filename, envs, template, ...)</p></td>
+<td><p>Create multiple environment files from <cite>pyproject.toml</cite> specification.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.cli.conda_requirements" title="pyproject2conda.cli.conda_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conda_requirements</span></code></a>(extras, python_include, ...)</p></td>
+<td><p>Create requirement files for conda and pip.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.cli.to_json" title="pyproject2conda.cli.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a>(extras, python_include, ...)</p></td>
+<td><p>Create json representation.</p></td>
+</tr>
+</tbody>
+</table>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyproject2conda.cli.AliasedGroup">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">AliasedGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L108-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.AliasedGroup" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Group</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">AliasedGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L189-L203"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.AliasedGroup" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RichGroup</span></code></p>
 <p>Provide aliasing for commands</p>
 <p><strong>Methods:</strong></p>
 <table class="autosummary longtable table autosummary">
@@ -400,11 +430,48 @@ document.write(`
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyproject2conda.cli.AliasedGroup.get_command">
-<span class="sig-name descname"><span class="pre">get_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L111-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.AliasedGroup.get_command" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L192-L203"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.AliasedGroup.get_command" title="Permalink to this definition">#</a></dt>
 <dd><p>Given a context and a command name, this returns a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code> object if it exists or returns <cite>None</cite>.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.yaml">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extras</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'check'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L230-L283"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.yaml" title="Permalink to this definition">#</a></dt>
+<dd><p>Create yaml file from dependencies and optional-dependencies.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.requirements">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extras</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'check'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L307-L341"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.requirements" title="Permalink to this definition">#</a></dt>
+<dd><p>Create requirements.txt for pip dependencies.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.project">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">envs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_python</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L359-L398"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.project" title="Permalink to this definition">#</a></dt>
+<dd><p>Create multiple environment files from <cite>pyproject.toml</cite> specification.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.conda_requirements">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">conda_requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extras</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_include</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepend_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_conda</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_pip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reqs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L464-L528"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.conda_requirements" title="Permalink to this definition">#</a></dt>
+<dd><p>Create requirement files for conda and pip.</p>
+<p>These can be install with, for example,</p>
+<p>conda install --file {path_conda}
+pip install -r {path_pip}</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.to_json">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extras</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_include</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reqs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L562-L602"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.to_json" title="Permalink to this definition">#</a></dt>
+<dd><p>Create json representation.</p>
+<p>Keys are:
+&quot;dependencies&quot;: conda dependencies.
+&quot;pip&quot;: pip dependencies.
+&quot;channels&quot;: conda channels.</p>
 </dd></dl>
 
 
@@ -421,12 +488,12 @@ document.write(`
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="pyproject2conda.parser.html"
+       href="pyproject2conda.config.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</p>
+        <p class="prev-next-title">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</p>
       </div>
     </a>
     <a class="right-next"
@@ -461,6 +528,11 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.AliasedGroup.get_command"><code class="docutils literal notranslate"><span class="pre">AliasedGroup.get_command()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.yaml"><code class="docutils literal notranslate"><span class="pre">yaml()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.requirements"><code class="docutils literal notranslate"><span class="pre">requirements()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.project"><code class="docutils literal notranslate"><span class="pre">project()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.conda_requirements"><code class="docutils literal notranslate"><span class="pre">conda_requirements()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.to_json"><code class="docutils literal notranslate"><span class="pre">to_json()</span></code></a></li>
 </ul>
 
   </nav></div>
@@ -494,7 +566,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-09.
+  Last updated on 2023-09-19.
   <br/>
 </p>
   </div>
