@@ -1,1 +1,1 @@
-"""Colletion of package utilities."""
+"""Collection of package utilities."""

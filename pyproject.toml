@@ -72,11 +72,13 @@ dev = [
     "pyproject2conda[typing-extras]",
     "pyproject2conda[dev-extras]",
 ]
+pyright = ["pyright"]
 tools = [
     "pre-commit", #
-    "cruft",
-    "scriv",
+    # "cruft",
+    "scriv", # p2c: -p
     "nbqa",
+    "pyproject2conda[pyright]",
 ]
 dev-complete = [
     "pyproject2conda[dev]", #
@@ -105,11 +107,45 @@ dist-conda = [
     "boa",
 ]
 
+# pyproject2conda environments
 [tool.pyproject2conda]
+user_config = "config/userconfig.toml"
+template_python = "environment/py{py}-{env}"
+template = "environment/{env}"
+# defaults
+python = ["3.10"]
 channels = ["conda-forge"]
+default_envs = [
+    "test",
+    "typing",
+    "docs",
+    "dev",
+    "dev-complete",
+    "dist-conda",
+    "dist-pypi"
+]
+
+[tool.pyproject2conda.envs."test-extras"]
+extras = ["test"]
+
+[tool.pyproject2conda.envs."dev-base"]
+extras = ["dev"]
+
+[[tool.pyproject2conda.overrides]]
+envs = ["test-extras", "dist-conda", "dist-pypi"]
+base = false
+
+[[tool.pyproject2conda.overrides]]
+envs = ["test", "typing", "test-extras"]
+python = ["3.8", "3.9", "3.10", "3.11"]
+
+[[tool.pyproject2conda.overrides]]
+envs = ["test-extras", "dist-pypi"]
+style = ["yaml", "requirements"]
 
 [project.scripts]
 pyproject2conda = "pyproject2conda.cli:app"
+p2c = "pyproject2conda.cli:app"
 
 ## grayskull still messes some things up, but use scripts/recipe-append.sh for this
 [tool.setuptools]

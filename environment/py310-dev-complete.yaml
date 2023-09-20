@@ -11,18 +11,27 @@ channels:
   - conda-forge
 dependencies:
   - python=3.10
-  - autodocsumm
-  - ghp-import
+  - ipykernel
   - ipython
-  - myst-nb
+  - mypy >= 1.4.1
+  - nbqa
+  - nox
   - packaging
-  - pyenchant
+  - pre-commit
+  - pyright
+  - pytest
+  - pytest-cov
+  - pytest-sugar
+  - pytest-xdist
+  - pytype
   - rich-click
   - ruamel.yaml
-  - sphinx >= 5.3.0
-  - sphinx-autobuild
-  - sphinx-book-theme
-  - sphinx-copybutton
-  - sphinxcontrib-spelling
+  - setuptools-scm
   - tomli
   - tomlkit
+  - types-click
+  - pip
+  - pip:
+      - noxopt
+      - pytest-accept
+      - scriv

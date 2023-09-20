@@ -11,11 +11,22 @@ See the fragment files in
 
 <!-- scriv-insert-here -->
 
+## v0.6.0 — 2023-09-19
+
+### Added
+
+- Added `project` subcommand. This uses a configuration in `pyproject.toml` to
+  build multiple enivonments in one go.
+- Added `--deps` and `--reqs` flags to include extra conda and pip requirements.
+- Added `--overwrite` to check if output file exists.
+- Now (correctly) using rich_click.
+- Added tests for all new cases, and some edge cases.
+
 ## v0.5.1 — 2023-09-09
 
 ### Added
 
-- Added `--sort/--no-sort` flag to cli. Default is to sort dependecies. This
+- Added `--sort/--no-sort` flag to cli. Default is to sort dependencies. This
   fixes issues with changing order in `pyproject.toml` leading to different yaml
   files.
 

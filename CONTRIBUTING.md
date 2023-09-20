@@ -188,7 +188,7 @@ the search path, and the development environment will include the extras `dev`
 and `nox` from the `project.optional-dependencies` section of the
 `pyproject.toml` file in the development environment.
 
-You can alos create this file using either of the following commands:
+You can also create this file using either of the following commands:
 
 ```bash
 nox -s config -- --python-paths "~/.conda/envs/test-3.*/bin" --dev-extras dev nox...
@@ -210,6 +210,28 @@ done
 ```
 
 Also, set the variable `nox.python.paths` (see [](#setup-user-configuration)).
+
+### See nox sessions/options
+
+To see all nox session, run:
+
+```bash
+nox --list
+```
+
+We use [noxopt] to pass command line options to the different sessions. Use the
+following to get help on these options:
+
+```bash
+nox -- --help
+```
+
+Note that these options should be passed _after_ `--`. For example, to build and
+open the documentation, run:
+
+```bash
+nox -s docs -- -d build open
+```
 
 ### Creating environment.yaml/requirement.txt files
 
@@ -367,24 +389,35 @@ pipx run --spec git+https://github.com/wpk-nist-gov/nox-bootstrap.git \
      nox -s bootstrap -- \
      --python-paths "~/.conda/envs/test-3.*/bin" \
      --dev-extras dev nox
+
+conda activate .nox/{project-name}/envs/dev
 ```
 
-This will, in isolation, install nox, and run the `bootstrap` session.
-
-The above commands create a development environment located at
-`.nox/{project-name}/envs/dev`.
+where options `--python-paths` and `--dev-extras` are user specific. This will,
+in isolation, install nox, and run the `bootstrap` session.
 
 Note that nox environments are under `.nox/{project-name}/envs` instead of under
 `.nox`. This fixes some issues with things like [nb_conda_kernels], as well as
 other third party tools that expect conda environment to be located in a
 directory like `.../miniforge/envs/env-name`.
 
+If you go this route, you may want to use something like
+[zsh-autoenv](https://github.com/Tarrasch/zsh-autoenv) (if using zsh shell) or
+[autoenv](https://github.com/hyperupcall/autoenv) (if using bash) to auto
+activate the development environment when in the parent directory.
+
+### Conda create development environment
+
 If instead you'd like to just install directly with conda, you can use:
 
 ```bash
-conda env create [-n {env-name}] -f environment/py{version}-dev-base.yaml
-conda activate {environment-name or -p path/to/environment}
+conda env create [-n {env-name}] -f environment/py{version}-dev-complete.yaml
+conda activate {env-name}
+pip install -e . --no-deps
 ```
+
+This installs all optional dependencies except those need to build the docs. For
+that, please use nox.
 
 ### Development tools
 
@@ -406,15 +439,19 @@ conda activate {environment-name or -p path/to/environment}
 [nb_conda_kernels]: https://github.com/Anaconda-Platform/nb_conda_kernels
 [pyproject2conda]: https://github.com/usnistgov/pyproject2conda
 [nbqa]: https://github.com/nbQA-dev/nbQA
+[pyright]: https://github.com/microsoft/pyright
 
 We recommend installing the following tools with [pipx] or [condax]. If you'd
 like to install them in the development environment instead, include the
 "extras" `tools` in the `nox.extras.dev` section of `config/userconfig.toml`
-file:
+file, or run:
 
 ```bash
 nox -s config -- --dev-extras dev nox tools
 ```
+
+Alternatively, you can just create a conda environment using the commands in
+[](#conda-create-development-environment).
 
 Additional tools are:
 
@@ -426,6 +463,7 @@ Additional tools are:
 - [pyproject2conda] (optional)
 - [cog] (optional)
 - [nbqa] (optional)
+- [pyright] (recommended)
 
 These are setup using the following:
 
@@ -438,6 +476,7 @@ pipx install scriv
 condax/pipx install commitizen
 condax/pipx install cogapp
 condax/pipx install nbqa
+condax/pipx install pyright
 ```
 
 If you'd like to install a central [nox] to be used with this project, use one
