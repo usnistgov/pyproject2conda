@@ -1,0 +1,3 @@
+[tool.pyproject2conda.envs."user-dev"]
+extras = ["dev", "dist-pypi"]
+name = "hello-there"
