@@ -54,7 +54,7 @@ class ProjectConfig:
     def new_like(
         self,
         python_paths: list[str] | None = None,
-        env_extras: Mapping[str, list[str]] | None = None,
+        env_extras: Mapping[str, Mapping[str, Any]] | None = None,
         copy: bool = True,
     ) -> Self:
         return type(self)(
@@ -192,6 +192,21 @@ class ProjectConfig:
         return config
 
 
+def glob_envs_to_paths(globs: list[str]) -> list[str]:
+    import fnmatch
+
+    from .common_utils import get_conda_environment_map
+
+    env_map = get_conda_environment_map()
+
+    out = []
+    for glob in globs:
+        found_envs = fnmatch.filter(env_map.keys(), glob)
+        out.extend([env_map[k] for k in found_envs])
+
+    return out
+
+
 def main() -> None:
     import argparse
 
@@ -202,9 +217,17 @@ def main() -> None:
         "--python-paths",
         nargs="+",
         help="""
-                Specify paths to add to search path for python interpreters.
-                This can include the wildcard '*'.
-                """,
+        Specify paths to add to search path for python interpreters.
+        This can include the wildcard '*'.
+        """,
+    )
+    p.add_argument(
+        "-e",
+        "--env",
+        nargs="+",
+        help="""
+        Conda environment name patterns to extract `--python-paths` from
+        """,
     )
     p.add_argument(
         "-d",
@@ -226,7 +249,14 @@ def main() -> None:
     n = ProjectConfig.from_path(path=args.file)
 
     if args.python_paths:
-        n.python_paths = args.python_paths
+        python_paths = args.python_paths
+    elif args.env:
+        python_paths = glob_envs_to_paths(args.env)
+    else:
+        python_paths = None
+
+    if python_paths:
+        n.python_paths = python_paths
 
     if args.dev_extras:
         n.env_extras["tool.pyproject2conda.envs.dev"] = {"extras": args.dev_extras}
@@ -238,4 +268,12 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if __package__ is None:
+        # Magic to be able to run script as either
+        #   $ python -m tools.create_python
+        # or
+        #   $ python tools/create_python.py
+        here = Path(__file__).absolute()
+        __package__ = here.parent.name
+
     main()

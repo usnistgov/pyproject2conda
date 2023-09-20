@@ -296,3 +296,12 @@ pytest-nbval:  ## run pytest --nbval
 cog-readme: ## apply cog to README.md
 	cog -rP README.md
 	pre-commit run markdownlint --files README.md
+
+# NOTE: Some special stuff for README.pdf
+# Can't seem to convert
+.PHONY: README.pdf
+README.pdf: ## create README.pdf
+	P2C_USE_CLICK=false cog -P -o tmp.md README.md
+	-pre-commit run markdownlint --files tmp.md
+	pandoc -V colorlinks tmp.md -o README.pdf
+	rm tmp.md

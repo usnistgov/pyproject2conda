@@ -77,6 +77,17 @@ import subprocess
 import shlex
 from functools import lru_cache
 
+import textwrap
+def wrap_command(cmd):
+
+    cmd = textwrap.wrap(cmd.strip(), 80)
+
+    if len(cmd) > 1:
+        cmd[:-1] = [c + " \\" for c in cmd[:-1]]
+        cmd[1:]  = [" "*4 + c for c in cmd[1:]]
+
+    return "\n".join(cmd)
+
 @lru_cache
 def get_pyproject(path):
     with open(path, 'r') as f:
@@ -99,6 +110,8 @@ def run_command(cmd, wrapper="bash", include_cmd=True, bounds=None):
         total = "\n".join(total)
 
     if include_cmd:
+        cmd = wrap_command(cmd)
+
         total = f"$ {cmd}\n{total}"
 
     if wrapper:
@@ -233,7 +246,8 @@ To specify a specific value of python in the output, pass a value with:
 <!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include python=3.9")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include python=3.9
+$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include \
+    python=3.9
 channels:
   - conda-forge
 dependencies:
@@ -276,7 +290,8 @@ resulting environment file. You could, for example use:
 <!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 --python-include python=3.10")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 --python-include python=3.10
+$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 \
+    --python-include python=3.10
 channels:
   - conda-forge
 dependencies:
@@ -559,14 +574,17 @@ installed. For example:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=22, end=26)]]] -->
+<!-- [[[cog cat_lines(begin="dist-pypi = [", end="[tool.pyproject2conda]")]]] -->
 
 ```toml
 # ...
-dev = ["hello[test]", "hello[dev-extras]"]
 dist-pypi = [
 # this is intended to be parsed with --no-base option
 "setuptools",
+"build", # p2c: -p
+
+]
+
 # ...
 ```
 
@@ -824,7 +842,7 @@ dependencies:
 <!-- prettier-ignore-start -->
 <!-- [[[cog
   import os
-  os.environ["COG_MAX_WIDTH"] = "90"
+  os.environ["P2C_RICH_CLICK_MAX_WIDTH"] = "90"
 
   run_command("pyproject2conda --help", wrapper="bash")
 
@@ -935,13 +953,11 @@ $ pyproject2conda yaml --help
 │                                               header for output to a file, and not to  │
 │                                               include header when writing to stdout.   │
 │ --overwrite           -w  [check|force|skip]  What to do if output file exists.        │
-│                                               * check (default): check if output       │
-│                                               exists. Create if missing. If output     │
-│                                               exists and                               │
-│                                                 passed `--file` is newer, recreate     │
-│                                               output, else skip.                       │
-│                                               * skip: If output exists, skip.          │
-│                                               * force: force recreate output.          │
+│                                               (check): Create if missing. If output    │
+│                                               exists and passed `--filename` is newer, │
+│                                               recreate output, else skip. (skip): If   │
+│                                               output exists, skip. (force): force:     │
+│                                               force recreate output.                   │
 │ --verbose             -v                                                               │
 │ --deps                -d  TEXT                Additional conda dependencies.           │
 │ --reqs                -r  TEXT                Additional pip requirements.             │
@@ -980,13 +996,11 @@ $ pyproject2conda requirements --help
 │                                               header for output to a file, and not to  │
 │                                               include header when writing to stdout.   │
 │ --overwrite           -w  [check|force|skip]  What to do if output file exists.        │
-│                                               * check (default): check if output       │
-│                                               exists. Create if missing. If output     │
-│                                               exists and                               │
-│                                                 passed `--file` is newer, recreate     │
-│                                               output, else skip.                       │
-│                                               * skip: If output exists, skip.          │
-│                                               * force: force recreate output.          │
+│                                               (check): Create if missing. If output    │
+│                                               exists and passed `--filename` is newer, │
+│                                               recreate output, else skip. (skip): If   │
+│                                               output exists, skip. (force): force:     │
+│                                               force recreate output.                   │
 │ --verbose             -v                                                               │
 │ --reqs                -r  TEXT                Additional pip requirements.             │
 │ --help                                        Show this message and exit.              │
@@ -1028,13 +1042,11 @@ $ pyproject2conda project --help
 │                                               header for output to a file, and not to  │
 │                                               include header when writing to stdout.   │
 │ --overwrite           -w  [check|force|skip]  What to do if output file exists.        │
-│                                               * check (default): check if output       │
-│                                               exists. Create if missing. If output     │
-│                                               exists and                               │
-│                                                 passed `--file` is newer, recreate     │
-│                                               output, else skip.                       │
-│                                               * skip: If output exists, skip.          │
-│                                               * force: force recreate output.          │
+│                                               (check): Create if missing. If output    │
+│                                               exists and passed `--filename` is newer, │
+│                                               recreate output, else skip. (skip): If   │
+│                                               output exists, skip. (force): force:     │
+│                                               force recreate output.                   │
 │ --verbose             -v                                                               │
 │ --dry/--no-dry                                If true, do a dry run                    │
 │ --user-config             TEXT                Additional toml file to supply           │

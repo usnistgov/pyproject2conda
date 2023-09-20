@@ -263,9 +263,8 @@ def conda_lock(
         help="platforms to build lock files for",
         choices=["osx-64", "linux-64", "win-64", "all"],
     ) = (),
-    conda_lock_cmd: cmd_annotated(  # type: ignore
+    conda_lock_include: cmd_annotated(  # type: ignore
         help="lock files to create",
-        choices=["test", "typing", "dev", "dist-pypi", "dist-conda", "all"],
     ) = (),
     conda_lock_run: RUN_CLI = [],  # noqa
     conda_lock_mamba: bool = False,
@@ -282,6 +281,7 @@ def conda_lock(
 
     session.run("conda-lock", "--version")
 
+    conda_lock_exclude = ["test-extras"]
     platform = cast(Sequence[str], conda_lock_platform)
     if not platform:
         platform = ["osx-64"]
@@ -291,23 +291,20 @@ def conda_lock(
     if not channel:
         channel = ["conda-forge"]
 
-    lock_dir = ROOT / "environment" / "lock"
+    def create_lock(path: Path) -> None:
+        name = path.with_suffix("").name
+        env = "-".join(name.split("-")[1:])
 
-    def create_lock(
-        py: str,
-        name: str,
-        env_path: str | None = None,
-    ) -> None:
-        py = "py" + py.replace(".", "")
+        if conda_lock_include:
+            if not any(c == env for c in conda_lock_include):
+                return
 
-        if env_path is None:
-            env_path = f"environment/{py}-{name}.yaml"
+        if conda_lock_exclude:
+            if any(c == env for c in conda_lock_exclude):
+                return
 
-        lockfile = lock_dir / f"{py}-{name}-conda-lock.yml"
-
-        deps = [env_path]
-        # make sure this is last to make python version last
-        # deps.append(lock_dir / f"{py}.yaml")
+        lockfile = path.parent / "lock" / f"{name}-conda-lock.yml"
+        deps = [str(path)]
 
         if conda_lock_force or update_target(lockfile, *deps):
             session.log(f"creating {lockfile}")
@@ -324,32 +321,8 @@ def conda_lock(
             )
 
     session_run_commands(session, conda_lock_run)
-
-    if not conda_lock_run and not conda_lock_cmd:
-        conda_lock_cmd = ["all"]  # pyright: ignore
-    if "all" in conda_lock_cmd:
-        conda_lock_cmd = ["test", "typing", "dev", "dist-pypi", "dist-conda"]
-    conda_lock_cmd = list(set(conda_lock_cmd))
-
-    for c in conda_lock_cmd:
-        if c == "test":
-            for py in PYTHON_ALL_VERSIONS:
-                create_lock(py, "test")
-        elif c == "typing":
-            for py in PYTHON_ALL_VERSIONS:
-                create_lock(py, "typing")
-        elif c == "dev":
-            create_lock(PYTHON_DEFAULT_VERSION, "dev")
-        elif c == "dist-pypi":
-            create_lock(
-                PYTHON_DEFAULT_VERSION,
-                "dist-pypi",
-            )
-        elif c == "dist-conda":
-            create_lock(
-                PYTHON_DEFAULT_VERSION,
-                "dist-conda",
-            )
+    for path in (ROOT / "environment").glob("py*.yaml"):
+        create_lock(path)
 
 
 # ** testing
@@ -545,7 +518,7 @@ def docs(
         name="docs",
         lock=lock,
         display_name=f"{PACKAGE_NAME}-docs",
-        install_package=True,
+        install_package=False,
         update=update,
         log_session=log_session,
     )
@@ -799,7 +772,7 @@ def lint(
     lint_run: RUN_CLI = [],  # noqa
     update: UPDATE_CLI = False,
     log_session: bool = False,
-):
+) -> None:
     """
     Run linters with pre-commit.
 
@@ -887,7 +860,7 @@ def typing(
         session=session,
         name="typing",
         lock=lock,
-        install_package=True,
+        install_package=False,
         update=update,
         log_session=log_session,
     )
