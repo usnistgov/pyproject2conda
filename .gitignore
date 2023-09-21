@@ -118,4 +118,5 @@ cruft.patch
 /src/**/_version.py
 tuna-loadtime.log
 /environment/py*-dev.yaml
+/requirements/py*-dev.yaml
 /README.pdf

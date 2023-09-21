@@ -1,1 +1,1 @@
-"""Collection of package utilities."""
+"""Project tools"""

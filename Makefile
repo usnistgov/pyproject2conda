@@ -145,16 +145,16 @@ version: version-scm version-import
 ################################################################################
 # Environment files
 ################################################################################
-.PHONY: environment-files-clean
-environment-files-clean: ## clean all created environment/{dev,docs,test}.yaml
-	-rm $(ENVIRONMENTS) 2> /dev/null || true
-
 .PHONY: environment-files-build
-environment-files-build: pyproject.toml ## rebuild all environment files
+environment-files-build: ## rebuild all environment files
 	nox -s requirements
 
-environment/%.yaml: pyproject.toml
+requirements/%.yaml: pyproject.toml
 	nox -s requirements
+
+requirements/%.txt: pyproject.toml
+	nox -s requirements
+
 
 ################################################################################
 # virtual env
@@ -170,15 +170,18 @@ mamba-dev-update: environment/dev.yaml environment-files-build ## update develop
 ################################################################################
 # NOX
 ###############################################################################
-## dev env
+
+# NOTE: Below, we use requirement of the form "requirements/dev.txt"
+# Since any of these files will trigger a rebuild of all requirements,
+# the actual "txt" or "yaml" file doesn't matter
 NOX=nox
 .PHONY: dev-env
-dev-env: environment/py310-dev.yaml ## create development environment using nox
+dev-env: requirements/dev.txt ## create development environment using nox
 	$(NOX) -e dev
 
 ## testing
 .PHONY: test-all
-test-all: environment/py310-test.yaml ## run tests on every Python version with nox.
+test-all: requirements/test.txt ## run tests on every Python version with nox.
 	$(NOX) -s test
 
 ## docs
@@ -205,7 +208,7 @@ docs-open: ## open the build
 docs-linkcheck: ## check links
 	$(NOX) -s docs -- -d linkcheck
 
-docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: environment/py310-docs.yaml
+docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: requirements/docs.txt
 
 ## typing
 .PHONY: typing-mypy typing-pyright typing-pytype typing-all typing-command
@@ -219,7 +222,7 @@ typing-all:
 	$(NOX) -s typing -- -m mypy pyright pytype
 typing-command:
 	$(NOX) -s typing -- --typing-run $(command)
-typing-mypy typing-pyright typing-pytype typing-all typing-command: environment/py310-typing.yaml
+typing-mypy typing-pyright typing-pytype typing-all typing-command: requirements/typing.txt
 
 ## distribution
 .PHONY: dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command
@@ -232,7 +235,7 @@ dist-pypi-release: ## release to pypi, can pass posargs=...
 	$(NOX) -s dist-pypi -- -p release
 dist-pypi-command: ## run command with command=...
 	$(NOX) -s dist-pypi -- --dist-pypi-run $(command)
-dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: environment/py310-dist-pypi.yaml
+dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: requirements/dist-pypi.txt
 
 .PHONY: dist-conda-recipe dist-conda-build dist-conda-command
 dist-conda-recipe: ## build conda recipe can pass posargs=...
@@ -241,7 +244,7 @@ dist-conda-build: ## build conda recipe can pass posargs=...
 	$(NOX) -s dist-conda -- -c build
 dist-conda-command: ## run command with command=...
 	$(NOX) -s dist-conda -- -dist-conda-run $(command)
-dist-conda-build dist-conda-recipe dist-conda-command: environment/py310-dist-conda.yaml
+dist-conda-build dist-conda-recipe dist-conda-command: requirements/dist-pypi.txt
 
 
 ## list all options

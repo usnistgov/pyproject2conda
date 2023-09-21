@@ -110,11 +110,12 @@ dist-conda = [
 # pyproject2conda environments
 [tool.pyproject2conda]
 user_config = "config/userconfig.toml"
-template_python = "environment/py{py}-{env}"
-template = "environment/{env}"
+template_python = "requirements/py{py}-{env}"
+template = "requirements/{env}"
 # defaults
 python = ["3.10"]
 channels = ["conda-forge"]
+style = ["yaml", "requirements"]
 default_envs = [
     "test",
     "typing",
@@ -125,10 +126,10 @@ default_envs = [
     "dist-pypi"
 ]
 
-[tool.pyproject2conda.envs."test-extras"]
+[tool.pyproject2conda.envs.test-extras]
 extras = ["test"]
 
-[tool.pyproject2conda.envs."dev-base"]
+[tool.pyproject2conda.envs.dev-base]
 extras = ["dev"]
 
 [[tool.pyproject2conda.overrides]]
@@ -140,8 +141,8 @@ envs = ["test", "typing", "test-extras"]
 python = ["3.8", "3.9", "3.10", "3.11"]
 
 [[tool.pyproject2conda.overrides]]
-envs = ["test-extras", "dist-pypi"]
-style = ["yaml", "requirements"]
+envs = ["dist-conda"]
+style = ["yaml"]
 
 [project.scripts]
 pyproject2conda = "pyproject2conda.cli:app"
@@ -294,7 +295,6 @@ max-complexity = 10
 ruff = ["--fix", "--extend-ignore=D100,B018"]
 
 [tool.flake8]
-docstring-convention = "numpy"
 ignore = [
     # # whitespace before ':' - doesn't work well with black
     "E203",

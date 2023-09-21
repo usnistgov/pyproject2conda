@@ -20,9 +20,8 @@ from typing import (
 import nox
 from noxopt import NoxOpt, Option, Session
 
-# Not sure why I need to adjust sys.path sometimes and not others.
 # fmt: off
-sys.path.append(".")
+sys.path.insert(0, ".")
 from tools.noxtools import (
     combine_list_str,
     load_nox_config,
@@ -30,14 +29,14 @@ from tools.noxtools import (
     pkg_install_condaenv,
     pkg_install_venv,
     prepend_flag,
-    session_environment_filename,
     session_run_commands,
     sort_like,
     update_target,
 )
 
-sys.path.pop()
+sys.path.pop(0)
 # fmt: on
+
 
 # * Names ------------------------------------------------------------------------------
 
@@ -55,6 +54,10 @@ nox.options.sessions = ["test"]
 # This fixes problems with ipykernel/nb_conda_kernel and some other dev tools
 # that expect conda environments to be in something like ".../a/path/miniforge/envs/env".
 nox.options.envdir = f".nox/{PACKAGE_NAME}/envs"
+
+# * User Config ------------------------------------------------------------------------
+
+CONFIG = load_nox_config()
 
 # * Options ----------------------------------------------------------------------------
 
@@ -179,7 +182,7 @@ def dev_venv(
         session=session,
         name="dev-venv",
         lock=lock,
-        extras=load_nox_config()["environment-extras"].get("dev", ["nox", "dev"]),
+        requirement_paths="dev.txt",
         display_name=f"{PACKAGE_NAME}-dev-venv",
         install_package=True,
         update=update,
@@ -192,6 +195,7 @@ def dev_venv(
 @group.session(python=False)  # type: ignore
 def bootstrap(session: Session):
     """Run config, reqs, and dev"""
+
     session.notify("config")
     session.notify("requirements")
     session.notify("dev")
@@ -293,21 +297,23 @@ def conda_lock(
 
     def create_lock(path: Path) -> None:
         name = path.with_suffix("").name
-        env = "-".join(name.split("-")[1:])
+        lockfile = path.parent / "lock" / f"{name}-conda-lock.yml"
+        deps = [str(path)]
 
+        # check if skip
+        env = "-".join(name.split("-")[1:])
         if conda_lock_include:
             if not any(c == env for c in conda_lock_include):
+                session.log(f"Skipping {lockfile} (include)")
                 return
 
         if conda_lock_exclude:
             if any(c == env for c in conda_lock_exclude):
+                session.log(f"Skipping {lockfile} (exclude)")
                 return
 
-        lockfile = path.parent / "lock" / f"{name}-conda-lock.yml"
-        deps = [str(path)]
-
         if conda_lock_force or update_target(lockfile, *deps):
-            session.log(f"creating {lockfile}")
+            session.log(f"Creating {lockfile}")
             # insert -f for each arg
             if lockfile.exists():
                 lockfile.unlink()
@@ -319,9 +325,11 @@ def conda_lock(
                 *prepend_flag("-f", *deps),
                 f"--lockfile={lockfile}",
             )
+        else:
+            session.log(f"Skipping {lockfile} (exists)")
 
     session_run_commands(session, conda_lock_run)
-    for path in (ROOT / "environment").glob("py*.yaml"):
+    for path in (ROOT / "requirements").relative_to(ROOT.cwd()).glob("py*.yaml"):
         create_lock(path)
 
 
@@ -390,8 +398,8 @@ def test_venv(
     pkg_install_venv(
         session=session,
         name="test-venv",
-        extras="test",
         install_package=True,
+        requirement_paths="test.txt",
         update=update,
         log_session=log_session,
     )
@@ -561,7 +569,7 @@ def docs_venv(
         install_package=True,
         update=update,
         log_session=log_session,
-        extras="docs",
+        requirement_paths="docs.txt",
     )
 
     _docs(
@@ -616,7 +624,7 @@ def dist_pypi(
     pkg_install_venv(
         session=session,
         name="dist-pypi",
-        requirement_paths=[session_environment_filename(name="dist-pypi.txt")],
+        requirement_paths="dist-pypi.txt",
         update=update,
         install_package=False,
         log_session=log_session,
@@ -784,6 +792,7 @@ def lint(
         session=session,
         name="lint",
         reqs=["pre-commit"],
+        install_package=False,
         update=update,
         log_session=log_session,
     )
@@ -902,10 +911,10 @@ def typing_venv(
         session=session,
         name="typing",
         lock=lock,
-        install_package=True,
+        requirement_paths="typing.txt",
+        install_package=False,
         update=update,
         log_session=log_session,
-        extras="typing",
     )
 
     _typing(
@@ -973,7 +982,7 @@ def testdist_pypi(
     pkg_install_venv(
         session=session,
         name="testdist-pypi",
-        requirement_paths=[session_environment_filename(name="test-extras.txt")],
+        requirement_paths="test-extras.txt",
         reqs=[install_str],
         update=update,
         install_package=False,
