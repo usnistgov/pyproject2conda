@@ -7,12 +7,11 @@
 # python tools/projectconfig.py -p {pattern1, ...} -d {extra1, extras2, ...}
 #
 # This should point to (globbed version) of location of python executables
-# For example, this could be paths = ["~/miniforge3/envs/test-3.*/bin"]
-#
-# [nox.python]
-# paths = ["~/.conda/envs/test-3.*/bin"]
-# Extras for environments
-# for example, could have
-#
-# [nox.extras]
-# dev = ["dev", "nox", "tools"]
+# For example, this could be paths = ["~/miniforge3/envs/python-3.*/bin"]
+[nox.python]
+paths = ["~/.conda/envs/python-3.*/bin"]
+
+# Extras for environments (see https://github.com/usnistgov/pyproject2conda)
+# Override dev environemt extras for user.
+[tool.pyproject2conda.envs.dev]
+dev = ["dev", "nox", "tools"]

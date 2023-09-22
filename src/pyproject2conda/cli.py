@@ -9,9 +9,6 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 
-import rich_click as click
-from rich_click.rich_group import RichGroup
-
 from pyproject2conda import __version__
 from pyproject2conda.parser import PyProject2Conda
 from pyproject2conda.utils import (
@@ -20,8 +17,20 @@ from pyproject2conda.utils import (
     update_target,
 )
 
-if "COG_MAX_WIDTH" in os.environ:
-    click.rich_click.MAX_WIDTH = int(os.environ["COG_MAX_WIDTH"])  # pragma: no cover
+if os.environ.get("P2C_USE_CLICK", "True").lower() not in ("0", "f", "false"):
+    # use rich
+    import rich_click as click
+    from rich_click.rich_group import RichGroup
+
+    if "P2C_RICH_CLICK_MAX_WIDTH" in os.environ:
+        click.rich_click.MAX_WIDTH = int(
+            os.environ["P2C_RICH_CLICK_MAX_WIDTH"]
+        )  # pragma: no cover
+
+else:  # pragma: no cover
+    # Special case for generating README.pdf
+    import click  # type: ignore[no-redef]
+    from click import Group as RichGroup  # type: ignore[assignment]
 
 
 # * Click options
@@ -68,12 +77,9 @@ OVERWRITE_CLI = click.option(
     default="check",
     help="""
     What to do if output file exists.
-
-    \b
-    * check (default): check if output exists. Create if missing. If output exists and
-      passed `--file` is newer, recreate output, else skip.
-    * skip: If output exists, skip.
-    * force: force recreate output.
+    (check): Create if missing. If output exists and passed `--filename` is newer, recreate output, else skip.
+    (skip): If output exists, skip.
+    (force): force: force recreate output.
     """,
 )
 VERBOSE_CLI = click.option("-v", "--verbose", "verbose", is_flag=True, default=False)
@@ -245,6 +251,7 @@ def yaml(
     reqs=None,
 ):
     """Create yaml file from dependencies and optional-dependencies."""
+
     if not update_target(output, filename, overwrite=overwrite):
         if verbose:
             click.echo(
@@ -376,6 +383,9 @@ def project(
 
     c = Config.from_file(filename, user_config=user_config)
 
+    if user_config == "infer" or user_config is None:
+        user_config = c.user_config()
+
     for style, d in c.iter(
         envs=envs,
         template=template,
@@ -391,11 +401,26 @@ def project(
             )
             d["output"] = None
 
-        if style == "yaml":
-            yaml(filename=filename, **d)
+        # Special case: have output and userconfig.  Check update
+        if not update_target(
+            d["output"],
+            filename,
+            *([user_config] if user_config else []),
+            overwrite=d["overwrite"],
+        ):
+            if verbose:
+                click.echo(
+                    f"# Skipping {style} {d['output']}.  Pass `-w force to force recreate output`"
+                )
+        else:
+            d["overwrite"] = "force"
+            if style == "yaml":
+                yaml(filename=filename, **d)
 
-        elif style == "requirements":
-            requirements(filename=filename, **d)
+            elif style == "requirements":
+                requirements(filename=filename, **d)
+            else:
+                raise ValueError(f"unknown style {style}")
 
 
 project_app = compose_decorators(  # type: ignore

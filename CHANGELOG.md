@@ -11,6 +11,15 @@ See the fragment files in
 
 <!-- scriv-insert-here -->
 
+## v0.6.1 — 2023-09-22
+
+### Changed
+
+- Fixed edge case where `--overwrite=check` and have a `user_config`. Now when
+  using `p2c project` with a `user_config` and `overwrite=check`, the timestamp
+  of the output file will be compared to both the `filename=pyproject.toml` and
+  `user_config`.
+
 ## v0.6.0 — 2023-09-19
 
 ### Added

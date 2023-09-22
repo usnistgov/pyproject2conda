@@ -72,13 +72,12 @@ dev = [
     "pyproject2conda[typing-extras]",
     "pyproject2conda[dev-extras]",
 ]
-pyright = ["pyright"]
 tools = [
     "pre-commit", #
     # "cruft",
     "scriv", # p2c: -p
     "nbqa",
-    "pyproject2conda[pyright]",
+    "pyright",
 ]
 dev-complete = [
     "pyproject2conda[dev]", #
@@ -107,14 +106,14 @@ dist-conda = [
     "boa",
 ]
 
-# pyproject2conda environments
 [tool.pyproject2conda]
 user_config = "config/userconfig.toml"
-template_python = "environment/py{py}-{env}"
-template = "environment/{env}"
+template_python = "requirements/py{py}-{env}"
+template = "requirements/{env}"
 # defaults
 python = ["3.10"]
 channels = ["conda-forge"]
+style = ["yaml", "requirements"]
 default_envs = [
     "test",
     "typing",
@@ -125,10 +124,10 @@ default_envs = [
     "dist-pypi"
 ]
 
-[tool.pyproject2conda.envs."test-extras"]
+[tool.pyproject2conda.envs.test-extras]
 extras = ["test"]
 
-[tool.pyproject2conda.envs."dev-base"]
+[tool.pyproject2conda.envs.dev-base]
 extras = ["dev"]
 
 [[tool.pyproject2conda.overrides]]
@@ -140,8 +139,8 @@ envs = ["test", "typing", "test-extras"]
 python = ["3.8", "3.9", "3.10", "3.11"]
 
 [[tool.pyproject2conda.overrides]]
-envs = ["test-extras", "dist-pypi"]
-style = ["yaml", "requirements"]
+envs = ["dist-conda"]
+style = ["yaml"]
 
 [project.scripts]
 pyproject2conda = "pyproject2conda.cli:app"

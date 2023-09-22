@@ -20,9 +20,8 @@ from typing import (
 import nox
 from noxopt import NoxOpt, Option, Session
 
-# Not sure why I need to adjust sys.path sometimes and not others.
 # fmt: off
-sys.path.append(".")
+sys.path.insert(0, ".")
 from tools.noxtools import (
     combine_list_str,
     load_nox_config,
@@ -30,14 +29,14 @@ from tools.noxtools import (
     pkg_install_condaenv,
     pkg_install_venv,
     prepend_flag,
-    session_environment_filename,
     session_run_commands,
     sort_like,
     update_target,
 )
 
-sys.path.pop()
+sys.path.pop(0)
 # fmt: on
+
 
 # * Names ------------------------------------------------------------------------------
 
@@ -55,6 +54,10 @@ nox.options.sessions = ["test"]
 # This fixes problems with ipykernel/nb_conda_kernel and some other dev tools
 # that expect conda environments to be in something like ".../a/path/miniforge/envs/env".
 nox.options.envdir = f".nox/{PACKAGE_NAME}/envs"
+
+# * User Config ------------------------------------------------------------------------
+
+CONFIG = load_nox_config()
 
 # * Options ----------------------------------------------------------------------------
 
@@ -179,7 +182,7 @@ def dev_venv(
         session=session,
         name="dev-venv",
         lock=lock,
-        extras=load_nox_config()["environment-extras"].get("dev", ["nox", "dev"]),
+        requirement_paths="dev.txt",
         display_name=f"{PACKAGE_NAME}-dev-venv",
         install_package=True,
         update=update,
@@ -192,6 +195,7 @@ def dev_venv(
 @group.session(python=False)  # type: ignore
 def bootstrap(session: Session):
     """Run config, reqs, and dev"""
+
     session.notify("config")
     session.notify("requirements")
     session.notify("dev")
@@ -245,105 +249,12 @@ def requirements(
         log_session=log_session,
     )
 
-    cmd = ["pyproject2conda", "project", "--verbose"]
-
-    if requirements_force:
-        cmd.extend(["--overwrite", "force"])
-
-    session.run(*cmd)
-
-    # def create_env(
-    #     python_version: str | None = None,
-    #     cmd: Literal["yaml", "requirements"] = "yaml",
-    #     name: str | None = None,
-    #     output: str | None = None,
-    #     extras: str | Sequence[str] | None = None,
-    #     python_include: str | bool = True,
-    #     base: bool = True,
-    # ) -> None:
-    #     def _to_args(flag: str, val: str | Sequence[str] | None) -> list[str]:
-    #         if val is None:
-    #             return []
-    #         if isinstance(val, str):
-    #             val = [val]
-    #         return prepend_flag(flag, *val)
-
-    #     if output is None:
-    #         assert name is not None
-    #         output = session_environment_filename(
-    #             python_version=python_version,
-    #             name=name,
-    #             ext={"yaml": ".yaml", "requirements": ".txt"}[cmd],
-    #         )
-
-    #     if (
-    #         requirements_force
-    #         or update_target(output, "pyproject.toml")
-    #         or update_target(output, "config/userconfig.toml", allow_missing=True)
-    #     ):
-    #         args = [cmd, "-o", output] + _to_args("-e", extras)
-
-    #         if cmd == "yaml":
-    #             if python_version is not None:
-    #                 args.extend(["--python-version", python_version])
-    #             if isinstance(python_include, bool) and python_include:
-    #                 python_include = f"python={python_version}"
-    #             if isinstance(python_include, str):
-    #                 args.extend(["--python-include", python_include])
-
-    #         if not base:
-    #             args.append("--no-base")
-
-    #         session.run("pyproject2conda", *args)
-    #     else:
-    #         session.log(
-    #             f"{output} up to data.  Pass --environments-force to force recreation"
-    #         )
-
-    # extras = load_nox_config().get("environment-extras", {"dev": ["dev", "nox"]})
-    # extras["dev-base"] = ["dev"]
-
-    # # All versions:
-    # for env, python_version in product(["test", "typing"], PYTHON_ALL_VERSIONS):
-    #     create_env(
-    #         name=env,
-    #         extras=extras.get(env, env),
-    #         base=True,
-    #         python_version=python_version,
-    #     )
-
-    # for env, python_version in product(
-    #     ["docs", "dev", "dev-base", "dev-complete"], [PYTHON_DEFAULT_VERSION]
-    # ):
-    #     create_env(
-    #         name=env,
-    #         extras=extras.get(env, env),
-    #         base=True,
-    #         python_version=python_version,
-    #     )
-
-    # # need an isolated set of test requirements
-    # for python_version in PYTHON_ALL_VERSIONS:
-    #     create_env(
-    #         name="test-extras",
-    #         extras="test",
-    #         base=False,
-    #         python_version=python_version,
-    #     )
-
-    # # isolated
-    # for env in ["dist-pypi", "dist-conda"]:
-    #     create_env(
-    #         name=f"{env}",
-    #         extras=env,
-    #         base=False,
-    #         python_version=PYTHON_DEFAULT_VERSION,
-    #     )
-
-    # # isolated requirement files.
-    # # no python versioning for these
-    # for env, extras in [("test-extras", "test"), ("dist-pypi", "dist-pypi")]:
-    #     create_env(name=f"{env}", cmd="requirements", extras=extras, base=False)
+    session.run(
+        "pyproject2conda",
+        "project",
+        "--verbose",
+        *(["--overwrite", "force"] if requirements_force else []),
+    )
 
 
 # ** conda-lock
@@ -356,9 +267,8 @@ def conda_lock(
         help="platforms to build lock files for",
         choices=["osx-64", "linux-64", "win-64", "all"],
     ) = (),
-    conda_lock_cmd: cmd_annotated(  # type: ignore
+    conda_lock_include: cmd_annotated(  # type: ignore
         help="lock files to create",
-        choices=["test", "typing", "dev", "dist-pypi", "dist-conda", "all"],
     ) = (),
     conda_lock_run: RUN_CLI = [],  # noqa
     conda_lock_mamba: bool = False,
@@ -375,6 +285,7 @@ def conda_lock(
 
     session.run("conda-lock", "--version")
 
+    conda_lock_exclude = ["test-extras"]
     platform = cast(Sequence[str], conda_lock_platform)
     if not platform:
         platform = ["osx-64"]
@@ -384,26 +295,25 @@ def conda_lock(
     if not channel:
         channel = ["conda-forge"]
 
-    lock_dir = ROOT / "environment" / "lock"
+    def create_lock(path: Path) -> None:
+        name = path.with_suffix("").name
+        lockfile = path.parent / "lock" / f"{name}-conda-lock.yml"
+        deps = [str(path)]
 
-    def create_lock(
-        py: str,
-        name: str,
-        env_path: str | None = None,
-    ) -> None:
-        py = "py" + py.replace(".", "")
+        # check if skip
+        env = "-".join(name.split("-")[1:])
+        if conda_lock_include:
+            if not any(c == env for c in conda_lock_include):
+                session.log(f"Skipping {lockfile} (include)")
+                return
 
-        if env_path is None:
-            env_path = f"environment/{py}-{name}.yaml"
-
-        lockfile = lock_dir / f"{py}-{name}-conda-lock.yml"
-
-        deps = [env_path]
-        # make sure this is last to make python version last
-        # deps.append(lock_dir / f"{py}.yaml")
+        if conda_lock_exclude:
+            if any(c == env for c in conda_lock_exclude):
+                session.log(f"Skipping {lockfile} (exclude)")
+                return
 
         if conda_lock_force or update_target(lockfile, *deps):
-            session.log(f"creating {lockfile}")
+            session.log(f"Creating {lockfile}")
             # insert -f for each arg
             if lockfile.exists():
                 lockfile.unlink()
@@ -415,34 +325,12 @@ def conda_lock(
                 *prepend_flag("-f", *deps),
                 f"--lockfile={lockfile}",
             )
+        else:
+            session.log(f"Skipping {lockfile} (exists)")
 
     session_run_commands(session, conda_lock_run)
-
-    if not conda_lock_run and not conda_lock_cmd:
-        conda_lock_cmd = ["all"]  # pyright: ignore
-    if "all" in conda_lock_cmd:
-        conda_lock_cmd = ["test", "typing", "dev", "dist-pypi", "dist-conda"]
-    conda_lock_cmd = list(set(conda_lock_cmd))
-
-    for c in conda_lock_cmd:
-        if c == "test":
-            for py in PYTHON_ALL_VERSIONS:
-                create_lock(py, "test")
-        elif c == "typing":
-            for py in PYTHON_ALL_VERSIONS:
-                create_lock(py, "typing")
-        elif c == "dev":
-            create_lock(PYTHON_DEFAULT_VERSION, "dev")
-        elif c == "dist-pypi":
-            create_lock(
-                PYTHON_DEFAULT_VERSION,
-                "dist-pypi",
-            )
-        elif c == "dist-conda":
-            create_lock(
-                PYTHON_DEFAULT_VERSION,
-                "dist-conda",
-            )
+    for path in (ROOT / "requirements").relative_to(ROOT.cwd()).glob("py*.yaml"):
+        create_lock(path)
 
 
 # ** testing
@@ -510,8 +398,8 @@ def test_venv(
     pkg_install_venv(
         session=session,
         name="test-venv",
-        extras="test",
         install_package=True,
+        requirement_paths="test.txt",
         update=update,
         log_session=log_session,
     )
@@ -681,7 +569,7 @@ def docs_venv(
         install_package=True,
         update=update,
         log_session=log_session,
-        extras="docs",
+        requirement_paths="docs.txt",
     )
 
     _docs(
@@ -736,7 +624,7 @@ def dist_pypi(
     pkg_install_venv(
         session=session,
         name="dist-pypi",
-        requirement_paths=[session_environment_filename(name="dist-pypi.txt")],
+        requirement_paths="dist-pypi.txt",
         update=update,
         install_package=False,
         log_session=log_session,
@@ -892,7 +780,7 @@ def lint(
     lint_run: RUN_CLI = [],  # noqa
     update: UPDATE_CLI = False,
     log_session: bool = False,
-):
+) -> None:
     """
     Run linters with pre-commit.
 
@@ -904,6 +792,7 @@ def lint(
         session=session,
         name="lint",
         reqs=["pre-commit"],
+        install_package=False,
         update=update,
         log_session=log_session,
     )
@@ -980,7 +869,7 @@ def typing(
         session=session,
         name="typing",
         lock=lock,
-        install_package=True,
+        install_package=False,
         update=update,
         log_session=log_session,
     )
@@ -1022,10 +911,10 @@ def typing_venv(
         session=session,
         name="typing",
         lock=lock,
-        install_package=True,
+        requirement_paths="typing.txt",
+        install_package=False,
         update=update,
         log_session=log_session,
-        extras="typing",
     )
 
     _typing(
@@ -1093,7 +982,7 @@ def testdist_pypi(
     pkg_install_venv(
         session=session,
         name="testdist-pypi",
-        requirement_paths=[session_environment_filename(name="test-extras.txt")],
+        requirement_paths="test-extras.txt",
         reqs=[install_str],
         update=update,
         install_package=False,
