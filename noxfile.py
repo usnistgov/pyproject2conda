@@ -526,7 +526,7 @@ def docs(
         name="docs",
         lock=lock,
         display_name=f"{PACKAGE_NAME}-docs",
-        install_package=False,
+        install_package=True,
         update=update,
         log_session=log_session,
     )

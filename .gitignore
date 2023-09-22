@@ -117,6 +117,6 @@ cruft.patch
 /pyproject2conda-feedstock*/
 /src/**/_version.py
 tuna-loadtime.log
-/environment/py*-dev.yaml
 /requirements/py*-dev.yaml
 /README.pdf
+/requirements/lock/py*-dev-conda-lock.yml

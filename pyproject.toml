@@ -106,7 +106,6 @@ dist-conda = [
     "boa",
 ]
 
-# pyproject2conda environments
 [tool.pyproject2conda]
 user_config = "config/userconfig.toml"
 template_python = "requirements/py{py}-{env}"
@@ -294,6 +293,7 @@ max-complexity = 10
 ruff = ["--fix", "--extend-ignore=D100,B018"]
 
 [tool.flake8]
+docstring-convention = "numpy"
 ignore = [
     # # whitespace before ':' - doesn't work well with black
     "E203",
