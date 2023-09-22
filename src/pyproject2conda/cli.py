@@ -251,6 +251,7 @@ def yaml(
     reqs=None,
 ):
     """Create yaml file from dependencies and optional-dependencies."""
+
     if not update_target(output, filename, overwrite=overwrite):
         if verbose:
             click.echo(
@@ -382,6 +383,9 @@ def project(
 
     c = Config.from_file(filename, user_config=user_config)
 
+    if user_config == "infer" or user_config is None:
+        user_config = c.user_config()
+
     for style, d in c.iter(
         envs=envs,
         template=template,
@@ -397,11 +401,26 @@ def project(
             )
             d["output"] = None
 
-        if style == "yaml":
-            yaml(filename=filename, **d)
+        # Special case: have output and userconfig.  Check update
+        if not update_target(
+            d["output"],
+            filename,
+            *([user_config] if user_config else []),
+            overwrite=d["overwrite"],
+        ):
+            if verbose:
+                click.echo(
+                    f"# Skipping {style} {d['output']}.  Pass `-w force to force recreate output`"
+                )
+        else:
+            d["overwrite"] = "force"
+            if style == "yaml":
+                yaml(filename=filename, **d)
 
-        elif style == "requirements":
-            requirements(filename=filename, **d)
+            elif style == "requirements":
+                requirements(filename=filename, **d)
+            else:
+                raise ValueError(f"unknown style {style}")
 
 
 project_app = compose_decorators(  # type: ignore

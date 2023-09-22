@@ -93,7 +93,7 @@ def main() -> None:
         "-t",
         "--template",
         type=str,
-        default="test-{version}",
+        default="python-{version}",
         help="""
         Template for new environments. The available key is "{version}", which
         will expand to the python version being installed.

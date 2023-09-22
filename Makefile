@@ -1,3 +1,6 @@
+################################################################################
+# * Utilities
+################################################################################
 .PHONY: clean clean-test clean-pyc clean-build help
 .DEFAULT_GOAL := help
 
@@ -50,9 +53,8 @@ clean-test: ## remove test and coverage artifacts
 
 
 
-
 ################################################################################
-# utilities
+# * Pre-commit
 ################################################################################
 .PHONY: pre-commit-init pre-commit pre-commit-all
 pre-commit-init: ## install pre-commit
@@ -97,9 +99,8 @@ pre-commit-pyright: ## run pyright
 pre-commit-codespell: ## run codespell. Note that this imports allowed words from docs/spelling_wordlist.txt
 	pre-commit run --all-files --hook-stage manual codespell
 
-
 ################################################################################
-# my convenience functions
+# * User setup
 ################################################################################
 .PHONY: user-venv user-autoenv-zsh user-all
 user-venv: ## create .venv file with name of conda env
@@ -113,7 +114,7 @@ user-all: user-venv user-autoenv-zsh ## runs user scripts
 
 
 ################################################################################
-# Testing
+# * Testing
 ################################################################################
 .PHONY: test coverage
 test: ## run tests quickly with the default Python
@@ -130,7 +131,7 @@ coverage: ## check code coverage quickly with the default Python
 
 
 ################################################################################
-# versioning
+# * Versioning
 ################################################################################
 .PHONY: version-scm version-import version
 
@@ -143,45 +144,33 @@ version-import: ## check version from python import
 version: version-scm version-import
 
 ################################################################################
-# Environment files
+# * Requirements/Environment files
 ################################################################################
-.PHONY: environment-files-clean
-environment-files-clean: ## clean all created environment/{dev,docs,test}.yaml
-	-rm $(ENVIRONMENTS) 2> /dev/null || true
-
-.PHONY: environment-files-build
-environment-files-build: pyproject.toml ## rebuild all environment files
+.PHONY: requirements
+requirements: ## rebuild all requirements/environment files
 	nox -s requirements
 
-environment/%.yaml: pyproject.toml
-	nox -s requirements
+requirements/%.yaml: pyproject.toml requirements
+requirements/%.txt: pyproject.toml requirements
 
 ################################################################################
-# virtual env
-################################################################################
-.PHONY: mamba-env-update mamba-dev-update
-
-mamba-dev: environment/dev.yaml environment-files-build ## create development environment
-	mamba env create -f $<
-
-mamba-dev-update: environment/dev.yaml environment-files-build ## update development environment
-	mamba env update -f $<
-
-################################################################################
-# NOX
+# * NOX
 ###############################################################################
-## dev env
+# NOTE: Below, we use requirement of the form "requirements/dev.txt"
+# Since any of these files will trigger a rebuild of all requirements,
+# the actual "txt" or "yaml" file doesn't matter
+# ** dev
 NOX=nox
 .PHONY: dev-env
-dev-env: environment/py310-dev.yaml ## create development environment using nox
+dev-env: requirements/dev.txt ## create development environment using nox
 	$(NOX) -e dev
 
-## testing
+# ** testing
 .PHONY: test-all
-test-all: environment/py310-test.yaml ## run tests on every Python version with nox.
+test-all: requirements/test.txt ## run tests on every Python version with nox.
 	$(NOX) -s test
 
-## docs
+# ** docs
 .PHONY: docs-build docs-release docs-clean docs-command
 docs-build: ## build docs in isolation
 	$(NOX) -s docs -- -d build
@@ -205,9 +194,9 @@ docs-open: ## open the build
 docs-linkcheck: ## check links
 	$(NOX) -s docs -- -d linkcheck
 
-docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: environment/py310-docs.yaml
+docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: requirements/docs.txt
 
-## typing
+# ** typing
 .PHONY: typing-mypy typing-pyright typing-pytype typing-all typing-command
 typing-mypy: ## run mypy mypy_args=...
 	$(NOX) -s typing -- -m mypy
@@ -219,9 +208,9 @@ typing-all:
 	$(NOX) -s typing -- -m mypy pyright pytype
 typing-command:
 	$(NOX) -s typing -- --typing-run $(command)
-typing-mypy typing-pyright typing-pytype typing-all typing-command: environment/py310-typing.yaml
+typing-mypy typing-pyright typing-pytype typing-all typing-command: requirements/typing.txt
 
-## distribution
+# ** dist pypi
 .PHONY: dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command
 
 dist-pypi-build: ## build dist
@@ -232,8 +221,9 @@ dist-pypi-release: ## release to pypi, can pass posargs=...
 	$(NOX) -s dist-pypi -- -p release
 dist-pypi-command: ## run command with command=...
 	$(NOX) -s dist-pypi -- --dist-pypi-run $(command)
-dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: environment/py310-dist-pypi.yaml
+dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: requirements/dist-pypi.txt
 
+# ** dist conda
 .PHONY: dist-conda-recipe dist-conda-build dist-conda-command
 dist-conda-recipe: ## build conda recipe can pass posargs=...
 	$(NOX) -s dist-conda -- -c recipe
@@ -241,17 +231,16 @@ dist-conda-build: ## build conda recipe can pass posargs=...
 	$(NOX) -s dist-conda -- -c build
 dist-conda-command: ## run command with command=...
 	$(NOX) -s dist-conda -- -dist-conda-run $(command)
-dist-conda-build dist-conda-recipe dist-conda-command: environment/py310-dist-conda.yaml
+dist-conda-build dist-conda-recipe dist-conda-command: requirements/dist-pypi.txt
 
-
-## list all options
+# ** list all options
 .PHONY: nox-list
 nox-list:
 	$(NOX) --list
 
 
 ################################################################################
-# installation
+# * Installation
 ################################################################################
 .PHONY: install install-dev
 install: ## install the package to the active Python's site-packages (run clean?)
@@ -262,7 +251,7 @@ install-dev: ## install development version (run clean?)
 
 
 ################################################################################
-# other tools
+# * Other tools
 ################################################################################
 
 # Note that this requires `auto-changelog`, which can be installed with pip(x)

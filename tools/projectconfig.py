@@ -131,7 +131,7 @@ class ProjectConfig:
         # Example usage:
         #
         # [nox.python]
-        # paths = ["~/.conda/envs/test-3.*/bin"]
+        # paths = ["~/.conda/envs/python-3.*/bin"]
         #
         # [tool.pyproject2conda.envs.dev]
         # extras = ["dev-complete"]
@@ -202,7 +202,7 @@ def glob_envs_to_paths(globs: list[str]) -> list[str]:
     out = []
     for glob in globs:
         found_envs = fnmatch.filter(env_map.keys(), glob)
-        out.extend([env_map[k] for k in found_envs])
+        out.extend([f"{env_map[k]}/bin" for k in found_envs])
 
     return out
 
@@ -260,9 +260,6 @@ def main() -> None:
 
     if args.dev_extras:
         n.env_extras["tool.pyproject2conda.envs.dev"] = {"extras": args.dev_extras}
-
-    # print(n.python_paths)
-    # print(n.env_extras)
 
     n.to_path(args.file)
 
