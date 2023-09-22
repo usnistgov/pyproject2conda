@@ -211,7 +211,7 @@ class Config:
             default=default,
         )
 
-    def user_config(self) -> str | None:
+    def user_config(self, env_name: str | None = None) -> str | None:  # pyright: ignore
         """Flag user_config"""
         return self._get_value(key="user_config", default=None)  # type: ignore
 
