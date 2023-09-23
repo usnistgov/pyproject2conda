@@ -26,12 +26,13 @@ else:
 
 context_settings = {"max_content_width": 80}
 
+
 app = typer.Typer(context_settings=context_settings)
 
 
 def version_callback(value: bool):
     if value:
-        typer.echo(f"{__version__}")
+        typer.echo(f"pyproject2conda, verion {__version__}")
         raise typer.Exit()
 
 
