@@ -14,8 +14,8 @@ pytest-cov
 pytest-sugar
 pytest-xdist
 pytype; python_version < '3.11'
-rich-click
 ruamel.yaml
 tomli
 tomlkit
+typer
 types-click

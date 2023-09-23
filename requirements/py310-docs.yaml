@@ -17,7 +17,6 @@ dependencies:
   - myst-nb
   - packaging
   - pyenchant
-  - rich-click
   - ruamel.yaml
   - sphinx >= 5.3.0
   - sphinx-autobuild
@@ -26,3 +25,4 @@ dependencies:
   - sphinxcontrib-spelling
   - tomli
   - tomlkit
+  - typer

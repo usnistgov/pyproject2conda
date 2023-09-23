@@ -8,10 +8,9 @@ import os
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional
+from typing import Annotated, List, Optional
 
 import typer
-from noxopt import Annotated
 
 from pyproject2conda import __version__
 from pyproject2conda.parser import PyProject2Conda
@@ -25,7 +24,7 @@ if "P2C_RICH_MAX_WIDTH" in os.environ:
 else:
     context_settings = {}
 
-context_settings = {"max_content_width": 40}
+context_settings = {"max_content_width": 80}
 
 app = typer.Typer(context_settings=context_settings)
 

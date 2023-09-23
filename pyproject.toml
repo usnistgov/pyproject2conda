@@ -28,7 +28,8 @@ dependencies = [
     "tomli",
     "ruamel.yaml",
     "tomlkit",
-    "rich-click",
+    "typer",
+    # "rich-click",
     "packaging",
     # "typing-extensions; python_version<'3.10'",
 

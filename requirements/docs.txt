@@ -13,7 +13,6 @@ ipython
 myst-nb
 packaging
 pyenchant
-rich-click
 ruamel.yaml
 sphinx >= 5.3.0
 sphinx-autobuild
@@ -22,3 +21,4 @@ sphinx-copybutton
 sphinxcontrib-spelling
 tomli
 tomlkit
+typer
