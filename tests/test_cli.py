@@ -111,9 +111,9 @@ dependencies:
       - athing
     """
 
-    for opt in ["--python-from-config"]:
+    for opt in [("--python-include", "infer")]:
         for cmd in ["y", "yaml"]:
-            result = do_run(runner, cmd, opt)
+            result = do_run(runner, cmd, *opt)
             check_result(result, expected)
 
     # -p python=3.8

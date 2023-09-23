@@ -261,7 +261,7 @@ dependencies:
   - pip:
       - athing
     """
-    assert dedent(expected) == d.to_conda_yaml(python_include="get")
+    assert dedent(expected) == d.to_conda_yaml(python_include="infer")
 
     expected = """\
 channels:

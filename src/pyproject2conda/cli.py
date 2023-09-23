@@ -46,8 +46,9 @@ def main(
     return
 
 
-def hello(there: Annotated[str, typer.Option("--there", help="a thing")] = "there"):
-    print("hello", there)
+# @app.command()
+# def hello(there: Annotated[Optional[str], typer.Option("--there", flag_value="flag", is_flag=False, help="a thing")] = None):
+#     print("hello", there)
 
 
 # if os.environ.get("P2C_USE_CLICK", "True").lower() not in ("0", "f", "false"):
@@ -159,23 +160,24 @@ SORT_DEPENDENCIES_CLI = Annotated[
         """,
     ),
 ]
-PYTHON_FROM_CONFIG_CLI = Annotated[
-    bool,
-    typer.Option(
-        help="""
-        If specified, get python spec from pyproject.toml.
-        This only applies if `--python-include` and `--python` are
-        not set.
-        """
-    ),
-]
+# PYTHON_FROM_CONFIG_CLI = Annotated[
+#     bool,
+#     typer.Option(
+#         help="""
+#         If specified, get python spec from pyproject.toml.
+#         This only applies if `--python-include` and `--python` are
+#         not set.
+#         """
+#     ),
+# ]
 PYTHON_INCLUDE_CLI = Annotated[
     Optional[str],
     typer.Option(
         "--python-include",
         help="""
         If value passed, use this value (exactly) in the output. So, for example,
-        pass `--python-include "python=3.8"`
+        pass `--python-include "python=3.8"`. Special case is the value `"infer"`.  This
+        infers the value of python from `pyproject.toml`
         """,
     ),
 ]
@@ -300,7 +302,6 @@ def yaml(
     channels: CHANNEL_CLI = None,
     output: OUTPUT_CLI = None,
     name: NAME_CLI = None,
-    python_from_config: PYTHON_FROM_CONFIG_CLI = False,
     python_include: PYTHON_INCLUDE_CLI = None,
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
@@ -323,7 +324,6 @@ def yaml(
         channels = None
 
     python_include, python_version = parse_pythons(
-        python_from_config=python_from_config,
         python_include=python_include,
         python_version=python_version,
         python=python,
@@ -453,7 +453,7 @@ def project(
     user_config: USER_CONFIG_CLI = "infer",
 ):
     """Create multiple environment files from `pyproject.toml` specification. (Alias "p")"""
-    from .config import Config
+    from pyproject2conda.config import Config
 
     if dry:
         verbose = True
@@ -520,7 +520,6 @@ def conda_requirements(
     path_conda: Annotated[Optional[str], typer.Argument()] = None,
     path_pip: Annotated[Optional[str], typer.Argument()] = None,
     extras: EXTRAS_CLI = None,
-    python_from_config: PYTHON_FROM_CONFIG_CLI = False,
     python_include: PYTHON_INCLUDE_CLI = None,
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
@@ -545,7 +544,6 @@ def conda_requirements(
     """
 
     python_include, python_version = parse_pythons(
-        python_from_config=python_from_config,
         python_include=python_include,
         python_version=python_version,
         python=python,
@@ -590,7 +588,6 @@ def conda_requirements(
 @app.command("json")
 def to_json(
     extras: EXTRAS_CLI = None,
-    python_from_config: PYTHON_FROM_CONFIG_CLI = False,
     python_include: PYTHON_INCLUDE_CLI = None,
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
@@ -616,7 +613,6 @@ def to_json(
     d = _get_pyproject2conda(filename)
 
     python_include, python_version = parse_pythons(
-        python_from_config=python_from_config,
         python_include=python_include,
         python_version=python_version,
         python=python,

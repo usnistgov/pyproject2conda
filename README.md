@@ -499,7 +499,7 @@ dependencies:
 >>> p = PyProject2Conda.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(python_include="get").strip())
+>>> print(p.to_conda_yaml(python_include="infer").strip())
 channels:
   - conda-forge
 dependencies:

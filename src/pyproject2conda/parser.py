@@ -312,7 +312,7 @@ def pyproject_to_conda_lists(
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    if python_include == "get":
+    if python_include == "infer":
         python_include = (
             "python" + get_in(["project", "requires-python"], data).unwrap()
         )
