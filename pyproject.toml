@@ -278,9 +278,11 @@ ignore = [
     # Allow relative imports
     "TID252",
 ]
-per-file-ignores = {  }
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.per-file-ignores]
+"src/pyproject2conda.py" = ["UP006", "UP007"]
 
 [tool.ruff.isort]
 known-first-party = ["pyproject2conda"]
@@ -355,6 +357,7 @@ module = []
 [tool.pyright]
 include = ["src", "tests"]
 exclude = ["**/__pycache__", ".tox/**", ".nox/**", "**/.mypy_cache"]
+# extraPaths = ["."]
 # TODO: add strict to pyright
 # strict = ["src"]
 pythonVersion = "3.10"

@@ -50,8 +50,14 @@ def compose_decorators(*decs: Dec[F]) -> Dec[F]:
 
 
 def parse_pythons(
-    python_include: str | None, python_version: str | None, python: str | None
+    python_from_config: bool,
+    python_include: str | None,
+    python_version: str | None,
+    python: str | None,
 ) -> tuple[str | None, str | None]:
+    if python_from_config and python_include is None:
+        python_include = "get"
+
     if python:
         return f"python={python}", python
     else:

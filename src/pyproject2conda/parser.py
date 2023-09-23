@@ -581,7 +581,7 @@ class PyProject2Conda:
 
     def to_requirements(
         self,
-        extras: Tstr_opt = None,
+        extras: Tstr_seq_opt = None,
         include_base_dependencies: bool = True,
         header_cmd: str | None = None,
         stream: str | Path | TextIO | None = None,
@@ -605,7 +605,7 @@ class PyProject2Conda:
 
     def to_conda_requirements(
         self,
-        extras: Tstr_opt = None,
+        extras: Tstr_seq_opt = None,
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
         python_version: Tstr_opt = None,

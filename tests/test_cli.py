@@ -1,6 +1,8 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 from pyproject2conda.cli import app
-from click.testing import CliRunner
+
+# from click.testing import CliRunner
+from typer.testing import CliRunner
 
 from textwrap import dedent
 
@@ -109,7 +111,7 @@ dependencies:
       - athing
     """
 
-    for opt in ["--python-include"]:
+    for opt in ["--python-from-config"]:
         for cmd in ["y", "yaml"]:
             result = do_run(runner, cmd, opt)
             check_result(result, expected)
@@ -349,7 +351,7 @@ bthing
 cthing; python_version < '3.10'
     """
 
-    for cmd in ["r", "req", "requirements"]:
+    for cmd in ["r", "requirements"]:
         result = do_run(runner, cmd)
         check_result(result, expected)
 
@@ -459,16 +461,16 @@ def check_results_conda_req(path, expected):
 def test_conda_requirements():
     runner = CliRunner()
 
-    result = do_run(runner, "conda-req", "hello.txt")
+    result = do_run(runner, "cr", "hello.txt")
 
     assert isinstance(result.exception, ValueError)
 
-    result = do_run(runner, "conda-req", "--prefix", "hello", "a", "b")
+    result = do_run(runner, "cr", "--prefix", "hello", "a", "b")
 
     assert isinstance(result.exception, ValueError)
 
     # stdout
-    result = do_run(runner, "conda-req")
+    result = do_run(runner, "cr")
 
     expected = """\
 #conda requirements
@@ -492,7 +494,7 @@ conda-forge::cthing
 athing
         """
 
-        for cmd in ["c", "conda-requirements"]:
+        for cmd in ["cr", "conda-requirements"]:
             do_run(runner, cmd, "--prefix", str(d / "hello-"), "--no-header")
 
             check_results_conda_req(d / "hello-conda.txt", expected_conda)
@@ -511,7 +513,7 @@ athing
 
         do_run(
             runner,
-            "conda-req",
+            "cr",
             "--prefix",
             str(d / "hello-"),
             "--prepend-channel",
@@ -631,12 +633,12 @@ def test_overwrite():
                 == f"# Skipping yaml {d_tmp}/out.yaml. Pass `-w force` to force recreate output"
             )
 
-        result = do_run(runner, "req", "-o", str(d / "out.txt"), "-v", "-w", "force")
+        result = do_run(runner, "r", "-o", str(d / "out.txt"), "-v", "-w", "force")
 
         assert result.output.strip() == f"# Creating requirements {d_tmp}/out.txt"
 
         for cmd in ["check", "skip"]:
-            result = do_run(runner, "req", "-o", str(d / "out.txt"), "-v", "-w", cmd)
+            result = do_run(runner, "r", "-o", str(d / "out.txt"), "-v", "-w", cmd)
 
             assert (
                 result.output.strip()

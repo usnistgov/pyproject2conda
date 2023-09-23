@@ -3,7 +3,9 @@ import pytest
 from pyproject2conda.cli import app
 from pyproject2conda.config import Config
 from pyproject2conda import utils
-from click.testing import CliRunner
+
+# from click.testing import CliRunner
+from typer.testing import CliRunner
 
 
 from pathlib import Path
@@ -67,7 +69,7 @@ pandas
 pytest
     """
 
-    result = do_run(runner, "proj", "--dry", "--envs", "test-extras")
+    result = do_run(runner, "project", "--dry", "--envs", "test-extras")
 
     assert result.output == dedent(expected)
 
@@ -363,7 +365,7 @@ def test_multiple():
         f"{path2}/py311-test-extras.yaml",
     )
 
-    do_run(runner, "req", "-e", "test", "--no-base", "-o", f"{path2}/test-extras.txt")
+    do_run(runner, "r", "-e", "test", "--no-base", "-o", f"{path2}/test-extras.txt")
 
     do_run(
         runner,
