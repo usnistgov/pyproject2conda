@@ -76,7 +76,7 @@ class AliasedGroup(TyperGroup):
         )  # pragma: no cover
 
 
-app_typer = typer.Typer(cls=AliasedGroup)
+app_typer = typer.Typer(cls=AliasedGroup, no_args_is_help=True)
 
 
 def version_callback(value: bool):
@@ -728,5 +728,5 @@ app = typer.main.get_command(app_typer)
 
 
 # ** Main
-if __name__ == "__main__":
-    app()  # pragma: no cover
+# if __name__ == "__main__":
+#     app()  # pragma: no cover
