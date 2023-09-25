@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>pyproject2conda &#8212; pyproject2conda v0.6.0 documentation</title>
+    <title>pyproject2conda &#8212; pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</title>
   
   
   
@@ -19,12 +19,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -37,8 +37,9 @@
     <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/leaveNotice/css/jquery.leaveNotice.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -60,6 +61,7 @@
     <link rel="next" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+    <meta name="docbuild:last-update" content="2023-09-25"/>
   </head>
   
   
@@ -68,6 +70,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -129,7 +140,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda v0.6.0 documentation</p>
+    <p class="title logo__title">pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -145,17 +156,11 @@
         <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/cli.html">Command line interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
 
 
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
-
-<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.cli</span></code>)</a></li>
-
-
-
-
-
 
 </ul>
 </li>
@@ -323,10 +328,10 @@
 
 <script>
 document.write(`
-  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
   </button>
 `);
 </script>
@@ -334,7 +339,7 @@ document.write(`
 <script>
 document.write(`
   <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
   </button>
 `);
 </script>
@@ -375,15 +380,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-within-python">Usage within python</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-multiple-environments-from-pyproject-toml">Creating multiple environments from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#list">list</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#yaml">yaml</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">requirements</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#project">project</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-requirements">conda-requirements</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#json">json</a></li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a></li>
 </ul>
 </li>
 </ul>
@@ -445,6 +442,13 @@ suggestions!</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>pyproject2conda
 </pre></div>
 </div>
+<p>If using pip, to install with <a class="reference external" href="https://github.com/Textualize/rich">rich</a> and <a class="reference external" href="https://github.com/sarugaku/shellingham">shellingham</a> support, either install
+them your self, or use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyproject2conda<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
+<p>The conda-forge distribution of [typer] (which <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> uses) installs
+rich and shellingham by default.</p>
 </section>
 <section id="example-usage">
 <h2>Example usage<a class="headerlink" href="#example-usage" title="Permalink to this heading">#</a></h2>
@@ -452,64 +456,11 @@ suggestions!</p>
 <h3>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this heading">#</a></h3>
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog
-import subprocess
-import shlex
-from functools import lru_cache
+import sys
 
-@lru_cache
-def get_pyproject(path):
-    with open(path, 'r') as f:
-        lines = [_.strip() for _ in f]
-    return lines
-
-def run_command(cmd, wrapper="bash", include_cmd=True, bounds=None):
-    args = shlex.split(cmd)
-    output = subprocess.check_output(args)
-
-    total = output.decode()
-
-    if bounds is not None:
-        total = total.split("\n")[bounds[0]:bounds[1]]
-        if bounds[0] is not None:
-            total = ["...\n"] + total
-        if bounds[1] is not None:
-            total = total + ["\n ...\n"]
-
-        total = "\n".join(total)
-
-    if include_cmd:
-        total = f"$ {cmd}\n{total}"
-
-    if wrapper:
-        total = f"```{wrapper}\n"  + total + "```\n"
-
-    print(total)
-
-def cat_lines(
-        path="tests/data/test-pyproject.toml",
-        begin=None, end=None, begin_dot=None, end_dot=None,
-    ):
-    lines = get_pyproject(path)
-
-    begin_dot = begin_dot or begin is not None
-    end_dot = end_dot or end is not None
-
-    if isinstance(begin, str):
-        begin = lines.index(begin)
-    if isinstance(end, str):
-        end = lines.index(end)
-
-    output = '\n'.join(lines[slice(begin, end)])
-
-    if begin_dot:
-        output = "# ...\n" +  output
-
-    if end_dot:
-        output = output + "\n# ..."
-
-    output = "\n```toml\n" + output + "\n```\n"
-    print(output)
-
+sys.path.insert(0, ".")
+from tools.cog_utils import wrap_command, get_pyproject, run_command, cat_lines
+sys.path.pop(0)
 ]]] -->
 <!-- [[[end]]] -->
 <p>Consider the <code class="docutils literal notranslate"><span class="pre">toml</span></code> file
@@ -571,10 +522,11 @@ dependencies:
 <!-- [[[end]]] -->
 <p>Note that other comments can be mixed in.</p>
 <p>By default, the python version is not included in the resulting conda output. To
-include the specification from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, use <code class="docutils literal notranslate"><span class="pre">--python-include</span></code> option:</p>
+include the specification from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, use <code class="docutils literal notranslate"><span class="pre">--python-include</span> <span class="pre">infer</span></code>
+option:</p>
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-include
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include infer")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-include<span class="w"> </span>infer
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -593,7 +545,8 @@ dependencies:
 <p>To specify a specific value of python in the output, pass a value with:</p>
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include python=3.9")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-include<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.9
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-include<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.9
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -627,7 +580,8 @@ dependencies:
 resulting environment file. You could, for example use:</p>
 <!-- markdownlint-disable MD013 -->
 <!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 --python-include python=3.10")]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="w"> </span>--python-include<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--python-include<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
 dependencies:
@@ -807,7 +761,7 @@ dependencies:
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">PyProject2Conda</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span><span class="s2">&quot;./tests/data/test-pyproject.toml&quot;</span><span class="p">)</span>
 
 <span class="go"># Basic environment</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">to_conda_yaml</span><span class="p">(</span><span class="n">python_include</span><span class="o">=</span><span class="s2">&quot;get&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">to_conda_yaml</span><span class="p">(</span><span class="n">python_include</span><span class="o">=</span><span class="s2">&quot;infer&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
 <span class="go">channels:</span>
 <span class="go">  - conda-forge</span>
 <span class="go">dependencies:</span>
@@ -877,12 +831,15 @@ defining environments for build, etc, that do not require the package be
 installed. For example:</p>
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=22, end=26)]]] -->
+<!-- [[[cog cat_lines(begin="dist-pypi = [", end="[tool.pyproject2conda]")]]] -->
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
-<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;hello[test]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello[dev-extras]&quot;</span><span class="p">]</span>
 <span class="n">dist-pypi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="c1"># this is intended to be parsed with --no-base option</span>
 <span class="s">&quot;setuptools&quot;</span><span class="p">,</span>
+<span class="s">&quot;build&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -p</span>
+
+<span class="p">]</span>
+
 <span class="c1"># ...</span>
 </pre></div>
 </div>
@@ -959,6 +916,7 @@ in the <code class="docutils literal notranslate"><span class="pre">[tool.pyproj
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry", wrapper="bash", bounds=(None, 45))]]] -->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>p2c<span class="w"> </span>project<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--dry
+<span class="c1"># --------------------</span>
 <span class="c1"># Creating yaml py310-test-extras.yaml</span>
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
@@ -966,6 +924,7 @@ dependencies:
 <span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
 <span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
 <span class="w">  </span>-<span class="w"> </span>pandas
+<span class="c1"># --------------------</span>
 <span class="c1"># Creating yaml py311-test-extras.yaml</span>
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
@@ -973,9 +932,11 @@ dependencies:
 <span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
 <span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
 <span class="w">  </span>-<span class="w"> </span>pandas
+<span class="c1"># --------------------</span>
 <span class="c1"># Creating requirements test-extras.txt</span>
 pandas
 pytest
+<span class="c1"># --------------------</span>
 <span class="c1"># Creating yaml py310-test.yaml</span>
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
@@ -987,6 +948,7 @@ dependencies:
 <span class="w">  </span>-<span class="w"> </span>pip
 <span class="w">  </span>-<span class="w"> </span>pip:
 <span class="w">      </span>-<span class="w"> </span>athing
+<span class="c1"># --------------------</span>
 <span class="c1"># Creating yaml py311-test.yaml</span>
 channels:
 <span class="w">  </span>-<span class="w"> </span>conda-forge
@@ -998,12 +960,7 @@ dependencies:
 <span class="w">  </span>-<span class="w"> </span>pip
 <span class="w">  </span>-<span class="w"> </span>pip:
 <span class="w">      </span>-<span class="w"> </span>athing
-<span class="c1"># Creating yaml py310-dev.yaml</span>
-channels:
-<span class="w">  </span>-<span class="w"> </span>conda-forge
-dependencies:
-<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
-<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="c1"># --------------------</span>
 
 <span class="w"> </span>...
 </pre></div>
@@ -1077,6 +1034,7 @@ is at <code class="docutils literal notranslate"><span class="pre">a/path/pyproj
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev", wrapper="bash")]]] -->
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>p2c<span class="w"> </span>project<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--dry<span class="w"> </span>--envs<span class="w"> </span>user-dev
+<span class="c1"># --------------------</span>
 <span class="c1"># Creating yaml py310-user-dev.yaml</span>
 name:<span class="w"> </span>hello
 channels:
@@ -1101,11 +1059,13 @@ dependencies:
 </section>
 <section id="cli-options">
 <h3>CLI options<a class="headerlink" href="#cli-options" title="Permalink to this heading">#</a></h3>
+<p>See <a class="reference external" href="https://pages.nist.gov/pyproject2conda/reference/cli.html#">command line interface documentation</a> for details on
+the commands and options.</p>
 <!-- markdownlint-disable MD013 -->
 <!-- prettier-ignore-start -->
-<!-- [[[cog
+<!-- [cog
   import os
-  os.environ["COG_MAX_WIDTH"] = "90"
+  os.environ["P2C_RICH_CLICK_MAX_WIDTH"] = "90"
 
   run_command("pyproject2conda --help", wrapper="bash")
 
@@ -1122,304 +1082,8 @@ dependencies:
     print(f"#### {cmd}\n")
     run_command(f"pyproject2conda {cmd} --help", wrapper="bash")
 
-]]] -->
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>--help
-
-<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
-
-╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
-│<span class="w"> </span>--version<span class="w">      </span>Show<span class="w"> </span>the<span class="w"> </span>version<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                              </span>│
-│<span class="w"> </span>--help<span class="w">         </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                             </span>│
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-╭─<span class="w"> </span>Commands<span class="w"> </span>─────────────────────────────────────────────────────────────────────────────╮
-│<span class="w"> </span>conda-requirements<span class="w">  </span>Create<span class="w"> </span>requirement<span class="w"> </span>files<span class="w"> </span><span class="k">for</span><span class="w"> </span>conda<span class="w"> </span>and<span class="w"> </span>pip.<span class="w">                        </span>│
-│<span class="w"> </span>json<span class="w">                </span>Create<span class="w"> </span>json<span class="w"> </span>representation.<span class="w">                                        </span>│
-│<span class="w"> </span>list<span class="w">                </span>List<span class="w"> </span>available<span class="w"> </span>extras<span class="w">                                              </span>│
-│<span class="w"> </span>project<span class="w">             </span>Create<span class="w"> </span>multiple<span class="w"> </span>environment<span class="w"> </span>files<span class="w"> </span>from<span class="w"> </span><span class="sb">`</span>pyproject.toml<span class="sb">`</span><span class="w">            </span>│
-│<span class="w">                     </span>specification.<span class="w">                                                     </span>│
-│<span class="w"> </span>requirements<span class="w">        </span>Create<span class="w"> </span>requirements.txt<span class="w"> </span><span class="k">for</span><span class="w"> </span>pip<span class="w"> </span>dependencies.<span class="w">                      </span>│
-│<span class="w"> </span>yaml<span class="w">                </span>Create<span class="w"> </span>yaml<span class="w"> </span>file<span class="w"> </span>from<span class="w"> </span>dependencies<span class="w"> </span>and<span class="w"> </span>optional-dependencies.<span class="w">      </span>│
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-</pre></div>
-</div>
-<section id="list">
-<h4>list<a class="headerlink" href="#list" title="Permalink to this heading">#</a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>list<span class="w"> </span>--help
-
-<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-
-<span class="w"> </span>List<span class="w"> </span>available<span class="w"> </span>extras
-
-╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
-│<span class="w"> </span>--file<span class="w">     </span>-f<span class="w">  </span>PATH<span class="w">  </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                                         </span>│
-│<span class="w"> </span>--verbose<span class="w">  </span>-v<span class="w">                                                                          </span>│
-│<span class="w"> </span>--help<span class="w">               </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                       </span>│
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-</pre></div>
-</div>
-</section>
-<section id="yaml">
-<h4>yaml<a class="headerlink" href="#yaml" title="Permalink to this heading">#</a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>--help
-
-<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-
-<span class="w"> </span>Create<span class="w"> </span>yaml<span class="w"> </span>file<span class="w"> </span>from<span class="w"> </span>dependencies<span class="w"> </span>and<span class="w"> </span>optional-dependencies.
-
-╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
-│<span class="w"> </span>--file<span class="w">                </span>-f<span class="w">  </span>PATH<span class="w">                </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                </span>│
-│<span class="w"> </span>--extra<span class="w">               </span>-e<span class="w">  </span>TEXT<span class="w">                </span>Extra<span class="w"> </span>depenedencies.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w">         </span>│
-│<span class="w">                                               </span>multiple<span class="w"> </span><span class="nb">times</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>multiple<span class="w"> </span>extras.<span class="w">      </span>│
-│<span class="w"> </span>--channel<span class="w">             </span>-c<span class="w">  </span>TEXT<span class="w">                </span>conda<span class="w"> </span>channel.<span class="w">  </span>Can<span class="w"> </span>specify.<span class="w"> </span>Overrides<span class="w">   </span>│
-│<span class="w">                                               </span><span class="o">[</span>tool.pyproject2conda.channels<span class="o">]</span><span class="w">          </span>│
-│<span class="w"> </span>--output<span class="w">              </span>-o<span class="w">  </span>PATH<span class="w">                </span>File<span class="w"> </span>to<span class="w"> </span>output<span class="w"> </span>results<span class="w">                   </span>│
-│<span class="w"> </span>--name<span class="w">                </span>-n<span class="w">  </span>TEXT<span class="w">                </span>Name<span class="w"> </span>of<span class="w"> </span>conda<span class="w"> </span>env<span class="w">                        </span>│
-│<span class="w"> </span>--python-include<span class="w">          </span>TEXT<span class="w">                </span>If<span class="w"> </span>flag<span class="w"> </span>passed<span class="w"> </span>without<span class="w"> </span>options,<span class="w"> </span>include<span class="w">  </span>│
-│<span class="w">                                               </span>python<span class="w"> </span>spec<span class="w"> </span>from<span class="w"> </span>pyproject.toml<span class="w"> </span><span class="k">in</span><span class="w"> </span>yaml<span class="w">  </span>│
-│<span class="w">                                               </span>output.<span class="w"> </span>If<span class="w"> </span>value<span class="w"> </span>passed,<span class="w"> </span>use<span class="w"> </span>this<span class="w"> </span>value<span class="w">  </span>│
-│<span class="w">                                               </span><span class="o">(</span>exactly<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>output.<span class="w"> </span>So,<span class="w"> </span><span class="k">for</span><span class="w">         </span>│
-│<span class="w">                                               </span>example,<span class="w"> </span>pass<span class="w"> </span><span class="sb">`</span>--python-include<span class="w">          </span>│
-│<span class="w">                                               </span><span class="s2">&quot;python=3.8&quot;</span><span class="sb">`</span><span class="w">                            </span>│
-│<span class="w"> </span>--python-version<span class="w">          </span>TEXT<span class="w">                </span>Python<span class="w"> </span>version<span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span><span class="sb">`</span>python_verion<span class="w">   </span>│
-│<span class="w">                                               </span>&lt;<span class="o">=</span>&gt;<span class="w"> </span><span class="o">{</span>python_version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>lines<span class="w"> </span>against.<span class="w">     </span>│
-│<span class="w">                                               </span>That<span class="w"> </span>is,<span class="w"> </span>this<span class="w"> </span>version<span class="w"> </span>is<span class="w"> </span>used<span class="w"> </span>to<span class="w"> </span>limit<span class="w">   </span>│
-│<span class="w">                                               </span>packages<span class="w"> </span><span class="k">in</span><span class="w"> </span>resulting<span class="w"> </span>output.<span class="w"> </span>For<span class="w">        </span>│
-│<span class="w">                                               </span>example,<span class="w"> </span><span class="k">if</span><span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>line<span class="w"> </span>like<span class="w"> </span><span class="sb">`</span>a-package<span class="p">;</span><span class="w"> </span>│
-│<span class="w">                                               </span>python_version<span class="w"> </span>&lt;<span class="w"> </span><span class="s1">&#39;3.9&#39;</span><span class="sb">`</span>,<span class="w"> </span>Using<span class="w">           </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>not<span class="w"> </span>include<span class="w"> </span>│
-│<span class="w">                                               </span><span class="sb">`</span>a-package<span class="sb">`</span>,<span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="sb">`</span>--python-version<span class="w">     </span>│
-│<span class="w">                                               </span><span class="m">3</span>.8<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>include<span class="w"> </span><span class="sb">`</span>a-package<span class="sb">`</span>.<span class="w">           </span>│
-│<span class="w"> </span>--python<span class="w">              </span>-p<span class="w">  </span>TEXT<span class="w">                </span>Python<span class="w"> </span>version.<span class="w"> </span>Passing<span class="w"> </span><span class="sb">`</span>--python<span class="w">        </span>│
-│<span class="w">                                               </span><span class="o">{</span>version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>is<span class="w"> </span>equivalent<span class="w"> </span>to<span class="w"> </span>passing<span class="w">      </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--python-version<span class="o">={</span>version<span class="o">}</span><span class="w">              </span>│
-│<span class="w">                                               </span>--python-include<span class="o">=</span>python<span class="o">{</span>version<span class="o">}</span><span class="sb">`</span>.<span class="w"> </span>If<span class="w">    </span>│
-│<span class="w">                                               </span>passed,<span class="w"> </span>this<span class="w"> </span>overrides<span class="w"> </span>values<span class="w"> </span>of<span class="w"> </span>passed<span class="w">  </span>│
-│<span class="w">                                               </span>via<span class="w"> </span><span class="sb">`</span>--python-version<span class="sb">`</span><span class="w"> </span>and<span class="w">               </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--python-include<span class="sb">`</span>.<span class="w">                      </span>│
-│<span class="w"> </span>--base/--no-base<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>base<span class="w">               </span>│
-│<span class="w">                                               </span><span class="o">(</span>project.dependencies<span class="o">)</span><span class="w"> </span>with<span class="w"> </span>extras.<span class="w">      </span>│
-│<span class="w">                                               </span>However,<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--no-base<span class="sb">`</span><span class="w"> </span>will<span class="w">        </span>│
-│<span class="w">                                               </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies.<span class="w"> </span>This<span class="w"> </span>is<span class="w">       </span>│
-│<span class="w">                                               </span>useful<span class="w"> </span>to<span class="w"> </span>define<span class="w"> </span>environments<span class="w"> </span>that<span class="w">       </span>│
-│<span class="w">                                               </span>should<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>like<span class="w">   </span>│
-│<span class="w">                                               </span>build,<span class="w"> </span>etc<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>pyproject.toml.<span class="w">           </span>│
-│<span class="w"> </span>--sort/--no-sort<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w">      </span>│
-│<span class="w">                                               </span><span class="o">(</span>excluding<span class="w"> </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w">     </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w">             </span>│
-│<span class="w">                                               </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w"> </span>│
-│<span class="w"> </span>--header/--no-header<span class="w">                          </span>If<span class="w"> </span>True<span class="w"> </span><span class="o">(</span>--header<span class="o">)</span><span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>line<span class="w">   </span>│
-│<span class="w">                                               </span><span class="k">in</span><span class="w"> </span>output.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>the<span class="w">     </span>│
-│<span class="w">                                               </span>header<span class="w"> </span><span class="k">for</span><span class="w"> </span>output<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file,<span class="w"> </span>and<span class="w"> </span>not<span class="w"> </span>to<span class="w">  </span>│
-│<span class="w">                                               </span>include<span class="w"> </span>header<span class="w"> </span>when<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span>stdout.<span class="w">   </span>│
-│<span class="w"> </span>--overwrite<span class="w">           </span>-w<span class="w">  </span><span class="o">[</span>check<span class="p">|</span>force<span class="p">|</span>skip<span class="o">]</span><span class="w">  </span>What<span class="w"> </span>to<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span>exists.<span class="w">        </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>check<span class="w"> </span><span class="o">(</span>default<span class="o">)</span>:<span class="w"> </span>check<span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w">       </span>│
-│<span class="w">                                               </span>exists.<span class="w"> </span>Create<span class="w"> </span><span class="k">if</span><span class="w"> </span>missing.<span class="w"> </span>If<span class="w"> </span>output<span class="w">     </span>│
-│<span class="w">                                               </span>exists<span class="w"> </span>and<span class="w">                               </span>│
-│<span class="w">                                                 </span>passed<span class="w"> </span><span class="sb">`</span>--file<span class="sb">`</span><span class="w"> </span>is<span class="w"> </span>newer,<span class="w"> </span>recreate<span class="w">     </span>│
-│<span class="w">                                               </span>output,<span class="w"> </span><span class="k">else</span><span class="w"> </span>skip.<span class="w">                       </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>skip:<span class="w"> </span>If<span class="w"> </span>output<span class="w"> </span>exists,<span class="w"> </span>skip.<span class="w">          </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>force:<span class="w"> </span>force<span class="w"> </span>recreate<span class="w"> </span>output.<span class="w">          </span>│
-│<span class="w"> </span>--verbose<span class="w">             </span>-v<span class="w">                                                               </span>│
-│<span class="w"> </span>--deps<span class="w">                </span>-d<span class="w">  </span>TEXT<span class="w">                </span>Additional<span class="w"> </span>conda<span class="w"> </span>dependencies.<span class="w">           </span>│
-│<span class="w"> </span>--reqs<span class="w">                </span>-r<span class="w">  </span>TEXT<span class="w">                </span>Additional<span class="w"> </span>pip<span class="w"> </span>requirements.<span class="w">             </span>│
-│<span class="w"> </span>--help<span class="w">                                        </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">              </span>│
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-</pre></div>
-</div>
-</section>
-<section id="requirements">
-<h4>requirements<a class="headerlink" href="#requirements" title="Permalink to this heading">#</a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>requirements<span class="w"> </span>--help
-
-<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>requirements<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-
-<span class="w"> </span>Create<span class="w"> </span>requirements.txt<span class="w"> </span><span class="k">for</span><span class="w"> </span>pip<span class="w"> </span>dependencies.
-
-╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
-│<span class="w"> </span>--extra<span class="w">               </span>-e<span class="w">  </span>TEXT<span class="w">                </span>Extra<span class="w"> </span>depenedencies.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w">         </span>│
-│<span class="w">                                               </span>multiple<span class="w"> </span><span class="nb">times</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>multiple<span class="w"> </span>extras.<span class="w">      </span>│
-│<span class="w"> </span>--file<span class="w">                </span>-f<span class="w">  </span>PATH<span class="w">                </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                </span>│
-│<span class="w"> </span>--output<span class="w">              </span>-o<span class="w">  </span>PATH<span class="w">                </span>File<span class="w"> </span>to<span class="w"> </span>output<span class="w"> </span>results<span class="w">                   </span>│
-│<span class="w"> </span>--base/--no-base<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>base<span class="w">               </span>│
-│<span class="w">                                               </span><span class="o">(</span>project.dependencies<span class="o">)</span><span class="w"> </span>with<span class="w"> </span>extras.<span class="w">      </span>│
-│<span class="w">                                               </span>However,<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--no-base<span class="sb">`</span><span class="w"> </span>will<span class="w">        </span>│
-│<span class="w">                                               </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies.<span class="w"> </span>This<span class="w"> </span>is<span class="w">       </span>│
-│<span class="w">                                               </span>useful<span class="w"> </span>to<span class="w"> </span>define<span class="w"> </span>environments<span class="w"> </span>that<span class="w">       </span>│
-│<span class="w">                                               </span>should<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>like<span class="w">   </span>│
-│<span class="w">                                               </span>build,<span class="w"> </span>etc<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>pyproject.toml.<span class="w">           </span>│
-│<span class="w"> </span>--sort/--no-sort<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w">      </span>│
-│<span class="w">                                               </span><span class="o">(</span>excluding<span class="w"> </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w">     </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w">             </span>│
-│<span class="w">                                               </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w"> </span>│
-│<span class="w"> </span>--header/--no-header<span class="w">                          </span>If<span class="w"> </span>True<span class="w"> </span><span class="o">(</span>--header<span class="o">)</span><span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>line<span class="w">   </span>│
-│<span class="w">                                               </span><span class="k">in</span><span class="w"> </span>output.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>the<span class="w">     </span>│
-│<span class="w">                                               </span>header<span class="w"> </span><span class="k">for</span><span class="w"> </span>output<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file,<span class="w"> </span>and<span class="w"> </span>not<span class="w"> </span>to<span class="w">  </span>│
-│<span class="w">                                               </span>include<span class="w"> </span>header<span class="w"> </span>when<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span>stdout.<span class="w">   </span>│
-│<span class="w"> </span>--overwrite<span class="w">           </span>-w<span class="w">  </span><span class="o">[</span>check<span class="p">|</span>force<span class="p">|</span>skip<span class="o">]</span><span class="w">  </span>What<span class="w"> </span>to<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span>exists.<span class="w">        </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>check<span class="w"> </span><span class="o">(</span>default<span class="o">)</span>:<span class="w"> </span>check<span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w">       </span>│
-│<span class="w">                                               </span>exists.<span class="w"> </span>Create<span class="w"> </span><span class="k">if</span><span class="w"> </span>missing.<span class="w"> </span>If<span class="w"> </span>output<span class="w">     </span>│
-│<span class="w">                                               </span>exists<span class="w"> </span>and<span class="w">                               </span>│
-│<span class="w">                                                 </span>passed<span class="w"> </span><span class="sb">`</span>--file<span class="sb">`</span><span class="w"> </span>is<span class="w"> </span>newer,<span class="w"> </span>recreate<span class="w">     </span>│
-│<span class="w">                                               </span>output,<span class="w"> </span><span class="k">else</span><span class="w"> </span>skip.<span class="w">                       </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>skip:<span class="w"> </span>If<span class="w"> </span>output<span class="w"> </span>exists,<span class="w"> </span>skip.<span class="w">          </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>force:<span class="w"> </span>force<span class="w"> </span>recreate<span class="w"> </span>output.<span class="w">          </span>│
-│<span class="w"> </span>--verbose<span class="w">             </span>-v<span class="w">                                                               </span>│
-│<span class="w"> </span>--reqs<span class="w">                </span>-r<span class="w">  </span>TEXT<span class="w">                </span>Additional<span class="w"> </span>pip<span class="w"> </span>requirements.<span class="w">             </span>│
-│<span class="w"> </span>--help<span class="w">                                        </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">              </span>│
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-</pre></div>
-</div>
-</section>
-<section id="project">
-<h4>project<a class="headerlink" href="#project" title="Permalink to this heading">#</a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>project<span class="w"> </span>--help
-
-<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>project<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-
-<span class="w"> </span>Create<span class="w"> </span>multiple<span class="w"> </span>environment<span class="w"> </span>files<span class="w"> </span>from<span class="w"> </span><span class="sb">`</span>pyproject.toml<span class="sb">`</span><span class="w"> </span>specification.
-
-╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
-│<span class="w"> </span>--file<span class="w">                </span>-f<span class="w">  </span>PATH<span class="w">                </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                </span>│
-│<span class="w"> </span>--envs<span class="w">                    </span>TEXT<span class="w">                </span>List<span class="w"> </span>of<span class="w"> </span>environments<span class="w"> </span>to<span class="w"> </span>build<span class="w"> </span>files<span class="w"> </span><span class="k">for</span>.<span class="w"> </span>│
-│<span class="w">                                               </span>Default<span class="w"> </span>to<span class="w"> </span>building<span class="w"> </span>all<span class="w"> </span>environments<span class="w">     </span>│
-│<span class="w"> </span>--template<span class="w">                </span>TEXT<span class="w">                </span>Template<span class="w"> </span><span class="k">for</span><span class="w"> </span>environments<span class="w"> </span>that<span class="w"> </span><span class="k">do</span><span class="w"> </span>not<span class="w">    </span>│
-│<span class="w">                                               </span>have<span class="w"> </span>a<span class="w"> </span>python<span class="w"> </span>version.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w">       </span>│
-│<span class="w">                                               </span><span class="sb">`</span><span class="o">{</span>env<span class="o">}</span><span class="sb">`</span>.<span class="w">                                 </span>│
-│<span class="w"> </span>--template-python<span class="w">         </span>TEXT<span class="w">                </span>Template<span class="w"> </span><span class="k">for</span><span class="w"> </span>environments<span class="w"> </span>that<span class="w"> </span><span class="k">do</span><span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>│
-│<span class="w">                                               </span>python<span class="w"> </span>version.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w">              </span>│
-│<span class="w">                                               </span><span class="s2">&quot;py{py}-{env}&quot;</span>.<span class="w"> </span>For<span class="w"> </span>example,<span class="w"> </span>with<span class="w">        </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--template-python<span class="o">=</span><span class="s2">&quot;py{py}-{env}&quot;</span><span class="sb">`</span><span class="w"> </span>and<span class="w">   </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--python<span class="o">=</span><span class="m">3</span>.8<span class="sb">`</span><span class="w"> </span>and<span class="w"> </span>environment<span class="w"> </span><span class="s2">&quot;dev&quot;</span>,<span class="w">    </span>│
-│<span class="w">                                               </span>output<span class="w"> </span>would<span class="w"> </span>be<span class="w"> </span><span class="s2">&quot;py38-dev&quot;</span><span class="w">               </span>│
-│<span class="w">                                               </span>*<span class="w"> </span><span class="o">{</span>py<span class="o">}</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s2">&quot;38&quot;</span><span class="w">                           </span>│
-│<span class="w">                                               </span>*<span class="w"> </span><span class="o">{</span>py_version<span class="o">}</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s2">&quot;3.8&quot;</span><span class="w">                  </span>│
-│<span class="w">                                               </span>*<span class="w"> </span><span class="o">{</span>env<span class="o">}</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s2">&quot;dev&quot;</span><span class="w">                         </span>│
-│<span class="w"> </span>--sort/--no-sort<span class="w">                              </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w">      </span>│
-│<span class="w">                                               </span><span class="o">(</span>excluding<span class="w"> </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w">     </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w">             </span>│
-│<span class="w">                                               </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w"> </span>│
-│<span class="w"> </span>--header/--no-header<span class="w">                          </span>If<span class="w"> </span>True<span class="w"> </span><span class="o">(</span>--header<span class="o">)</span><span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>line<span class="w">   </span>│
-│<span class="w">                                               </span><span class="k">in</span><span class="w"> </span>output.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>the<span class="w">     </span>│
-│<span class="w">                                               </span>header<span class="w"> </span><span class="k">for</span><span class="w"> </span>output<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file,<span class="w"> </span>and<span class="w"> </span>not<span class="w"> </span>to<span class="w">  </span>│
-│<span class="w">                                               </span>include<span class="w"> </span>header<span class="w"> </span>when<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span>stdout.<span class="w">   </span>│
-│<span class="w"> </span>--overwrite<span class="w">           </span>-w<span class="w">  </span><span class="o">[</span>check<span class="p">|</span>force<span class="p">|</span>skip<span class="o">]</span><span class="w">  </span>What<span class="w"> </span>to<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span>exists.<span class="w">        </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>check<span class="w"> </span><span class="o">(</span>default<span class="o">)</span>:<span class="w"> </span>check<span class="w"> </span><span class="k">if</span><span class="w"> </span>output<span class="w">       </span>│
-│<span class="w">                                               </span>exists.<span class="w"> </span>Create<span class="w"> </span><span class="k">if</span><span class="w"> </span>missing.<span class="w"> </span>If<span class="w"> </span>output<span class="w">     </span>│
-│<span class="w">                                               </span>exists<span class="w"> </span>and<span class="w">                               </span>│
-│<span class="w">                                                 </span>passed<span class="w"> </span><span class="sb">`</span>--file<span class="sb">`</span><span class="w"> </span>is<span class="w"> </span>newer,<span class="w"> </span>recreate<span class="w">     </span>│
-│<span class="w">                                               </span>output,<span class="w"> </span><span class="k">else</span><span class="w"> </span>skip.<span class="w">                       </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>skip:<span class="w"> </span>If<span class="w"> </span>output<span class="w"> </span>exists,<span class="w"> </span>skip.<span class="w">          </span>│
-│<span class="w">                                               </span>*<span class="w"> </span>force:<span class="w"> </span>force<span class="w"> </span>recreate<span class="w"> </span>output.<span class="w">          </span>│
-│<span class="w"> </span>--verbose<span class="w">             </span>-v<span class="w">                                                               </span>│
-│<span class="w"> </span>--dry/--no-dry<span class="w">                                </span>If<span class="w"> </span>true,<span class="w"> </span><span class="k">do</span><span class="w"> </span>a<span class="w"> </span>dry<span class="w"> </span>run<span class="w">                    </span>│
-│<span class="w"> </span>--user-config<span class="w">             </span>TEXT<span class="w">                </span>Additional<span class="w"> </span>toml<span class="w"> </span>file<span class="w"> </span>to<span class="w"> </span>supply<span class="w">           </span>│
-│<span class="w">                                               </span>configuration.<span class="w"> </span>This<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>used<span class="w"> </span>to<span class="w">       </span>│
-│<span class="w">                                               </span>override/add<span class="w"> </span>environment<span class="w"> </span>files<span class="w"> </span><span class="k">for</span><span class="w"> </span>your<span class="w">  </span>│
-│<span class="w">                                               </span>own<span class="w"> </span>use<span class="w"> </span><span class="o">(</span>apart<span class="w"> </span>from<span class="w"> </span>project<span class="w"> </span>env<span class="w"> </span>files<span class="o">)</span>.<span class="w">  </span>│
-│<span class="w">                                               </span>The<span class="w"> </span><span class="o">(</span>default<span class="o">)</span><span class="w"> </span>value<span class="w"> </span><span class="sb">`</span>infer<span class="sb">`</span><span class="w"> </span>means<span class="w"> </span>to<span class="w">     </span>│
-│<span class="w">                                               </span>infer<span class="w"> </span>the<span class="w"> </span>configuration<span class="w"> </span>from<span class="w">             </span>│
-│<span class="w">                                               </span><span class="sb">`</span>--filename<span class="sb">`</span>.<span class="w">                            </span>│
-│<span class="w"> </span>--help<span class="w">                                        </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">              </span>│
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-</pre></div>
-</div>
-</section>
-<section id="conda-requirements">
-<h4>conda-requirements<a class="headerlink" href="#conda-requirements" title="Permalink to this heading">#</a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>conda-requirements<span class="w"> </span>--help
-
-<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>conda-requirements<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>PATH_CONDA<span class="o">]</span><span class="w"> </span><span class="o">[</span>PATH_PIP<span class="o">]</span>
-
-<span class="w"> </span>Create<span class="w"> </span>requirement<span class="w"> </span>files<span class="w"> </span><span class="k">for</span><span class="w"> </span>conda<span class="w"> </span>and<span class="w"> </span>pip.
-<span class="w"> </span>These<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>install<span class="w"> </span>with,<span class="w"> </span><span class="k">for</span><span class="w"> </span>example,
-<span class="w"> </span>conda<span class="w"> </span>install<span class="w"> </span>--file<span class="w"> </span><span class="o">{</span>path_conda<span class="o">}</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span><span class="o">{</span>path_pip<span class="o">}</span>
-
-╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
-│<span class="w"> </span>--extra<span class="w">               </span>-e<span class="w">  </span>TEXT<span class="w">  </span>Extra<span class="w"> </span>depenedencies.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w"> </span>multiple<span class="w"> </span><span class="nb">times</span><span class="w"> </span><span class="k">for</span><span class="w">    </span>│
-│<span class="w">                                 </span>multiple<span class="w"> </span>extras.<span class="w">                                       </span>│
-│<span class="w"> </span>--python-include<span class="w">          </span>TEXT<span class="w">  </span>If<span class="w"> </span>flag<span class="w"> </span>passed<span class="w"> </span>without<span class="w"> </span>options,<span class="w"> </span>include<span class="w"> </span>python<span class="w"> </span>spec<span class="w">    </span>│
-│<span class="w">                                 </span>from<span class="w"> </span>pyproject.toml<span class="w"> </span><span class="k">in</span><span class="w"> </span>yaml<span class="w"> </span>output.<span class="w"> </span>If<span class="w"> </span>value<span class="w"> </span>passed,<span class="w">   </span>│
-│<span class="w">                                 </span>use<span class="w"> </span>this<span class="w"> </span>value<span class="w"> </span><span class="o">(</span>exactly<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>output.<span class="w"> </span>So,<span class="w"> </span><span class="k">for</span><span class="w">        </span>│
-│<span class="w">                                 </span>example,<span class="w"> </span>pass<span class="w"> </span><span class="sb">`</span>--python-include<span class="w"> </span><span class="s2">&quot;python=3.8&quot;</span><span class="sb">`</span><span class="w">          </span>│
-│<span class="w"> </span>--python-version<span class="w">          </span>TEXT<span class="w">  </span>Python<span class="w"> </span>version<span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span><span class="sb">`</span>python_verion<span class="w"> </span>&lt;<span class="o">=</span>&gt;<span class="w">             </span>│
-│<span class="w">                                 </span><span class="o">{</span>python_version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>lines<span class="w"> </span>against.<span class="w"> </span>That<span class="w"> </span>is,<span class="w"> </span>this<span class="w"> </span>version<span class="w"> </span>│
-│<span class="w">                                 </span>is<span class="w"> </span>used<span class="w"> </span>to<span class="w"> </span>limit<span class="w"> </span>packages<span class="w"> </span><span class="k">in</span><span class="w"> </span>resulting<span class="w"> </span>output.<span class="w"> </span>For<span class="w">     </span>│
-│<span class="w">                                 </span>example,<span class="w"> </span><span class="k">if</span><span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>line<span class="w"> </span>like<span class="w"> </span><span class="sb">`</span>a-package<span class="p">;</span><span class="w">               </span>│
-│<span class="w">                                 </span>python_version<span class="w"> </span>&lt;<span class="w"> </span><span class="s1">&#39;3.9&#39;</span><span class="sb">`</span>,<span class="w"> </span>Using<span class="w"> </span><span class="sb">`</span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="sb">`</span><span class="w"> </span>│
-│<span class="w">                                 </span>will<span class="w"> </span>not<span class="w"> </span>include<span class="w"> </span><span class="sb">`</span>a-package<span class="sb">`</span>,<span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="sb">`</span>--python-version<span class="w">  </span>│
-│<span class="w">                                 </span><span class="m">3</span>.8<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>include<span class="w"> </span><span class="sb">`</span>a-package<span class="sb">`</span>.<span class="w">                         </span>│
-│<span class="w"> </span>--python<span class="w">              </span>-p<span class="w">  </span>TEXT<span class="w">  </span>Python<span class="w"> </span>version.<span class="w"> </span>Passing<span class="w"> </span><span class="sb">`</span>--python<span class="w"> </span><span class="o">{</span>version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>is<span class="w">        </span>│
-│<span class="w">                                 </span>equivalent<span class="w"> </span>to<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--python-version<span class="o">={</span>version<span class="o">}</span><span class="w">      </span>│
-│<span class="w">                                 </span>--python-include<span class="o">=</span>python<span class="o">{</span>version<span class="o">}</span><span class="sb">`</span>.<span class="w"> </span>If<span class="w"> </span>passed,<span class="w"> </span>this<span class="w">     </span>│
-│<span class="w">                                 </span>overrides<span class="w"> </span>values<span class="w"> </span>of<span class="w"> </span>passed<span class="w"> </span>via<span class="w"> </span><span class="sb">`</span>--python-version<span class="sb">`</span><span class="w"> </span>and<span class="w">  </span>│
-│<span class="w">                                 </span><span class="sb">`</span>--python-include<span class="sb">`</span>.<span class="w">                                    </span>│
-│<span class="w"> </span>--channel<span class="w">             </span>-c<span class="w">  </span>TEXT<span class="w">  </span>conda<span class="w"> </span>channel.<span class="w">  </span>Can<span class="w"> </span>specify.<span class="w"> </span>Overrides<span class="w">                 </span>│
-│<span class="w">                                 </span><span class="o">[</span>tool.pyproject2conda.channels<span class="o">]</span><span class="w">                        </span>│
-│<span class="w"> </span>--file<span class="w">                </span>-f<span class="w">  </span>PATH<span class="w">  </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                              </span>│
-│<span class="w"> </span>--base/--no-base<span class="w">                </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>base<span class="w"> </span><span class="o">(</span>project.dependencies<span class="o">)</span><span class="w"> </span>with<span class="w"> </span>│
-│<span class="w">                                 </span>extras.<span class="w"> </span>However,<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--no-base<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>│
-│<span class="w">                                 </span>dependencies.<span class="w"> </span>This<span class="w"> </span>is<span class="w"> </span>useful<span class="w"> </span>to<span class="w"> </span>define<span class="w"> </span>environments<span class="w">    </span>│
-│<span class="w">                                 </span>that<span class="w"> </span>should<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>like<span class="w"> </span>build,<span class="w">     </span>│
-│<span class="w">                                 </span>etc<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>pyproject.toml.<span class="w">                                </span>│
-│<span class="w"> </span>--sort/--no-sort<span class="w">                </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>excluding<span class="w">         </span>│
-│<span class="w">                                 </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w"> </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w"> </span>│
-│<span class="w">                                 </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w">               </span>│
-│<span class="w"> </span>--header/--no-header<span class="w">            </span>If<span class="w"> </span>True<span class="w"> </span><span class="o">(</span>--header<span class="o">)</span><span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>line<span class="w"> </span><span class="k">in</span><span class="w"> </span>output.<span class="w">      </span>│
-│<span class="w">                                 </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>the<span class="w"> </span>header<span class="w"> </span><span class="k">for</span><span class="w"> </span>output<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file,<span class="w"> </span>│
-│<span class="w">                                 </span>and<span class="w"> </span>not<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>header<span class="w"> </span>when<span class="w"> </span>writing<span class="w"> </span>to<span class="w"> </span>stdout.<span class="w">      </span>│
-│<span class="w"> </span>--prefix<span class="w">                  </span>TEXT<span class="w">  </span><span class="nb">set</span><span class="w"> </span>conda-output<span class="o">=</span>prefix<span class="w"> </span>+<span class="w"> </span><span class="s1">&#39;conda.txt&#39;</span>,<span class="w">                 </span>│
-│<span class="w">                                 </span>pip-output<span class="o">=</span>prefix<span class="w"> </span>+<span class="w"> </span><span class="s1">&#39;pip.txt&#39;</span><span class="w">                          </span>│
-│<span class="w"> </span>--prepend-channel<span class="w">                                                                      </span>│
-│<span class="w"> </span>--deps<span class="w">                </span>-d<span class="w">  </span>TEXT<span class="w">  </span>Additional<span class="w"> </span>conda<span class="w"> </span>dependencies.<span class="w">                         </span>│
-│<span class="w"> </span>--reqs<span class="w">                </span>-r<span class="w">  </span>TEXT<span class="w">  </span>Additional<span class="w"> </span>pip<span class="w"> </span>requirements.<span class="w">                           </span>│
-│<span class="w"> </span>--help<span class="w">                          </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                            </span>│
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-</pre></div>
-</div>
-</section>
-<section id="json">
-<h4>json<a class="headerlink" href="#json" title="Permalink to this heading">#</a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>json<span class="w"> </span>--help
-
-<span class="w"> </span>Usage:<span class="w"> </span>pyproject2conda<span class="w"> </span>json<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-
-<span class="w"> </span>Create<span class="w"> </span>json<span class="w"> </span>representation.
-<span class="w"> </span>Keys<span class="w"> </span>are:<span class="w"> </span><span class="s2">&quot;dependencies&quot;</span>:<span class="w"> </span>conda<span class="w"> </span>dependencies.<span class="w"> </span><span class="s2">&quot;pip&quot;</span>:<span class="w"> </span>pip<span class="w"> </span>dependencies.<span class="w"> </span><span class="s2">&quot;channels&quot;</span>:<span class="w"> </span>conda
-<span class="w"> </span>channels.
-
-╭─<span class="w"> </span>Options<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
-│<span class="w"> </span>--extra<span class="w">           </span>-e<span class="w">  </span>TEXT<span class="w">  </span>Extra<span class="w"> </span>depenedencies.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w"> </span>multiple<span class="w"> </span><span class="nb">times</span><span class="w"> </span><span class="k">for</span><span class="w">        </span>│
-│<span class="w">                             </span>multiple<span class="w"> </span>extras.<span class="w">                                           </span>│
-│<span class="w"> </span>--python-include<span class="w">      </span>TEXT<span class="w">  </span>If<span class="w"> </span>flag<span class="w"> </span>passed<span class="w"> </span>without<span class="w"> </span>options,<span class="w"> </span>include<span class="w"> </span>python<span class="w"> </span>spec<span class="w"> </span>from<span class="w">   </span>│
-│<span class="w">                             </span>pyproject.toml<span class="w"> </span><span class="k">in</span><span class="w"> </span>yaml<span class="w"> </span>output.<span class="w"> </span>If<span class="w"> </span>value<span class="w"> </span>passed,<span class="w"> </span>use<span class="w"> </span>this<span class="w">   </span>│
-│<span class="w">                             </span>value<span class="w"> </span><span class="o">(</span>exactly<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>output.<span class="w"> </span>So,<span class="w"> </span><span class="k">for</span><span class="w"> </span>example,<span class="w"> </span>pass<span class="w">       </span>│
-│<span class="w">                             </span><span class="sb">`</span>--python-include<span class="w"> </span><span class="s2">&quot;python=3.8&quot;</span><span class="sb">`</span><span class="w">                            </span>│
-│<span class="w"> </span>--python-version<span class="w">      </span>TEXT<span class="w">  </span>Python<span class="w"> </span>version<span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span><span class="sb">`</span>python_verion<span class="w"> </span>&lt;<span class="o">=</span>&gt;<span class="w">                 </span>│
-│<span class="w">                             </span><span class="o">{</span>python_version<span class="o">}</span><span class="sb">`</span><span class="w"> </span>lines<span class="w"> </span>against.<span class="w"> </span>That<span class="w"> </span>is,<span class="w"> </span>this<span class="w"> </span>version<span class="w"> </span>is<span class="w">  </span>│
-│<span class="w">                             </span>used<span class="w"> </span>to<span class="w"> </span>limit<span class="w"> </span>packages<span class="w"> </span><span class="k">in</span><span class="w"> </span>resulting<span class="w"> </span>output.<span class="w"> </span>For<span class="w"> </span>example,<span class="w">   </span>│
-│<span class="w">                             </span><span class="k">if</span><span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>line<span class="w"> </span>like<span class="w"> </span><span class="sb">`</span>a-package<span class="p">;</span><span class="w"> </span>python_version<span class="w"> </span>&lt;<span class="w"> </span><span class="s1">&#39;3.9&#39;</span><span class="sb">`</span>,<span class="w">   </span>│
-│<span class="w">                             </span>Using<span class="w"> </span><span class="sb">`</span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>not<span class="w"> </span>include<span class="w">             </span>│
-│<span class="w">                             </span><span class="sb">`</span>a-package<span class="sb">`</span>,<span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="sb">`</span>--python-version<span class="w"> </span><span class="m">3</span>.8<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>include<span class="w">     </span>│
-│<span class="w">                             </span><span class="sb">`</span>a-package<span class="sb">`</span>.<span class="w">                                               </span>│
-│<span class="w"> </span>--channel<span class="w">         </span>-c<span class="w">  </span>TEXT<span class="w">  </span>conda<span class="w"> </span>channel.<span class="w">  </span>Can<span class="w"> </span>specify.<span class="w"> </span>Overrides<span class="w">                     </span>│
-│<span class="w">                             </span><span class="o">[</span>tool.pyproject2conda.channels<span class="o">]</span><span class="w">                            </span>│
-│<span class="w"> </span>--file<span class="w">            </span>-f<span class="w">  </span>PATH<span class="w">  </span>input<span class="w"> </span>pyproject.toml<span class="w"> </span>file<span class="w">                                  </span>│
-│<span class="w"> </span>--sort/--no-sort<span class="w">            </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>sort<span class="w"> </span>the<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>excluding<span class="w">             </span>│
-│<span class="w">                             </span><span class="sb">`</span>--python-include<span class="sb">`</span><span class="o">)</span>.<span class="w"> </span>Pass<span class="w"> </span><span class="sb">`</span>--no-sort<span class="sb">`</span><span class="w"> </span>to<span class="w"> </span>instead<span class="w"> </span>place<span class="w">     </span>│
-│<span class="w">                             </span>dependencies<span class="w"> </span><span class="k">in</span><span class="w"> </span>order<span class="w"> </span>they<span class="w"> </span>are<span class="w"> </span>gathered.<span class="w">                   </span>│
-│<span class="w"> </span>--output<span class="w">          </span>-o<span class="w">  </span>PATH<span class="w">  </span>File<span class="w"> </span>to<span class="w"> </span>output<span class="w"> </span>results<span class="w">                                     </span>│
-│<span class="w"> </span>--base/--no-base<span class="w">            </span>Default<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span>base<span class="w"> </span><span class="o">(</span>project.dependencies<span class="o">)</span><span class="w"> </span>with<span class="w">     </span>│
-│<span class="w">                             </span>extras.<span class="w"> </span>However,<span class="w"> </span>passing<span class="w"> </span><span class="sb">`</span>--no-base<span class="sb">`</span><span class="w"> </span>will<span class="w"> </span>exclude<span class="w"> </span>base<span class="w">     </span>│
-│<span class="w">                             </span>dependencies.<span class="w"> </span>This<span class="w"> </span>is<span class="w"> </span>useful<span class="w"> </span>to<span class="w"> </span>define<span class="w"> </span>environments<span class="w"> </span>that<span class="w">   </span>│
-│<span class="w">                             </span>should<span class="w"> </span>exclude<span class="w"> </span>base<span class="w"> </span>dependencies<span class="w"> </span><span class="o">(</span>like<span class="w"> </span>build,<span class="w"> </span>etc<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w">      </span>│
-│<span class="w">                             </span>pyproject.toml.<span class="w">                                            </span>│
-│<span class="w"> </span>--deps<span class="w">            </span>-d<span class="w">  </span>TEXT<span class="w">  </span>Additional<span class="w"> </span>conda<span class="w"> </span>dependencies.<span class="w">                             </span>│
-│<span class="w"> </span>--reqs<span class="w">            </span>-r<span class="w">  </span>TEXT<span class="w">  </span>Additional<span class="w"> </span>pip<span class="w"> </span>requirements.<span class="w">                               </span>│
-│<span class="w"> </span>--help<span class="w">                      </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                </span>│
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-</pre></div>
-</div>
-<!-- [[[end]]] -->
+] -->
+<!-- [end] -->
 <!-- prettier-ignore-end -->
 <!-- markdownlint-enable MD013 -->
 <div class="toctree-wrapper compound">
@@ -1436,7 +1100,6 @@ dependencies:
 </section>
 </section>
 </section>
-</section>
 
 
                 </article>
@@ -1444,11 +1107,10 @@ dependencies:
 
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="right-next"
        href="installation.html"
@@ -1459,10 +1121,7 @@ dependencies:
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -1491,15 +1150,7 @@ dependencies:
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-within-python">Usage within python</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-multiple-environments-from-pyproject-toml">Creating multiple environments from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#list">list</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#yaml">yaml</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">requirements</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#project">project</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-requirements">conda-requirements</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#json">json</a></li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a></li>
 </ul>
 </li>
 </ul>
@@ -1534,7 +1185,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-19.
+  Last updated on 2023-09-25.
   <br/>
 </p>
   </div>
@@ -1552,8 +1203,8 @@ By William P. Krekelberg
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
   </footer>

@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Contributing &#8212; pyproject2conda v0.6.0 documentation</title>
+    <title>Contributing &#8212; pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</title>
   
   
   
@@ -19,12 +19,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -37,8 +37,9 @@
     <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/leaveNotice/css/jquery.leaveNotice.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -61,6 +62,7 @@
     <link rel="prev" title="License" href="license.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+    <meta name="docbuild:last-update" content="2023-09-25"/>
   </head>
   
   
@@ -69,6 +71,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -130,7 +141,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda v0.6.0 documentation</p>
+    <p class="title logo__title">pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -146,17 +157,11 @@
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/cli.html">Command line interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
 
 
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
-
-<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.cli</span></code>)</a></li>
-
-
-
-
-
 
 </ul>
 </li>
@@ -324,10 +329,10 @@
 
 <script>
 document.write(`
-  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
   </button>
 `);
 </script>
@@ -335,7 +340,7 @@ document.write(`
 <script>
 document.write(`
   <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
   </button>
 `);
 </script>
@@ -513,7 +518,7 @@ make<span class="w"> </span>pre-commit-codespell
 </pre></div>
 </div>
 </li>
-<li><p>Create changelog fragment. See <a class="reference external" href="https://github.com/nedbat/scriv">scriv</a> for more info.</p>
+<li><p>Create changelog fragment. See <a class="reference external" href="https://github.com/nedbat/scrivl">scriv</a> for more info.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scriv<span class="w"> </span>create<span class="w"> </span>--edit
 </pre></div>
 </div>
@@ -554,35 +559,39 @@ search for python interpreters. The variable <code class="docutils literal notra
 “extras” to include (from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>) in the development environment.</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># config/userconfig.toml</span>
 <span class="k">[nox.python]</span>
-<span class="n">paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;~/.conda/envs/test-3.*/bin&quot;</span><span class="p">]</span>
+<span class="n">paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;~/.conda/envs/python-3.*/bin&quot;</span><span class="p">]</span>
 
-<span class="k">[nox.extras]</span>
-<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nox&quot;</span><span class="p">]</span>
+<span class="c1"># overrides dev environment for user</span>
+<span class="k">[tool.pyproject2conda.envs.dev]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nox&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>For example, the above file will add the paths <code class="docutils literal notranslate"><span class="pre">~/.conda/envs/test-3.*/bin</span></code> to
+<p>For example, the above file will add the paths <code class="docutils literal notranslate"><span class="pre">~/.conda/envs/python-3.*/bin</span></code> to
 the search path, and the development environment will include the extras <code class="docutils literal notranslate"><span class="pre">dev</span></code>
 and <code class="docutils literal notranslate"><span class="pre">nox</span></code> from the <code class="docutils literal notranslate"><span class="pre">project.optional-dependencies</span></code> section of the
-<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file in the development environment.</p>
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file in the development environment. See
+<a class="reference internal" href="#creating-environment-yaml-requirement-txt-files"><span class="std std-doc">below</span></a> and <a class="reference external" href="https://github.com/wpk-nist-gov/pyproject2conda">pyproject2conda</a> for
+more info.</p>
 <p>You can also create this file using either of the following commands:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>-s<span class="w"> </span>config<span class="w"> </span>--<span class="w"> </span>--python-paths<span class="w"> </span><span class="s2">&quot;~/.conda/envs/test-3.*/bin&quot;</span><span class="w"> </span>--dev-extras<span class="w"> </span>dev<span class="w"> </span>nox...
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>-s<span class="w"> </span>config<span class="w"> </span>--<span class="w"> </span>--python-paths<span class="w"> </span><span class="s2">&quot;~/.conda/envs/python-3.*/bin&quot;</span><span class="w"> </span>--dev-extras<span class="w"> </span>dev<span class="w"> </span>nox...
 <span class="c1"># or</span>
 python<span class="w"> </span>tools/projectconfig.py<span class="w">  </span>--python-paths<span class="w"> </span>...<span class="w"> </span>--dev-extras<span class="w"> </span>...
 </pre></div>
 </div>
+<p>Run the latter with <code class="docutils literal notranslate"><span class="pre">--help</span></code> for more options.</p>
 </section>
 <section id="installing-interpreters-for-virtualenv-creation">
 <h3>Installing interpreters for virtualenv creation<a class="headerlink" href="#installing-interpreters-for-virtualenv-creation" title="Permalink to this heading">#</a></h3>
 <p>If using virtualenvs across multiple python versions (e.g., <code class="docutils literal notranslate"><span class="pre">test_venv</span></code>,
 <code class="docutils literal notranslate"><span class="pre">typing_venv</span></code>, etc), you’ll need to install python interpreters for each
 version. I’ve had trouble mixing pyenv with conda. Instead, I use conda to
-create multiple invironments to hold different python version:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span>version<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">3</span>.8<span class="w"> </span><span class="m">3</span>.9<span class="w"> </span><span class="m">3</span>.10<span class="w"> </span><span class="m">3</span>.11<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">    </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>test-<span class="si">${</span><span class="nv">version</span><span class="si">}</span><span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="si">${</span><span class="nv">version</span><span class="si">}</span>
-<span class="k">done</span>
+create multiple invironments to hold different python version. You can use the
+following script to create the needed conda environments:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tools/create_pythons.py<span class="w"> </span>-p<span class="w"> </span><span class="m">3</span>.8<span class="w"> </span><span class="m">3</span>.9<span class="w"> </span>...
 </pre></div>
 </div>
-<p>Also, set the variable <code class="docutils literal notranslate"><span class="pre">nox.python.paths</span></code> (see <a class="reference internal" href="#setup-user-configuration"><span class="std std-doc">Setup user configuration</span></a>).</p>
+<p>Run with <code class="docutils literal notranslate"><span class="pre">--help</span></code> for more options. Then, set the variable <code class="docutils literal notranslate"><span class="pre">nox.python.paths</span></code>
+(see <a class="reference internal" href="#setup-user-configuration"><span class="std std-doc">Setup user configuration</span></a>).</p>
 </section>
 <section id="see-nox-sessions-options">
 <h3>See nox sessions/options<a class="headerlink" href="#see-nox-sessions-options" title="Permalink to this heading">#</a></h3>
@@ -608,10 +617,11 @@ from <code class="docutils literal notranslate"><span class="pre">pyproject.toml
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>-s<span class="w"> </span>requirements
 </pre></div>
 </div>
-<p>This uses <a class="reference external" href="https://github.com/usnistgov/pyproject2conda">pyproject2conda</a> to create the requirement files. Note that all
+<p>This uses <a class="reference external" href="https://github.com/wpk-nist-gov/pyproject2conda">pyproject2conda</a> to create the requirement files. Note that all
 requirement files are under something like
-<code class="docutils literal notranslate"><span class="pre">environment/py{version}-{env-name}.yaml</span></code>. The file
-<code class="docutils literal notranslate"><span class="pre">environment/py{version}-dev.yaml</span></code> is user specific and <strong>should not</strong> be
+<code class="docutils literal notranslate"><span class="pre">requirements/py{version}-{env-name}.yaml</span></code> (conda environment) or
+<code class="docutils literal notranslate"><span class="pre">requirements/{env-name}.txt</span></code> (virtual environment). The file
+<code class="docutils literal notranslate"><span class="pre">requirements/py{version}-dev.yaml</span></code> is user specific and <strong>should not</strong> be
 tracked by git.</p>
 </section>
 </section>
@@ -732,7 +742,7 @@ and <code class="docutils literal notranslate"><span class="pre">dev</span></cod
 procedure using <a class="reference external" href="https://github.com/pypa/pipx">pipx</a> and the following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipx<span class="w"> </span>run<span class="w"> </span>--spec<span class="w"> </span>git+https://github.com/wpk-nist-gov/nox-bootstrap.git<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>nox<span class="w"> </span>-s<span class="w"> </span>bootstrap<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
-<span class="w">     </span>--python-paths<span class="w"> </span><span class="s2">&quot;~/.conda/envs/test-3.*/bin&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>--python-paths<span class="w"> </span><span class="s2">&quot;~/.conda/envs/python-3.*/bin&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--dev-extras<span class="w"> </span>dev<span class="w"> </span>nox
 
 conda<span class="w"> </span>activate<span class="w"> </span>.nox/<span class="o">{</span>project-name<span class="o">}</span>/envs/dev
@@ -752,7 +762,7 @@ activate the development environment when in the parent directory.</p>
 <section id="conda-create-development-environment">
 <h3>Conda create development environment<a class="headerlink" href="#conda-create-development-environment" title="Permalink to this heading">#</a></h3>
 <p>If instead you’d like to just install directly with conda, you can use:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>-n<span class="w"> </span><span class="o">{</span>env-name<span class="o">}]</span><span class="w"> </span>-f<span class="w"> </span>environment/py<span class="o">{</span>version<span class="o">}</span>-dev-complete.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>-n<span class="w"> </span><span class="o">{</span>env-name<span class="o">}]</span><span class="w"> </span>-f<span class="w"> </span>requirements/py<span class="o">{</span>version<span class="o">}</span>-dev-complete.yaml
 conda<span class="w"> </span>activate<span class="w"> </span><span class="o">{</span>env-name<span class="o">}</span>
 pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--no-deps
 </pre></div>
@@ -776,9 +786,9 @@ file, or run:</p>
 <li><p><a class="reference external" href="https://pre-commit.com/">pre-commit</a></p></li>
 <li><p><a class="reference external" href="https://github.com/wntrblm/nox">nox</a> with <a class="reference external" href="https://github.com/rmorshea/noxopt">noxopt</a></p></li>
 <li><p><a class="reference external" href="https://github.com/cruft/cruft">cruft</a></p></li>
-<li><p><a class="reference external" href="https://github.com/nedbat/scriv">scriv</a></p></li>
+<li><p><a class="reference external" href="https://github.com/nedbat/scrivl">scriv</a></p></li>
 <li><p><a class="reference external" href="https://github.com/commitizen-tools/commitizen">commitizen</a> (optional)</p></li>
-<li><p><a class="reference external" href="https://github.com/usnistgov/pyproject2conda">pyproject2conda</a> (optional)</p></li>
+<li><p><a class="reference external" href="https://github.com/wpk-nist-gov/pyproject2conda">pyproject2conda</a> (optional)</p></li>
 <li><p><a class="reference external" href="https://github.com/nedbat/cog">cog</a> (optional)</p></li>
 <li><p><a class="reference external" href="https://github.com/nbQA-dev/nbQA">nbqa</a> (optional)</p></li>
 <li><p><a class="reference external" href="https://github.com/microsoft/pyright">pyright</a> (recommended)</p></li>
@@ -818,7 +828,7 @@ pip<span class="w"> </span>install<span class="w"> </span>noxopt
 <li><p>The pull request should include tests.</p></li>
 <li><p>If the pull request adds functionality, the docs should be updated. Put your
 new functionality into a function with a docstring, and add the feature to the
-list in <code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code>. You should use <a class="reference external" href="https://github.com/nedbat/scriv">scriv</a> for this.</p></li>
+list in <code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code>. You should use <a class="reference external" href="https://github.com/nedbat/scrivl">scriv</a> for this.</p></li>
 <li><p>The pull request should work for Python 3.8, 3.9, 3.10.</p></li>
 </ul>
 </section>
@@ -854,11 +864,10 @@ autogenerated when building the package. This scheme avoids having to install
 
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="license.html"
@@ -878,10 +887,7 @@ autogenerated when building the package. This scheme avoids having to install
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -960,7 +966,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-19.
+  Last updated on 2023-09-25.
   <br/>
 </p>
   </div>
@@ -978,8 +984,8 @@ By William P. Krekelberg
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
   </footer>
