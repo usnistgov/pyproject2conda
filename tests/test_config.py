@@ -4,8 +4,9 @@ from pyproject2conda.cli import app
 from pyproject2conda.config import Config
 from pyproject2conda import utils
 
-# from click.testing import CliRunner
-from typer.testing import CliRunner
+from click.testing import CliRunner
+
+# from typer.testing import CliRunner
 
 
 from pathlib import Path
@@ -50,6 +51,7 @@ def test_dry():
     runner = CliRunner()
 
     expected = """\
+# --------------------
 # Creating yaml py310-test-extras.yaml
 channels:
   - conda-forge
@@ -57,6 +59,7 @@ dependencies:
   - python=3.10
   - conda-forge::pytest
   - pandas
+# --------------------
 # Creating yaml py311-test-extras.yaml
 channels:
   - conda-forge
@@ -64,6 +67,7 @@ dependencies:
   - python=3.11
   - conda-forge::pytest
   - pandas
+# --------------------
 # Creating requirements test-extras.txt
 pandas
 pytest
@@ -84,7 +88,7 @@ def test_config_only_default():
                 "base": True,
                 "header": None,
                 "overwrite": "check",
-                "verbose": True,
+                "verbose": None,
                 "name": None,
                 "channels": None,
                 "python": "3.8",
@@ -142,7 +146,7 @@ def test_config_overrides():
             "base": False,
             "header": None,
             "overwrite": "check",
-            "verbose": True,
+            "verbose": None,
             "name": None,
             "channels": None,
             "python": "3.8",
@@ -197,7 +201,7 @@ def test_config_python_include_version():
                 "base": True,
                 "header": None,
                 "overwrite": "check",
-                "verbose": True,
+                "verbose": None,
                 "name": None,
                 "channels": None,
                 "python_include": "3.8",
@@ -215,7 +219,7 @@ def test_config_python_include_version():
                 "base": True,
                 "header": None,
                 "overwrite": "check",
-                "verbose": True,
+                "verbose": None,
                 "name": None,
                 "channels": None,
                 "python_include": "3.8",
@@ -262,7 +266,7 @@ def test_config_user_config():
                 "base": False,
                 "header": None,
                 "overwrite": "check",
-                "verbose": True,
+                "verbose": None,
                 "name": None,
                 "channels": None,
                 "python": "3.8",
@@ -279,7 +283,7 @@ def test_config_user_config():
                 "base": True,
                 "header": None,
                 "overwrite": "check",
-                "verbose": True,
+                "verbose": None,
                 "name": None,
                 "channels": None,
                 "python": "3.9",

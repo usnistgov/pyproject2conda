@@ -1,16 +1,18 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 """
-Console script for pyproject2conda (:mod:`pyproject2conda.cli`)
+Console script for pyproject2conda (:mod:`pyproject2conda.appcli`)
 ===============================================================
 """
 # * Imports
-import os
+import logging
 from enum import Enum
-from functools import lru_cache
+from functools import lru_cache, wraps
+from inspect import signature
 from pathlib import Path
-from typing import Annotated, List, Optional
+from typing import Annotated, Callable, List, Optional, cast
 
 import typer
+from typer.core import TyperGroup
 
 from pyproject2conda import __version__
 from pyproject2conda.parser import PyProject2Conda
@@ -19,36 +21,25 @@ from pyproject2conda.utils import (
     update_target,
 )
 
-if "P2C_RICH_MAX_WIDTH" in os.environ:
-    context_settings = {"max_content_width": os.environ["P2C_RICH_MAX_WIDTH"]}
-else:
-    context_settings = {}
+from ._typing import R
 
-context_settings = {"max_content_width": 80}
+# * Logger -----------------------------------------------------------------------------
 
-
-app = typer.Typer(context_settings=context_settings)
+FORMAT = "%(message)s [%(name)s - %(levelname)s]"
+logging.basicConfig(level=logging.WARN, format=FORMAT)
+logger = logging.getLogger("pyproject2conda")
 
 
-def version_callback(value: bool):
-    if value:
-        typer.echo(f"pyproject2conda, verion {__version__}")
-        raise typer.Exit()
+# * Settings
 
+# This isn't working for me.
+# Instead, use script to set terminal width
+# if "P2C_RICH_MAX_WIDTH" in os.environ:
+#     context_settings = {"max_content_width": os.environ["P2C_RICH_MAX_WIDTH"]}
+# else:
+#     context_settings = {}
 
-@app.callback()
-def main(
-    version: bool = typer.Option(
-        None, "--version", "-v", callback=version_callback, is_eager=True
-    ),
-):
-    # Do other global stuff, handle other global options here
-    return
-
-
-# @app.command()
-# def hello(there: Annotated[Optional[str], typer.Option("--there", flag_value="flag", is_flag=False, help="a thing")] = None):
-#     print("hello", there)
+# context_settings = {"max_content_width": 80}
 
 
 # if os.environ.get("P2C_USE_CLICK", "True").lower() not in ("0", "f", "false"):
@@ -67,7 +58,44 @@ def main(
 #     from click import Group as RichGroup  # type: ignore[assignment]
 
 
-# * Options
+# * Typer App --------------------------------------------------------------------------
+class AliasedGroup(TyperGroup):
+    """Provide aliasing for commands"""
+
+    def get_command(self, ctx, cmd_name):  # type: ignore
+        rv = super().get_command(ctx, cmd_name)
+        if rv is not None:
+            return rv
+        matches = [x for x in self.list_commands(ctx) if x.startswith(cmd_name)]
+        if not matches:
+            return None
+        elif len(matches) == 1:
+            return super().get_command(ctx, matches[0])
+        ctx.fail(
+            "Too many matches: %s" % ", ".join(sorted(matches))
+        )  # pragma: no cover
+
+
+app_typer = typer.Typer(cls=AliasedGroup)
+
+
+def version_callback(value: bool):
+    """Versioning call back."""
+    if value:
+        typer.echo(f"pyproject2conda, verion {__version__}")
+        raise typer.Exit()
+
+
+@app_typer.callback()
+def main(
+    version: bool = typer.Option(  # pyright: ignore
+        None, "--version", "-v", callback=version_callback, is_eager=True
+    ),
+):
+    return
+
+
+# * Options ----------------------------------------------------------------------------
 
 DEFAULT_TOML_PATH = Path("./pyproject.toml")
 
@@ -137,7 +165,13 @@ OVERWRITE_CLI = Annotated[
 ]
 
 VERBOSE_CLI = Annotated[
-    bool, typer.Option("--verbose", "-v", help="Pass `-v/--verbose` for verbose output")
+    Optional[int],
+    typer.Option(
+        "--verbose",
+        "-v",
+        help="Pass `-v/--verbose` for verbose output.  Pass multiple times to set verbosity level.",
+        count=True,
+    ),
 ]
 BASE_DEPENDENCIES_CLI = Annotated[
     bool,
@@ -160,16 +194,6 @@ SORT_DEPENDENCIES_CLI = Annotated[
         """,
     ),
 ]
-# PYTHON_FROM_CONFIG_CLI = Annotated[
-#     bool,
-#     typer.Option(
-#         help="""
-#         If specified, get python spec from pyproject.toml.
-#         This only applies if `--python-include` and `--python` are
-#         not set.
-#         """
-#     ),
-# ]
 PYTHON_INCLUDE_CLI = Annotated[
     Optional[str],
     typer.Option(
@@ -231,167 +255,6 @@ REQS_CLI = Annotated[
         help="Additional pip requirements.",
     ),
 ]
-
-
-# * Utils
-def _get_header_cmd(header: bool | None, output: str | Path | None) -> str | None:
-    if header is None:
-        header = output is not None
-
-    if header:
-        # return ""
-        import sys
-        from pathlib import Path
-
-        return " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
-    else:
-        return None
-
-
-@lru_cache
-def _get_pyproject2conda(filename) -> PyProject2Conda:
-    return PyProject2Conda.from_path(filename)
-
-
-# * App
-# class AliasedGroup(RichGroup):
-#     """Provide aliasing for commands"""
-
-#     def get_command(self, ctx, cmd_name):  # type: ignore
-#         rv = click.Group.get_command(self, ctx, cmd_name)
-#         if rv is not None:
-#             return rv
-#         matches = [x for x in self.list_commands(ctx) if x.startswith(cmd_name)]
-#         if not matches:
-#             return None
-#         elif len(matches) == 1:
-#             return click.Group.get_command(self, ctx, matches[0])
-#         ctx.fail(
-#             "Too many matches: %s" % ", ".join(sorted(matches))
-#         )  # pragma: no cover
-
-
-# @click.group(cls=AliasedGroup)
-# @click.version_option(version=__version__)
-# def app() -> None:
-#     pass
-
-
-# ** List
-@app.command("l", hidden=True)
-@app.command()
-def list(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
-    verbose: VERBOSE_CLI = False,
-) -> None:
-    """List available extras. (Alias `l`)"""
-
-    if verbose:
-        print(f"filename: {filename}")
-
-    d = _get_pyproject2conda(filename)
-    print(f"extras  : {d.list_extras()}")
-
-
-# ** Yaml
-@app.command("y", hidden=True)
-@app.command()
-def yaml(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
-    extras: EXTRAS_CLI = None,
-    channels: CHANNEL_CLI = None,
-    output: OUTPUT_CLI = None,
-    name: NAME_CLI = None,
-    python_include: PYTHON_INCLUDE_CLI = None,
-    python_version: PYTHON_VERSION_CLI = None,
-    python: PYTHON_CLI = None,
-    base: BASE_DEPENDENCIES_CLI = True,
-    sort: SORT_DEPENDENCIES_CLI = True,
-    header: HEADER_CLI = None,
-    overwrite: OVERWRITE_CLI = Overwrite.check,
-    verbose: VERBOSE_CLI = False,
-    deps: DEPS_CLI = None,
-    reqs: REQS_CLI = None,
-):
-    """Create yaml file from dependencies and optional-dependencies. (Alias `y`)"""
-
-    if not update_target(output, filename, overwrite=overwrite.value):
-        if verbose:
-            print(f"# Skipping yaml {output}. Pass `-w force` to force recreate output")
-        return
-
-    if not channels:
-        channels = None
-
-    python_include, python_version = parse_pythons(
-        python_include=python_include,
-        python_version=python_version,
-        python=python,
-    )
-
-    d = _get_pyproject2conda(filename)
-
-    if verbose and output:
-        print(f"# Creating yaml {output}")
-
-    s = d.to_conda_yaml(
-        extras=extras,
-        channels=channels,
-        name=name,
-        stream=output,
-        python_include=python_include,
-        python_version=python_version,
-        include_base_dependencies=base,
-        header_cmd=_get_header_cmd(header, output),
-        sort=sort,
-        deps=deps,
-        reqs=reqs,
-    )
-    if not output:
-        print(s, end="")
-
-
-# ** Requirements
-@app.command("r", hidden=True)
-@app.command()
-def requirements(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
-    extras: EXTRAS_CLI = None,
-    output: OUTPUT_CLI = None,
-    base: BASE_DEPENDENCIES_CLI = True,
-    sort: SORT_DEPENDENCIES_CLI = True,
-    header: HEADER_CLI = None,
-    overwrite: OVERWRITE_CLI = Overwrite.check,
-    verbose: VERBOSE_CLI = False,
-    reqs: REQS_CLI = None,
-):
-    """Create requirements.txt for pip dependencies. (Alias "r")"""
-
-    if not update_target(output, filename, overwrite=overwrite.value):
-        if verbose:
-            print(
-                f"# Skipping requirements {output}. Pass `-w force` to force recreate output"
-            )
-        return
-
-    d = _get_pyproject2conda(filename)
-
-    if verbose and output:
-        print(f"# Creating requirements {output}")
-
-    s = d.to_requirements(
-        extras=extras,
-        stream=output,
-        include_base_dependencies=base,
-        header_cmd=_get_header_cmd(header, output),
-        sort=sort,
-        reqs=reqs,
-    )
-    if not output:
-        print(s, end="")
-
-
-# # ** From project
 ENVS_CLI = Annotated[
     Optional[List[str]],
     typer.Option(
@@ -438,8 +301,203 @@ USER_CONFIG_CLI = Annotated[
 ]
 
 
-@app.command("p", hidden=True)
-@app.command()
+# * Utils ------------------------------------------------------------------------------
+def _get_header_cmd(header: bool | None, output: str | Path | None) -> str | None:
+    if header is None:
+        header = output is not None
+
+    if header:
+        # return ""
+        import sys
+        from pathlib import Path
+
+        return " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
+    else:
+        return None
+
+
+@lru_cache
+def _get_pyproject2conda(filename) -> PyProject2Conda:
+    return PyProject2Conda.from_path(filename)
+
+
+def _log_skipping(logger: logging.Logger, style: str, output: str | None):
+    logger.info(f"Skipping {style} {output}. Pass `-w force` to force recreate output")
+
+
+def _log_creating(
+    logger: logging.Logger, style: str, output: str | None, prefix: str | None = None
+):
+    if prefix is None:
+        prefix = "# " if prefix is None and output is None else ""
+
+    s = f"{prefix}Creating {style}"
+
+    if output:
+        s = f"{s} {output}"
+
+    logger.info(s)
+
+
+def add_verbose_logger(
+    logger: logging.Logger, verbose_arg: str = "verbose"
+) -> Callable[[Callable[..., R]], Callable[..., R]]:
+    """Decorator factory to add logger and set logger level based on verbosity argument value."""
+
+    def decorator(func: Callable[..., R]) -> Callable[..., R]:
+        bind = signature(func).bind
+
+        @wraps(func)
+        def wrapped(*args, **kwargs) -> R:
+            params = bind(*args, **kwargs)
+            params.apply_defaults()
+
+            # verbosity = cast("Optional[int]", params[verbose_arg])
+            verbosity = cast("Optional[int]", params.arguments[verbose_arg])
+
+            if verbosity is None:
+                # leave where it is:
+                pass
+            else:
+                if verbosity < 0:
+                    level = logging.ERROR
+                elif verbosity == 0:
+                    level = logging.WARN
+                elif verbosity == 1:
+                    level = logging.INFO
+                elif verbosity >= 2:
+                    level = logging.DEBUG
+
+                logger.setLevel(level)
+
+            return func(*args, **kwargs)
+
+        return wrapped
+
+    return decorator
+
+
+# ** List
+# @app_typer.command("l", hidden=True)
+@app_typer.command()
+@add_verbose_logger(logger)
+def list(
+    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    verbose: VERBOSE_CLI = None,  # pyright: ignore
+) -> None:
+    """List available extras. (Alias `l`)"""
+
+    logger.info(f"filename: {filename}")
+
+    d = _get_pyproject2conda(filename)
+
+    print("Extras:")
+    print("=======")
+
+    for extra in d.list_extras():
+        print("*", extra)
+
+
+# ** Yaml
+# @app_typer.command("y", hidden=True)
+@app_typer.command()
+@add_verbose_logger(logger)
+def yaml(
+    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    extras: EXTRAS_CLI = None,
+    channels: CHANNEL_CLI = None,
+    output: OUTPUT_CLI = None,
+    name: NAME_CLI = None,
+    python_include: PYTHON_INCLUDE_CLI = None,
+    python_version: PYTHON_VERSION_CLI = None,
+    python: PYTHON_CLI = None,
+    base: BASE_DEPENDENCIES_CLI = True,
+    sort: SORT_DEPENDENCIES_CLI = True,
+    header: HEADER_CLI = None,
+    overwrite: OVERWRITE_CLI = Overwrite.check,
+    verbose: VERBOSE_CLI = None,  # pyright: ignore
+    deps: DEPS_CLI = None,
+    reqs: REQS_CLI = None,
+):
+    """Create yaml file from dependencies and optional-dependencies. (Alias `y`)"""
+
+    if not update_target(output, filename, overwrite=overwrite.value):
+        _log_skipping(logger, "yaml", output)
+        return
+
+    if not channels:
+        channels = None
+
+    python_include, python_version = parse_pythons(
+        python_include=python_include,
+        python_version=python_version,
+        python=python,
+    )
+
+    d = _get_pyproject2conda(filename)
+
+    _log_creating(logger, "yaml", output)
+
+    s = d.to_conda_yaml(
+        extras=extras,
+        channels=channels,
+        name=name,
+        stream=output,
+        python_include=python_include,
+        python_version=python_version,
+        include_base_dependencies=base,
+        header_cmd=_get_header_cmd(header, output),
+        sort=sort,
+        deps=deps,
+        reqs=reqs,
+    )
+    if not output:
+        print(s, end="")
+
+
+# ** Requirements
+# @app_typer.command("r", hidden=True)
+@app_typer.command()
+@add_verbose_logger(logger)
+def requirements(
+    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    extras: EXTRAS_CLI = None,
+    output: OUTPUT_CLI = None,
+    base: BASE_DEPENDENCIES_CLI = True,
+    sort: SORT_DEPENDENCIES_CLI = True,
+    header: HEADER_CLI = None,
+    overwrite: OVERWRITE_CLI = Overwrite.check,
+    verbose: VERBOSE_CLI = None,  # pyright: ignore
+    reqs: REQS_CLI = None,
+):
+    """Create requirements.txt for pip dependencies. (Alias "r")"""
+
+    if not update_target(output, filename, overwrite=overwrite.value):
+        _log_skipping(logger, "requirments", output)
+        return
+
+    d = _get_pyproject2conda(filename)
+
+    _log_creating(logger, "requirements", output)
+
+    s = d.to_requirements(
+        extras=extras,
+        stream=output,
+        include_base_dependencies=base,
+        header_cmd=_get_header_cmd(header, output),
+        sort=sort,
+        reqs=reqs,
+    )
+    if not output:
+        print(s, end="")
+
+
+# ** From project
+
+
+# @app_typer.command("p", hidden=True)
+@app_typer.command()
+@add_verbose_logger(logger)
 def project(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     envs: ENVS_CLI = None,
@@ -448,15 +506,12 @@ def project(
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
-    verbose: VERBOSE_CLI = False,
+    verbose: VERBOSE_CLI = None,
     dry: DRY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
 ):
     """Create multiple environment files from `pyproject.toml` specification. (Alias "p")"""
     from pyproject2conda.config import Config
-
-    if dry:
-        verbose = True
 
     c = Config.from_file(filename, user_config=user_config)
 
@@ -473,6 +528,8 @@ def project(
         verbose=verbose,
     ):
         if dry:
+            # small header
+            print("# " + "-" * 20)
             print("# Creating {style} {output}".format(style=style, output=d["output"]))
             d["output"] = None
 
@@ -484,9 +541,7 @@ def project(
             overwrite=d["overwrite"],
         ):
             if verbose:
-                print(
-                    f"# Skipping {style} {d['output']}.  Pass `-w force to force recreate output`"
-                )
+                _log_skipping(logger, style, d["output"])
         else:
             d["overwrite"] = Overwrite("force")
             if style == "yaml":
@@ -514,8 +569,9 @@ PREPEND_CHANNEL_CLI = Annotated[
 ]
 
 
-@app.command("cr", hidden=True)
-@app.command()
+# @app_typer.command("cr", hidden=True)
+@app_typer.command()
+@add_verbose_logger(logger)
 def conda_requirements(
     path_conda: Annotated[Optional[str], typer.Argument()] = None,
     path_pip: Annotated[Optional[str], typer.Argument()] = None,
@@ -533,6 +589,7 @@ def conda_requirements(
     # paths,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
+    verbose: VERBOSE_CLI = None,
 ):
     """
     Create requirement files for conda and pip. (Alias "cr")
@@ -584,8 +641,9 @@ def conda_requirements(
 
 
 # ** json
-@app.command("j", hidden=True)
-@app.command("json")
+# @app_typer.command("j", hidden=True)
+@app_typer.command("json")
+@add_verbose_logger(logger)
 def to_json(
     extras: EXTRAS_CLI = None,
     python_include: PYTHON_INCLUDE_CLI = None,
@@ -598,6 +656,7 @@ def to_json(
     base: BASE_DEPENDENCIES_CLI = True,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
+    verbose: VERBOSE_CLI = None,
 ):
     """
     Create json representation. (Alias "j")
@@ -634,6 +693,38 @@ def to_json(
             json.dump(result, f)
     else:
         print(json.dumps(result))  # , indent=2))
+
+
+# * Click app
+# class AliasedGroup(RichGroup):
+#     """Provide aliasing for commands"""
+
+#     def get_command(self, ctx, cmd_name):  # type: ignore
+#         rv = click.Group.get_command(self, ctx, cmd_name)
+#         if rv is not None:
+#             return rv
+#         matches = [x for x in self.list_commands(ctx) if x.startswith(cmd_name)]
+#         if not matches:
+#             return None
+#         elif len(matches) == 1:
+#             return click.Group.get_command(self, ctx, matches[0])
+#         ctx.fail(
+#             "Too many matches: %s" % ", ".join(sorted(matches))
+#         )  # pragma: no cover
+
+
+# setup appcli
+# @click.group(cls=AliasedGroup)
+# @click.version_option(version=__version__)
+# def app_click() -> None:
+#     pass
+
+
+# typer_click_object = typer.main.get_command(app_typer)
+# app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)
+
+# Just use the click app....
+app = typer.main.get_command(app_typer)
 
 
 # ** Main

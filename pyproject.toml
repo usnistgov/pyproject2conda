@@ -40,6 +40,10 @@ homepage = "https://github.com/usnistgov/pyproject2conda"
 documentation = "https://pages.nist.gov/pyproject2conda/"
 
 [project.optional-dependencies]
+all = [
+    "rich", #
+    "shellingham",
+]
 test = [
     "pytest", #
     "pytest-xdist",

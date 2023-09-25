@@ -218,13 +218,14 @@ dependencies:
 Note that other comments can be mixed in.
 
 By default, the python version is not included in the resulting conda output. To
-include the specification from `pyproject.toml`, use `--python-include` option:
+include the specification from `pyproject.toml`, use `--python-include infer`
+option:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include infer")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include
+$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include infer
 channels:
   - conda-forge
 dependencies:
@@ -674,6 +675,7 @@ run through the command `pyproject2conda project` (or `p2c project`):
 
 ```bash
 $ p2c project -f tests/data/test-pyproject.toml --dry
+# --------------------
 # Creating yaml py310-test-extras.yaml
 channels:
   - conda-forge
@@ -681,6 +683,7 @@ dependencies:
   - python=3.10
   - conda-forge::pytest
   - pandas
+# --------------------
 # Creating yaml py311-test-extras.yaml
 channels:
   - conda-forge
@@ -688,9 +691,11 @@ dependencies:
   - python=3.11
   - conda-forge::pytest
   - pandas
+# --------------------
 # Creating requirements test-extras.txt
 pandas
 pytest
+# --------------------
 # Creating yaml py310-test.yaml
 channels:
   - conda-forge
@@ -702,6 +707,7 @@ dependencies:
   - pip
   - pip:
       - athing
+# --------------------
 # Creating yaml py311-test.yaml
 channels:
   - conda-forge
@@ -713,12 +719,7 @@ dependencies:
   - pip
   - pip:
       - athing
-# Creating yaml py310-dev.yaml
-channels:
-  - conda-forge
-dependencies:
-  - python=3.10
-  - bthing-conda
+# --------------------
 
  ...
 ```
@@ -814,6 +815,7 @@ is at `a/path/pyproject.toml`, the path of user configuration files will be
 <!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev", wrapper="bash")]]] -->
 ```bash
 $ p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev
+# --------------------
 # Creating yaml py310-user-dev.yaml
 name: hello
 channels:
@@ -865,19 +867,23 @@ $ pyproject2conda --help
 
  Usage: pyproject2conda [OPTIONS] COMMAND [ARGS]...
 
-╭─ Options ──────────────────────────────────────────────────────────────────────────────╮
-│ --version      Show the version and exit.                                              │
-│ --help         Show this message and exit.                                             │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ─────────────────────────────────────────────────────────────────────────────╮
-│ conda-requirements  Create requirement files for conda and pip.                        │
-│ json                Create json representation.                                        │
-│ list                List available extras                                              │
-│ project             Create multiple environment files from `pyproject.toml`            │
-│                     specification.                                                     │
-│ requirements        Create requirements.txt for pip dependencies.                      │
-│ yaml                Create yaml file from dependencies and optional-dependencies.      │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+│ --version             -v                                                             │
+│ --install-completion            Install completion for the current shell.            │
+│ --show-completion               Show completion for the current shell, to copy it or │
+│                                 customize the installation.                          │
+│ --help                          Show this message and exit.                          │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────╮
+│ conda-requirements  Create requirement files for conda and pip. (Alias "cr")         │
+│ json                Create json representation. (Alias "j")                          │
+│ list                List available extras. (Alias `l`)                               │
+│ project             Create multiple environment files from `pyproject.toml`          │
+│                     specification. (Alias "p")                                       │
+│ requirements        Create requirements.txt for pip dependencies. (Alias "r")        │
+│ yaml                Create yaml file from dependencies and optional-dependencies.    │
+│                     (Alias `y`)                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
 ```
 
@@ -888,13 +894,15 @@ $ pyproject2conda list --help
 
  Usage: pyproject2conda list [OPTIONS]
 
- List available extras
+ List available extras. (Alias `l`)
 
-╭─ Options ──────────────────────────────────────────────────────────────────────────────╮
-│ --file     -f  PATH  input pyproject.toml file                                         │
-│ --verbose  -v                                                                          │
-│ --help               Show this message and exit.                                       │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+│ --file     -f      PATH     input pyproject.toml file [default: pyproject.toml]      │
+│ --verbose  -v      INTEGER  Pass `-v/--verbose` for verbose output.  Pass multiple   │
+│                             times to set verbosity level.                            │
+│                             [default: None]                                          │
+│ --help                      Show this message and exit.                              │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
 ```
 
@@ -905,64 +913,108 @@ $ pyproject2conda yaml --help
 
  Usage: pyproject2conda yaml [OPTIONS]
 
- Create yaml file from dependencies and optional-dependencies.
+ Create yaml file from dependencies and optional-dependencies. (Alias `y`)
 
-╭─ Options ──────────────────────────────────────────────────────────────────────────────╮
-│ --file                -f  PATH                input pyproject.toml file                │
-│ --extra               -e  TEXT                Extra depenedencies. Can specify         │
-│                                               multiple times for multiple extras.      │
-│ --channel             -c  TEXT                conda channel.  Can specify. Overrides   │
-│                                               [tool.pyproject2conda.channels]          │
-│ --output              -o  PATH                File to output results                   │
-│ --name                -n  TEXT                Name of conda env                        │
-│ --python-include          TEXT                If flag passed without options, include  │
-│                                               python spec from pyproject.toml in yaml  │
-│                                               output. If value passed, use this value  │
-│                                               (exactly) in the output. So, for         │
-│                                               example, pass `--python-include          │
-│                                               "python=3.8"`                            │
-│ --python-version          TEXT                Python version to check `python_verion   │
-│                                               <=> {python_version}` lines against.     │
-│                                               That is, this version is used to limit   │
-│                                               packages in resulting output. For        │
-│                                               example, if have a line like `a-package; │
-│                                               python_version < '3.9'`, Using           │
-│                                               `--python-version 3.10` will not include │
-│                                               `a-package`, while `--python-version     │
-│                                               3.8` will include `a-package`.           │
-│ --python              -p  TEXT                Python version. Passing `--python        │
-│                                               {version}` is equivalent to passing      │
-│                                               `--python-version={version}              │
-│                                               --python-include=python{version}`. If    │
-│                                               passed, this overrides values of passed  │
-│                                               via `--python-version` and               │
-│                                               `--python-include`.                      │
-│ --base/--no-base                              Default is to include base               │
-│                                               (project.dependencies) with extras.      │
-│                                               However, passing `--no-base` will        │
-│                                               exclude base dependencies. This is       │
-│                                               useful to define environments that       │
-│                                               should exclude base dependencies (like   │
-│                                               build, etc) in pyproject.toml.           │
-│ --sort/--no-sort                              Default is to sort the dependencies      │
-│                                               (excluding `--python-include`). Pass     │
-│                                               `--no-sort` to instead place             │
-│                                               dependencies in order they are gathered. │
-│ --header/--no-header                          If True (--header) include header line   │
-│                                               in output. Default is to include the     │
-│                                               header for output to a file, and not to  │
-│                                               include header when writing to stdout.   │
-│ --overwrite           -w  [check|force|skip]  What to do if output file exists.        │
-│                                               (check): Create if missing. If output    │
-│                                               exists and passed `--filename` is newer, │
-│                                               recreate output, else skip. (skip): If   │
-│                                               output exists, skip. (force): force:     │
-│                                               force recreate output.                   │
-│ --verbose             -v                                                               │
-│ --deps                -d  TEXT                Additional conda dependencies.           │
-│ --reqs                -r  TEXT                Additional pip requirements.             │
-│ --help                                        Show this message and exit.              │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+│ --file            -f                 PATH                input pyproject.toml file   │
+│                                                          [default: pyproject.toml]   │
+│ --extra           -e                 TEXT                Extra depenedencies. Can    │
+│                                                          specify multiple times for  │
+│                                                          multiple extras.            │
+│                                                          [default: None]             │
+│ --channel         -c                 TEXT                conda channel.  Can         │
+│                                                          specify. Overrides          │
+│                                                          [tool.pyproject2conda.chan… │
+│                                                          [default: None]             │
+│ --output          -o                 PATH                File to output results      │
+│                                                          [default: None]             │
+│ --name            -n                 TEXT                Name of conda env           │
+│                                                          [default: None]             │
+│ --python-include                     TEXT                If value passed, use this   │
+│                                                          value (exactly) in the      │
+│                                                          output. So, for example,    │
+│                                                          pass `--python-include      │
+│                                                          "python=3.8"`. Special case │
+│                                                          is the value `"infer"`.     │
+│                                                          This infers the value of    │
+│                                                          python from                 │
+│                                                          `pyproject.toml`            │
+│                                                          [default: None]             │
+│ --python-version                     TEXT                Python version to check     │
+│                                                          `python_verion <=>          │
+│                                                          {python_version}` lines     │
+│                                                          against. That is, this      │
+│                                                          version is used to limit    │
+│                                                          packages in resulting       │
+│                                                          output. For example, if     │
+│                                                          have a line like            │
+│                                                          `a-package; python_version  │
+│                                                          < '3.9'`, Using             │
+│                                                          `--python-version 3.10`     │
+│                                                          will not include            │
+│                                                          `a-package`, while          │
+│                                                          `--python-version 3.8` will │
+│                                                          include `a-package`.        │
+│                                                          [default: None]             │
+│ --python          -p                 TEXT                Python version. Passing     │
+│                                                          `--python {version}` is     │
+│                                                          equivalent to passing       │
+│                                                          `--python-version={version} │
+│                                                          --python-include=python{ve… │
+│                                                          If passed, this overrides   │
+│                                                          values of passed via        │
+│                                                          `--python-version` and      │
+│                                                          `--python-include`.         │
+│                                                          [default: None]             │
+│ --base                --no-base                          Default is to include base  │
+│                                                          (project.dependencies) with │
+│                                                          extras. However, passing    │
+│                                                          `--no-base` will exclude    │
+│                                                          base dependencies. This is  │
+│                                                          useful to define            │
+│                                                          environments that should    │
+│                                                          exclude base dependencies   │
+│                                                          (like build, etc) in        │
+│                                                          pyproject.toml.             │
+│                                                          [default: base]             │
+│ --sort                --no-sort                          Default is to sort the      │
+│                                                          dependencies (excluding     │
+│                                                          `--python-include`). Pass   │
+│                                                          `--no-sort` to instead      │
+│                                                          place dependencies in order │
+│                                                          they are gathered.          │
+│                                                          [default: sort]             │
+│ --header              --no-header                        If True (--header) include  │
+│                                                          header line in output.      │
+│                                                          Default is to include the   │
+│                                                          header for output to a      │
+│                                                          file, and not to include    │
+│                                                          header when writing to      │
+│                                                          stdout.                     │
+│                                                          [default: no-header]        │
+│ --overwrite       -w                 [check|skip|force]  What to do if output file   │
+│                                                          exists. (check): Create if  │
+│                                                          missing. If output exists   │
+│                                                          and passed `--filename` is  │
+│                                                          newer, recreate output,     │
+│                                                          else skip. (skip): If       │
+│                                                          output exists, skip.        │
+│                                                          (force): force: force       │
+│                                                          recreate output.            │
+│                                                          [default: Overwrite.check]  │
+│ --verbose         -v                 INTEGER             Pass `-v/--verbose` for     │
+│                                                          verbose output.  Pass       │
+│                                                          multiple times to set       │
+│                                                          verbosity level.            │
+│                                                          [default: None]             │
+│ --deps            -d                 TEXT                Additional conda            │
+│                                                          dependencies.               │
+│                                                          [default: None]             │
+│ --reqs            -r                 TEXT                Additional pip              │
+│                                                          requirements.               │
+│                                                          [default: None]             │
+│ --help                                                   Show this message and exit. │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
 ```
 
@@ -973,38 +1025,57 @@ $ pyproject2conda requirements --help
 
  Usage: pyproject2conda requirements [OPTIONS]
 
- Create requirements.txt for pip dependencies.
+ Create requirements.txt for pip dependencies. (Alias "r")
 
-╭─ Options ──────────────────────────────────────────────────────────────────────────────╮
-│ --extra               -e  TEXT                Extra depenedencies. Can specify         │
-│                                               multiple times for multiple extras.      │
-│ --file                -f  PATH                input pyproject.toml file                │
-│ --output              -o  PATH                File to output results                   │
-│ --base/--no-base                              Default is to include base               │
-│                                               (project.dependencies) with extras.      │
-│                                               However, passing `--no-base` will        │
-│                                               exclude base dependencies. This is       │
-│                                               useful to define environments that       │
-│                                               should exclude base dependencies (like   │
-│                                               build, etc) in pyproject.toml.           │
-│ --sort/--no-sort                              Default is to sort the dependencies      │
-│                                               (excluding `--python-include`). Pass     │
-│                                               `--no-sort` to instead place             │
-│                                               dependencies in order they are gathered. │
-│ --header/--no-header                          If True (--header) include header line   │
-│                                               in output. Default is to include the     │
-│                                               header for output to a file, and not to  │
-│                                               include header when writing to stdout.   │
-│ --overwrite           -w  [check|force|skip]  What to do if output file exists.        │
-│                                               (check): Create if missing. If output    │
-│                                               exists and passed `--filename` is newer, │
-│                                               recreate output, else skip. (skip): If   │
-│                                               output exists, skip. (force): force:     │
-│                                               force recreate output.                   │
-│ --verbose             -v                                                               │
-│ --reqs                -r  TEXT                Additional pip requirements.             │
-│ --help                                        Show this message and exit.              │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+│ --file       -f                 PATH                input pyproject.toml file        │
+│                                                     [default: pyproject.toml]        │
+│ --extra      -e                 TEXT                Extra depenedencies. Can specify │
+│                                                     multiple times for multiple      │
+│                                                     extras.                          │
+│                                                     [default: None]                  │
+│ --output     -o                 PATH                File to output results           │
+│                                                     [default: None]                  │
+│ --base           --no-base                          Default is to include base       │
+│                                                     (project.dependencies) with      │
+│                                                     extras. However, passing         │
+│                                                     `--no-base` will exclude base    │
+│                                                     dependencies. This is useful to  │
+│                                                     define environments that should  │
+│                                                     exclude base dependencies (like  │
+│                                                     build, etc) in pyproject.toml.   │
+│                                                     [default: base]                  │
+│ --sort           --no-sort                          Default is to sort the           │
+│                                                     dependencies (excluding          │
+│                                                     `--python-include`). Pass        │
+│                                                     `--no-sort` to instead place     │
+│                                                     dependencies in order they are   │
+│                                                     gathered.                        │
+│                                                     [default: sort]                  │
+│ --header         --no-header                        If True (--header) include       │
+│                                                     header line in output. Default   │
+│                                                     is to include the header for     │
+│                                                     output to a file, and not to     │
+│                                                     include header when writing to   │
+│                                                     stdout.                          │
+│                                                     [default: no-header]             │
+│ --overwrite  -w                 [check|skip|force]  What to do if output file        │
+│                                                     exists. (check): Create if       │
+│                                                     missing. If output exists and    │
+│                                                     passed `--filename` is newer,    │
+│                                                     recreate output, else skip.      │
+│                                                     (skip): If output exists, skip.  │
+│                                                     (force): force: force recreate   │
+│                                                     output.                          │
+│                                                     [default: Overwrite.check]       │
+│ --verbose    -v                 INTEGER             Pass `-v/--verbose` for verbose  │
+│                                                     output.  Pass multiple times to  │
+│                                                     set verbosity level.             │
+│                                                     [default: None]                  │
+│ --reqs       -r                 TEXT                Additional pip requirements.     │
+│                                                     [default: None]                  │
+│ --help                                              Show this message and exit.      │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
 ```
 
@@ -1015,49 +1086,79 @@ $ pyproject2conda project --help
 
  Usage: pyproject2conda project [OPTIONS]
 
- Create multiple environment files from `pyproject.toml` specification.
+ Create multiple environment files from `pyproject.toml` specification. (Alias "p")
 
-╭─ Options ──────────────────────────────────────────────────────────────────────────────╮
-│ --file                -f  PATH                input pyproject.toml file                │
-│ --envs                    TEXT                List of environments to build files for. │
-│                                               Default to building all environments     │
-│ --template                TEXT                Template for environments that do not    │
-│                                               have a python version. Defaults to       │
-│                                               `{env}`.                                 │
-│ --template-python         TEXT                Template for environments that do have a │
-│                                               python version. Defaults to              │
-│                                               "py{py}-{env}". For example, with        │
-│                                               `--template-python="py{py}-{env}"` and   │
-│                                               `--python=3.8` and environment "dev",    │
-│                                               output would be "py38-dev"               │
-│                                               * {py} -> "38"                           │
-│                                               * {py_version} -> "3.8"                  │
-│                                               * {env} -> "dev"                         │
-│ --sort/--no-sort                              Default is to sort the dependencies      │
-│                                               (excluding `--python-include`). Pass     │
-│                                               `--no-sort` to instead place             │
-│                                               dependencies in order they are gathered. │
-│ --header/--no-header                          If True (--header) include header line   │
-│                                               in output. Default is to include the     │
-│                                               header for output to a file, and not to  │
-│                                               include header when writing to stdout.   │
-│ --overwrite           -w  [check|force|skip]  What to do if output file exists.        │
-│                                               (check): Create if missing. If output    │
-│                                               exists and passed `--filename` is newer, │
-│                                               recreate output, else skip. (skip): If   │
-│                                               output exists, skip. (force): force:     │
-│                                               force recreate output.                   │
-│ --verbose             -v                                                               │
-│ --dry/--no-dry                                If true, do a dry run                    │
-│ --user-config             TEXT                Additional toml file to supply           │
-│                                               configuration. This can be used to       │
-│                                               override/add environment files for your  │
-│                                               own use (apart from project env files).  │
-│                                               The (default) value `infer` means to     │
-│                                               infer the configuration from             │
-│                                               `--filename`.                            │
-│ --help                                        Show this message and exit.              │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+│ --file             -f                 PATH                input pyproject.toml file  │
+│                                                           [default: pyproject.toml]  │
+│ --envs                                TEXT                List of environments to    │
+│                                                           build files for.  Default  │
+│                                                           to building all            │
+│                                                           environments               │
+│                                                           [default: None]            │
+│ --template                            TEXT                Template for environments  │
+│                                                           that do not have a python  │
+│                                                           version. Defaults to       │
+│                                                           `{env}`.                   │
+│                                                           [default: None]            │
+│ --template-python                     TEXT                Template for environments  │
+│                                                           that do have a python      │
+│                                                           version. Defaults to       │
+│                                                           "py{py}-{env}". For        │
+│                                                           example, with              │
+│                                                           `--template-python="py{py… │
+│                                                           and `--python=3.8` and     │
+│                                                           environment "dev", output  │
+│                                                           would be "py38-dev"  *     │
+│                                                           {py} -> "38" *             │
+│                                                           {py_version} -> "3.8" *    │
+│                                                           {env} -> "dev"             │
+│                                                           [default: None]            │
+│ --sort                 --no-sort                          Default is to sort the     │
+│                                                           dependencies (excluding    │
+│                                                           `--python-include`). Pass  │
+│                                                           `--no-sort` to instead     │
+│                                                           place dependencies in      │
+│                                                           order they are gathered.   │
+│                                                           [default: sort]            │
+│ --header               --no-header                        If True (--header) include │
+│                                                           header line in output.     │
+│                                                           Default is to include the  │
+│                                                           header for output to a     │
+│                                                           file, and not to include   │
+│                                                           header when writing to     │
+│                                                           stdout.                    │
+│                                                           [default: no-header]       │
+│ --overwrite        -w                 [check|skip|force]  What to do if output file  │
+│                                                           exists. (check): Create if │
+│                                                           missing. If output exists  │
+│                                                           and passed `--filename` is │
+│                                                           newer, recreate output,    │
+│                                                           else skip. (skip): If      │
+│                                                           output exists, skip.       │
+│                                                           (force): force: force      │
+│                                                           recreate output.           │
+│                                                           [default: Overwrite.check] │
+│ --verbose          -v                 INTEGER             Pass `-v/--verbose` for    │
+│                                                           verbose output.  Pass      │
+│                                                           multiple times to set      │
+│                                                           verbosity level.           │
+│                                                           [default: None]            │
+│ --dry                                                     If passed, do a dry run    │
+│ --user-config                         TEXT                Additional toml file to    │
+│                                                           supply configuration. This │
+│                                                           can be used to             │
+│                                                           override/add environment   │
+│                                                           files for your own use     │
+│                                                           (apart from project env    │
+│                                                           files). The (default)      │
+│                                                           value `infer` means to     │
+│                                                           infer the configuration    │
+│                                                           from `--filename`.         │
+│                                                           [default: infer]           │
+│ --help                                                    Show this message and      │
+│                                                           exit.                      │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
 ```
 
@@ -1068,50 +1169,86 @@ $ pyproject2conda conda-requirements --help
 
  Usage: pyproject2conda conda-requirements [OPTIONS] [PATH_CONDA] [PATH_PIP]
 
- Create requirement files for conda and pip.
+ Create requirement files for conda and pip. (Alias "cr")
  These can be install with, for example,
  conda install --file {path_conda} pip install -r {path_pip}
 
-╭─ Options ──────────────────────────────────────────────────────────────────────────────╮
-│ --extra               -e  TEXT  Extra depenedencies. Can specify multiple times for    │
-│                                 multiple extras.                                       │
-│ --python-include          TEXT  If flag passed without options, include python spec    │
-│                                 from pyproject.toml in yaml output. If value passed,   │
-│                                 use this value (exactly) in the output. So, for        │
-│                                 example, pass `--python-include "python=3.8"`          │
-│ --python-version          TEXT  Python version to check `python_verion <=>             │
-│                                 {python_version}` lines against. That is, this version │
-│                                 is used to limit packages in resulting output. For     │
-│                                 example, if have a line like `a-package;               │
-│                                 python_version < '3.9'`, Using `--python-version 3.10` │
-│                                 will not include `a-package`, while `--python-version  │
-│                                 3.8` will include `a-package`.                         │
-│ --python              -p  TEXT  Python version. Passing `--python {version}` is        │
-│                                 equivalent to passing `--python-version={version}      │
-│                                 --python-include=python{version}`. If passed, this     │
-│                                 overrides values of passed via `--python-version` and  │
-│                                 `--python-include`.                                    │
-│ --channel             -c  TEXT  conda channel.  Can specify. Overrides                 │
-│                                 [tool.pyproject2conda.channels]                        │
-│ --file                -f  PATH  input pyproject.toml file                              │
-│ --base/--no-base                Default is to include base (project.dependencies) with │
-│                                 extras. However, passing `--no-base` will exclude base │
-│                                 dependencies. This is useful to define environments    │
-│                                 that should exclude base dependencies (like build,     │
-│                                 etc) in pyproject.toml.                                │
-│ --sort/--no-sort                Default is to sort the dependencies (excluding         │
-│                                 `--python-include`). Pass `--no-sort` to instead place │
-│                                 dependencies in order they are gathered.               │
-│ --header/--no-header            If True (--header) include header line in output.      │
-│                                 Default is to include the header for output to a file, │
-│                                 and not to include header when writing to stdout.      │
-│ --prefix                  TEXT  set conda-output=prefix + 'conda.txt',                 │
-│                                 pip-output=prefix + 'pip.txt'                          │
-│ --prepend-channel                                                                      │
-│ --deps                -d  TEXT  Additional conda dependencies.                         │
-│ --reqs                -r  TEXT  Additional pip requirements.                           │
-│ --help                          Show this message and exit.                            │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────╮
+│   path_conda      [PATH_CONDA]  [default: None]                                      │
+│   path_pip        [PATH_PIP]    [default: None]                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+│ --extra            -e                 TEXT     Extra depenedencies. Can specify      │
+│                                                multiple times for multiple extras.   │
+│                                                [default: None]                       │
+│ --python-include                      TEXT     If value passed, use this value       │
+│                                                (exactly) in the output. So, for      │
+│                                                example, pass `--python-include       │
+│                                                "python=3.8"`. Special case is the    │
+│                                                value `"infer"`.  This infers the     │
+│                                                value of python from `pyproject.toml` │
+│                                                [default: None]                       │
+│ --python-version                      TEXT     Python version to check               │
+│                                                `python_verion <=> {python_version}`  │
+│                                                lines against. That is, this version  │
+│                                                is used to limit packages in          │
+│                                                resulting output. For example, if     │
+│                                                have a line like `a-package;          │
+│                                                python_version < '3.9'`, Using        │
+│                                                `--python-version 3.10` will not      │
+│                                                include `a-package`, while            │
+│                                                `--python-version 3.8` will include   │
+│                                                `a-package`.                          │
+│                                                [default: None]                       │
+│ --python           -p                 TEXT     Python version. Passing `--python     │
+│                                                {version}` is equivalent to passing   │
+│                                                `--python-version={version}           │
+│                                                --python-include=python{version}`. If │
+│                                                passed, this overrides values of      │
+│                                                passed via `--python-version` and     │
+│                                                `--python-include`.                   │
+│                                                [default: None]                       │
+│ --channel          -c                 TEXT     conda channel.  Can specify.          │
+│                                                Overrides                             │
+│                                                [tool.pyproject2conda.channels]       │
+│                                                [default: None]                       │
+│ --file             -f                 PATH     input pyproject.toml file             │
+│                                                [default: pyproject.toml]             │
+│ --base                 --no-base               Default is to include base            │
+│                                                (project.dependencies) with extras.   │
+│                                                However, passing `--no-base` will     │
+│                                                exclude base dependencies. This is    │
+│                                                useful to define environments that    │
+│                                                should exclude base dependencies      │
+│                                                (like build, etc) in pyproject.toml.  │
+│                                                [default: base]                       │
+│ --prefix                              TEXT     set conda-output=prefix +             │
+│                                                'conda.txt', pip-output=prefix +      │
+│                                                'pip.txt'                             │
+│                                                [default: None]                       │
+│ --prepend-channel                                                                    │
+│ --sort                 --no-sort               Default is to sort the dependencies   │
+│                                                (excluding `--python-include`). Pass  │
+│                                                `--no-sort` to instead place          │
+│                                                dependencies in order they are        │
+│                                                gathered.                             │
+│                                                [default: sort]                       │
+│ --header               --no-header             If True (--header) include header     │
+│                                                line in output. Default is to include │
+│                                                the header for output to a file, and  │
+│                                                not to include header when writing to │
+│                                                stdout.                               │
+│                                                [default: no-header]                  │
+│ --deps             -d                 TEXT     Additional conda dependencies.        │
+│                                                [default: None]                       │
+│ --reqs             -r                 TEXT     Additional pip requirements.          │
+│                                                [default: None]                       │
+│ --verbose          -v                 INTEGER  Pass `-v/--verbose` for verbose       │
+│                                                output.  Pass multiple times to set   │
+│                                                verbosity level.                      │
+│                                                [default: None]                       │
+│ --help                                         Show this message and exit.           │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
 ```
 
@@ -1122,40 +1259,68 @@ $ pyproject2conda json --help
 
  Usage: pyproject2conda json [OPTIONS]
 
- Create json representation.
- Keys are: "dependencies": conda dependencies. "pip": pip dependencies. "channels": conda
- channels.
+ Create json representation. (Alias "j")
+ Keys are: "dependencies": conda dependencies. "pip": pip dependencies. "channels":
+ conda channels.
 
-╭─ Options ──────────────────────────────────────────────────────────────────────────────╮
-│ --extra           -e  TEXT  Extra depenedencies. Can specify multiple times for        │
-│                             multiple extras.                                           │
-│ --python-include      TEXT  If flag passed without options, include python spec from   │
-│                             pyproject.toml in yaml output. If value passed, use this   │
-│                             value (exactly) in the output. So, for example, pass       │
-│                             `--python-include "python=3.8"`                            │
-│ --python-version      TEXT  Python version to check `python_verion <=>                 │
-│                             {python_version}` lines against. That is, this version is  │
-│                             used to limit packages in resulting output. For example,   │
-│                             if have a line like `a-package; python_version < '3.9'`,   │
-│                             Using `--python-version 3.10` will not include             │
-│                             `a-package`, while `--python-version 3.8` will include     │
-│                             `a-package`.                                               │
-│ --channel         -c  TEXT  conda channel.  Can specify. Overrides                     │
-│                             [tool.pyproject2conda.channels]                            │
-│ --file            -f  PATH  input pyproject.toml file                                  │
-│ --sort/--no-sort            Default is to sort the dependencies (excluding             │
-│                             `--python-include`). Pass `--no-sort` to instead place     │
-│                             dependencies in order they are gathered.                   │
-│ --output          -o  PATH  File to output results                                     │
-│ --base/--no-base            Default is to include base (project.dependencies) with     │
-│                             extras. However, passing `--no-base` will exclude base     │
-│                             dependencies. This is useful to define environments that   │
-│                             should exclude base dependencies (like build, etc) in      │
-│                             pyproject.toml.                                            │
-│ --deps            -d  TEXT  Additional conda dependencies.                             │
-│ --reqs            -r  TEXT  Additional pip requirements.                               │
-│ --help                      Show this message and exit.                                │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+│ --extra           -e               TEXT     Extra depenedencies. Can specify         │
+│                                             multiple times for multiple extras.      │
+│                                             [default: None]                          │
+│ --python-include                   TEXT     If value passed, use this value          │
+│                                             (exactly) in the output. So, for         │
+│                                             example, pass `--python-include          │
+│                                             "python=3.8"`. Special case is the value │
+│                                             `"infer"`.  This infers the value of     │
+│                                             python from `pyproject.toml`             │
+│                                             [default: None]                          │
+│ --python-version                   TEXT     Python version to check `python_verion   │
+│                                             <=> {python_version}` lines against.     │
+│                                             That is, this version is used to limit   │
+│                                             packages in resulting output. For        │
+│                                             example, if have a line like `a-package; │
+│                                             python_version < '3.9'`, Using           │
+│                                             `--python-version 3.10` will not include │
+│                                             `a-package`, while `--python-version     │
+│                                             3.8` will include `a-package`.           │
+│                                             [default: None]                          │
+│ --python          -p               TEXT     Python version. Passing `--python        │
+│                                             {version}` is equivalent to passing      │
+│                                             `--python-version={version}              │
+│                                             --python-include=python{version}`. If    │
+│                                             passed, this overrides values of passed  │
+│                                             via `--python-version` and               │
+│                                             `--python-include`.                      │
+│                                             [default: None]                          │
+│ --channel         -c               TEXT     conda channel.  Can specify. Overrides   │
+│                                             [tool.pyproject2conda.channels]          │
+│                                             [default: None]                          │
+│ --file            -f               PATH     input pyproject.toml file                │
+│                                             [default: pyproject.toml]                │
+│ --sort                --no-sort             Default is to sort the dependencies      │
+│                                             (excluding `--python-include`). Pass     │
+│                                             `--no-sort` to instead place             │
+│                                             dependencies in order they are gathered. │
+│                                             [default: sort]                          │
+│ --output          -o               PATH     File to output results [default: None]   │
+│ --base                --no-base             Default is to include base               │
+│                                             (project.dependencies) with extras.      │
+│                                             However, passing `--no-base` will        │
+│                                             exclude base dependencies. This is       │
+│                                             useful to define environments that       │
+│                                             should exclude base dependencies (like   │
+│                                             build, etc) in pyproject.toml.           │
+│                                             [default: base]                          │
+│ --deps            -d               TEXT     Additional conda dependencies.           │
+│                                             [default: None]                          │
+│ --reqs            -r               TEXT     Additional pip requirements.             │
+│                                             [default: None]                          │
+│ --verbose         -v               INTEGER  Pass `-v/--verbose` for verbose output.  │
+│                                             Pass multiple times to set verbosity     │
+│                                             level.                                   │
+│                                             [default: None]                          │
+│ --help                                      Show this message and exit.              │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
 ```
 
