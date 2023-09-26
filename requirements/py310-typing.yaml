@@ -18,8 +18,8 @@ dependencies:
   - pytest-sugar
   - pytest-xdist
   - pytype
-  - rich-click
   - ruamel.yaml
   - tomli
   - tomlkit
+  - typer
   - types-click

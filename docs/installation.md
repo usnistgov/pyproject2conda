@@ -2,16 +2,9 @@
 
 ## Stable release
 
-To install `pyproject2conda`, run this command in your terminal:
-
-```bash
-pip install pyproject2conda
-```
-
-or
-
-```bash
-conda install -c wpk-nist pyproject2conda
+```{include} ../README.md
+:start-after: <!-- start-installation -->
+:end-before: <!-- end-installation -->
 ```
 
 This is the preferred method to install pyproject2conda, as it will always

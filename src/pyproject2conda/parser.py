@@ -1,8 +1,8 @@
 """
-Parsing (:mod:`pyproject2conda.parser`)
-=======================================
+Parse `pyproject.toml` (:mod:`~pyproject2conda.parser`)
+=======================================================
 
-Main parser to turn pyproject.toml -> environment.yaml
+Main parser to turn `pyproject.toml` to other formats.
 """
 from __future__ import annotations
 
@@ -312,7 +312,7 @@ def pyproject_to_conda_lists(
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    if python_include == "get":
+    if python_include == "infer":
         python_include = (
             "python" + get_in(["project", "requires-python"], data).unwrap()
         )
@@ -581,7 +581,7 @@ class PyProject2Conda:
 
     def to_requirements(
         self,
-        extras: Tstr_opt = None,
+        extras: Tstr_seq_opt = None,
         include_base_dependencies: bool = True,
         header_cmd: str | None = None,
         stream: str | Path | TextIO | None = None,
@@ -605,7 +605,7 @@ class PyProject2Conda:
 
     def to_conda_requirements(
         self,
-        extras: Tstr_opt = None,
+        extras: Tstr_seq_opt = None,
         channels: Tstr_seq_opt = None,
         python_include: Tstr_opt = None,
         python_version: Tstr_opt = None,

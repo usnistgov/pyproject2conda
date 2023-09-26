@@ -1,6 +1,16 @@
 # API Reference
 
 ```{eval-rst}
+
+.. toctree::
+    :maxdepth: 1
+
+    cli
+
+
+Modules
+-------
+
 .. currentmodule:: pyproject2conda
 
 .. autosummary::
@@ -10,4 +20,7 @@
    parser
    config
    cli
+
+
+
 ```

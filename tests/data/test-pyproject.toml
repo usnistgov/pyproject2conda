@@ -15,8 +15,8 @@ test = [
 
 ]
 dev-extras = [
-    # p2c: -s "additional-thing; python_version < '3.9'" # this is an additional conda package
-    ## p2c: -s "another-thing" # this will be skipped because of ## before p2c.
+    # p2c: -s "additional-thing; python_version < '3.9'" # additional pkg
+    ## p2c: -s "another-thing" # skipped because of ## before p2c.
     "matplotlib", # p2c: -s conda-matplotlib
 
 ]

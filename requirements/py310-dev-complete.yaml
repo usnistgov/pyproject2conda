@@ -24,11 +24,11 @@ dependencies:
   - pytest-sugar
   - pytest-xdist
   - pytype
-  - rich-click
   - ruamel.yaml
   - setuptools-scm
   - tomli
   - tomlkit
+  - typer
   - types-click
   - pip
   - pip:
