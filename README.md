@@ -59,14 +59,16 @@ suggestions!
 
 Use one of the following to install `pyproject2conda`:
 
+<!-- markdownlint-disable MD014 -->
+
 ```bash
-pip install pyproject2conda
+$ pip install pyproject2conda
 ```
 
 or
 
 ```bash
-conda install -c conda-forge pyproject2conda
+$ conda install -c conda-forge pyproject2conda
 ```
 
 [rich]: https://github.com/Textualize/rich
@@ -77,8 +79,10 @@ If using pip, to install with [rich] and [shellingham] support, either install
 them your self, or use:
 
 ```bash
-pip install pyproject2conda[all]
+$ pip install pyproject2conda[all]
 ```
+
+<!-- markdownlint-enable MD014 -->
 
 The conda-forge distribution of [typer] (which `pyproject2conda` uses) installs
 [rich] and [shellingham] by default.
