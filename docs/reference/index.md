@@ -19,6 +19,7 @@ Modules
 
    parser
    config
+   cli
 
 
 

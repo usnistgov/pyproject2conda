@@ -31,8 +31,7 @@ dependencies = [
     "typer",
     # "rich-click",
     "packaging",
-    # "typing-extensions; python_version<'3.10'",
-
+    "typing-extensions; python_version<'3.9'",
 ] # additional packages
 
 [project.urls]
@@ -363,7 +362,13 @@ module = []
 
 [tool.pyright]
 include = ["src", "tests"]
-exclude = ["**/__pycache__", ".tox/**", ".nox/**", "**/.mypy_cache"]
+exclude = [
+    "**/__pycache__",
+    ".tox/**",
+    ".nox/**",
+    "**/.mypy_cache",
+    "**/_version.py"
+]
 # extraPaths = ["."]
 # TODO: add strict to pyright
 # strict = ["src"]

@@ -95,7 +95,7 @@ sys.path.pop(0)
 <!-- [[[end]]] -->
 
 Consider the `toml` file
-[test-pyproject.toml](./tests/data/test-pyproject.toml).
+[test-pyproject.toml](https://github.com/usnistgov/pyproject2conda/blob/main/tests/data/test-pyproject.toml).
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
@@ -322,6 +322,8 @@ dependencies:
 
 <!-- [[[end]]] -->
 
+You can also call with `python -m pyproject2conda`.
+
 ### Installing extras
 
 Given the extra dependency:
@@ -339,8 +341,8 @@ test = [
 
 ]
 dev-extras = [
-# p2c: -s "additional-thing; python_version < '3.9'" # this is an additional conda package
-## p2c: -s "another-thing" # this will be skipped because of ## before p2c.
+# p2c: -s "additional-thing; python_version < '3.9'" # additional pkg
+## p2c: -s "another-thing" # skipped because of ## before p2c.
 "matplotlib", # p2c: -s conda-matplotlib
 
 ]

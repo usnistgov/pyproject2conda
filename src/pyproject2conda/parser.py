@@ -1,8 +1,8 @@
 """
-Parsing (:mod:`pyproject2conda.parser`)
-=======================================
+Parse `pyproject.toml` (:mod:`~pyproject2conda.parser`)
+=======================================================
 
-Main parser to turn pyproject.toml -> environment.yaml
+Main parser to turn `pyproject.toml` to other formats.
 """
 from __future__ import annotations
 

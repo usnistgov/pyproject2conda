@@ -1,4 +1,4 @@
-# mypy: disable-error-code="no-untyped-def, no-untyped-call"
+# mypy: disable-error-code="no-untyped-def, no-untyped-call, assignment"
 from pyproject2conda.cli import app
 
 from click.testing import CliRunner

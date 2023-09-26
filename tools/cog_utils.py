@@ -1,41 +1,49 @@
 """Unitilities to use with cog"""
+
+from __future__ import annotations
+
 import shlex
 import subprocess
 import textwrap
 from functools import lru_cache
 
 
-def wrap_command(cmd):
-    cmd = textwrap.wrap(cmd.strip(), 80)
+def wrap_command(cmd: str) -> str:
+    x = textwrap.wrap(cmd.strip(), 80)
 
     if len(cmd) > 1:
-        cmd[:-1] = [c + " \\" for c in cmd[:-1]]
-        cmd[1:] = [" " * 4 + c for c in cmd[1:]]
+        x[:-1] = [c + " \\" for c in x[:-1]]
+        x[1:] = [" " * 4 + c for c in x[1:]]
 
-    return "\n".join(cmd)
+    return "\n".join(x)
 
 
 @lru_cache
-def get_pyproject(path):
+def get_pyproject(path: str) -> list[str]:
     with open(path) as f:
         lines = [_.strip() for _ in f]
     return lines
 
 
-def run_command(cmd, wrapper="bash", include_cmd=True, bounds=None):
+def run_command(
+    cmd: str,
+    wrapper: str = "bash",
+    include_cmd: bool = True,
+    bounds: tuple[int | None, int | None] | None = None,
+) -> None:
     args = shlex.split(cmd)
     output = subprocess.check_output(args)
 
     total = output.decode()
 
     if bounds is not None:
-        total = total.split("\n")[bounds[0] : bounds[1]]
+        x = total.split("\n")[bounds[0] : bounds[1]]
         if bounds[0] is not None:
-            total = ["...\n"] + total
+            x = ["...\n"] + x
         if bounds[1] is not None:
-            total = total + ["\n ...\n"]
+            x = x + ["\n ...\n"]
 
-        total = "\n".join(total)
+        total = "\n".join(x)
 
     if include_cmd:
         cmd = wrap_command(cmd)
@@ -49,12 +57,12 @@ def run_command(cmd, wrapper="bash", include_cmd=True, bounds=None):
 
 
 def cat_lines(
-    path="tests/data/test-pyproject.toml",
-    begin=None,
-    end=None,
-    begin_dot=None,
-    end_dot=None,
-):
+    path: str = "tests/data/test-pyproject.toml",
+    begin: str | int | None = None,
+    end: str | int | None = None,
+    begin_dot: bool = False,
+    end_dot: bool = False,
+) -> None:
     lines = get_pyproject(path)
 
     begin_dot = begin_dot or begin is not None

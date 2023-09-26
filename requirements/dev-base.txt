@@ -23,3 +23,4 @@ tomli
 tomlkit
 typer
 types-click
+typing-extensions; python_version<'3.9'

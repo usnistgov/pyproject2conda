@@ -290,7 +290,4 @@ cog-readme: ## apply cog to README.md
 # Can't seem to convert
 .PHONY: README.pdf
 README.pdf: ## create README.pdf
-	P2C_USE_CLICK=false cog -P -o tmp.md README.md
-	-pre-commit run markdownlint --files tmp.md
-	pandoc -V colorlinks tmp.md -o README.pdf
-	rm tmp.md
+	pandoc -V colorlinks README.md -o README.pdf

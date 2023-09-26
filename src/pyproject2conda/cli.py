@@ -1,17 +1,22 @@
-# mypy: disable-error-code="no-untyped-def, no-untyped-call"
 """
-Console script for pyproject2conda (:mod:`pyproject2conda.cli`)
-===============================================================
+Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
+================================================================
 """
 # * Imports -------------------------------------------------------------------
 
 import logging
 import os
+import sys
 from enum import Enum
 from functools import lru_cache, wraps
 from inspect import signature
 from pathlib import Path
-from typing import Annotated, Callable, Iterable, List, Optional, cast
+from typing import Any, Callable, Iterable, List, Optional, Union, cast
+
+if sys.version_info[:2] < (3, 9):
+    from typing_extensions import Annotated
+else:
+    from typing import Annotated
 
 # from click import click.Context
 import click
@@ -63,10 +68,10 @@ class AliasedGroup(TyperGroup):
 app_typer = typer.Typer(cls=AliasedGroup, no_args_is_help=True)
 
 
-def version_callback(value: bool):
+def version_callback(value: bool) -> None:
     """Versioning call back."""
     if value:
-        typer.echo(f"pyproject2conda, verion {__version__}")
+        typer.echo(f"pyproject2conda, version {__version__}")
         raise typer.Exit()
 
 
@@ -75,9 +80,9 @@ def main(
     version: bool = typer.Option(  # pyright: ignore
         None, "--version", "-v", callback=version_callback, is_eager=True
     ),
-):
+) -> None:
     """
-    Extract conda environment.yaml and pip requirement.txt files from pyproject.toml
+    Extract conda `environment.yaml` and pip `requirement.txt` files from `pyproject.toml`
 
     Note that all subcommands can be called with shortest possible match. Also, you can
     call with any of `pyproject2conda`, `p2c`, `python -m pyproject2conda`.
@@ -90,7 +95,7 @@ def main(
             $ p2c y ...
             $ python -m pyproject2conda ...
     """
-    return
+    return None
 
 
 # * Options ----------------------------------------------------------------------------
@@ -110,7 +115,7 @@ EXTRAS_CLI = Annotated[
     typer.Option(
         "--extra",
         "-e",
-        help="Extra depenedencies. Can specify multiple times for multiple extras.",
+        help="Extra dependencies. Can specify multiple times for multiple extras.",
     ),
 ]
 CHANNEL_CLI = Annotated[
@@ -297,10 +302,26 @@ USER_CONFIG_CLI = Annotated[
         """,
     ),
 ]
+# For conda-requirements
+PREFIX_CLI = Annotated[
+    Optional[str],
+    typer.Option(
+        "--prefix",
+        help="set conda-output=prefix + 'conda.txt', pip-output=prefix + 'pip.txt'",
+    ),
+]
+PREPEND_CHANNEL_CLI = Annotated[
+    bool,
+    typer.Option(
+        "--prepend-channel",
+    ),
+]
 
 
 # * Utils ------------------------------------------------------------------------------
-def _get_header_cmd(header: bool | None, output: str | Path | None) -> str | None:
+def _get_header_cmd(
+    header: Optional[bool], output: Union[str, Path, None]
+) -> Optional[str]:
     if header is None:
         header = output is not None
 
@@ -315,17 +336,22 @@ def _get_header_cmd(header: bool | None, output: str | Path | None) -> str | Non
 
 
 @lru_cache
-def _get_pyproject2conda(filename) -> PyProject2Conda:
+def _get_pyproject2conda(filename: Union[str, Path]) -> PyProject2Conda:
     return PyProject2Conda.from_path(filename)
 
 
-def _log_skipping(logger: logging.Logger, style: str, output: str | None):
+def _log_skipping(
+    logger: logging.Logger, style: str, output: Union[str, Path, None]
+) -> None:
     logger.info(f"Skipping {style} {output}. Pass `-w force` to force recreate output")
 
 
 def _log_creating(
-    logger: logging.Logger, style: str, output: str | None, prefix: str | None = None
-):
+    logger: logging.Logger,
+    style: str,
+    output: Union[str, Path, None],
+    prefix: Optional[str] = None,
+) -> None:
     if prefix is None:
         prefix = "# " if prefix is None and output is None else ""
 
@@ -346,7 +372,7 @@ def add_verbose_logger(
         bind = signature(func).bind
 
         @wraps(func)
-        def wrapped(*args, **kwargs) -> R:
+        def wrapped(*args: Any, **kwargs: Any) -> R:
             params = bind(*args, **kwargs)
             params.apply_defaults()
 
@@ -417,7 +443,7 @@ def yaml(
     verbose: VERBOSE_CLI = None,  # pyright: ignore
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-):
+) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
 
     if not update_target(output, filename, overwrite=overwrite.value):
@@ -468,11 +494,11 @@ def requirements(
     overwrite: OVERWRITE_CLI = Overwrite.check,
     verbose: VERBOSE_CLI = None,  # pyright: ignore
     reqs: REQS_CLI = None,
-):
+) -> None:
     """Create requirements.txt for pip dependencies."""
 
     if not update_target(output, filename, overwrite=overwrite.value):
-        _log_skipping(logger, "requirments", output)
+        _log_skipping(logger, "requirements", output)
         return
 
     d = _get_pyproject2conda(filename)
@@ -508,7 +534,7 @@ def project(
     verbose: VERBOSE_CLI = None,
     dry: DRY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
-):
+) -> None:
     """Create multiple environment files from `pyproject.toml` specification."""
     from pyproject2conda.config import Config
 
@@ -553,19 +579,6 @@ def project(
 
 
 # ** Conda requirements
-PREFIX_CLI = Annotated[
-    Optional[str],
-    typer.Option(
-        "--prefix",
-        help="set conda-output=prefix + 'conda.txt', pip-output=prefix + 'pip.txt'",
-    ),
-]
-PREPEND_CHANNEL_CLI = Annotated[
-    bool,
-    typer.Option(
-        "--prepend-channel",
-    ),
-]
 
 
 # @app_typer.command("cr", hidden=True)
@@ -588,8 +601,8 @@ def conda_requirements(
     # paths,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-    verbose: VERBOSE_CLI = None,
-):
+    verbose: VERBOSE_CLI = None,  # pyright: ignore
+) -> None:
     """
     Create requirement files for conda and pip.
 
@@ -619,7 +632,7 @@ def conda_requirements(
 
     _get_header_cmd(header, path_conda)
 
-    deps, reqs = d.to_conda_requirements(
+    deps_str, reqs_str = d.to_conda_requirements(
         extras=extras,
         python_include=python_include,
         python_version=python_version,
@@ -635,7 +648,7 @@ def conda_requirements(
     )
 
     if not path_conda:
-        s = f"#conda requirements\n{deps}\n#pip requirements\n{reqs}"
+        s = f"#conda requirements\n{deps_str}\n#pip requirements\n{reqs_str}"
         print(s, end="")
 
 
@@ -656,7 +669,7 @@ def to_json(
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     verbose: VERBOSE_CLI = None,  # pyright: ignore
-):
+) -> None:
     """
     Create json representation.
 

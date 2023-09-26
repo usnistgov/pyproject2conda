@@ -16,3 +16,4 @@ ruamel.yaml
 tomli
 tomlkit
 typer
+typing-extensions; python_version<'3.9'
