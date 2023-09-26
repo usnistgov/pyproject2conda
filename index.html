@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>pyproject2conda &#8212; pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</title>
+    <title>pyproject2conda &#8212; pyproject2conda v0.7.0 documentation</title>
   
   
   
@@ -61,7 +61,7 @@
     <link rel="next" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-    <meta name="docbuild:last-update" content="2023-09-25"/>
+    <meta name="docbuild:last-update" content="2023-09-26"/>
   </head>
   
   
@@ -140,7 +140,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.7.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -157,10 +157,22 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/cli.html">Command line interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parse <cite>pyproject.toml</cite> (<code class="xref py py-mod docutils literal notranslate"><span class="pre">parser</span></code>)</a></li>
 
 
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+
+
+
+
+
+
+
+
+
+
 
 </ul>
 </li>
@@ -383,6 +395,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-work">Related work</a></li>
 </ul>
             </nav>
         </div>
@@ -434,7 +447,8 @@ suggestions!</p>
 </section>
 <section id="quick-start">
 <h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this heading">#</a></h2>
-<p>Use one of the following</p>
+<!-- start-installation -->
+<p>Use one of the following to install <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyproject2conda
 </pre></div>
 </div>
@@ -447,8 +461,9 @@ them your self, or use:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyproject2conda<span class="o">[</span>all<span class="o">]</span>
 </pre></div>
 </div>
-<p>The conda-forge distribution of [typer] (which <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> uses) installs
-rich and shellingham by default.</p>
+<p>The conda-forge distribution of <a class="reference external" href="https://github.com/tiangolo/typer">typer</a> (which <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> uses) installs
+<a class="reference external" href="https://github.com/Textualize/rich">rich</a> and <a class="reference external" href="https://github.com/sarugaku/shellingham">shellingham</a> by default.</p>
+<!-- end-installation -->
 </section>
 <section id="example-usage">
 <h2>Example usage<a class="headerlink" href="#example-usage" title="Permalink to this heading">#</a></h2>
@@ -464,7 +479,7 @@ sys.path.pop(0)
 ]]] -->
 <!-- [[[end]]] -->
 <p>Consider the <code class="docutils literal notranslate"><span class="pre">toml</span></code> file
-<span class="xref myst">test-pyproject.toml</span>.</p>
+<a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/tests/data/test-pyproject.toml">test-pyproject.toml</a>.</p>
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog cat_lines(begin=None, end="[project.optional-dependencies]", begin_dot=False)]]] -->
@@ -652,6 +667,7 @@ dependencies:
 </pre></div>
 </div>
 <!-- [[[end]]] -->
+<p>You can also call with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pyproject2conda</span></code>.</p>
 </section>
 <section id="installing-extras">
 <h3>Installing extras<a class="headerlink" href="#installing-extras" title="Permalink to this heading">#</a></h3>
@@ -667,8 +683,8 @@ dependencies:
 
 <span class="p">]</span>
 <span class="n">dev-extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="c1"># p2c: -s &quot;additional-thing; python_version &lt; &#39;3.9&#39;&quot; # this is an additional conda package</span>
-<span class="c1">## p2c: -s &quot;another-thing&quot; # this will be skipped because of ## before p2c.</span>
+<span class="c1"># p2c: -s &quot;additional-thing; python_version &lt; &#39;3.9&#39;&quot; # additional pkg</span>
+<span class="c1">## p2c: -s &quot;another-thing&quot; # skipped because of ## before p2c.</span>
 <span class="s">&quot;matplotlib&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># p2c: -s conda-matplotlib</span>
 
 <span class="p">]</span>
@@ -1059,8 +1075,9 @@ dependencies:
 </section>
 <section id="cli-options">
 <h3>CLI options<a class="headerlink" href="#cli-options" title="Permalink to this heading">#</a></h3>
-<p>See <a class="reference external" href="https://pages.nist.gov/pyproject2conda/reference/cli.html#">command line interface documentation</a> for details on
-the commands and options.</p>
+<p>See
+<a class="reference external" href="https://pages.nist.gov/pyproject2conda/reference/cli.html#">command line interface documentation</a>
+for details on the commands and options.</p>
 <!-- markdownlint-disable MD013 -->
 <!-- prettier-ignore-start -->
 <!-- [cog
@@ -1086,6 +1103,20 @@ the commands and options.</p>
 <!-- [end] -->
 <!-- prettier-ignore-end -->
 <!-- markdownlint-enable MD013 -->
+</section>
+</section>
+<section id="related-work">
+<h2>Related work<a class="headerlink" href="#related-work" title="Permalink to this heading">#</a></h2>
+<p>The application <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> is used in the development of the following
+packages:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/usnistgov/cmomy"><code class="docutils literal notranslate"><span class="pre">cmomy</span></code></a></p></li>
+<li><p><a class="reference external" href="https://github.com/usnistgov/thermoextrap"><code class="docutils literal notranslate"><span class="pre">thermoextrap</span></code></a></p></li>
+<li><p><a class="reference external" href="https://github.com/usnistgov/tmmc-lnpy"><code class="docutils literal notranslate"><span class="pre">tmmc-lnpy</span></code></a></p></li>
+<li><p><a class="reference external" href="https://github.com/usnistgov/module-utilities"><code class="docutils literal notranslate"><span class="pre">module-utilities</span></code></a></p></li>
+<li><p><a class="reference external" href="https://github.com/conda-forge/analphipy-feedstock"><code class="docutils literal notranslate"><span class="pre">analphipy</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> itself!</p></li>
+</ul>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -1097,7 +1128,6 @@ the commands and options.</p>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Indices and tables</a></li>
 </ul>
 </div>
-</section>
 </section>
 </section>
 
@@ -1153,6 +1183,7 @@ the commands and options.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-work">Related work</a></li>
 </ul>
   </nav></div>
 
@@ -1185,7 +1216,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-25.
+  Last updated on 2023-09-26.
   <br/>
 </p>
   </div>

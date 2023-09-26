@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Changelog &#8212; pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</title>
+    <title>Changelog &#8212; pyproject2conda v0.7.0 documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <link rel="prev" title="Credits" href="authors.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-    <meta name="docbuild:last-update" content="2023-09-25"/>
+    <meta name="docbuild:last-update" content="2023-09-26"/>
   </head>
   
   
@@ -141,7 +141,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.7.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -158,10 +158,22 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/cli.html">Command line interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.parser.html">Parse <cite>pyproject.toml</cite> (<code class="xref py py-mod docutils literal notranslate"><span class="pre">parser</span></code>)</a></li>
 
 
 <li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+
+
+
+
+
+
+
+
+
+
 
 </ul>
 </li>
@@ -368,17 +380,22 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-1-2023-09-22">v0.6.1 — 2023-09-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-7-0-2023-09-26">v0.7.0 — 2023-09-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-1-2023-09-22">v0.6.1 — 2023-09-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Changed</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-0-2023-09-19">v0.6.0 — 2023-09-19</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Added</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Changed</a></li>
 </ul>
 </li>
 </ul>
@@ -403,10 +420,40 @@ document.write(`
 <a class="reference external" href="https://github.com/usnistgov/pyproject2conda">changelog.d</a></p>
 <!-- scriv-insert-here -->
 </section>
-<section id="v0-6-1-2023-09-22">
-<h2>v0.6.1 — 2023-09-22<a class="headerlink" href="#v0-6-1-2023-09-22" title="Permalink to this heading">#</a></h2>
+<section id="v0-7-0-2023-09-26">
+<h2>v0.7.0 — 2023-09-26<a class="headerlink" href="#v0-7-0-2023-09-26" title="Permalink to this heading">#</a></h2>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Now use <code class="docutils literal notranslate"><span class="pre">logging</span></code> to print info output.</p></li>
+</ul>
+</section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>cli now uses <code class="docutils literal notranslate"><span class="pre">typer</span></code>. Since the program was already typed, this simplifies the
+interface.</p></li>
+<li><p>Program can now be called with any of <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code>, <code class="docutils literal notranslate"><span class="pre">p2c</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pyproject2conda</span></code>.</p></li>
+<li><p>Added cli options to web documentation.</p></li>
+<li><p>Fixed small typos and typing issues.</p></li>
+<li><p>The cli option <code class="docutils literal notranslate"><span class="pre">--python-include</span></code> now requires an argument. This is due to
+<code class="docutils literal notranslate"><span class="pre">typer</span></code> not liking options with zero or one arguments. Instead of the bare
+flag <code class="docutils literal notranslate"><span class="pre">--python-include</span></code> including the python spec from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, you
+have to pass <code class="docutils literal notranslate"><span class="pre">--python-include</span> <span class="pre">infer</span></code> to get that behavior.</p></li>
+<li><p>Added extra <code class="docutils literal notranslate"><span class="pre">all</span></code> to pip install options. The default is to not include <code class="docutils literal notranslate"><span class="pre">rich</span></code>
+or <code class="docutils literal notranslate"><span class="pre">shellingham</span></code>. Using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyproject2conda[all]</span></code> includes these
+optional packages. Note that the conda-forge recipe is based on the plain
+install (i.e., no <code class="docutils literal notranslate"><span class="pre">rich</span></code> or <code class="docutils literal notranslate"><span class="pre">shellingham</span></code>). However, the conda-froge recipe
+for <code class="docutils literal notranslate"><span class="pre">typer</span></code> does include these. That means, if you want to install
+<code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> without the optional extras, you’ll have to use pip.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-6-1-2023-09-22">
+<h2>v0.6.1 — 2023-09-22<a class="headerlink" href="#v0-6-1-2023-09-22" title="Permalink to this heading">#</a></h2>
+<section id="id1">
+<h3>Changed<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed edge case where <code class="docutils literal notranslate"><span class="pre">--overwrite=check</span></code> and have a <code class="docutils literal notranslate"><span class="pre">user_config</span></code>. Now when
 using <code class="docutils literal notranslate"><span class="pre">p2c</span> <span class="pre">project</span></code> with a <code class="docutils literal notranslate"><span class="pre">user_config</span></code> and <code class="docutils literal notranslate"><span class="pre">overwrite=check</span></code>, the timestamp
@@ -417,8 +464,8 @@ of the output file will be compared to both the <code class="docutils literal no
 </section>
 <section id="v0-6-0-2023-09-19">
 <h2>v0.6.0 — 2023-09-19<a class="headerlink" href="#v0-6-0-2023-09-19" title="Permalink to this heading">#</a></h2>
-<section id="added">
-<h3>Added<a class="headerlink" href="#added" title="Permalink to this heading">#</a></h3>
+<section id="id2">
+<h3>Added<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">project</span></code> subcommand. This uses a configuration in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> to
 build multiple enivonments in one go.</p></li>
@@ -431,16 +478,16 @@ build multiple enivonments in one go.</p></li>
 </section>
 <section id="v0-5-1-2023-09-09">
 <h2>v0.5.1 — 2023-09-09<a class="headerlink" href="#v0-5-1-2023-09-09" title="Permalink to this heading">#</a></h2>
-<section id="id1">
-<h3>Added<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">--sort/--no-sort</span></code> flag to cli. Default is to sort dependencies. This
 fixes issues with changing order in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> leading to different yaml
 files.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Changed<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Changed structure of the repo to better support some third party tools.</p></li>
 <li><p>Moved nox environments from <code class="docutils literal notranslate"><span class="pre">.nox</span></code> to <code class="docutils literal notranslate"><span class="pre">.nox/{project-name}/envs</span></code>. This fixes
@@ -502,17 +549,22 @@ simplify initial setup. See Contributing for more info.</p></li>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-1-2023-09-22">v0.6.1 — 2023-09-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-7-0-2023-09-26">v0.7.0 — 2023-09-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-1-2023-09-22">v0.6.1 — 2023-09-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Changed</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-0-2023-09-19">v0.6.0 — 2023-09-19</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Added</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Changed</a></li>
 </ul>
 </li>
 </ul>
@@ -547,7 +599,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-25.
+  Last updated on 2023-09-26.
   <br/>
 </p>
   </div>

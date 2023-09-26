@@ -1,8 +1,5 @@
 # API Reference
 
-
-
-
 ```{eval-rst}
 
 .. toctree::
@@ -22,9 +19,8 @@ Modules
 
    parser
    config
+   cli
 
 
 
 ```
-
-

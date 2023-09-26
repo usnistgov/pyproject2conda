@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Command line interface &#8212; pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</title>
+    <title>Command line interface &#8212; pyproject2conda v0.7.0 documentation</title>
   
   
   
@@ -58,11 +58,11 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/cli';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Parsing (pyproject2conda.parser)" href="generated/pyproject2conda.parser.html" />
+    <link rel="next" title="Parse pyproject.toml (parser)" href="generated/pyproject2conda.parser.html" />
     <link rel="prev" title="API Reference" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-    <meta name="docbuild:last-update" content="2023-09-25"/>
+    <meta name="docbuild:last-update" content="2023-09-26"/>
   </head>
   
   
@@ -141,7 +141,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda 0.6.2.dev8+gdb04603.d20230925 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.7.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -158,10 +158,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Command line interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pyproject2conda.parser.html">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pyproject2conda.parser.html">Parse <cite>pyproject.toml</cite> (<code class="xref py py-mod docutils literal notranslate"><span class="pre">parser</span></code>)</a></li>
 
 
 <li class="toctree-l2"><a class="reference internal" href="generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+
+
+
+
+
+
+
+
+
+
 
 </ul>
 </li>
@@ -368,12 +380,12 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda">pyproject2conda</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-list">list</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-yaml">yaml</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-requirements">requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-project">project</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-conda-requirements">conda-requirements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-json">json</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-list">list</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-project">project</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-requirements">requirements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-yaml">yaml</a></li>
 </ul>
 </li>
 </ul>
@@ -391,6 +403,16 @@ document.write(`
 <h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this heading">#</a></h1>
 <section id="pyproject2conda">
 <h2>pyproject2conda<a class="headerlink" href="#pyproject2conda" title="Permalink to this heading">#</a></h2>
+<p>Extract conda <cite>environment.yaml</cite> and pip <cite>requirement.txt</cite> files from <cite>pyproject.toml</cite></p>
+<p>Note that all subcommands can be called with shortest possible match. Also, you can
+call with any of <cite>pyproject2conda</cite>, <cite>p2c</cite>, <cite>python -m pyproject2conda</cite>.
+For example,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>these<span class="w"> </span>are<span class="w"> </span>equivalent
+<span class="gp">$ </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>...
+<span class="gp">$ </span>p2c<span class="w"> </span>y<span class="w"> </span>...
+<span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>pyproject2conda<span class="w"> </span>...
+</pre></div>
+</div>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
@@ -412,9 +434,369 @@ document.write(`
 <dd><p>Show completion for the current shell, to copy it or customize the installation.</p>
 </dd></dl>
 
+<section id="pyproject2conda-list">
+<h3>list<a class="headerlink" href="#pyproject2conda-list" title="Permalink to this heading">#</a></h3>
+<p>List available extras.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-list-f">
+<span id="cmdoption-pyproject2conda-list-file"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-list-f" title="Permalink to this definition">#</a></dt>
+<dd><p>input pyproject.toml file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-list-v">
+<span id="cmdoption-pyproject2conda-list-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-list-v" title="Permalink to this definition">#</a></dt>
+<dd><p>Pass <cite>-v/–verbose</cite> for verbose output.  Pass multiple times to set verbosity level.</p>
+</dd></dl>
+
+</section>
+<section id="pyproject2conda-yaml">
+<h3>yaml<a class="headerlink" href="#pyproject2conda-yaml" title="Permalink to this heading">#</a></h3>
+<p>Create yaml file from dependencies and optional-dependencies.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-f">
+<span id="cmdoption-pyproject2conda-yaml-file"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-f" title="Permalink to this definition">#</a></dt>
+<dd><p>input pyproject.toml file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-e">
+<span id="cmdoption-pyproject2conda-yaml-extra"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--extra</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extras&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-e" title="Permalink to this definition">#</a></dt>
+<dd><p>Extra dependencies. Can specify multiple times for multiple extras.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-c">
+<span id="cmdoption-pyproject2conda-yaml-channel"></span><span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--channel</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;channels&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-c" title="Permalink to this definition">#</a></dt>
+<dd><p>conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-o">
+<span id="cmdoption-pyproject2conda-yaml-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-o" title="Permalink to this definition">#</a></dt>
+<dd><p>File to output results</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-n">
+<span id="cmdoption-pyproject2conda-yaml-name"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;name&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-n" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of conda env</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-python-include">
+<span class="sig-name descname"><span class="pre">--python-include</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;python_include&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-python-include" title="Permalink to this definition">#</a></dt>
+<dd><p>If value passed, use this value (exactly) in the output. So, for example,
+pass <cite>–python-include “python=3.8”</cite>. Special case is the value <cite>“infer”</cite>.  This
+infers the value of python from <cite>pyproject.toml</cite></p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-python-version">
+<span class="sig-name descname"><span class="pre">--python-version</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;python_version&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-python-version" title="Permalink to this definition">#</a></dt>
+<dd><p>Python version to check <cite>python_verion &lt;=&gt; {python_version}</cite> lines against. That is,
+this version is used to limit packages in resulting output. For example, if have a
+line like <cite>a-package; python_version &lt; ‘3.9’</cite>, Using <cite>–python-version 3.10</cite> will
+not include <cite>a-package</cite>, while <cite>–python-version 3.8</cite> will include <cite>a-package</cite>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-p">
+<span id="cmdoption-pyproject2conda-yaml-python"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--python</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;python&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-p" title="Permalink to this definition">#</a></dt>
+<dd><p>Python version. Passing <cite>–python {version}</cite> is equivalent to passing
+<cite>–python-version={version} –python-include=python{version}</cite>. If passed, this
+overrides values of passed via <cite>–python-version</cite> and <cite>–python-include</cite>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-base">
+<span id="cmdoption-pyproject2conda-yaml-no-base"></span><span class="sig-name descname"><span class="pre">--base</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-base</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-base" title="Permalink to this definition">#</a></dt>
+<dd><p>Default is to include base (project.dependencies) with extras. However, passing
+<cite>–no-base</cite> will exclude base dependencies. This is useful to define environments
+that should exclude base dependencies (like build, etc) in pyproject.toml.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-sort">
+<span id="cmdoption-pyproject2conda-yaml-no-sort"></span><span class="sig-name descname"><span class="pre">--sort</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-sort</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-sort" title="Permalink to this definition">#</a></dt>
+<dd><p>Default is to sort the dependencies (excluding <cite>–python-include</cite>). Pass <cite>–no-sort</cite>
+to instead place dependencies in order they are gathered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-header">
+<span id="cmdoption-pyproject2conda-yaml-no-header"></span><span class="sig-name descname"><span class="pre">--header</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-header</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-header" title="Permalink to this definition">#</a></dt>
+<dd><p>If True (–header) include header line in output. Default is to include the header
+for output to a file, and not to include header when writing to stdout.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-w">
+<span id="cmdoption-pyproject2conda-yaml-overwrite"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--overwrite</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;overwrite&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-w" title="Permalink to this definition">#</a></dt>
+<dd><p>What to do if output file exists.
+(check): Create if missing. If output exists and passed <cite>–filename</cite> is newer, recreate output, else skip.
+(skip): If output exists, skip.
+(force): force: force recreate output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">Overwrite.check</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>check | skip | force</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-v">
+<span id="cmdoption-pyproject2conda-yaml-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-v" title="Permalink to this definition">#</a></dt>
+<dd><p>Pass <cite>-v/–verbose</cite> for verbose output.  Pass multiple times to set verbosity level.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-d">
+<span id="cmdoption-pyproject2conda-yaml-deps"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--deps</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;deps&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-d" title="Permalink to this definition">#</a></dt>
+<dd><p>Additional conda dependencies.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-r">
+<span id="cmdoption-pyproject2conda-yaml-reqs"></span><span class="sig-name descname"><span class="pre">-r</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--reqs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;reqs&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-r" title="Permalink to this definition">#</a></dt>
+<dd><p>Additional pip requirements.</p>
+</dd></dl>
+
+</section>
+<section id="pyproject2conda-requirements">
+<h3>requirements<a class="headerlink" href="#pyproject2conda-requirements" title="Permalink to this heading">#</a></h3>
+<p>Create requirements.txt for pip dependencies.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span>requirements<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-f">
+<span id="cmdoption-pyproject2conda-requirements-file"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-f" title="Permalink to this definition">#</a></dt>
+<dd><p>input pyproject.toml file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-e">
+<span id="cmdoption-pyproject2conda-requirements-extra"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--extra</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extras&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-e" title="Permalink to this definition">#</a></dt>
+<dd><p>Extra dependencies. Can specify multiple times for multiple extras.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-o">
+<span id="cmdoption-pyproject2conda-requirements-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-o" title="Permalink to this definition">#</a></dt>
+<dd><p>File to output results</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-base">
+<span id="cmdoption-pyproject2conda-requirements-no-base"></span><span class="sig-name descname"><span class="pre">--base</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-base</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-base" title="Permalink to this definition">#</a></dt>
+<dd><p>Default is to include base (project.dependencies) with extras. However, passing
+<cite>–no-base</cite> will exclude base dependencies. This is useful to define environments
+that should exclude base dependencies (like build, etc) in pyproject.toml.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-sort">
+<span id="cmdoption-pyproject2conda-requirements-no-sort"></span><span class="sig-name descname"><span class="pre">--sort</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-sort</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-sort" title="Permalink to this definition">#</a></dt>
+<dd><p>Default is to sort the dependencies (excluding <cite>–python-include</cite>). Pass <cite>–no-sort</cite>
+to instead place dependencies in order they are gathered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-header">
+<span id="cmdoption-pyproject2conda-requirements-no-header"></span><span class="sig-name descname"><span class="pre">--header</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-header</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-header" title="Permalink to this definition">#</a></dt>
+<dd><p>If True (–header) include header line in output. Default is to include the header
+for output to a file, and not to include header when writing to stdout.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-w">
+<span id="cmdoption-pyproject2conda-requirements-overwrite"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--overwrite</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;overwrite&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-w" title="Permalink to this definition">#</a></dt>
+<dd><p>What to do if output file exists.
+(check): Create if missing. If output exists and passed <cite>–filename</cite> is newer, recreate output, else skip.
+(skip): If output exists, skip.
+(force): force: force recreate output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">Overwrite.check</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>check | skip | force</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-v">
+<span id="cmdoption-pyproject2conda-requirements-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-v" title="Permalink to this definition">#</a></dt>
+<dd><p>Pass <cite>-v/–verbose</cite> for verbose output.  Pass multiple times to set verbosity level.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-r">
+<span id="cmdoption-pyproject2conda-requirements-reqs"></span><span class="sig-name descname"><span class="pre">-r</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--reqs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;reqs&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-r" title="Permalink to this definition">#</a></dt>
+<dd><p>Additional pip requirements.</p>
+</dd></dl>
+
+</section>
+<section id="pyproject2conda-project">
+<h3>project<a class="headerlink" href="#pyproject2conda-project" title="Permalink to this heading">#</a></h3>
+<p>Create multiple environment files from <cite>pyproject.toml</cite> specification.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span>project<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-f">
+<span id="cmdoption-pyproject2conda-project-file"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-f" title="Permalink to this definition">#</a></dt>
+<dd><p>input pyproject.toml file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-envs">
+<span class="sig-name descname"><span class="pre">--envs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;envs&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-envs" title="Permalink to this definition">#</a></dt>
+<dd><p>List of environments to build files for.  Default to building all environments</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-template">
+<span class="sig-name descname"><span class="pre">--template</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;template&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-template" title="Permalink to this definition">#</a></dt>
+<dd><p>Template for environments that do not have a python version. Defaults to <cite>{env}</cite>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-template-python">
+<span class="sig-name descname"><span class="pre">--template-python</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;template_python&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-template-python" title="Permalink to this definition">#</a></dt>
+<dd><p>Template for environments that do have a python version. Defaults to
+“py{py}-{env}”. For example, with <cite>–template-python=”py{py}-{env}”</cite> and
+<cite>–python=3.8</cite> and environment “dev”, output would be “py38-dev”
+| * {py} -&gt; “38”
+| * {py_version} -&gt; “3.8”
+| * {env} -&gt; “dev”</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-sort">
+<span id="cmdoption-pyproject2conda-project-no-sort"></span><span class="sig-name descname"><span class="pre">--sort</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-sort</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-sort" title="Permalink to this definition">#</a></dt>
+<dd><p>Default is to sort the dependencies (excluding <cite>–python-include</cite>). Pass <cite>–no-sort</cite>
+to instead place dependencies in order they are gathered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-header">
+<span id="cmdoption-pyproject2conda-project-no-header"></span><span class="sig-name descname"><span class="pre">--header</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-header</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-header" title="Permalink to this definition">#</a></dt>
+<dd><p>If True (–header) include header line in output. Default is to include the header
+for output to a file, and not to include header when writing to stdout.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-w">
+<span id="cmdoption-pyproject2conda-project-overwrite"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--overwrite</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;overwrite&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-w" title="Permalink to this definition">#</a></dt>
+<dd><p>What to do if output file exists.
+(check): Create if missing. If output exists and passed <cite>–filename</cite> is newer, recreate output, else skip.
+(skip): If output exists, skip.
+(force): force: force recreate output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">Overwrite.check</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>check | skip | force</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-v">
+<span id="cmdoption-pyproject2conda-project-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-v" title="Permalink to this definition">#</a></dt>
+<dd><p>Pass <cite>-v/–verbose</cite> for verbose output.  Pass multiple times to set verbosity level.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-dry">
+<span class="sig-name descname"><span class="pre">--dry</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-dry" title="Permalink to this definition">#</a></dt>
+<dd><p>If passed, do a dry run</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-user-config">
+<span class="sig-name descname"><span class="pre">--user-config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;user_config&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-user-config" title="Permalink to this definition">#</a></dt>
+<dd><p>Additional toml file to supply configuration. This can be used to override/add
+environment files for your own use (apart from project env files).
+The (default) value <cite>infer</cite> means to infer the configuration from <cite>–filename</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">infer</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="pyproject2conda-conda-requirements">
 <h3>conda-requirements<a class="headerlink" href="#pyproject2conda-conda-requirements" title="Permalink to this heading">#</a></h3>
-<p>Create requirement files for conda and pip. (Alias “cr”)</p>
+<p>Create requirement files for conda and pip.</p>
 <p>These can be install with, for example,</p>
 <p>conda install –file {path_conda}
 pip install -r {path_pip}</p>
@@ -425,7 +807,7 @@ pip install -r {path_pip}</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-pyproject2conda-conda-requirements-e">
 <span id="cmdoption-pyproject2conda-conda-requirements-extra"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--extra</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extras&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-conda-requirements-e" title="Permalink to this definition">#</a></dt>
-<dd><p>Extra depenedencies. Can specify multiple times for multiple extras.</p>
+<dd><p>Extra dependencies. Can specify multiple times for multiple extras.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -552,7 +934,7 @@ for output to a file, and not to include header when writing to stdout.</p>
 </section>
 <section id="pyproject2conda-json">
 <h3>json<a class="headerlink" href="#pyproject2conda-json" title="Permalink to this heading">#</a></h3>
-<p>Create json representation. (Alias “j”)</p>
+<p>Create json representation.</p>
 <p>Keys are:
 “dependencies”: conda dependencies.
 “pip”: pip dependencies.
@@ -564,7 +946,7 @@ for output to a file, and not to include header when writing to stdout.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-pyproject2conda-json-e">
 <span id="cmdoption-pyproject2conda-json-extra"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--extra</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extras&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-json-e" title="Permalink to this definition">#</a></dt>
-<dd><p>Extra depenedencies. Can specify multiple times for multiple extras.</p>
+<dd><p>Extra dependencies. Can specify multiple times for multiple extras.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -659,366 +1041,6 @@ that should exclude base dependencies (like build, etc) in pyproject.toml.</p>
 </dd></dl>
 
 </section>
-<section id="pyproject2conda-list">
-<h3>list<a class="headerlink" href="#pyproject2conda-list" title="Permalink to this heading">#</a></h3>
-<p>List available extras. (Alias <cite>l</cite>)</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</pre></div>
-</div>
-<p class="rubric">Options</p>
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-list-f">
-<span id="cmdoption-pyproject2conda-list-file"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-list-f" title="Permalink to this definition">#</a></dt>
-<dd><p>input pyproject.toml file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-list-v">
-<span id="cmdoption-pyproject2conda-list-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-list-v" title="Permalink to this definition">#</a></dt>
-<dd><p>Pass <cite>-v/–verbose</cite> for verbose output.  Pass multiple times to set verbosity level.</p>
-</dd></dl>
-
-</section>
-<section id="pyproject2conda-project">
-<h3>project<a class="headerlink" href="#pyproject2conda-project" title="Permalink to this heading">#</a></h3>
-<p>Create multiple environment files from <cite>pyproject.toml</cite> specification. (Alias “p”)</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span>project<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</pre></div>
-</div>
-<p class="rubric">Options</p>
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-f">
-<span id="cmdoption-pyproject2conda-project-file"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-f" title="Permalink to this definition">#</a></dt>
-<dd><p>input pyproject.toml file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-envs">
-<span class="sig-name descname"><span class="pre">--envs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;envs&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-envs" title="Permalink to this definition">#</a></dt>
-<dd><p>List of environments to build files for.  Default to building all environments</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-template">
-<span class="sig-name descname"><span class="pre">--template</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;template&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-template" title="Permalink to this definition">#</a></dt>
-<dd><p>Template for environments that do not have a python version. Defaults to <cite>{env}</cite>.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-template-python">
-<span class="sig-name descname"><span class="pre">--template-python</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;template_python&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-template-python" title="Permalink to this definition">#</a></dt>
-<dd><p>Template for environments that do have a python version. Defaults to
-“py{py}-{env}”. For example, with <cite>–template-python=”py{py}-{env}”</cite> and
-<cite>–python=3.8</cite> and environment “dev”, output would be “py38-dev”
-| * {py} -&gt; “38”
-| * {py_version} -&gt; “3.8”
-| * {env} -&gt; “dev”</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-sort">
-<span id="cmdoption-pyproject2conda-project-no-sort"></span><span class="sig-name descname"><span class="pre">--sort</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-sort</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-sort" title="Permalink to this definition">#</a></dt>
-<dd><p>Default is to sort the dependencies (excluding <cite>–python-include</cite>). Pass <cite>–no-sort</cite>
-to instead place dependencies in order they are gathered.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-header">
-<span id="cmdoption-pyproject2conda-project-no-header"></span><span class="sig-name descname"><span class="pre">--header</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-header</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-header" title="Permalink to this definition">#</a></dt>
-<dd><p>If True (–header) include header line in output. Default is to include the header
-for output to a file, and not to include header when writing to stdout.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-w">
-<span id="cmdoption-pyproject2conda-project-overwrite"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--overwrite</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;overwrite&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-w" title="Permalink to this definition">#</a></dt>
-<dd><p>What to do if output file exists.
-(check): Create if missing. If output exists and passed <cite>–filename</cite> is newer, recreate output, else skip.
-(skip): If output exists, skip.
-(force): force: force recreate output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">Overwrite.check</span></code></p>
-</dd>
-<dt class="field-even">Options<span class="colon">:</span></dt>
-<dd class="field-even"><p>check | skip | force</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-v">
-<span id="cmdoption-pyproject2conda-project-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-v" title="Permalink to this definition">#</a></dt>
-<dd><p>Pass <cite>-v/–verbose</cite> for verbose output.  Pass multiple times to set verbosity level.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-dry">
-<span class="sig-name descname"><span class="pre">--dry</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-dry" title="Permalink to this definition">#</a></dt>
-<dd><p>If passed, do a dry run</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-user-config">
-<span class="sig-name descname"><span class="pre">--user-config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;user_config&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-user-config" title="Permalink to this definition">#</a></dt>
-<dd><p>Additional toml file to supply configuration. This can be used to override/add
-environment files for your own use (apart from project env files).
-The (default) value <cite>infer</cite> means to infer the configuration from <cite>–filename</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">infer</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="pyproject2conda-requirements">
-<h3>requirements<a class="headerlink" href="#pyproject2conda-requirements" title="Permalink to this heading">#</a></h3>
-<p>Create requirements.txt for pip dependencies. (Alias “r”)</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span>requirements<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</pre></div>
-</div>
-<p class="rubric">Options</p>
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-f">
-<span id="cmdoption-pyproject2conda-requirements-file"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-f" title="Permalink to this definition">#</a></dt>
-<dd><p>input pyproject.toml file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-e">
-<span id="cmdoption-pyproject2conda-requirements-extra"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--extra</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extras&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-e" title="Permalink to this definition">#</a></dt>
-<dd><p>Extra depenedencies. Can specify multiple times for multiple extras.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-o">
-<span id="cmdoption-pyproject2conda-requirements-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-o" title="Permalink to this definition">#</a></dt>
-<dd><p>File to output results</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-base">
-<span id="cmdoption-pyproject2conda-requirements-no-base"></span><span class="sig-name descname"><span class="pre">--base</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-base</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-base" title="Permalink to this definition">#</a></dt>
-<dd><p>Default is to include base (project.dependencies) with extras. However, passing
-<cite>–no-base</cite> will exclude base dependencies. This is useful to define environments
-that should exclude base dependencies (like build, etc) in pyproject.toml.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-sort">
-<span id="cmdoption-pyproject2conda-requirements-no-sort"></span><span class="sig-name descname"><span class="pre">--sort</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-sort</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-sort" title="Permalink to this definition">#</a></dt>
-<dd><p>Default is to sort the dependencies (excluding <cite>–python-include</cite>). Pass <cite>–no-sort</cite>
-to instead place dependencies in order they are gathered.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-header">
-<span id="cmdoption-pyproject2conda-requirements-no-header"></span><span class="sig-name descname"><span class="pre">--header</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-header</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-header" title="Permalink to this definition">#</a></dt>
-<dd><p>If True (–header) include header line in output. Default is to include the header
-for output to a file, and not to include header when writing to stdout.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-w">
-<span id="cmdoption-pyproject2conda-requirements-overwrite"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--overwrite</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;overwrite&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-w" title="Permalink to this definition">#</a></dt>
-<dd><p>What to do if output file exists.
-(check): Create if missing. If output exists and passed <cite>–filename</cite> is newer, recreate output, else skip.
-(skip): If output exists, skip.
-(force): force: force recreate output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">Overwrite.check</span></code></p>
-</dd>
-<dt class="field-even">Options<span class="colon">:</span></dt>
-<dd class="field-even"><p>check | skip | force</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-v">
-<span id="cmdoption-pyproject2conda-requirements-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-v" title="Permalink to this definition">#</a></dt>
-<dd><p>Pass <cite>-v/–verbose</cite> for verbose output.  Pass multiple times to set verbosity level.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-r">
-<span id="cmdoption-pyproject2conda-requirements-reqs"></span><span class="sig-name descname"><span class="pre">-r</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--reqs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;reqs&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-r" title="Permalink to this definition">#</a></dt>
-<dd><p>Additional pip requirements.</p>
-</dd></dl>
-
-</section>
-<section id="pyproject2conda-yaml">
-<h3>yaml<a class="headerlink" href="#pyproject2conda-yaml" title="Permalink to this heading">#</a></h3>
-<p>Create yaml file from dependencies and optional-dependencies. (Alias <cite>y</cite>)</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</pre></div>
-</div>
-<p class="rubric">Options</p>
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-f">
-<span id="cmdoption-pyproject2conda-yaml-file"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-f" title="Permalink to this definition">#</a></dt>
-<dd><p>input pyproject.toml file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-e">
-<span id="cmdoption-pyproject2conda-yaml-extra"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--extra</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extras&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-e" title="Permalink to this definition">#</a></dt>
-<dd><p>Extra depenedencies. Can specify multiple times for multiple extras.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-c">
-<span id="cmdoption-pyproject2conda-yaml-channel"></span><span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--channel</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;channels&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-c" title="Permalink to this definition">#</a></dt>
-<dd><p>conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-o">
-<span id="cmdoption-pyproject2conda-yaml-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-o" title="Permalink to this definition">#</a></dt>
-<dd><p>File to output results</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-n">
-<span id="cmdoption-pyproject2conda-yaml-name"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;name&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-n" title="Permalink to this definition">#</a></dt>
-<dd><p>Name of conda env</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-python-include">
-<span class="sig-name descname"><span class="pre">--python-include</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;python_include&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-python-include" title="Permalink to this definition">#</a></dt>
-<dd><p>If value passed, use this value (exactly) in the output. So, for example,
-pass <cite>–python-include “python=3.8”</cite>. Special case is the value <cite>“infer”</cite>.  This
-infers the value of python from <cite>pyproject.toml</cite></p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-python-version">
-<span class="sig-name descname"><span class="pre">--python-version</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;python_version&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-python-version" title="Permalink to this definition">#</a></dt>
-<dd><p>Python version to check <cite>python_verion &lt;=&gt; {python_version}</cite> lines against. That is,
-this version is used to limit packages in resulting output. For example, if have a
-line like <cite>a-package; python_version &lt; ‘3.9’</cite>, Using <cite>–python-version 3.10</cite> will
-not include <cite>a-package</cite>, while <cite>–python-version 3.8</cite> will include <cite>a-package</cite>.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-p">
-<span id="cmdoption-pyproject2conda-yaml-python"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--python</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;python&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-p" title="Permalink to this definition">#</a></dt>
-<dd><p>Python version. Passing <cite>–python {version}</cite> is equivalent to passing
-<cite>–python-version={version} –python-include=python{version}</cite>. If passed, this
-overrides values of passed via <cite>–python-version</cite> and <cite>–python-include</cite>.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-base">
-<span id="cmdoption-pyproject2conda-yaml-no-base"></span><span class="sig-name descname"><span class="pre">--base</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-base</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-base" title="Permalink to this definition">#</a></dt>
-<dd><p>Default is to include base (project.dependencies) with extras. However, passing
-<cite>–no-base</cite> will exclude base dependencies. This is useful to define environments
-that should exclude base dependencies (like build, etc) in pyproject.toml.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-sort">
-<span id="cmdoption-pyproject2conda-yaml-no-sort"></span><span class="sig-name descname"><span class="pre">--sort</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-sort</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-sort" title="Permalink to this definition">#</a></dt>
-<dd><p>Default is to sort the dependencies (excluding <cite>–python-include</cite>). Pass <cite>–no-sort</cite>
-to instead place dependencies in order they are gathered.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-header">
-<span id="cmdoption-pyproject2conda-yaml-no-header"></span><span class="sig-name descname"><span class="pre">--header</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-header</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-header" title="Permalink to this definition">#</a></dt>
-<dd><p>If True (–header) include header line in output. Default is to include the header
-for output to a file, and not to include header when writing to stdout.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-w">
-<span id="cmdoption-pyproject2conda-yaml-overwrite"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--overwrite</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;overwrite&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-w" title="Permalink to this definition">#</a></dt>
-<dd><p>What to do if output file exists.
-(check): Create if missing. If output exists and passed <cite>–filename</cite> is newer, recreate output, else skip.
-(skip): If output exists, skip.
-(force): force: force recreate output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">Overwrite.check</span></code></p>
-</dd>
-<dt class="field-even">Options<span class="colon">:</span></dt>
-<dd class="field-even"><p>check | skip | force</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-v">
-<span id="cmdoption-pyproject2conda-yaml-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-v" title="Permalink to this definition">#</a></dt>
-<dd><p>Pass <cite>-v/–verbose</cite> for verbose output.  Pass multiple times to set verbosity level.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-d">
-<span id="cmdoption-pyproject2conda-yaml-deps"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--deps</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;deps&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-d" title="Permalink to this definition">#</a></dt>
-<dd><p>Additional conda dependencies.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-r">
-<span id="cmdoption-pyproject2conda-yaml-reqs"></span><span class="sig-name descname"><span class="pre">-r</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--reqs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;reqs&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-r" title="Permalink to this definition">#</a></dt>
-<dd><p>Additional pip requirements.</p>
-</dd></dl>
-
-</section>
 </section>
 </section>
 
@@ -1047,7 +1069,7 @@ for output to a file, and not to include header when writing to stdout.</p>
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyproject2conda.parser</span></code>)</p>
+        <p class="prev-next-title">Parse <cite>pyproject.toml</cite> (<code class="xref py py-mod docutils literal notranslate"><span class="pre">parser</span></code>)</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1067,12 +1089,12 @@ for output to a file, and not to include header when writing to stdout.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda">pyproject2conda</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-list">list</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-yaml">yaml</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-requirements">requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-project">project</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-conda-requirements">conda-requirements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-json">json</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-list">list</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-project">project</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-requirements">requirements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda-yaml">yaml</a></li>
 </ul>
 </li>
 </ul>
@@ -1107,7 +1129,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-25.
+  Last updated on 2023-09-26.
   <br/>
 </p>
   </div>
