@@ -11,8 +11,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any, Mapping, Sequence
 
-    from ._typing import Dec, F
-
 
 # taken from https://github.com/conda/conda-lock/blob/main/conda_lock/common.py
 def get_in(
@@ -40,13 +38,13 @@ def get_in(
 #     return wrapper
 
 
-def compose_decorators(*decs: Dec[F]) -> Dec[F]:
-    def wrapper(func: F) -> F:
-        for d in reversed(decs):
-            func = d(func)
-        return func
+# def compose_decorators(*decs: Dec[F]) -> Dec[F]:
+#     def wrapper(func: F) -> F:
+#         for d in reversed(decs):
+#             func = d(func)
+#         return func
 
-    return wrapper
+#     return wrapper
 
 
 def parse_pythons(

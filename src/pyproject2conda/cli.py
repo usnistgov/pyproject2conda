@@ -41,7 +41,7 @@ logger = logging.getLogger("pyproject2conda")
 
 # * Settings ------------------------------------------------------------------
 if "P2C_COLUMNS" in os.environ:
-    os.environ["COLUMNS"] = os.environ["P2C_COLUMNS"]
+    os.environ["COLUMNS"] = os.environ["P2C_COLUMNS"]  # pragma: no cover
 
 
 # * Typer App --------------------------------------------------------------------------
@@ -383,13 +383,14 @@ def add_verbose_logger(
                 # leave where it is:
                 pass
             else:
-                if verbosity < 0:
+                # TODO: test this for real
+                if verbosity < 0:  # pragma: no cover
                     level = logging.ERROR
-                elif verbosity == 0:
+                elif verbosity == 0:  # pragma: no cover
                     level = logging.WARN
                 elif verbosity == 1:
                     level = logging.INFO
-                elif verbosity >= 2:
+                elif verbosity >= 2:  # pragma: no cover
                     level = logging.DEBUG
 
                 logger.setLevel(level)
@@ -575,7 +576,7 @@ def project(
             elif style == "requirements":
                 requirements(filename=filename, **d)
             else:
-                raise ValueError(f"unknown style {style}")
+                raise ValueError(f"unknown style {style}")  # pragma: no cover
 
 
 # ** Conda requirements

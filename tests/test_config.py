@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 import pytest
+import pyproject2conda
 from pyproject2conda.cli import app
 from pyproject2conda.config import Config
 from pyproject2conda import utils
@@ -309,6 +310,17 @@ def test_config_user_config():
     }
 
 
+def test_version():
+    runner = CliRunner()
+
+    result = runner.invoke(app, ["--version"])
+
+    assert (
+        result.stdout.strip()
+        == f"pyproject2conda, version {pyproject2conda.__version__}"
+    )
+
+
 def test_multiple():
     runner = CliRunner()
 
@@ -325,11 +337,24 @@ def test_multiple():
         f"{path1}/" + "{env}",
     )
 
+    # running this again?
+    result = do_run(
+        runner,
+        "project",
+        "-v",
+        "--template-python",
+        f"{path1}/" + "py{py}-{env}",
+        "--template",
+        f"{path1}/" + "{env}",
+    )
+
     t2 = tempfile.TemporaryDirectory()
     path2 = t2.name
     # path2 = ROOT / ".." / ".." / "tmp" / "output2"
 
-    do_run(runner, "yaml", "-e", "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml")
+    do_run(
+        runner, "yaml", "-e", "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"
+    )
 
     do_run(
         runner,
