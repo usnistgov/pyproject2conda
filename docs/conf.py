@@ -58,6 +58,8 @@ extensions = [
     # "sphinx_design"
     ## myst stuff
     "myst_nb",
+    # project specific
+    "sphinx_click",
 ]
 
 nitpicky = True

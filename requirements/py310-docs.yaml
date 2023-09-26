@@ -21,6 +21,7 @@ dependencies:
   - sphinx >= 5.3.0
   - sphinx-autobuild
   - sphinx-book-theme
+  - sphinx-click
   - sphinx-copybutton
   - sphinxcontrib-spelling
   - tomli

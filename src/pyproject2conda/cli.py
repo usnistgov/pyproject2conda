@@ -1,16 +1,20 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 """
-Console script for pyproject2conda (:mod:`pyproject2conda.appcli`)
+Console script for pyproject2conda (:mod:`pyproject2conda.cli`)
 ===============================================================
 """
-# * Imports
+# * Imports -------------------------------------------------------------------
+
 import logging
+import os
 from enum import Enum
 from functools import lru_cache, wraps
 from inspect import signature
 from pathlib import Path
-from typing import Annotated, Callable, List, Optional, cast
+from typing import Annotated, Callable, Iterable, List, Optional, cast
 
+# from click import click.Context
+import click
 import typer
 from typer.core import TyperGroup
 
@@ -30,32 +34,9 @@ logging.basicConfig(level=logging.WARN, format=FORMAT)
 logger = logging.getLogger("pyproject2conda")
 
 
-# * Settings
-
-# This isn't working for me.
-# Instead, use script to set terminal width
-# if "P2C_RICH_MAX_WIDTH" in os.environ:
-#     context_settings = {"max_content_width": os.environ["P2C_RICH_MAX_WIDTH"]}
-# else:
-#     context_settings = {}
-
-# context_settings = {"max_content_width": 80}
-
-
-# if os.environ.get("P2C_USE_CLICK", "True").lower() not in ("0", "f", "false"):
-#     # use rich
-#     import rich_click as click
-#     from rich_click.rich_group import RichGroup
-
-#     if "P2C_RICH_CLICK_MAX_WIDTH" in os.environ:
-#         click.rich_click.MAX_WIDTH = int(
-#             os.environ["P2C_RICH_CLICK_MAX_WIDTH"]
-#         )  # pragma: no cover
-
-# else:  # pragma: no cover
-#     # Special case for generating README.pdf
-#     import click  # type: ignore[no-redef]
-#     from click import Group as RichGroup  # type: ignore[assignment]
+# * Settings ------------------------------------------------------------------
+if "P2C_COLUMNS" in os.environ:
+    os.environ["COLUMNS"] = os.environ["P2C_COLUMNS"]
 
 
 # * Typer App --------------------------------------------------------------------------
@@ -75,6 +56,9 @@ class AliasedGroup(TyperGroup):
             "Too many matches: %s" % ", ".join(sorted(matches))
         )  # pragma: no cover
 
+    def list_commands(self, ctx: click.Context) -> Iterable[str]:
+        return list(self.commands)
+
 
 app_typer = typer.Typer(cls=AliasedGroup, no_args_is_help=True)
 
@@ -92,6 +76,20 @@ def main(
         None, "--version", "-v", callback=version_callback, is_eager=True
     ),
 ):
+    """
+    Extract conda environment.yaml and pip requirement.txt files from pyproject.toml
+
+    Note that all subcommands can be called with shortest possible match. Also, you can
+    call with any of `pyproject2conda`, `p2c`, `python -m pyproject2conda`.
+    For example,
+
+    .. code-block:: console
+
+            # these are equivalent
+            $ pyproject2conda yaml ...
+            $ p2c y ...
+            $ python -m pyproject2conda ...
+    """
     return
 
 
@@ -377,15 +375,16 @@ def add_verbose_logger(
     return decorator
 
 
+# * Commands ---------------------------------------------------------------------------
 # ** List
 # @app_typer.command("l", hidden=True)
-@app_typer.command()
+@app_typer.command("list")
 @add_verbose_logger(logger)
-def list(
+def create_list(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     verbose: VERBOSE_CLI = None,  # pyright: ignore
 ) -> None:
-    """List available extras. (Alias `l`)"""
+    """List available extras."""
 
     logger.info(f"filename: {filename}")
 
@@ -419,7 +418,7 @@ def yaml(
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
 ):
-    """Create yaml file from dependencies and optional-dependencies. (Alias `y`)"""
+    """Create yaml file from dependencies and optional-dependencies."""
 
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
@@ -470,7 +469,7 @@ def requirements(
     verbose: VERBOSE_CLI = None,  # pyright: ignore
     reqs: REQS_CLI = None,
 ):
-    """Create requirements.txt for pip dependencies. (Alias "r")"""
+    """Create requirements.txt for pip dependencies."""
 
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "requirments", output)
@@ -510,7 +509,7 @@ def project(
     dry: DRY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
 ):
-    """Create multiple environment files from `pyproject.toml` specification. (Alias "p")"""
+    """Create multiple environment files from `pyproject.toml` specification."""
     from pyproject2conda.config import Config
 
     c = Config.from_file(filename, user_config=user_config)
@@ -592,7 +591,7 @@ def conda_requirements(
     verbose: VERBOSE_CLI = None,
 ):
     """
-    Create requirement files for conda and pip. (Alias "cr")
+    Create requirement files for conda and pip.
 
     These can be install with, for example,
 
@@ -656,10 +655,10 @@ def to_json(
     base: BASE_DEPENDENCIES_CLI = True,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-    verbose: VERBOSE_CLI = None,
+    verbose: VERBOSE_CLI = None,  # pyright: ignore
 ):
     """
-    Create json representation. (Alias "j")
+    Create json representation.
 
     Keys are:
     "dependencies": conda dependencies.
@@ -696,30 +695,11 @@ def to_json(
 
 
 # * Click app
-# class AliasedGroup(RichGroup):
-#     """Provide aliasing for commands"""
-
-#     def get_command(self, ctx, cmd_name):  # type: ignore
-#         rv = click.Group.get_command(self, ctx, cmd_name)
-#         if rv is not None:
-#             return rv
-#         matches = [x for x in self.list_commands(ctx) if x.startswith(cmd_name)]
-#         if not matches:
-#             return None
-#         elif len(matches) == 1:
-#             return click.Group.get_command(self, ctx, matches[0])
-#         ctx.fail(
-#             "Too many matches: %s" % ", ".join(sorted(matches))
-#         )  # pragma: no cover
-
-
-# setup appcli
+# # If need be, can work directly with click
 # @click.group(cls=AliasedGroup)
 # @click.version_option(version=__version__)
 # def app_click() -> None:
 #     pass
-
-
 # typer_click_object = typer.main.get_command(app_typer)
 # app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)
 
@@ -728,5 +708,5 @@ app = typer.main.get_command(app_typer)
 
 
 # ** Main
-# if __name__ == "__main__":
-#     app()  # pragma: no cover
+if __name__ == "__main__":
+    app()  # pragma: no cover
