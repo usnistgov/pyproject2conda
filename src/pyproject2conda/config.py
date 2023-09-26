@@ -183,7 +183,9 @@ class Config:
         """Flag overwrite"""
         return self._get_value(key="overwrite", env_name=env_name, default=default)  # type: ignore
 
-    def verbose(self, env_name: str | None = None, default: bool = True) -> bool:
+    def verbose(
+        self, env_name: str | None = None, default: int | None = None
+    ) -> int | None:
         """Flag verbose"""
         return self._get_value(key="verbose", env_name=env_name, default=default)  # type: ignore
 

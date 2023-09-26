@@ -1,6 +1,9 @@
-# mypy: disable-error-code="no-untyped-def, no-untyped-call"
+# mypy: disable-error-code="no-untyped-def, no-untyped-call, assignment"
 from pyproject2conda.cli import app
+
 from click.testing import CliRunner
+
+# from typer.testing import CliRunner
 
 from textwrap import dedent
 
@@ -13,14 +16,15 @@ import sys
 ROOT = Path(__file__).resolve().parent / "data"
 
 
-def do_run(runner, command, *opts, filename=None, must_exist=False):
+def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
     if filename is None:
         filename = str(ROOT / "test-pyproject.toml")
     filename = Path(filename)
     if must_exist and not filename.exists():
         raise ValueError(f"filename {filename} does not exist")
 
-    result = runner.invoke(app, [command, "-f", str(filename), *opts])
+    result = runner.invoke(app, [command, "-f", str(filename), *opts], **kwargs)
+
     return result
 
 
@@ -34,15 +38,18 @@ def test_list():
     for cmd in ["l", "list"]:
         result = do_run(runner, cmd)
         expected = """\
-        extras  : ['test', 'dev-extras', 'dev', 'dist-pypi']
+        Extras:
+        =======
+        * test
+        * dev-extras
+        * dev
+        * dist-pypi
         """
         check_result(result, expected)
 
     result = do_run(runner, "list", "-v")
-    expected = f"""\
-filename: {ROOT / "test-pyproject.toml"}
-extras  : ['test', 'dev-extras', 'dev', 'dist-pypi']
-    """
+    # TODO: the logger writes to output
+    # assert result.output == f"filename: {ROOT / 'test-pyproject.toml'} [pyproject2conda - INFO]"
     check_result(result, expected)
 
 
@@ -109,9 +116,9 @@ dependencies:
       - athing
     """
 
-    for opt in ["--python-include"]:
+    for opt in [("--python-include", "infer")]:
         for cmd in ["y", "yaml"]:
-            result = do_run(runner, cmd, opt)
+            result = do_run(runner, cmd, *opt)
             check_result(result, expected)
 
     # -p python=3.8
@@ -349,7 +356,7 @@ bthing
 cthing; python_version < '3.10'
     """
 
-    for cmd in ["r", "req", "requirements"]:
+    for cmd in ["r", "requirements"]:
         result = do_run(runner, cmd)
         check_result(result, expected)
 
@@ -459,16 +466,16 @@ def check_results_conda_req(path, expected):
 def test_conda_requirements():
     runner = CliRunner()
 
-    result = do_run(runner, "conda-req", "hello.txt")
+    result = do_run(runner, "c", "hello.txt")
 
     assert isinstance(result.exception, ValueError)
 
-    result = do_run(runner, "conda-req", "--prefix", "hello", "a", "b")
+    result = do_run(runner, "c", "--prefix", "hello", "a", "b")
 
     assert isinstance(result.exception, ValueError)
 
     # stdout
-    result = do_run(runner, "conda-req")
+    result = do_run(runner, "c")
 
     expected = """\
 #conda requirements
@@ -511,7 +518,7 @@ athing
 
         do_run(
             runner,
-            "conda-req",
+            "c",
             "--prefix",
             str(d / "hello-"),
             "--prepend-channel",
@@ -614,31 +621,71 @@ def test_alias():
 
 
 def test_overwrite():
-    runner = CliRunner()
+    runner = CliRunner(mix_stderr=True)
 
     with tempfile.TemporaryDirectory() as d_tmp:
         d = Path(d_tmp)
 
-        result = do_run(runner, "yaml", "-o", str(d / "out.yaml"), "-v", "-w", "force")
+        path = d / "out.yaml"
 
-        assert result.output.strip() == f"# Creating yaml {d_tmp}/out.yaml"
+        assert not path.exists()
 
-        for cmd in ["check", "skip"]:
-            result = do_run(runner, "yaml", "-o", str(d / "out.yaml"), "-v", "-w", cmd)
+        result = do_run(
+            runner, "yaml", "-o", str(path), "-v", "-w", "force", catch_exceptions=False
+        )
+        # assert result.output.strip() == f"# Creating yaml {d_tmp}/out.yaml"
 
-            assert (
-                result.output.strip()
-                == f"# Skipping yaml {d_tmp}/out.yaml. Pass `-w force` to force recreate output"
+        orig_time = path.stat().st_mtime
+
+        for cmd in ["check", "skip", "force"]:
+            result = do_run(
+                runner,
+                "yaml",
+                "-o",
+                str(d / "out.yaml"),
+                "-v",
+                "-w",
+                cmd,
+                catch_exceptions=False,
             )
 
-        result = do_run(runner, "req", "-o", str(d / "out.txt"), "-v", "-w", "force")
+            if cmd == "force":
+                assert path.stat().st_mtime > orig_time
+            else:
+                assert path.stat().st_mtime == orig_time
 
-        assert result.output.strip() == f"# Creating requirements {d_tmp}/out.txt"
+            # assert (
+            #     result.output.strip()
+            #     == f"# Skipping yaml {d_tmp}/out.yaml. Pass `-w force` to force recreate output"
+            # )
 
-        for cmd in ["check", "skip"]:
-            result = do_run(runner, "req", "-o", str(d / "out.txt"), "-v", "-w", cmd)
+        path = d / "out.txt"
+        assert not path.exists()
 
-            assert (
-                result.output.strip()
-                == f"# Skipping requirements {d_tmp}/out.txt. Pass `-w force` to force recreate output"
+        result = do_run(
+            runner,
+            "r",
+            "-o",
+            str(d / "out.txt"),
+            "-v",
+            "-w",
+            "force",
+            catch_exceptions=False,
+        )
+        orig_time = path.stat().st_mtime
+
+        # assert result.output.strip() == f"# Creating requirements {d_tmp}/out.txt"
+
+        for cmd in ["check", "skip", "force"]:
+            result = do_run(
+                runner, "r", "-o", str(path), "-v", "-w", cmd, catch_exceptions=False
             )
+
+            if cmd == "force":
+                assert path.stat().st_mtime > orig_time
+            else:
+                assert path.stat().st_mtime == orig_time
+            # assert (
+            #     result.output.strip()
+            #     == f"# Skipping requirements {d_tmp}/out.txt. Pass `-w force` to force recreate output"
+            # )

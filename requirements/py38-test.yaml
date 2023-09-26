@@ -16,7 +16,8 @@ dependencies:
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - rich-click
   - ruamel.yaml
   - tomli
   - tomlkit
+  - typer
+  - typing-extensions

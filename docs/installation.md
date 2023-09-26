@@ -14,6 +14,20 @@ or
 conda install -c wpk-nist pyproject2conda
 ```
 
+If using pip, to install with [rich] and [shellingham] support, either install
+them your self, or use:
+
+```bash
+pip install pyproject2conda[all]
+```
+
+The conda-forge distribution of [typer] (which `pyproject2conda` uses) installs
+[rich] and [shellingham] by default.
+
+[rich]: https://github.com/Textualize/rich
+[shellingham]: https://github.com/sarugaku/shellingham
+[typer]: https://github.com/tiangolo/typer
+
 This is the preferred method to install pyproject2conda, as it will always
 install the most recent stable release.
 

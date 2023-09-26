@@ -118,7 +118,7 @@ def pkg_install_venv(
     display_name: str | None = None,
     update: bool = False,
     install_package: bool = False,
-    no_deps: bool = False,
+    no_deps: bool = True,
     log_session: bool = False,
 ) -> None:
     if lock:
