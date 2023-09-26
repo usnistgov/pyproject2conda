@@ -11,6 +11,31 @@ See the fragment files in
 
 <!-- scriv-insert-here -->
 
+## v0.7.0 — 2023-09-26
+
+### Added
+
+- Now use `logging` to print info output.
+
+### Changed
+
+- cli now uses `typer`. Since the program was already typed, this simplifies the
+  interface.
+- Program can now be called with any of `pyproject2conda`, `p2c`, or
+  `python -m pyproject2conda`.
+- Added cli options to web documentation.
+- Fixed small typos and typing issues.
+- The cli option `--python-include` now requires an argument. This is due to
+  `typer` not liking options with zero or one arguments. Instead of the bare
+  flag `--python-include` including the python spec from `pyproject.toml`, you
+  have to pass `--python-include infer` to get that behavior.
+- Added extra `all` to pip install options. The default is to not include `rich`
+  or `shellingham`. Using `pip install pyproject2conda[all]` includes these
+  optional packages. Note that the conda-forge recipe is based on the plain
+  install (i.e., no `rich` or `shellingham`). However, the conda-froge recipe
+  for `typer` does include these. That means, if you want to install
+  `pyproject2conda` without the optional extras, you'll have to use pip.
+
 ## v0.6.1 — 2023-09-22
 
 ### Changed
