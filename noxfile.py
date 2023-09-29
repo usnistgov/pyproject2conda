@@ -706,6 +706,10 @@ def dist_conda(
     if not run and not cmd:
         cmd = ["recipe"]
 
+    # make directory?
+    if not (d := Path("./dist-conda")).exists():
+        d.mkdir()
+
     if cmd:
         if "recipe" in cmd:
             cmd.append("clean-recipe")
