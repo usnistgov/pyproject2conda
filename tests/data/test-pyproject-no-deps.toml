@@ -1,0 +1,52 @@
+[project]
+name = "hello"
+requires-python = ">=3.8,<3.11"
+
+[project.optional-dependencies]
+test = [
+    "pandas",
+    "pytest", # p2c: -c conda-forge
+
+]
+dev-extras = [
+    # p2c: -s "additional-thing; python_version < '3.9'" # additional pkg
+    ## p2c: -s "another-thing" # skipped because of ## before p2c.
+    "matplotlib", # p2c: -s conda-matplotlib
+
+]
+dev = ["hello[test]", "hello[dev-extras]"]
+dist-pypi = [
+    # this is intended to be parsed with --no-base option
+    "setuptools",
+    "build", # p2c: -p
+
+]
+
+[tool.pyproject2conda]
+channels = ['conda-forge']
+# these are the same as the default values of `p2c project`
+template_python = "py{py}-{env}"
+template = "{env}"
+style = "yaml"
+# options
+python = ["3.10"]
+# Note that this is relative to the location of pyproject.toml
+user_config = "config/userconfig.toml"
+default_envs = ["test", "dev", "dist-pypi"]
+
+[tool.pyproject2conda.envs.base]
+extras = []
+style = "yaml"
+python = []
+
+[tool.pyproject2conda.envs."test-extras"]
+extras = ["test"]
+style = ["yaml", "requirements"]
+
+[[tool.pyproject2conda.overrides]]
+envs = ['test-extras', "dist-pypi"]
+base = false
+
+[[tool.pyproject2conda.overrides]]
+envs = ["test", "test-extras"]
+python = ["3.10", "3.11"]

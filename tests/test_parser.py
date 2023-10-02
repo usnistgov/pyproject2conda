@@ -423,3 +423,96 @@ dependencies:
         python_include="python=3.10",
         python_version="3.10",
     )
+
+
+def test_missing_dependencies():
+    toml = dedent(
+        """\
+    [project]
+    name = "hello"
+    requires-python = ">=3.8,<3.11"
+    dependencies = []
+
+    [project.optional-dependencies]
+    test = [
+    "pandas",
+    "pytest", # p2c: -c conda-forge
+    "pytest-accept", # p2c: -p
+    ]
+    dev-extras = [
+    # p2c: -s additional-thing # this is an additional conda package
+    "matplotlib", # p2c: -s conda-matplotlib
+    ]
+    dev = [
+    "hello[test]",
+    "hello[dev-extras]",
+    ]
+
+    [tool.pyproject2conda]
+    channels = ['conda-forge']
+    """
+    )
+
+    d = parser.PyProject2Conda.from_string(toml)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::pytest
+  - pandas
+  - pip
+  - pip:
+      - pytest-accept
+    """
+
+    assert dedent(expected) == d.to_conda_yaml(
+        extras="test",
+        include_base_dependencies=False,
+    )
+
+    toml = dedent(
+        """\
+    [project]
+    name = "hello"
+    requires-python = ">=3.8,<3.11"
+
+    [project.optional-dependencies]
+    test = [
+    "pandas",
+    "pytest", # p2c: -c conda-forge
+    "pytest-accept", # p2c: -p
+    ]
+    dev-extras = [
+    # p2c: -s additional-thing # this is an additional conda package
+    "matplotlib", # p2c: -s conda-matplotlib
+    ]
+    dev = [
+    "hello[test]",
+    "hello[dev-extras]",
+    ]
+
+    [tool.pyproject2conda]
+    channels = ['conda-forge']
+    """
+    )
+
+    d = parser.PyProject2Conda.from_string(toml)
+
+    assert dedent(expected) == d.to_conda_yaml(
+        extras="test",
+        include_base_dependencies=False,
+    )
+
+    assert dedent(expected) == d.to_conda_yaml(
+        extras="test",
+        include_base_dependencies=True,
+    )
+
+    # check output has no dependencies:
+    for attr in ["to_conda_yaml", "to_requirements"]:
+        f = getattr(d, attr)
+        with pytest.raises(ValueError):
+            f()
+
+        assert f(allow_empty=True) == "No dependencies for this environment\n"

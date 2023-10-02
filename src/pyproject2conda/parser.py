@@ -42,6 +42,17 @@ Tstr_seq_opt = Optional[Union[str, Sequence[str]]]
 T = TypeVar("T")
 
 
+# -- Utilities -------------------------------------------------------------------------
+
+
+def _check_allow_empty(allow_empty: bool) -> str:
+    msg = "No dependencies for this environment\n"
+    if allow_empty:
+        return msg
+    else:
+        raise ValueError(msg)
+
+
 # --- Default parser -------------------------------------------------------------------
 
 
@@ -73,6 +84,10 @@ def _default_parser() -> argparse.ArgumentParser:
     parser.add_argument("package", nargs="*")
 
     return parser
+
+
+def _factory_empty_tomlkit_Array() -> tomlkit.items.Array:
+    return tomlkit.items.Array([], tomlkit.items.Trivia())
 
 
 def _unique_list(values: Iterable[T]) -> list[T]:
@@ -188,15 +203,27 @@ def _pyproject_to_value_comment_pairs(
     unique: bool = True,
     include_base_dependencies: bool = True,
 ) -> list[tuple[Tstr_opt, Tstr_opt]]:
-    package_name = cast(str, get_in(["project", "name"], data))
+    package_name = cast(
+        str, get_in(["project", "name"], data, factory=_factory_empty_tomlkit_Array)
+    )
 
-    deps = cast(tomlkit.items.Array, get_in(["project", "dependencies"], data))
+    if package_name is None:
+        raise ValueError("Must specify `project.package_name` in pyproject.toml")
+
+    deps = cast(
+        tomlkit.items.Array,
+        get_in(["project", "dependencies"], data, factory=_factory_empty_tomlkit_Array),
+    )
 
     value_comment_list = _get_value_comment_pairs(
         package_name=package_name,
         extras=extras,
         deps=deps,
-        opts=get_in(["project", "optional-dependencies"], data),
+        opts=get_in(
+            ["project", "optional-dependencies"],
+            data,
+            factory=_factory_empty_tomlkit_Array,
+        ),
         include_base_dependencies=include_base_dependencies,
     )
 
@@ -313,9 +340,11 @@ def pyproject_to_conda_lists(
     reqs: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     if python_include == "infer":
-        python_include = (
-            "python" + get_in(["project", "requires-python"], data).unwrap()
-        )
+        # safer get
+        if (x := get_in(["project", "requires-python"], data)) is None:
+            raise ValueError("No value for `requires-python` in pyproject.toml file")
+        else:
+            python_include = "python" + x.unwrap()
 
     if channels is None:
         channels_doc = get_in(["tool", "pyproject2conda", "channels"], data, None)
@@ -363,6 +392,7 @@ def pyproject_to_conda(
     sort: bool = True,
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
+    allow_empty: bool = False,
 ) -> str:
     output = pyproject_to_conda_lists(
         data=data,
@@ -375,7 +405,13 @@ def pyproject_to_conda(
         deps=deps,
         reqs=reqs,
     )
-    return _output_to_yaml(**output, name=name, stream=stream, header_cmd=header_cmd)
+    return _output_to_yaml(
+        **output,
+        name=name,
+        stream=stream,
+        header_cmd=header_cmd,
+        allow_empty=allow_empty,
+    )
 
 
 def _create_header(cmd: str | None = None) -> str:
@@ -462,6 +498,7 @@ def _output_to_yaml(
     name: Tstr_opt = None,
     stream: str | Path | TextIO | None = None,
     header_cmd: str | None = None,
+    allow_empty: bool = False,
 ) -> str:
     data: dict[str, Any] = {}
     if name:
@@ -477,11 +514,13 @@ def _output_to_yaml(
         data["dependencies"].append("pip")
         data["dependencies"].append({"pip": pip})
 
-    # return data
-    s = _yaml_to_string(data, add_final_eol=True, header_cmd=header_cmd)
-    _optional_write(s, stream)
-
-    return s
+    if not data["dependencies"]:
+        return _check_allow_empty(allow_empty)
+    else:
+        # return data
+        s = _yaml_to_string(data, add_final_eol=True, header_cmd=header_cmd)
+        _optional_write(s, stream)
+        return s
 
 
 class PyProject2Conda:
@@ -512,6 +551,7 @@ class PyProject2Conda:
         sort: bool = True,
         deps: Sequence[str] | None = None,
         reqs: Sequence[str] | None = None,
+        allow_empty: bool = False,
     ) -> str:
         self._check_extras(extras)
 
@@ -528,6 +568,7 @@ class PyProject2Conda:
             sort=sort,
             deps=deps,
             reqs=reqs,
+            allow_empty=allow_empty,
         )
 
     def to_conda_lists(
@@ -587,6 +628,7 @@ class PyProject2Conda:
         stream: str | Path | TextIO | None = None,
         sort: bool = True,
         reqs: Sequence[str] | None = None,
+        allow_empty: bool = False,
     ) -> str:
         """Create requirements.txt like file with pip dependencies."""
 
@@ -599,9 +641,12 @@ class PyProject2Conda:
             reqs=reqs,
         )
 
-        s = _add_header(_list_to_str(reqs), header_cmd)
-        _optional_write(s, stream)
-        return s
+        if not reqs:
+            return _check_allow_empty(allow_empty)
+        else:
+            s = _add_header(_list_to_str(reqs), header_cmd)
+            _optional_write(s, stream)
+            return s
 
     def to_conda_requirements(
         self,
