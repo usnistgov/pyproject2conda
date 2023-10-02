@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Command line interface &#8212; pyproject2conda v0.7.0 documentation</title>
+    <title>Command line interface &#8212; pyproject2conda v0.8.0 documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <link rel="prev" title="API Reference" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-    <meta name="docbuild:last-update" content="2023-09-26"/>
+    <meta name="docbuild:last-update" content="2023-10-02"/>
   </head>
   
   
@@ -141,7 +141,7 @@
   
   
   
-    <p class="title logo__title">pyproject2conda v0.7.0 documentation</p>
+    <p class="title logo__title">pyproject2conda v0.8.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -593,6 +593,20 @@ for output to a file, and not to include header when writing to stdout.</p>
 <dd><p>Additional pip requirements.</p>
 </dd></dl>
 
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-yaml-allow-empty">
+<span id="cmdoption-pyproject2conda-yaml-no-allow-empty"></span><span class="sig-name descname"><span class="pre">--allow-empty</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-allow-empty</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-yaml-allow-empty" title="Permalink to this definition">#</a></dt>
+<dd><p>What to do if there are no package requirements for an environment. The
+default (<cite>–no-allow-empty</cite>) is to raise an error if the specification
+leads to no requirements. Passing <cite>–allow-empty</cite> will lead to a message
+being printed, but no environment file being created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="pyproject2conda-requirements">
 <h3>requirements<a class="headerlink" href="#pyproject2conda-requirements" title="Permalink to this heading">#</a></h3>
@@ -683,6 +697,20 @@ for output to a file, and not to include header when writing to stdout.</p>
 <dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-r">
 <span id="cmdoption-pyproject2conda-requirements-reqs"></span><span class="sig-name descname"><span class="pre">-r</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--reqs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;reqs&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-r" title="Permalink to this definition">#</a></dt>
 <dd><p>Additional pip requirements.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-requirements-allow-empty">
+<span id="cmdoption-pyproject2conda-requirements-no-allow-empty"></span><span class="sig-name descname"><span class="pre">--allow-empty</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-allow-empty</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-requirements-allow-empty" title="Permalink to this definition">#</a></dt>
+<dd><p>What to do if there are no package requirements for an environment. The
+default (<cite>–no-allow-empty</cite>) is to raise an error if the specification
+leads to no requirements. Passing <cite>–allow-empty</cite> will lead to a message
+being printed, but no environment file being created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -783,14 +811,24 @@ for output to a file, and not to include header when writing to stdout.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-user-config">
 <span class="sig-name descname"><span class="pre">--user-config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;user_config&gt;</span></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-user-config" title="Permalink to this definition">#</a></dt>
-<dd><p>Additional toml file to supply configuration. This can be used to override/add
-environment files for your own use (apart from project env files).
-The (default) value <cite>infer</cite> means to infer the configuration from <cite>–filename</cite>.</p>
+<dd><p>Additional toml file to supply configuration. This can be used to
+override/add environment files for your own use (apart from project env
+files). The (default) value <cite>infer</cite> means to infer the configuration
+from <cite>–filename</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">infer</span></code></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-pyproject2conda-project-allow-empty">
+<span id="cmdoption-pyproject2conda-project-no-allow-empty"></span><span class="sig-name descname"><span class="pre">--allow-empty</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-allow-empty</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-pyproject2conda-project-allow-empty" title="Permalink to this definition">#</a></dt>
+<dd><p>What to do if there are no package requirements for an environment. The
+default (<cite>–no-allow-empty</cite>) is to raise an error if the specification
+leads to no requirements. Passing <cite>–allow-empty</cite> will lead to a message
+being printed, but no environment file being created.</p>
 </dd></dl>
 
 </section>
@@ -1129,7 +1167,7 @@ By William P. Krekelberg
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on 2023-09-26.
+  Last updated on 2023-10-02.
   <br/>
 </p>
   </div>
