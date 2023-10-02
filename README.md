@@ -59,14 +59,16 @@ suggestions!
 
 Use one of the following to install `pyproject2conda`:
 
+<!-- markdownlint-disable MD014 -->
+
 ```bash
-pip install pyproject2conda
+$ pip install pyproject2conda
 ```
 
 or
 
 ```bash
-conda install -c conda-forge pyproject2conda
+$ conda install -c conda-forge pyproject2conda
 ```
 
 [rich]: https://github.com/Textualize/rich
@@ -77,8 +79,10 @@ If using pip, to install with [rich] and [shellingham] support, either install
 them your self, or use:
 
 ```bash
-pip install pyproject2conda[all]
+$ pip install pyproject2conda[all]
 ```
+
+<!-- markdownlint-enable MD014 -->
 
 The conda-forge distribution of [typer] (which `pyproject2conda` uses) installs
 [rich] and [shellingham] by default.
@@ -854,11 +858,10 @@ The author can be reached at <wpk@nist.gov>.
 
 ## Credits
 
-This package was created with
-[Cookiecutter](https://github.com/audreyr/cookiecutter) and the
-[wpk-nist-gov/cookiecutter-pypackage](https://github.com/wpk-nist-gov/cookiecutter-pypackage)
-Project template forked from
-[audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage).
+This package was created using
+[Cookiecutter](https://github.com/audreyr/cookiecutter) with the
+[usnistgov/cookiecutter-nist-python](https://github.com/usnistgov/cookiecutter-nist-python)
+template.
 
 <!--  LocalWords:  conda subcommands
  -->

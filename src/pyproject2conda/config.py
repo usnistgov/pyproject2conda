@@ -217,6 +217,11 @@ class Config:
         """Flag user_config"""
         return self._get_value(key="user_config", default=None)  # type: ignore
 
+    def allow_empty(self, env_name: str | None = None, default: bool = False) -> bool:
+        return self._get_value(  # type: ignore
+            key="allow_empty", env_name=env_name, default=default
+        )
+
     def assign_user_config(self, user: Self) -> Self:
         """Assign user_config to self."""
         from copy import deepcopy
@@ -269,6 +274,7 @@ class Config:
             "deps",
             "name",
             "channels",
+            "allow_empty",
         ]
 
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
@@ -302,7 +308,16 @@ class Config:
     def _iter_reqs(
         self, env_name: str, **defaults: Any
     ) -> Iterator[tuple[str, dict[str, Any]]]:
-        keys = ["extras", "sort", "base", "header", "overwrite", "verbose", "reqs"]
+        keys = [
+            "extras",
+            "sort",
+            "base",
+            "header",
+            "overwrite",
+            "verbose",
+            "reqs",
+            "allow_empty",
+        ]
 
         output, template, _ = self._get_output_and_templates(env_name, **defaults)
 

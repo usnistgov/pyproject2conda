@@ -1,5 +1,7 @@
 # API Reference
 
+## pyproject2conda
+
 ```{eval-rst}
 
 .. toctree::
@@ -9,7 +11,7 @@
 
 
 Modules
--------
+=======
 
 .. currentmodule:: pyproject2conda
 

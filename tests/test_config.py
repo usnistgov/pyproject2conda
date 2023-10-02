@@ -48,6 +48,101 @@ def test_template():
     assert t == expected
 
 
+def test_option_override():
+    toml = """\
+    [project]
+    name = "hello"
+    requires-python = ">=3.8,<3.11"
+
+
+    [project.optional-dependencies]
+    test = [
+        "pandas",
+        "pytest", # p2c: -c conda-forge
+
+    ]
+
+    [tool.pyproject2conda]
+    channels = ['conda-forge']
+    # these are the same as the default values of `p2c project`
+    template_python = "py{py}-{env}"
+    template = "hello-{env}"
+    style = "yaml"
+    # options
+    python = ["3.10"]
+    # Note that this is relative to the location of pyproject.toml
+    user_config = "config/userconfig.toml"
+    default_envs = ["test", "dev", "dist-pypi"]
+
+    [tool.pyproject2conda.envs.base]
+    extras = []
+    style = "yaml"
+    python = []
+    """
+
+    d = Config.from_string(dedent(toml))
+
+    output = list(d.iter(envs=["base"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "sort": True,
+            "base": True,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "output": "hello-base.yaml",
+        },
+    )
+
+    output = list(d.iter(envs=["base"], template="there-{env}"))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "sort": True,
+            "base": True,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "output": "there-base.yaml",
+        },
+    )
+
+    output = list(d.iter(envs=["base"], allow_empty=True, template="there-{env}"))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "sort": True,
+            "base": True,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": True,
+            "output": "there-base.yaml",
+        },
+    )
+
+
 def test_dry():
     runner = CliRunner()
 
@@ -96,6 +191,7 @@ def test_config_only_default():
                 "output": "py38-test.yaml",
                 "deps": None,
                 "reqs": None,
+                "allow_empty": False,
             },
         )
     ]
@@ -154,6 +250,7 @@ def test_config_overrides():
             "output": "py38-test.yaml",
             "deps": None,
             "reqs": None,
+            "allow_empty": False,
         },
     )
 
@@ -210,6 +307,7 @@ def test_config_python_include_version():
                 "output": "py38-test.yaml",
                 "deps": None,
                 "reqs": None,
+                "allow_empty": False,
             },
         ),
         (
@@ -228,6 +326,7 @@ def test_config_python_include_version():
                 "output": "py38-test.yaml",
                 "deps": None,
                 "reqs": None,
+                "allow_empty": False,
             },
         ),
     ]
@@ -274,6 +373,7 @@ def test_config_user_config():
                 "output": "py38-test.yaml",
                 "deps": None,
                 "reqs": None,
+                "allow_empty": False,
             },
         ),
         (
@@ -291,6 +391,7 @@ def test_config_user_config():
                 "output": "py39-user.yaml",
                 "deps": None,
                 "reqs": None,
+                "allow_empty": False,
             },
         ),
     ]

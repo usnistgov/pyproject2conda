@@ -9,12 +9,15 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Any, Mapping, Sequence
+    from typing import Any, Callable, Mapping, Sequence
 
 
 # taken from https://github.com/conda/conda-lock/blob/main/conda_lock/common.py
 def get_in(
-    keys: Sequence[Any], nested_dict: Mapping[Any, Any], default: Any = None
+    keys: Sequence[Any],
+    nested_dict: Mapping[Any, Any],
+    default: Any = None,
+    factory: Callable[..., Any] | None = None,
 ) -> Any:
     """
     >>> foo = {'a': {'b': {'c': 1}}}
@@ -28,7 +31,10 @@ def get_in(
     try:
         return reduce(operator.getitem, keys, nested_dict)
     except (KeyError, IndexError, TypeError):
-        return default
+        if factory is not None:
+            return factory()
+        else:
+            return default
 
 
 # def compose_decorators(*decs: Dec[F]) -> Dec[F]:

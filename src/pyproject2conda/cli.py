@@ -39,16 +39,20 @@ logging.basicConfig(level=logging.WARN, format=FORMAT)
 logger = logging.getLogger("pyproject2conda")
 
 
-# * Settings ------------------------------------------------------------------
+# * Settings ---------------------------------------------------------------------------
 if "P2C_COLUMNS" in os.environ:
     os.environ["COLUMNS"] = os.environ["P2C_COLUMNS"]  # pragma: no cover
 
 
 # * Typer App --------------------------------------------------------------------------
+
+
 class AliasedGroup(TyperGroup):
     """Provide aliasing for commands"""
 
-    def get_command(self, ctx, cmd_name):  # type: ignore
+    def get_command(
+        self, ctx: click.Context, cmd_name: str
+    ) -> Optional[click.core.Command]:
         rv = super().get_command(ctx, cmd_name)
         if rv is not None:
             return rv
@@ -296,9 +300,10 @@ USER_CONFIG_CLI = Annotated[
     typer.Option(
         "--user-config",
         help="""
-        Additional toml file to supply configuration. This can be used to override/add
-        environment files for your own use (apart from project env files).
-        The (default) value `infer` means to infer the configuration from `--filename`.
+        Additional toml file to supply configuration. This can be used to
+        override/add environment files for your own use (apart from project env
+        files). The (default) value `infer` means to infer the configuration
+        from `--filename`.
         """,
     ),
 ]
@@ -316,6 +321,17 @@ PREPEND_CHANNEL_CLI = Annotated[
         "--prepend-channel",
     ),
 ]
+
+
+ALLOW_EMPTY_OPTION = typer.Option(
+    "--allow-empty/--no-allow-empty",
+    help="""
+    What to do if there are no package requirements for an environment. The
+    default (`--no-allow-empty`) is to raise an error if the specification
+    leads to no requirements. Passing `--allow-empty` will lead to a message
+    being printed, but no environment file being created.
+    """,
+)
 
 
 # * Utils ------------------------------------------------------------------------------
@@ -395,7 +411,13 @@ def add_verbose_logger(
 
                 logger.setLevel(level)
 
-            return func(*args, **kwargs)
+            # add error logger to function call
+            try:
+                return func(*args, **kwargs)
+            except Exception as error:
+                # logger.exception(str(error))
+                logger.error(str(error))
+                raise
 
         return wrapped
 
@@ -444,6 +466,7 @@ def yaml(
     verbose: VERBOSE_CLI = None,  # pyright: ignore
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
+    allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
 
@@ -476,6 +499,7 @@ def yaml(
         sort=sort,
         deps=deps,
         reqs=reqs,
+        allow_empty=allow_empty,
     )
     if not output:
         print(s, end="")
@@ -495,6 +519,7 @@ def requirements(
     overwrite: OVERWRITE_CLI = Overwrite.check,
     verbose: VERBOSE_CLI = None,  # pyright: ignore
     reqs: REQS_CLI = None,
+    allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
 ) -> None:
     """Create requirements.txt for pip dependencies."""
 
@@ -513,6 +538,7 @@ def requirements(
         header_cmd=_get_header_cmd(header, output),
         sort=sort,
         reqs=reqs,
+        allow_empty=allow_empty,
     )
     if not output:
         print(s, end="")
@@ -535,6 +561,7 @@ def project(
     verbose: VERBOSE_CLI = None,
     dry: DRY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
+    allow_empty: Annotated[Optional[bool], ALLOW_EMPTY_OPTION] = None,
 ) -> None:
     """Create multiple environment files from `pyproject.toml` specification."""
     from pyproject2conda.config import Config
@@ -552,6 +579,7 @@ def project(
         header=header,
         overwrite=overwrite.value,
         verbose=verbose,
+        allow_empty=allow_empty,
     ):
         if dry:
             # small header

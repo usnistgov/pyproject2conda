@@ -290,4 +290,4 @@ cog-readme: ## apply cog to README.md
 # Can't seem to convert
 .PHONY: README.pdf
 README.pdf: ## create README.pdf
-	pandoc -V colorlinks README.md -o README.pdf
+	pandoc -V colorlinks -V geometry:margin=0.8in README.md -o README.pdf
