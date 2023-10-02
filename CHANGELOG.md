@@ -11,6 +11,17 @@ See the fragment files in
 
 <!-- scriv-insert-here -->
 
+## v0.8.0 — 2023-10-02
+
+### Added
+
+- Added option to either raise error, or print message for environments with no
+  dependencies.
+
+### Changed
+
+- pyproject2conda now works with `pyproject.toml` files with no dependencies.
+
 ## v0.7.0 — 2023-09-26
 
 ### Added
