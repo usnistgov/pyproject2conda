@@ -203,9 +203,7 @@ def _pyproject_to_value_comment_pairs(
     unique: bool = True,
     include_base_dependencies: bool = True,
 ) -> list[tuple[Tstr_opt, Tstr_opt]]:
-    package_name = cast(
-        str, get_in(["project", "name"], data, factory=_factory_empty_tomlkit_Array)
-    )
+    package_name = cast(str, get_in(["project", "name"], data, default=None))
 
     if package_name is None:
         raise ValueError("Must specify `project.package_name` in pyproject.toml")
