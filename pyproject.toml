@@ -288,7 +288,7 @@ ignore = [
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.per-file-ignores]
-"src/pyproject2conda.py" = ["UP006", "UP007"]
+"src/pyproject2conda/cli.py" = ["UP006", "UP007"]
 
 [tool.ruff.isort]
 known-first-party = ["pyproject2conda"]
