@@ -1,7 +1,10 @@
 """Script to create pythons for use with virtualenvs"""
 from __future__ import annotations
 
+import sys
 from functools import lru_cache
+
+assert sys.version_info >= (3, 9)
 
 
 @lru_cache

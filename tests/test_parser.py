@@ -189,6 +189,85 @@ dependencies:
     assert s == dedent(expected)
 
 
+def test_infer():
+    toml = dedent(
+        """\
+    [project]
+    name = "hello"
+    dependencies = [
+    "athing", # p2c: -p # a comment
+    "bthing", # p2c: -s bthing-conda
+    "cthing; python_version<'3.10'", # p2c: -c conda-forge
+    ]
+
+    [project.optional-dependencies]
+    test = [
+    "pandas",
+    "pytest", # p2c: -c conda-forge
+    ]
+    dev-extras = [
+    # p2c: -s additional-thing # this is an additional conda package
+    "matplotlib", # p2c: -s conda-matplotlib
+    ]
+    dev = [
+    "hello[test]",
+    "hello[dev-extras]",
+    ]
+    dist-pypi = [
+    "setuptools",
+    "build", # p2c: -p
+    ]
+
+
+    [tool.pyproject2conda]
+    channels = ['conda-forge']
+    """
+    )
+
+    d = parser.PyProject2Conda.from_string(toml)
+    with pytest.raises(ValueError):
+        d.to_conda_yaml(python_include="infer")
+
+
+def test_package_name():
+    toml = dedent(
+        """\
+    [project]
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    "athing", # p2c: -p # a comment
+    "bthing", # p2c: -s bthing-conda
+    "cthing; python_version<'3.10'", # p2c: -c conda-forge
+    ]
+
+    [project.optional-dependencies]
+    test = [
+    "pandas",
+    "pytest", # p2c: -c conda-forge
+    ]
+    dev-extras = [
+    # p2c: -s additional-thing # this is an additional conda package
+    "matplotlib", # p2c: -s conda-matplotlib
+    ]
+    dev = [
+    "hello[test]",
+    "hello[dev-extras]",
+    ]
+    dist-pypi = [
+    "setuptools",
+    "build", # p2c: -p
+    ]
+
+
+    [tool.pyproject2conda]
+    channels = ['conda-forge']
+    """
+    )
+    d = parser.PyProject2Conda.from_string(toml)
+    with pytest.raises(ValueError):
+        d.to_conda_lists()
+
+
 def test_complete():
     toml = dedent(
         """\
