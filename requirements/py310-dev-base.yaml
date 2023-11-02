@@ -21,7 +21,7 @@ dependencies:
   - pytest-xdist
   - pytype
   - ruamel.yaml
-  - setuptools-scm
+  - setuptools-scm>=8.0
   - tomli
   - tomlkit
   - typer
