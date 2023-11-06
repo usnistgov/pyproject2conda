@@ -25,13 +25,24 @@ classifiers = [
 ]
 dynamic = ["readme", "version"]
 requires-python = ">=3.8"
-dependencies = ["typer"]
+dependencies = [
+    "tomli",
+    "ruamel.yaml",
+    "tomlkit",
+    "typer",
+    "packaging",
+    "typing-extensions; python_version<'3.9'",
+]
 
 [project.urls]
 homepage = "https://github.com/usnistgov/pyproject2conda"
 documentation = "https://pages.nist.gov/pyproject2conda/"
 
 [project.optional-dependencies]
+all = [
+    "rich", #
+    "shellingham",
+]
 test = [
     "pytest", #
     "pytest-xdist",
@@ -48,6 +59,7 @@ dev-extras = [
 typing-extras = [
     "pytype; python_version < '3.11'", #
     "mypy >= 1.4.1",
+    "types-click",
 ]
 typing = [
     "pyproject2conda[typing-extras]", #
@@ -135,7 +147,7 @@ envs = ["dist-conda"]
 style = ["yaml"]
 
 [project.scripts]
-pyproject2conda = "pyproject2conda.cli:main"
+pyproject2conda = "pyproject2conda.cli:app"
 
 ## grayskull still messes some things up, but use scripts/recipe-append.sh for this
 [tool.setuptools]
@@ -269,9 +281,11 @@ ignore = [
     # Allow relative imports
     "TID252",
 ]
-per-file-ignores = {  }
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.per-file-ignores]
+"src/pyproject2conda/cli.py" = ["UP006", "UP007"]
 
 [tool.ruff.isort]
 known-first-party = ["pyproject2conda"]
@@ -290,7 +304,7 @@ ignore = [
     "E203",
     # module level import not at top of file
     "E402",
-    # line t    oo long - let black worry about that
+    # line too long - let black worry about that
     "E501",
     # do not assign a lambda expression, use a def
     "E731",
@@ -333,6 +347,7 @@ warn_return_any = true
 warn_unused_configs = true
 exclude = [".eggs", ".tox", "doc", "docs", ".nox"]
 check_untyped_defs = true
+strict = true
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true

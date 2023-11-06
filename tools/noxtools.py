@@ -6,7 +6,7 @@ import shlex
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence, TextIO, cast
 
-from ruamel.yaml import safe_load
+from ruamel.yaml import YAML
 
 if TYPE_CHECKING:
     from collections.abc import Collection
@@ -394,7 +394,7 @@ def parse_envs(
 
     for path in paths:
         with _get_context(path) as f:
-            data = safe_load(f)
+            data = YAML(typ="safe", pure=True).load(f)
 
         channels.update(data.get("channels", []))
         name = data.get("name", name)
