@@ -11,16 +11,7 @@
       "conda_channel": "wpk-nist",
       "project_name": "pyproject2conda",
       "project_slug": "pyproject2conda",
-      "_copy_without_render": [
-        "*.html",
-        "docs/_templates/*.rst",
-        "docs/_templates/autosummary/*.rst",
-        "docs/_templates/autodocsumm/*.rst",
-        "docs/_static/css/*",
-        "docs/_static/js/*",
-        "changelog.d/templates/*.j2",
-        "changelog.d/templates/auto-changelog/*.jinja2"
-      ],
+      "_copy_without_render": [],
       "project_short_description": "A script to convert a Python project declared on a pyproject.toml to a conda environment.",
       "command_line_interface": "Typer",
       "sphinx_use_autodocsumm": "y",
