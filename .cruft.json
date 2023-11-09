@@ -16,6 +16,8 @@
       "command_line_interface": "Typer",
       "sphinx_use_autodocsumm": "y",
       "sphinx_theme": "sphinx_book_theme",
+      "__year": "2023",
+      "__answers": "",
       "_template": "https://github.com/usnistgov/cookiecutter-nist-python.git"
     }
   },
