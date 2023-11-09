@@ -144,6 +144,16 @@ UPDATE_CLI = Annotated[
     ),
 ]
 
+
+UPDATE_PACKAGE_CLI = Annotated[
+    bool,
+    Option(
+        type=bool,
+        help="If True, and session uses package, reinstall package",
+        flags=("--update-package", "-P"),
+    ),
+]
+
 VERSION_CLI = Annotated[
     str, Option(type=str, help="Version to substitute or check against")
 ]
@@ -165,6 +175,7 @@ def dev(
     dev_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     log_session: bool = False,
 ) -> None:
     """Create dev env using conda."""
@@ -177,6 +188,7 @@ def dev(
         display_name=f"{PACKAGE_NAME}-dev",
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
     session_run_commands(session, dev_run)
@@ -189,6 +201,7 @@ def dev_venv(
     dev_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     log_session: bool = False,
 ) -> None:
     """Create dev env using virtualenv."""
@@ -202,6 +215,7 @@ def dev_venv(
         display_name=f"{PACKAGE_NAME}-dev-venv",
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
     session_run_commands(session, dev_run)
@@ -375,6 +389,7 @@ def test(
     test_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     log_session: bool = False,
     no_cov: bool = False,
 ) -> None:
@@ -386,6 +401,7 @@ def test(
         lock=lock,
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
 
@@ -406,6 +422,7 @@ def test_venv(
     test_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,  # pyright: ignore
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     log_session: bool = False,
     no_cov: bool = False,
 ) -> None:
@@ -417,6 +434,7 @@ def test_venv(
         install_package=True,
         requirement_paths="test.txt",
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
 
@@ -458,7 +476,7 @@ def _coverage(
     session_run_commands(session, run_internal, external=False)
 
 
-@DEFAULT_SESSION_VENV
+@INHERITED_SESSION_VENV
 def coverage(
     session: Session,
     coverage_cmd: cmd_annotated(  # type: ignore
@@ -550,6 +568,7 @@ def docs(
     docs_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     version: VERSION_CLI = "",
     log_session: bool = False,
 ) -> None:
@@ -561,6 +580,7 @@ def docs(
         display_name=f"{PACKAGE_NAME}-docs",
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
 
@@ -591,6 +611,7 @@ def docs_venv(
     docs_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     version: VERSION_CLI = "",
     log_session: bool = False,
 ) -> None:
@@ -602,6 +623,7 @@ def docs_venv(
         display_name=f"{PACKAGE_NAME}-docs-venv",
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
         requirement_paths="docs.txt",
     )
@@ -1088,42 +1110,6 @@ def testdist_pypi_condaenv(
         test_no_pytest=test_no_pytest,
         test_opts=test_opts,
         no_cov=True,
-    )
-
-
-@DEFAULT_SESSION_VENV
-def update_version_scm(
-    session: Session,
-    version: VERSION_CLI = "",
-    update: UPDATE_CLI = False,
-) -> None:
-    """
-    Get current version from setuptools-scm
-
-    Note that the version of editable installs can get stale.
-    This will show the actual current version.
-    Avoids need to include setuptools-scm in develop/docs/etc.
-    """
-
-    if version:
-        session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = version
-
-    pkg_install_venv(
-        session=session,
-        name="update-version-scm",
-        install_package=True,
-        # reqs=["setuptools_scm"],
-        update=True,
-        no_deps=True,
-    )
-
-    session.run(
-        "python",
-        "-c",
-        "import sys;"
-        "sys.path.insert(0, 'src');"
-        "from pyproject2conda._version import __version__;"
-        "print(__version__);",
     )
 
 
