@@ -1,3 +1,4 @@
+# pyright: reportUnknownMemberType=false
 """
 Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 ================================================================
@@ -108,7 +109,7 @@ DEFAULT_TOML_PATH = Path("./pyproject.toml")
 
 PYPROJECT_CLI = Annotated[
     Path,
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--file",
         "-f",
         help="input pyproject.toml file",
@@ -116,7 +117,7 @@ PYPROJECT_CLI = Annotated[
 ]
 EXTRAS_CLI = Annotated[
     Optional[List[str]],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra",
         "-e",
         help="Extra dependencies. Can specify multiple times for multiple extras.",
@@ -124,7 +125,7 @@ EXTRAS_CLI = Annotated[
 ]
 CHANNEL_CLI = Annotated[
     Optional[List[str]],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--channel",
         "-c",
         help="conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]",
@@ -132,7 +133,7 @@ CHANNEL_CLI = Annotated[
 ]
 NAME_CLI = Annotated[
     Optional[str],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--name",
         "-n",
         help="Name of conda env",
@@ -140,7 +141,7 @@ NAME_CLI = Annotated[
 ]
 OUTPUT_CLI = Annotated[
     Optional[Path],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--output",
         "-o",
         help="File to output results",
@@ -417,7 +418,7 @@ def add_verbose_logger(
                     level = logging.WARN
                 elif verbosity == 1:
                     level = logging.INFO
-                elif verbosity >= 2:  # pragma: no cover
+                else:  # pragma: no cover
                     level = logging.DEBUG
 
                 logger.setLevel(level)

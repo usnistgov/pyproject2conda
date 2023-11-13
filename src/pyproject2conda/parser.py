@@ -1,3 +1,4 @@
+# pyright: reportUnknownMemberType=false, reportGeneralTypeIssues=false
 """
 Parse `pyproject.toml` (:mod:`~pyproject2conda.parser`)
 =======================================================
@@ -25,6 +26,8 @@ from typing import (
 )
 
 if TYPE_CHECKING:
+    import tomlkit.items
+    import tomlkit.toml_document
     from typing_extensions import Self
 
 import tomlkit
@@ -210,7 +213,7 @@ def _pyproject_to_value_comment_pairs(
     unique: bool = True,
     include_base_dependencies: bool = True,
 ) -> list[tuple[Tstr_opt, Tstr_opt]]:
-    package_name = cast(str, get_in(["project", "name"], data, default=None))
+    package_name = cast("str | None", get_in(["project", "name"], data, default=None))
 
     if package_name is None:
         raise ValueError("Must specify `project.package_name` in pyproject.toml")
@@ -276,7 +279,7 @@ def _limit_deps_by_python_version(
         r"(?P<dep>.*?);\s*python_version\s*(?P<token>[<=>~]*)\s*[\'|\"](?P<version>.*?)[\'|\"]"
     )
 
-    output = []
+    output: list[str] = []
     for dep in deps:
         if match := matcher.match(dep):
             if not version or version in SpecifierSet(
@@ -626,7 +629,7 @@ class PyProject2Conda:
             extras=extras,
             include_base_dependencies=include_base_dependencies,
         )
-        out = [x for x, y in values if x is not None]
+        out = [x for x, _ in values if x is not None]
 
         if reqs:
             out.extend(list(reqs))

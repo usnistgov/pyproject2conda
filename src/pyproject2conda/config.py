@@ -98,7 +98,7 @@ class Config:
             if not isinstance(value, list):
                 value = [value]
 
-        return value
+        return value  # pyright: ignore
 
     def channels(
         self, env_name: str | None = None, inherit: bool = True
@@ -250,9 +250,11 @@ class Config:
             if u is not None:
                 d = data[key]
                 if isinstance(d, list):
-                    d.extend(u)
+                    assert isinstance(u, list)
+                    d.extend(u)  # pyright: ignore
                 elif isinstance(d, dict):
-                    d.update(**u)
+                    assert isinstance(u, dict)
+                    d.update(**u)  # pyright: ignore
 
         return type(self)(data)
 
