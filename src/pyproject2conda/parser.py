@@ -28,7 +28,8 @@ from typing import (
 if TYPE_CHECKING:
     import tomlkit.items
     import tomlkit.toml_document
-    from typing_extensions import Self
+
+    from ._typing_compat import Self
 
 import tomlkit
 from packaging.specifiers import SpecifierSet

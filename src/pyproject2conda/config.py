@@ -14,7 +14,7 @@ from pyproject2conda.utils import filename_from_template, get_in
 if TYPE_CHECKING:
     from typing import Any, Iterator, Sequence
 
-    from typing_extensions import Self
+    from ._typing_compat import Self
 
 
 # * Utilities

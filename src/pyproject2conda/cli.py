@@ -7,17 +7,11 @@ Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 
 import logging
 import os
-import sys
 from enum import Enum
 from functools import lru_cache, wraps
 from inspect import signature
 from pathlib import Path
 from typing import Any, Callable, Iterable, List, Optional, Union, cast
-
-if sys.version_info[:2] < (3, 9):
-    from typing_extensions import Annotated
-else:
-    from typing import Annotated
 
 # from click import click.Context
 import click
@@ -32,6 +26,7 @@ from pyproject2conda.utils import (
 )
 
 from ._typing import R
+from ._typing_compat import Annotated
 
 # * Logger -----------------------------------------------------------------------------
 
