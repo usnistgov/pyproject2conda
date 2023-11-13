@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/usnistgov/cookiecutter-nist-python.git",
-  "commit": "bb73e10f6947a5ca80b8d1c4ac83875b965dab6a",
+  "commit": "e84f5884bfaa90e9397f41549b621ecacf747a3f",
   "checkout": "develop",
   "context": {
     "cookiecutter": {
@@ -13,10 +13,10 @@
       "project_slug": "pyproject2conda",
       "_copy_without_render": [],
       "project_short_description": "A script to convert a Python project declared on a pyproject.toml to a conda environment.",
-      "command_line_interface": "Typer",
-      "sphinx_use_autodocsumm": "y",
+      "command_line_interface": "typer",
+      "sphinx_use_autodocsumm": true,
       "sphinx_theme": "sphinx_book_theme",
-      "__year": "2023",
+      "year": "2023",
       "__answers": "",
       "_template": "https://github.com/usnistgov/cookiecutter-nist-python.git"
     }
