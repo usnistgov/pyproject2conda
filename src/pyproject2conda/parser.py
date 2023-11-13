@@ -53,6 +53,13 @@ def _check_allow_empty(allow_empty: bool) -> str:
         raise ValueError(msg)
 
 
+_WHITE_SPACE_REGEX = re.compile(r"\s+")
+
+
+def _remove_whitespace(s: str) -> str:
+    return re.sub(_WHITE_SPACE_REGEX, "", s)
+
+
 # --- Default parser -------------------------------------------------------------------
 
 
@@ -336,6 +343,7 @@ def pyproject_to_conda_lists(
     sort: bool = True,
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
+    remove_whitespace: bool = True,
 ) -> dict[str, Any]:
     if python_include == "infer":
         # safer get
@@ -374,6 +382,9 @@ def pyproject_to_conda_lists(
         output["dependencies"], python_version
     )
 
+    if remove_whitespace:
+        output = {k: [_remove_whitespace(x) for x in v] for k, v in output.items()}
+
     return output
 
 
@@ -391,6 +402,7 @@ def pyproject_to_conda(
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
     allow_empty: bool = False,
+    remove_whitespace: bool = True,
 ) -> str:
     output = pyproject_to_conda_lists(
         data=data,
@@ -402,6 +414,7 @@ def pyproject_to_conda(
         sort=sort,
         deps=deps,
         reqs=reqs,
+        remove_whitespace=remove_whitespace,
     )
     return _output_to_yaml(
         **output,
@@ -550,6 +563,7 @@ class PyProject2Conda:
         deps: Sequence[str] | None = None,
         reqs: Sequence[str] | None = None,
         allow_empty: bool = False,
+        remove_whitespace: bool = True,
     ) -> str:
         self._check_extras(extras)
 
@@ -567,6 +581,7 @@ class PyProject2Conda:
             deps=deps,
             reqs=reqs,
             allow_empty=allow_empty,
+            remove_whitespace=remove_whitespace,
         )
 
     def to_conda_lists(
@@ -579,6 +594,7 @@ class PyProject2Conda:
         sort: bool = True,
         deps: Sequence[str] | None = None,
         reqs: Sequence[str] | None = None,
+        remove_whitespace: bool = True,
     ) -> dict[str, Any]:
         self._check_extras(extras)
 
@@ -592,6 +608,7 @@ class PyProject2Conda:
             sort=sort,
             deps=deps,
             reqs=reqs,
+            remove_whitespace=remove_whitespace,
         )
 
     def to_requirement_list(
@@ -600,6 +617,7 @@ class PyProject2Conda:
         include_base_dependencies: bool = True,
         sort: bool = True,
         reqs: Sequence[str] | None = None,
+        remove_whitespace: bool = True,
     ) -> list[str]:
         self._check_extras(extras)
 
@@ -612,6 +630,9 @@ class PyProject2Conda:
 
         if reqs:
             out.extend(list(reqs))
+
+        if remove_whitespace:
+            out = [_remove_whitespace(x) for x in out]
 
         if sort:
             return sorted(out)
@@ -627,6 +648,7 @@ class PyProject2Conda:
         sort: bool = True,
         reqs: Sequence[str] | None = None,
         allow_empty: bool = False,
+        remove_whitespace: bool = True,
     ) -> str:
         """Create requirements.txt like file with pip dependencies."""
 
@@ -637,6 +659,7 @@ class PyProject2Conda:
             include_base_dependencies=include_base_dependencies,
             sort=sort,
             reqs=reqs,
+            remove_whitespace=remove_whitespace,
         )
 
         if not reqs:
@@ -660,6 +683,7 @@ class PyProject2Conda:
         sort: bool = True,
         deps: Sequence[str] | None = None,
         reqs: Sequence[str] | None = None,
+        remove_whitespace: bool = True,
     ) -> tuple[str, str]:
         output = self.to_conda_lists(
             extras=extras,
@@ -670,6 +694,7 @@ class PyProject2Conda:
             sort=sort,
             deps=deps,
             reqs=reqs,
+            remove_whitespace=remove_whitespace,
         )
 
         deps = output.get("dependencies", None)

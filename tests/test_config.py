@@ -98,6 +98,7 @@ def test_option_override():
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
+            "remove_whitespace": True,
             "output": "hello-base.yaml",
         },
     )
@@ -118,6 +119,7 @@ def test_option_override():
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
+            "remove_whitespace": True,
             "output": "there-base.yaml",
         },
     )
@@ -138,6 +140,35 @@ def test_option_override():
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": True,
+            "remove_whitespace": True,
+            "output": "there-base.yaml",
+        },
+    )
+
+    output = list(
+        d.iter(
+            envs=["base"],
+            allow_empty=True,
+            remove_whitespace=False,
+            template="there-{env}",
+        )
+    )
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "sort": True,
+            "base": True,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": True,
+            "remove_whitespace": False,
             "output": "there-base.yaml",
         },
     )
@@ -192,6 +223,7 @@ def test_config_only_default():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         )
     ]
@@ -251,6 +283,7 @@ def test_config_overrides():
             "deps": None,
             "reqs": None,
             "allow_empty": False,
+            "remove_whitespace": True,
         },
     )
 
@@ -308,6 +341,7 @@ def test_config_python_include_version():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         ),
         (
@@ -327,6 +361,7 @@ def test_config_python_include_version():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         ),
     ]
@@ -374,6 +409,7 @@ def test_config_user_config():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         ),
         (
@@ -392,6 +428,7 @@ def test_config_user_config():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         ),
     ]

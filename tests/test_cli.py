@@ -353,7 +353,7 @@ def test_requirements():
     expected = """\
 athing
 bthing
-cthing; python_version < '3.10'
+cthing;python_version<'3.10'
     """
 
     for cmd in ["r", "requirements"]:
@@ -363,7 +363,7 @@ cthing; python_version < '3.10'
     expected = """\
 athing
 bthing
-cthing; python_version < '3.10'
+cthing;python_version<'3.10'
 pandas
 pytest
 matplotlib
@@ -378,7 +378,7 @@ matplotlib
     expected = """\
 athing
 bthing
-cthing; python_version < '3.10'
+cthing;python_version<'3.10'
 pandas
 pytest
 matplotlib
@@ -403,7 +403,7 @@ other
     expected = """\
 athing
 bthing
-cthing; python_version < '3.10'
+cthing;python_version<'3.10'
 matplotlib
 pandas
 pytest
@@ -418,7 +418,7 @@ pytest
     expected = """\
 athing
 bthing
-cthing; python_version < '3.10'
+cthing;python_version<'3.10'
 matplotlib
 other
 pandas
@@ -435,6 +435,32 @@ thing;python_version<'3.10'
         "thing;python_version<'3.10'",
         "-r",
         "other",
+    )
+
+    check_result(result, expected)
+
+    # allow whitespace:
+    expected = """\
+athing
+bthing
+cthing; python_version < '3.10'
+matplotlib
+other
+pandas
+pytest
+thing; python_version < '3.10'
+    """
+
+    result = do_run(
+        runner,
+        "requirements",
+        "-e",
+        "dev",
+        "-r",
+        "thing; python_version < '3.10'",
+        "-r",
+        "other",
+        "--no-remove-whitespace",
     )
 
     check_result(result, expected)

@@ -222,6 +222,15 @@ class Config:
             key="allow_empty", env_name=env_name, default=default
         )
 
+    def remove_whitespace(
+        self, env_name: str | None = None, default: bool = True
+    ) -> bool:
+        return self._get_value(  # type: ignore
+            key="remove_whitespace",
+            env_name=env_name,
+            default=default,
+        )
+
     def assign_user_config(self, user: Self) -> Self:
         """Assign user_config to self."""
         from copy import deepcopy
@@ -275,6 +284,7 @@ class Config:
             "name",
             "channels",
             "allow_empty",
+            "remove_whitespace",
         ]
 
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
@@ -317,6 +327,7 @@ class Config:
             "verbose",
             "reqs",
             "allow_empty",
+            "remove_whitespace",
         ]
 
         output, template, _ = self._get_output_and_templates(env_name, **defaults)

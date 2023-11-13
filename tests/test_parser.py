@@ -273,7 +273,7 @@ def test_complete():
         """\
     [project]
     name = "hello"
-    requires-python = ">=3.8,<3.11"
+    requires-python = ">=3.8, <3.11"
     dependencies = [
     "athing", # p2c: -p # a comment
     "bthing", # p2c: -s bthing-conda
@@ -341,6 +341,22 @@ dependencies:
       - athing
     """
     assert dedent(expected) == d.to_conda_yaml(python_include="infer")
+
+    # with remove spaces:
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.8, <3.11
+  - bthing-conda
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing
+    """
+    assert dedent(expected) == d.to_conda_yaml(
+        python_include="infer", remove_whitespace=False
+    )
 
     expected = """\
 channels:
@@ -595,3 +611,70 @@ dependencies:
             f()
 
         assert f(allow_empty=True) == "No dependencies for this environment\n"
+
+
+def test_spaces():
+    toml = dedent(
+        """\
+    [project]
+    name = "hello"
+    requires-python = ">=3.8, <3.11"
+    dependencies = [
+    "athing >0.5", # p2c: -p # a comment
+    "bthing > 1.0", # p2c: -s 'bthing-conda > 2.0'
+    "cthing; python_version < '3.10'", # p2c: -c conda-forge
+    ]
+
+
+    [tool.pyproject2conda]
+    channels = ['conda-forge']
+    """
+    )
+
+    d = parser.PyProject2Conda.from_string(toml)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.8, <3.11
+  - bthing-conda > 2.0
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing >0.5
+    """
+    assert dedent(expected) == d.to_conda_yaml(
+        python_include="infer", remove_whitespace=False
+    )
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.8,<3.11
+  - bthing-conda>2.0
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - athing>0.5
+    """
+    assert dedent(expected) == d.to_conda_yaml(
+        python_include="infer", remove_whitespace=True
+    )
+
+    expected = """\
+    athing >0.5
+    bthing > 1.0
+    cthing; python_version < '3.10'
+    """
+
+    assert dedent(expected) == d.to_requirements(remove_whitespace=False)
+
+    expected = """\
+    athing>0.5
+    bthing>1.0
+    cthing;python_version<'3.10'
+    """
+
+    assert dedent(expected) == d.to_requirements(remove_whitespace=True)

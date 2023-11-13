@@ -334,6 +334,17 @@ ALLOW_EMPTY_OPTION = typer.Option(
 )
 
 
+REMOVE_WHITESPACE_OPTION = typer.Option(
+    "--remove-whitespace/--no-remove-whitespace",
+    help="""
+    What to do with whitespace in a dependency. The default (`--remove-whitespace`) is
+    to remove whitespace in a given dependency. For example, the dependency
+    `package >= 1.0` will be converted to `package>=1.0`. Pass `--no-remove-whitespace`
+    to keep the the whitespace in the output.
+    """,
+)
+
+
 # * Utils ------------------------------------------------------------------------------
 def _get_header_cmd(
     header: Optional[bool], output: Union[str, Path, None]
@@ -467,6 +478,7 @@ def yaml(
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
+    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
 
@@ -500,6 +512,7 @@ def yaml(
         deps=deps,
         reqs=reqs,
         allow_empty=allow_empty,
+        remove_whitespace=remove_whitespace,
     )
     if not output:
         print(s, end="")
@@ -520,6 +533,7 @@ def requirements(
     verbose: VERBOSE_CLI = None,  # pyright: ignore
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
+    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create requirements.txt for pip dependencies."""
 
@@ -539,6 +553,7 @@ def requirements(
         sort=sort,
         reqs=reqs,
         allow_empty=allow_empty,
+        remove_whitespace=remove_whitespace,
     )
     if not output:
         print(s, end="")
@@ -562,6 +577,7 @@ def project(
     dry: DRY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
     allow_empty: Annotated[Optional[bool], ALLOW_EMPTY_OPTION] = None,
+    remove_whitespace: Annotated[Optional[bool], REMOVE_WHITESPACE_OPTION] = None,
 ) -> None:
     """Create multiple environment files from `pyproject.toml` specification."""
     from pyproject2conda.config import Config
@@ -580,6 +596,7 @@ def project(
         overwrite=overwrite.value,
         verbose=verbose,
         allow_empty=allow_empty,
+        remove_whitespace=remove_whitespace,
     ):
         if dry:
             # small header

@@ -148,6 +148,7 @@ style = ["yaml"]
 
 [project.scripts]
 pyproject2conda = "pyproject2conda.cli:app"
+p2c = "pyproject2conda.cli:app"
 
 ## grayskull still messes some things up, but use scripts/recipe-append.sh for this
 [tool.setuptools]
