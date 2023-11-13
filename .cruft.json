@@ -1,30 +1,23 @@
 {
   "template": "https://github.com/usnistgov/cookiecutter-nist-python.git",
-  "commit": "ab2f71c9e76533931d52cd32c7091fce972f7626",
+  "commit": "8fe5103d25de7e7d13d400f599c6653866a69afc",
   "checkout": "develop",
   "context": {
     "cookiecutter": {
+      "project_name": "pyproject2conda",
+      "project_slug": "pyproject2conda",
+      "project_short_description": "A script to convert a Python project declared on a pyproject.toml to a conda environment.",
       "full_name": "William P. Krekelberg",
       "email": "wpk@nist.gov",
       "github_username": "usnistgov",
       "pypi_username": "conda-forge",
       "conda_channel": "wpk-nist",
-      "project_name": "pyproject2conda",
-      "project_slug": "pyproject2conda",
-      "_copy_without_render": [
-        "*.html",
-        "docs/_templates/*.rst",
-        "docs/_templates/autosummary/*.rst",
-        "docs/_templates/autodocsumm/*.rst",
-        "docs/_static/css/*",
-        "docs/_static/js/*",
-        "changelog.d/templates/*.j2",
-        "changelog.d/templates/auto-changelog/*.jinja2"
-      ],
-      "project_short_description": "A script to convert a Python project declared on a pyproject.toml to a conda environment.",
-      "command_line_interface": "Typer",
-      "sphinx_use_autodocsumm": "y",
+      "command_line_interface": "typer",
+      "sphinx_use_autodocsumm": true,
       "sphinx_theme": "sphinx_book_theme",
+      "year": "2023",
+      "__answers": "",
+      "_copy_without_render": [],
       "_template": "https://github.com/usnistgov/cookiecutter-nist-python.git"
     }
   },

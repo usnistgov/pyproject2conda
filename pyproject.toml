@@ -170,7 +170,6 @@ readme = { file = [
 
 [tool.setuptools_scm]
 fallback_version = "999"
-version_file = "src/pyproject2conda/_version.py"
 
 [tool.aliases]
 test = "pytest"
