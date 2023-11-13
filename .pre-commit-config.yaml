@@ -35,7 +35,7 @@ repos:
         stages: [commit]
         additional_dependencies:
           - prettier-plugin-toml
-        exclude: ^requirements/lock/.*[.]yml|^.copier-answers.y?ml
+        exclude: ^requirements/lock/.*[.]yml|^.copier-answers.ya?ml
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
