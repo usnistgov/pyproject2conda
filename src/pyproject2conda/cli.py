@@ -115,7 +115,13 @@ EXTRAS_CLI = Annotated[
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra",
         "-e",
-        help="Extra dependencies. Can specify multiple times for multiple extras.",
+        help="""
+        Extra dependencies. Can specify multiple times for multiple extras.
+        Use name `extras` for specifying in `pyproject.toml`
+        Note thate for `project` application, this parameter defaults to the
+        name of the environment.  If you want no extras, you must pass
+        `extras = false`.
+        """,
     ),
 ]
 CHANNEL_CLI = Annotated[
@@ -123,7 +129,7 @@ CHANNEL_CLI = Annotated[
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--channel",
         "-c",
-        help="conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]",
+        help="Conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]",
     ),
 ]
 NAME_CLI = Annotated[

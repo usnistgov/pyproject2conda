@@ -110,6 +110,7 @@ dist-conda = [
     "conda-verify",
     "boa",
 ]
+cog = ["cogapp"]
 
 [tool.pyproject2conda]
 user_config = "config/userconfig.toml"
@@ -134,6 +135,9 @@ extras = ["test"]
 
 [tool.pyproject2conda.envs.dev-base]
 extras = ["dev"]
+
+[tool.pyproject2conda.envs.cog]
+style = "requirements"
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test-extras", "dist-conda", "dist-pypi"]

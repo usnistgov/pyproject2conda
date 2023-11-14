@@ -125,14 +125,32 @@ class Config:
         )
 
     def extras(self, env_name: str) -> list[str]:
-        """Extras getter"""
-        return self._get_value(  # type: ignore
+        """
+        Extras getter
+
+        * If value is `True` (default), then return [env_name]
+        * If value is `False`, return []
+        * else return list of extras
+        """
+
+        val = self._get_value(
             key="extras",
             env_name=env_name,
             inherit=False,
-            as_list=True,
-            default=env_name or [],
+            # as_list=True,
+            default=env_name,
         )
+
+        if isinstance(val, bool):
+            if val:
+                return [env_name]
+            else:
+                return []
+
+        elif not isinstance(val, list):
+            val = [val]
+
+        return val  # type: ignore
 
     def output(self, env_name: str | None = None) -> str | None:
         """Output getter"""

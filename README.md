@@ -507,6 +507,18 @@ python = ["3.10"]
 user_config = "config/userconfig.toml"
 default_envs = ["test", "dev", "dist-pypi"]
 
+[tool.pyproject2conda.envs.base]
+style = ["requirements"]
+# Note that the default value for `extras` is the name of the environment.
+# To have no extras, either pass
+# extras = []
+# or
+#
+extras = false
+#
+# A value of `extras = true` also implies using the environment name
+# as the extras.
+
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
@@ -610,6 +622,18 @@ python = ["3.10"]
 user_config = "config/userconfig.toml"
 default_envs = ["test", "dev", "dist-pypi"]
 
+[tool.pyproject2conda.envs.base]
+style = ["requirements"]
+# Note that the default value for `extras` is the name of the environment.
+# To have no extras, either pass
+# extras = []
+# or
+#
+extras = false
+#
+# A value of `extras = true` also implies using the environment name
+# as the extras.
+
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
@@ -629,10 +653,15 @@ python = ["3.10", "3.11"]
 run through the command `pyproject2conda project` (or `p2c project`):
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry", wrapper="bash", bounds=(None, 45))]]] -->
+<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry ", wrapper="bash", bounds=(None, 45))]]] -->
 
 ```bash
 $ p2c project -f tests/data/test-pyproject.toml --dry
+# --------------------
+# Creating requirements base.txt
+athing
+bthing
+cthing;python_version<'3.10'
 # --------------------
 # Creating yaml py310-test-extras.yaml
 channels:
@@ -673,11 +702,6 @@ dependencies:
   - python=3.11
   - bthing-conda
   - conda-forge::pytest
-  - pandas
-  - pip
-  - pip:
-      - athing
-# --------------------
 
  ...
 ```
