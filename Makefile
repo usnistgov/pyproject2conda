@@ -287,7 +287,8 @@ pytest-nbval:  ## run pytest --nbval
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md
-	P2C_COLUMNS=100 cog -rP README.md
+	# P2C_COLUMNS=100 cog -rP README.md
+	nox -s cog
 	pre-commit run markdownlint --files README.md
 
 # NOTE: Some special stuff for README.pdf

@@ -125,7 +125,14 @@ class Config:
         )
 
     def extras(self, env_name: str) -> list[str]:
-        """Extras getter"""
+        """
+        Extras getter
+
+        * If value is `True`, then return [env_name]
+        * If value is `False`, return []
+        * else return list of extras
+        """
+
         return self._get_value(  # type: ignore
             key="extras",
             env_name=env_name,

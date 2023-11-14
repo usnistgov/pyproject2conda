@@ -40,6 +40,13 @@ python = ["3.10"]
 user_config = "config/userconfig.toml"
 default_envs = ["test", "dev", "dist-pypi"]
 
+[tool.pyproject2conda.envs.base]
+style = ["requirements"]
+# Note that the default value for `extras` is the
+# name of the environment.  So, if you want to create an
+# environment without any extras, pass an empty list.
+extras = []
+
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]

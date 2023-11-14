@@ -1113,6 +1113,29 @@ def testdist_pypi_condaenv(
     )
 
 
+# * Project specific sessions
+@INHERITED_SESSION_VENV
+def cog(
+    session: nox.Session,
+    update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
+    log_session: bool = False,
+) -> None:
+    """Run cog."""
+
+    pkg_install_venv(
+        session=session,
+        name="cog",
+        requirement_paths="cog.txt",
+        install_package=True,
+        update=update,
+        update_package=update_package,
+        log_session=log_session,
+    )
+
+    session.run("cog", "-rP", "README.md", env={"COLUMNS": "100"})
+
+
 # * Utilities --------------------------------------------------------------------------
 def _create_doc_examples_symlinks(session: nox.Session, clean: bool = True) -> None:
     """Create symlinks from docs/examples/*.md files to /examples/usage/..."""
