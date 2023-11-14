@@ -78,6 +78,10 @@ def test_option_override():
     extras = []
     style = "yaml"
     python = []
+
+    [tool.pyproject2conda.envs.base2]
+    style = "yaml"
+    extras = []
     """
 
     d = Config.from_string(dedent(toml))
@@ -98,7 +102,30 @@ def test_option_override():
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
+            "remove_whitespace": True,
             "output": "hello-base.yaml",
+        },
+    )
+
+    output = list(d.iter(envs=["base2"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "sort": True,
+            "base": True,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py310-base2.yaml",
+            "python": "3.10",
         },
     )
 
@@ -118,6 +145,7 @@ def test_option_override():
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
+            "remove_whitespace": True,
             "output": "there-base.yaml",
         },
     )
@@ -138,6 +166,35 @@ def test_option_override():
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": True,
+            "remove_whitespace": True,
+            "output": "there-base.yaml",
+        },
+    )
+
+    output = list(
+        d.iter(
+            envs=["base"],
+            allow_empty=True,
+            remove_whitespace=False,
+            template="there-{env}",
+        )
+    )
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "sort": True,
+            "base": True,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": True,
+            "remove_whitespace": False,
             "output": "there-base.yaml",
         },
     )
@@ -192,6 +249,7 @@ def test_config_only_default():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         )
     ]
@@ -206,6 +264,7 @@ def test_config_only_default():
     python = ["3.8"]
 
     [tool.pyproject2conda.envs.test]
+    extras = true
     """
 
     s2 = """
@@ -251,6 +310,7 @@ def test_config_overrides():
             "deps": None,
             "reqs": None,
             "allow_empty": False,
+            "remove_whitespace": True,
         },
     )
 
@@ -308,6 +368,7 @@ def test_config_python_include_version():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         ),
         (
@@ -327,6 +388,7 @@ def test_config_python_include_version():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         ),
     ]
@@ -374,6 +436,7 @@ def test_config_user_config():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         ),
         (
@@ -392,6 +455,7 @@ def test_config_user_config():
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
+                "remove_whitespace": True,
             },
         ),
     ]
@@ -516,11 +580,13 @@ def test_multiple():
         f"{path2}/py310-user-dev.yaml",
     )
 
+    do_run(runner, "req", "-o", f"{path2}/base.txt")
+
     paths1 = Path(path1).glob("*")
     names1 = set(x.name for x in paths1)
 
     expected = set(
-        "py310-dev.yaml py310-dist-pypi.yaml py310-test-extras.yaml py310-test.yaml py310-user-dev.yaml py311-test-extras.yaml py311-test.yaml test-extras.txt".split()
+        "base.txt py310-dev.yaml py310-dist-pypi.yaml py310-test-extras.yaml py310-test.yaml py310-user-dev.yaml py311-test-extras.yaml py311-test.yaml test-extras.txt".split()
     )
 
     assert names1 == expected

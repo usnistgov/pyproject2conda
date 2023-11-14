@@ -141,6 +141,9 @@ version-scm: ## check/update version of package with setuptools-scm
 version-import: ## check version from python import
 	-python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
 
+version-update: ## update version using nox
+	nox -s update-version-scm
+
 version: version-scm version-import
 
 ################################################################################
@@ -149,9 +152,10 @@ version: version-scm version-import
 .PHONY: requirements
 requirements: ## rebuild all requirements/environment files
 	nox -s requirements
-
-requirements/%.yaml: pyproject.toml requirements
-requirements/%.txt: pyproject.toml requirements
+requirements/%.yaml: pyproject.toml
+	nox -s requirements
+requirements/%.txt: pyproject.toml
+	nox -s requirements
 
 ################################################################################
 # * NOX
@@ -283,7 +287,8 @@ pytest-nbval:  ## run pytest --nbval
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md
-	P2C_COLUMNS=100 cog -rP README.md
+	# P2C_COLUMNS=100 cog -rP README.md
+	nox -s cog
 	pre-commit run markdownlint --files README.md
 
 # NOTE: Some special stuff for README.pdf

@@ -14,13 +14,13 @@ myst-nb
 packaging
 pyenchant
 ruamel.yaml
-sphinx >= 5.3.0
 sphinx-autobuild
 sphinx-book-theme
 sphinx-click
 sphinx-copybutton
+sphinx>=5.3.0
 sphinxcontrib-spelling
 tomli
 tomlkit
 typer
-typing-extensions; python_version<'3.9'
+typing-extensions;python_version<'3.9'

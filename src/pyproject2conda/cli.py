@@ -1,3 +1,4 @@
+# pyright: reportUnknownMemberType=false
 """
 Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 ================================================================
@@ -6,17 +7,11 @@ Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 
 import logging
 import os
-import sys
 from enum import Enum
 from functools import lru_cache, wraps
 from inspect import signature
 from pathlib import Path
 from typing import Any, Callable, Iterable, List, Optional, Union, cast
-
-if sys.version_info[:2] < (3, 9):
-    from typing_extensions import Annotated
-else:
-    from typing import Annotated
 
 # from click import click.Context
 import click
@@ -31,6 +26,7 @@ from pyproject2conda.utils import (
 )
 
 from ._typing import R
+from ._typing_compat import Annotated
 
 # * Logger -----------------------------------------------------------------------------
 
@@ -108,7 +104,7 @@ DEFAULT_TOML_PATH = Path("./pyproject.toml")
 
 PYPROJECT_CLI = Annotated[
     Path,
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--file",
         "-f",
         help="input pyproject.toml file",
@@ -116,23 +112,29 @@ PYPROJECT_CLI = Annotated[
 ]
 EXTRAS_CLI = Annotated[
     Optional[List[str]],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra",
         "-e",
-        help="Extra dependencies. Can specify multiple times for multiple extras.",
+        help="""
+        Extra dependencies. Can specify multiple times for multiple extras.
+        Use name `extras` for specifying in `pyproject.toml`
+        Note thate for `project` application, this parameter defaults to the
+        name of the environment.  If you want no extras, you must pass
+        `extras = false`.
+        """,
     ),
 ]
 CHANNEL_CLI = Annotated[
     Optional[List[str]],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--channel",
         "-c",
-        help="conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]",
+        help="Conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]",
     ),
 ]
 NAME_CLI = Annotated[
     Optional[str],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--name",
         "-n",
         help="Name of conda env",
@@ -140,7 +142,7 @@ NAME_CLI = Annotated[
 ]
 OUTPUT_CLI = Annotated[
     Optional[Path],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--output",
         "-o",
         help="File to output results",
@@ -334,6 +336,17 @@ ALLOW_EMPTY_OPTION = typer.Option(
 )
 
 
+REMOVE_WHITESPACE_OPTION = typer.Option(
+    "--remove-whitespace/--no-remove-whitespace",
+    help="""
+    What to do with whitespace in a dependency. The default (`--remove-whitespace`) is
+    to remove whitespace in a given dependency. For example, the dependency
+    `package >= 1.0` will be converted to `package>=1.0`. Pass `--no-remove-whitespace`
+    to keep the the whitespace in the output.
+    """,
+)
+
+
 # * Utils ------------------------------------------------------------------------------
 def _get_header_cmd(
     header: Optional[bool], output: Union[str, Path, None]
@@ -406,7 +419,7 @@ def add_verbose_logger(
                     level = logging.WARN
                 elif verbosity == 1:
                     level = logging.INFO
-                elif verbosity >= 2:  # pragma: no cover
+                else:  # pragma: no cover
                     level = logging.DEBUG
 
                 logger.setLevel(level)
@@ -467,6 +480,7 @@ def yaml(
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
+    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
 
@@ -500,6 +514,7 @@ def yaml(
         deps=deps,
         reqs=reqs,
         allow_empty=allow_empty,
+        remove_whitespace=remove_whitespace,
     )
     if not output:
         print(s, end="")
@@ -520,6 +535,7 @@ def requirements(
     verbose: VERBOSE_CLI = None,  # pyright: ignore
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
+    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create requirements.txt for pip dependencies."""
 
@@ -539,6 +555,7 @@ def requirements(
         sort=sort,
         reqs=reqs,
         allow_empty=allow_empty,
+        remove_whitespace=remove_whitespace,
     )
     if not output:
         print(s, end="")
@@ -562,6 +579,7 @@ def project(
     dry: DRY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
     allow_empty: Annotated[Optional[bool], ALLOW_EMPTY_OPTION] = None,
+    remove_whitespace: Annotated[Optional[bool], REMOVE_WHITESPACE_OPTION] = None,
 ) -> None:
     """Create multiple environment files from `pyproject.toml` specification."""
     from pyproject2conda.config import Config
@@ -580,6 +598,7 @@ def project(
         overwrite=overwrite.value,
         verbose=verbose,
         allow_empty=allow_empty,
+        remove_whitespace=remove_whitespace,
     ):
         if dry:
             # small header

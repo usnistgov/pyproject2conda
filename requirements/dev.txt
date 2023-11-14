@@ -9,7 +9,7 @@
 #
 ipykernel
 ipython
-mypy >= 1.4.1
+mypy>=1.4.1
 nox
 noxopt
 packaging
@@ -18,11 +18,11 @@ pytest-accept
 pytest-cov
 pytest-sugar
 pytest-xdist
-pytype; python_version < '3.11'
+pytype;python_version<'3.11'
 ruamel.yaml
-setuptools-scm
+setuptools-scm>=8.0
 tomli
 tomlkit
 typer
 types-click
-typing-extensions; python_version<'3.9'
+typing-extensions;python_version<'3.9'

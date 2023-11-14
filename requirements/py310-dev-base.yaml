@@ -13,7 +13,7 @@ dependencies:
   - python=3.10
   - ipykernel
   - ipython
-  - mypy >= 1.4.1
+  - mypy>=1.4.1
   - packaging
   - pytest
   - pytest-cov
@@ -21,7 +21,7 @@ dependencies:
   - pytest-xdist
   - pytype
   - ruamel.yaml
-  - setuptools-scm
+  - setuptools-scm>=8.0
   - tomli
   - tomlkit
   - typer

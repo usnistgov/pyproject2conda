@@ -14,7 +14,7 @@ from pyproject2conda.utils import filename_from_template, get_in
 if TYPE_CHECKING:
     from typing import Any, Iterator, Sequence
 
-    from typing_extensions import Self
+    from ._typing_compat import Self
 
 
 # * Utilities
@@ -98,7 +98,7 @@ class Config:
             if not isinstance(value, list):
                 value = [value]
 
-        return value
+        return value  # pyright: ignore
 
     def channels(
         self, env_name: str | None = None, inherit: bool = True
@@ -125,14 +125,32 @@ class Config:
         )
 
     def extras(self, env_name: str) -> list[str]:
-        """Extras getter"""
-        return self._get_value(  # type: ignore
+        """
+        Extras getter
+
+        * If value is `True` (default), then return [env_name]
+        * If value is `False`, return []
+        * else return list of extras
+        """
+
+        val = self._get_value(
             key="extras",
             env_name=env_name,
             inherit=False,
-            as_list=True,
-            default=env_name or [],
+            # as_list=True,
+            default=env_name,
         )
+
+        if isinstance(val, bool):
+            if val:
+                return [env_name]
+            else:
+                return []
+
+        elif not isinstance(val, list):
+            val = [val]
+
+        return val  # type: ignore
 
     def output(self, env_name: str | None = None) -> str | None:
         """Output getter"""
@@ -222,6 +240,15 @@ class Config:
             key="allow_empty", env_name=env_name, default=default
         )
 
+    def remove_whitespace(
+        self, env_name: str | None = None, default: bool = True
+    ) -> bool:
+        return self._get_value(  # type: ignore
+            key="remove_whitespace",
+            env_name=env_name,
+            default=default,
+        )
+
     def assign_user_config(self, user: Self) -> Self:
         """Assign user_config to self."""
         from copy import deepcopy
@@ -241,9 +268,11 @@ class Config:
             if u is not None:
                 d = data[key]
                 if isinstance(d, list):
-                    d.extend(u)
+                    assert isinstance(u, list)
+                    d.extend(u)  # pyright: ignore
                 elif isinstance(d, dict):
-                    d.update(**u)
+                    assert isinstance(u, dict)
+                    d.update(**u)  # pyright: ignore
 
         return type(self)(data)
 
@@ -275,6 +304,7 @@ class Config:
             "name",
             "channels",
             "allow_empty",
+            "remove_whitespace",
         ]
 
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
@@ -317,6 +347,7 @@ class Config:
             "verbose",
             "reqs",
             "allow_empty",
+            "remove_whitespace",
         ]
 
         output, template, _ = self._get_output_and_templates(env_name, **defaults)

@@ -10,16 +10,8 @@
 channels:
   - conda-forge
 dependencies:
-  - python=3.9
-  - mypy>=1.4.1
-  - packaging
+  - python=3.12
   - pytest
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - pytype
-  - ruamel.yaml
-  - tomli
-  - tomlkit
-  - typer
-  - types-click

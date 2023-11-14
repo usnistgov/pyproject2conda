@@ -4,21 +4,34 @@ from __future__ import annotations
 
 import shutil
 import sys
+
+# Should only use on python version > 3.10
+assert sys.version_info >= (3, 10)
+
 from dataclasses import replace  # noqa
 from pathlib import Path
 from typing import (
-    Annotated,
     Any,
     Callable,
     Iterator,
     Sequence,
-    TypeAlias,
     TypeVar,
     cast,
 )
 
-import nox
-from noxopt import NoxOpt, Option, Session
+if sys.version_info > (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
+
+if sys.version_info > (3, 9):
+    from typing import Annotated
+else:
+    from typing_extensions import Annotated
+
+
+import nox  # type: ignore[unused-ignore,import]
+from noxopt import NoxOpt, Option, Session  # type: ignore[unused-ignore,import]
 
 # fmt: off
 sys.path.insert(0, ".")
@@ -61,7 +74,7 @@ CONFIG = load_nox_config()
 
 # * Options ----------------------------------------------------------------------------
 
-PYTHON_ALL_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
+PYTHON_ALL_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 PYTHON_DEFAULT_VERSION = "3.10"
 
 # conda/mamba
@@ -88,6 +101,9 @@ ALL_SESSION = cast(C[F], group.session(**SESSION_ALL_KWS))  # type: ignore
 DEFAULT_SESSION_VENV = cast(C[F], group.session(python=PYTHON_DEFAULT_VERSION))  # type: ignore
 ALL_SESSION_VENV = cast(C[F], group.session(python=PYTHON_ALL_VERSIONS))  # type: ignore
 
+NOPYTHON_SESSION = cast(C[F], group.session(python=False))  # type: ignore
+INHERITED_SESSION_VENV = cast(C[F], group.session)  # type: ignore
+
 OPTS_OPT = Option(nargs="*", type=str)
 # SET_KERNEL_OPT = Option(type=bool, help="If True, try to set the kernel name")
 RUN_OPT = Option(
@@ -101,20 +117,20 @@ CMD_OPT = Option(nargs="*", type=str, help="cmd to be run")
 LOCK_OPT = Option(type=bool, help="If True, use conda-lock")
 
 
-def opts_annotated(**kwargs: Any):  # type: ignore
-    return Annotated[list[str], replace(OPTS_OPT, **kwargs)]
+def opts_annotated(**kwargs: Any):  # type: ignore[unused-ignore,no-untyped-def]
+    return Annotated["list[str]", replace(OPTS_OPT, **kwargs)]
 
 
-def cmd_annotated(**kwargs: Any):  # type: ignore
-    return Annotated[list[str], replace(CMD_OPT, **kwargs)]
+def cmd_annotated(**kwargs: Any):  # type: ignore[unused-ignore,no-untyped-def]
+    return Annotated["list[str]", replace(CMD_OPT, **kwargs)]
 
 
-def run_annotated(**kwargs: Any):  # type: ignore
-    return Annotated[list[list[str]], replace(RUN_OPT, **kwargs)]
+def run_annotated(**kwargs: Any):  # type: ignore[unused-ignore,no-untyped-def]
+    return Annotated["list[list[str]]", replace(RUN_OPT, **kwargs)]
 
 
 LOCK_CLI = Annotated[bool, LOCK_OPT]
-RUN_CLI = Annotated[list[list[str]], RUN_OPT]
+RUN_CLI = Annotated["list[list[str]]", RUN_OPT]
 TEST_OPTS_CLI = opts_annotated(help="extra arguments/flags to pytest")
 DEV_EXTRAS_CLI = cmd_annotated(help="extras included in user dev environment")
 PYTHON_PATHS_CLI = cmd_annotated(help="python paths to append to PATHS")
@@ -125,6 +141,16 @@ UPDATE_CLI = Annotated[
         type=bool,
         help="If True, force update of installed packages",
         flags=("--update", "-U"),
+    ),
+]
+
+
+UPDATE_PACKAGE_CLI = Annotated[
+    bool,
+    Option(
+        type=bool,
+        help="If True, and session uses package, reinstall package",
+        flags=("--update-package", "-P"),
     ),
 ]
 
@@ -149,6 +175,7 @@ def dev(
     dev_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     log_session: bool = False,
 ) -> None:
     """Create dev env using conda."""
@@ -161,6 +188,7 @@ def dev(
         display_name=f"{PACKAGE_NAME}-dev",
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
     session_run_commands(session, dev_run)
@@ -173,6 +201,7 @@ def dev_venv(
     dev_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     log_session: bool = False,
 ) -> None:
     """Create dev env using virtualenv."""
@@ -186,14 +215,15 @@ def dev_venv(
         display_name=f"{PACKAGE_NAME}-dev-venv",
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
     session_run_commands(session, dev_run)
 
 
 # ** bootstrap
-@group.session(python=False)  # type: ignore
-def bootstrap(session: Session):
+@NOPYTHON_SESSION
+def bootstrap(session: Session) -> None:
     """Run config, reqs, and dev"""
 
     session.notify("config")
@@ -202,7 +232,7 @@ def bootstrap(session: Session):
 
 
 # ** config
-@group.session(python=False)  # type: ignore
+@NOPYTHON_SESSION
 def config(
     session: Session,
     dev_extras: DEV_EXTRAS_CLI = [],  # type: ignore # noqa
@@ -220,7 +250,7 @@ def config(
 
 
 # ** requirements
-@group.session(python=False)  # type: ignore
+@NOPYTHON_SESSION
 def pyproject2conda(
     session: Session,
     update: UPDATE_CLI = False,
@@ -229,7 +259,7 @@ def pyproject2conda(
     session.notify("requirements")
 
 
-@group.session
+@INHERITED_SESSION_VENV
 def requirements(
     session: Session,
     update: UPDATE_CLI = False,
@@ -359,6 +389,7 @@ def test(
     test_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     log_session: bool = False,
     no_cov: bool = False,
 ) -> None:
@@ -370,6 +401,7 @@ def test(
         lock=lock,
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
 
@@ -390,6 +422,7 @@ def test_venv(
     test_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,  # pyright: ignore
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     log_session: bool = False,
     no_cov: bool = False,
 ) -> None:
@@ -401,6 +434,7 @@ def test_venv(
         install_package=True,
         requirement_paths="test.txt",
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
 
@@ -423,7 +457,7 @@ def _coverage(
     session_run_commands(session, run)
 
     if not cmd and not run and not run_internal:
-        cmd = ["combine", "report"]
+        cmd = ["combine", "html"]
 
     session.log(f"{cmd}")
 
@@ -442,7 +476,7 @@ def _coverage(
     session_run_commands(session, run_internal, external=False)
 
 
-@DEFAULT_SESSION_VENV
+@INHERITED_SESSION_VENV
 def coverage(
     session: Session,
     coverage_cmd: cmd_annotated(  # type: ignore
@@ -488,12 +522,28 @@ def _docs(
     if open_page := "open" in cmd:
         cmd.remove("open")
 
+    if serve := "serve" in cmd:
+        open_webpage(url="http://localhost:8000")
+        cmd.remove("serve")
+
     if cmd:
         args = ["make", "-C", "docs"] + combine_list_str(cmd)
         session.run(*args, external=True)
 
     if open_page:
         open_webpage(path="./docs/_build/html/index.html")
+
+    if serve and "livehtml" not in cmd:
+        session.run(
+            "python",
+            "-m",
+            "http.server",
+            "-d",
+            "docs/_build/html",
+            "-b",
+            "127.0.0.1",
+            "8000",
+        )
 
 
 @DEFAULT_SESSION
@@ -511,12 +561,14 @@ def docs(
             "showlinks",
             "release",
             "open",
+            "serve",
         ],
         flags=("--docs-cmd", "-d"),
     ) = (),
     docs_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     version: VERSION_CLI = "",
     log_session: bool = False,
 ) -> None:
@@ -528,6 +580,7 @@ def docs(
         display_name=f"{PACKAGE_NAME}-docs",
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
     )
 
@@ -551,12 +604,14 @@ def docs_venv(
             "showlinks",
             "release",
             "open",
+            "serve",
         ],
         flags=("--docs-cmd", "-d"),
     ) = (),
     docs_run: RUN_CLI = [],  # noqa
     lock: LOCK_CLI = False,
     update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
     version: VERSION_CLI = "",
     log_session: bool = False,
 ) -> None:
@@ -568,6 +623,7 @@ def docs_venv(
         display_name=f"{PACKAGE_NAME}-docs-venv",
         install_package=True,
         update=update,
+        update_package=update_package,
         log_session=log_session,
         requirement_paths="docs.txt",
     )
@@ -755,13 +811,13 @@ def dist_conda(
             elif command == "recipe-cat-full":
                 import tempfile
 
-                with tempfile.TemporaryDirectory() as d:
+                with tempfile.TemporaryDirectory() as d:  # type: ignore[assignment,unused-ignore]
                     session.run(
                         "grayskull",
                         "pypi",
                         sdist_path,
                         "-o",
-                        d,
+                        str(d),
                     )
                     session.run(
                         "cat", str(Path(d) / PACKAGE_NAME / "meta.yaml"), external=True
@@ -778,7 +834,7 @@ def dist_conda(
 
 
 # ** lint
-@group.session
+@INHERITED_SESSION_VENV
 def lint(
     session: nox.Session,
     lint_run: RUN_CLI = [],  # noqa
@@ -828,6 +884,15 @@ def _typing(
         session.run("which", cmd, external=True)
         session.run(cmd, "--version", external=True)
 
+    if "clean" in cmd:
+        cmd = [x for x in cmd if x != "clean"]
+
+        for name in [".mypy_cache", ".pytype"]:
+            p = Path(session.create_tmp()) / name
+            if p.exists():
+                session.log(f"removing cache {p}")
+                shutil.rmtree(str(p))
+
     for c in cmd:
         if not c.startswith("nbqa"):
             _run_info(c)
@@ -849,6 +914,7 @@ def typing(
     session: nox.Session,
     typing_cmd: cmd_annotated(  # type: ignore
         choices=[
+            "clean",
             "mypy",
             "pyright",
             "pytype",
@@ -891,6 +957,7 @@ def typing_venv(
     session: nox.Session,
     typing_cmd: cmd_annotated(  # type: ignore
         choices=[
+            "clean",
             "mypy",
             "pyright",
             "pytype",
@@ -1044,6 +1111,29 @@ def testdist_pypi_condaenv(
         test_opts=test_opts,
         no_cov=True,
     )
+
+
+# * Project specific sessions
+@INHERITED_SESSION_VENV
+def cog(
+    session: nox.Session,
+    update: UPDATE_CLI = False,
+    update_package: UPDATE_PACKAGE_CLI = False,
+    log_session: bool = False,
+) -> None:
+    """Run cog."""
+
+    pkg_install_venv(
+        session=session,
+        name="cog",
+        requirement_paths="cog.txt",
+        install_package=True,
+        update=update,
+        update_package=update_package,
+        log_session=log_session,
+    )
+
+    session.run("cog", "-rP", "README.md", env={"COLUMNS": "100"})
 
 
 # * Utilities --------------------------------------------------------------------------
