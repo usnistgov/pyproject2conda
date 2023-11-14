@@ -264,6 +264,7 @@ def test_config_only_default():
     python = ["3.8"]
 
     [tool.pyproject2conda.envs.test]
+    extras = true
     """
 
     s2 = """

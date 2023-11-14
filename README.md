@@ -509,10 +509,15 @@ default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-# Note that the default value for `extras` is the
-# name of the environment.  So, if you want to create an
-# environment without any extras, pass an empty list.
-extras = []
+# Note that the default value for `extras` is the name of the environment.
+# To have no extras, either pass
+# extras = []
+# or
+#
+extras = false
+#
+# A value of `extras = true` also implies using the environment name
+# as the extras.
 
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
@@ -619,10 +624,15 @@ default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-# Note that the default value for `extras` is the
-# name of the environment.  So, if you want to create an
-# environment without any extras, pass an empty list.
-extras = []
+# Note that the default value for `extras` is the name of the environment.
+# To have no extras, either pass
+# extras = []
+# or
+#
+extras = false
+#
+# A value of `extras = true` also implies using the environment name
+# as the extras.
 
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
@@ -643,7 +653,7 @@ python = ["3.10", "3.11"]
 run through the command `pyproject2conda project` (or `p2c project`):
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry", wrapper="bash", bounds=(None, 45))]]] -->
+<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry ", wrapper="bash", bounds=(None, 45))]]] -->
 
 ```bash
 $ p2c project -f tests/data/test-pyproject.toml --dry
