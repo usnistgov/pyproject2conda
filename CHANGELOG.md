@@ -18,6 +18,19 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.9.0 — 2023-11-14
+
+### Added
+
+- Default is now to remove whitespace from dependencies. For example, the
+  dependency `module > 0.1` will become `module>0.1`. To override this
+  behaviour, pass the option `--no-remove-whitespace`.
+- Now supports python version `>3.8,<=3.12`
+- Can now specify `extras = false` in pyprojec.toml to skip any extras. The
+  default (`extras = true`) is the same as `extras = [env_name]` where
+  `env_name` is the name of the environment (e.g.,
+  `tool.pyproject2conda.envs.env_name`).
+
 ## v0.8.0 — 2023-10-02
 
 ### Added
