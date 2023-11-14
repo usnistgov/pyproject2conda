@@ -1,6 +1,6 @@
 from typing import Any, Callable, TypeVar
 
-from typing_extensions import TypeAlias
+from ._typing_compat import TypeAlias
 
 FuncType: TypeAlias = Callable[..., Any]
 

@@ -88,7 +88,7 @@ def update_target(
             update = True
         else:
             # check times
-            deps_filtered = []
+            deps_filtered: list[Path] = []
             for d in map(Path, deps):
                 if d.exists():
                     deps_filtered.append(d)
@@ -96,6 +96,8 @@ def update_target(
             target_time = target.stat().st_mtime
 
             update = any(target_time < dep.stat().st_mtime for dep in deps_filtered)
+    else:
+        raise ValueError(f"unknown option overwrite={overwrite}")
 
     return update
 
@@ -121,7 +123,7 @@ def filename_from_template(
     if template is None:
         return None
 
-    kws = {}
+    kws: dict[str, str] = {}
     if python:
         py_version = python
     elif python_version:

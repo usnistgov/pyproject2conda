@@ -1,3 +1,4 @@
+# pyright: reportUnknownMemberType=false
 """
 Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 ================================================================
@@ -6,17 +7,11 @@ Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 
 import logging
 import os
-import sys
 from enum import Enum
 from functools import lru_cache, wraps
 from inspect import signature
 from pathlib import Path
 from typing import Any, Callable, Iterable, List, Optional, Union, cast
-
-if sys.version_info[:2] < (3, 9):
-    from typing_extensions import Annotated
-else:
-    from typing import Annotated
 
 # from click import click.Context
 import click
@@ -31,6 +26,7 @@ from pyproject2conda.utils import (
 )
 
 from ._typing import R
+from ._typing_compat import Annotated
 
 # * Logger -----------------------------------------------------------------------------
 
@@ -108,7 +104,7 @@ DEFAULT_TOML_PATH = Path("./pyproject.toml")
 
 PYPROJECT_CLI = Annotated[
     Path,
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--file",
         "-f",
         help="input pyproject.toml file",
@@ -116,7 +112,7 @@ PYPROJECT_CLI = Annotated[
 ]
 EXTRAS_CLI = Annotated[
     Optional[List[str]],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra",
         "-e",
         help="Extra dependencies. Can specify multiple times for multiple extras.",
@@ -124,7 +120,7 @@ EXTRAS_CLI = Annotated[
 ]
 CHANNEL_CLI = Annotated[
     Optional[List[str]],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--channel",
         "-c",
         help="conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]",
@@ -132,7 +128,7 @@ CHANNEL_CLI = Annotated[
 ]
 NAME_CLI = Annotated[
     Optional[str],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--name",
         "-n",
         help="Name of conda env",
@@ -140,7 +136,7 @@ NAME_CLI = Annotated[
 ]
 OUTPUT_CLI = Annotated[
     Optional[Path],
-    typer.Option(
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--output",
         "-o",
         help="File to output results",
@@ -417,7 +413,7 @@ def add_verbose_logger(
                     level = logging.WARN
                 elif verbosity == 1:
                     level = logging.INFO
-                elif verbosity >= 2:  # pragma: no cover
+                else:  # pragma: no cover
                     level = logging.DEBUG
 
                 logger.setLevel(level)
