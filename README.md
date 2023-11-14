@@ -515,10 +515,10 @@ style = ["requirements"]
 # or
 #
 extras = false
+
 #
 # A value of `extras = true` also implies using the environment name
 # as the extras.
-
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
@@ -630,10 +630,10 @@ style = ["requirements"]
 # or
 #
 extras = false
+
 #
 # A value of `extras = true` also implies using the environment name
 # as the extras.
-
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
