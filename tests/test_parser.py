@@ -510,7 +510,7 @@ dependencies:
   - pip
   - pip:
       - athing
-      - req;python_version<'3.10'
+      - req;python_version<"3.10"
     """
     assert dedent(expected) == d.to_conda_yaml(
         deps=["dep;python_version<'3.10'"],
@@ -642,7 +642,7 @@ dependencies:
   - conda-forge::cthing
   - pip
   - pip:
-      - athing >0.5
+      - athing>0.5
     """
     assert dedent(expected) == d.to_conda_yaml(
         python_include="infer", remove_whitespace=False

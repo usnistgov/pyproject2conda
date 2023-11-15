@@ -256,34 +256,63 @@ def parse_p2c_comment(comment: OptStr) -> dict[str, Any] | None:
         return None
 
 
-def _limit_dep_by_python_version(
-    dep: str,
-    python_version: str | None = None,
-) -> str | None:
-    """Limit by python version"""
-    r = Requirement(dep)
-
-    if (
-        r.marker
-        and python_version
-        and (not r.marker.evaluate({"python_version": python_version}))
-    ):
-        return None
-    else:
-        r.marker = None
-        r.extras = None
-        return str(r)
+def _clean_pip_reqs(reqs: list[str]) -> list[str]:
+    return [str(Requirement(r)) for r in reqs]
 
 
-def _limit_deps_by_python_version(
-    deps: Iterable[str],
-    python_version: str | None = None,
-) -> list[str]:
+def _clean_conda_deps(deps: list[str], python_version: str | None = None) -> list[str]:
     out: list[str] = []
     for dep in deps:
-        if (v := _limit_dep_by_python_version(dep, python_version)) is not None:
-            out.append(v)
+        # if have a channel, take it out
+        if "::" in dep:
+            channel, d = dep.split("::")
+        else:
+            channel, d = None, dep
+        r = Requirement(d)
+
+        if (
+            r.marker
+            and python_version
+            and (not r.marker.evaluate({"python_version": python_version}))
+        ):
+            continue
+        else:
+            r.marker = None
+            r.extras = set()
+            if channel:
+                r.name = f"{channel}::{r.name}"
+            out.append(str(r))
     return out
+
+
+# def _limit_dep_by_python_version(
+#     dep: str,
+#     python_version: str | None = None,
+# ) -> str | None:
+#     """Limit by python version"""
+#     r = Requirement(dep)
+
+#     if (
+#         r.marker
+#         and python_version
+#         and (not r.marker.evaluate({"python_version": python_version}))
+#     ):
+#         return None
+#     else:
+#         r.marker = None
+#         r.extras = None
+#         return str(r)
+
+
+# def _limit_deps_by_python_version(
+#     deps: Iterable[str],
+#     python_version: str | None = None,
+# ) -> list[str]:
+#     out: list[str] = []
+#     for dep in deps:
+#         if (v := _limit_dep_by_python_version(dep, python_version)) is not None:
+#             out.append(v)
+#     return out
 
 
 def value_comment_pairs_to_conda(
@@ -291,7 +320,6 @@ def value_comment_pairs_to_conda(
     sort: bool = True,
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
-    python_version: str | None = None,
 ) -> dict[str, Any]:
     """Convert raw value/comment pairs to install lines"""
 
@@ -309,20 +337,17 @@ def value_comment_pairs_to_conda(
                 pip_deps.append(value)  # type: ignore
             elif not parsed["skip"]:
                 _check_value(value)
-                if v := _limit_dep_by_python_version(value, python_version):
-                    if parsed["channel"]:
-                        v = "{}::{}".format(parsed["channel"], v)
-                    conda_deps.append(v)
+                if parsed["channel"]:
+                    conda_deps.append("{}::{}".format(parsed["channel"], value))
+                else:
+                    conda_deps.append(value)  # type: ignore
 
-            conda_deps.extend(
-                _limit_deps_by_python_version(parsed["package"], python_version)
-            )
+            conda_deps.extend(parsed["package"])
         elif value:
-            if v := _limit_dep_by_python_version(value, python_version):
-                conda_deps.append(v)
+            conda_deps.append(value)
 
     if deps:
-        conda_deps.extend(_limit_deps_by_python_version(deps, python_version))
+        conda_deps.extend(list(deps))
 
     if reqs:
         pip_deps.extend(list(reqs))
@@ -371,8 +396,13 @@ def pyproject_to_conda_lists(
         sort=sort,
         deps=deps,
         reqs=reqs,
-        python_version=python_version,
     )
+
+    # clean up
+    output["dependencies"] = _clean_conda_deps(
+        output["dependencies"], python_version=python_version
+    )
+    output["pip"] = _clean_pip_reqs(output["pip"])
 
     if python_include:
         output["dependencies"].insert(0, python_include)
