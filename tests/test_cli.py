@@ -13,12 +13,17 @@ import json
 
 import sys
 
+import pytest
+
+
 ROOT = Path(__file__).resolve().parent / "data"
 
 
 def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
     if filename is None:
-        filename = str(ROOT / "test-pyproject.toml")
+        raise ValueError
+    # if filename is None:
+    #     filename = str(ROOT / "test-pyproject.toml")
     filename = Path(filename)
     if must_exist and not filename.exists():
         raise ValueError(f"filename {filename} does not exist")
@@ -32,11 +37,16 @@ def check_result(result, expected):
     assert result.output == dedent(expected)
 
 
-def test_list():
+@pytest.fixture(params=["test-pyproject.toml", "test-pyproject-alt.toml"])
+def filename(request):
+    return ROOT / request.param
+
+
+def test_list(filename):
     runner = CliRunner()
 
     for cmd in ["l", "list"]:
-        result = do_run(runner, cmd)
+        result = do_run(runner, cmd, filename=filename)
         expected = """\
         Extras:
         =======
@@ -47,13 +57,13 @@ def test_list():
         """
         check_result(result, expected)
 
-    result = do_run(runner, "list", "-v")
+    result = do_run(runner, "list", "-v", filename=filename)
     # TODO: the logger writes to output
     # assert result.output == f"filename: {ROOT / 'test-pyproject.toml'} [pyproject2conda - INFO]"
     check_result(result, expected)
 
 
-def test_create():
+def test_create(filename):
     runner = CliRunner()
 
     # test unknown file
@@ -73,7 +83,7 @@ dependencies:
       - athing
     """
 
-    result = do_run(runner, "yaml")
+    result = do_run(runner, "yaml", filename=filename)
 
     check_result(result, expected)
 
@@ -99,7 +109,7 @@ dependencies:
       - athing
     """
 
-    result = do_run(runner, "yaml", "--header")
+    result = do_run(runner, "yaml", "--header", filename=filename)
 
     check_result(result, expected)
 
@@ -118,7 +128,7 @@ dependencies:
 
     for opt in [("--python-include", "infer")]:
         for cmd in ["y", "yaml"]:
-            result = do_run(runner, cmd, *opt)
+            result = do_run(runner, cmd, *opt, filename=filename)
             check_result(result, expected)
 
     # -p python=3.8
@@ -138,7 +148,7 @@ dependencies:
         ("--python", "3.8"),
         ("-p", "3.8"),
     ]:
-        result = do_run(runner, "yaml", *opts)
+        result = do_run(runner, "yaml", *opts, filename=filename)
         check_result(result, expected)
 
     # dev
@@ -158,11 +168,13 @@ dependencies:
     """
 
     for opt in ["-e", "--extra"]:
-        result = do_run(runner, "yaml", opt, "dev", "--no-sort")
+        result = do_run(runner, "yaml", opt, "dev", "--no-sort", filename=filename)
         check_result(result, expected)
 
     # test if add in "test" gives same answer
-    result = do_run(runner, "yaml", "-e", "dev", "-e", "test", "--no-sort")
+    result = do_run(
+        runner, "yaml", "-e", "dev", "-e", "test", "--no-sort", filename=filename
+    )
     check_result(result, expected)
 
     expected = """\
@@ -181,11 +193,11 @@ dependencies:
     """
 
     for opt in ["-e", "--extra"]:
-        result = do_run(runner, "yaml", opt, "dev")
+        result = do_run(runner, "yaml", opt, "dev", filename=filename)
         check_result(result, expected)
 
     # test if add in "test" gives same answer
-    result = do_run(runner, "yaml", "-e", "dev", "-e", "test")
+    result = do_run(runner, "yaml", "-e", "dev", "-e", "test", filename=filename)
     check_result(result, expected)
 
     # different ordering
@@ -282,7 +294,7 @@ dependencies:
     """
 
     for opt in ["-c", "--channel"]:
-        result = do_run(runner, "yaml", opt, "hello")
+        result = do_run(runner, "yaml", opt, "hello", filename=filename)
         check_result(result, expected)
 
     expected = """\
@@ -298,7 +310,7 @@ dependencies:
     """
 
     for opt in ["-c", "--channel"]:
-        result = do_run(runner, "yaml", opt, "hello", opt, "there")
+        result = do_run(runner, "yaml", opt, "hello", opt, "there", filename=filename)
         check_result(result, expected)
 
     # test
@@ -314,7 +326,7 @@ dependencies:
   - pip:
       - athing
     """
-    result = do_run(runner, "yaml", "-e", "test", "--no-sort")
+    result = do_run(runner, "yaml", "-e", "test", "--no-sort", filename=filename)
     check_result(result, expected)
 
     expected = """\
@@ -329,7 +341,7 @@ dependencies:
   - pip:
       - athing
     """
-    result = do_run(runner, "yaml", "-e", "test")
+    result = do_run(runner, "yaml", "-e", "test", filename=filename)
     check_result(result, expected)
 
     # isolated
@@ -343,11 +355,13 @@ dependencies:
       - build
     """
     for opt in ["-e", "--extra"]:
-        result = do_run(runner, "yaml", opt, "dist-pypi", "--no-base")
+        result = do_run(
+            runner, "yaml", opt, "dist-pypi", "--no-base", filename=filename
+        )
         check_result(result, expected)
 
 
-def test_requirements():
+def test_requirements(filename):
     runner = CliRunner()
 
     expected = """\
@@ -357,7 +371,7 @@ cthing;python_version<"3.10"
     """
 
     for cmd in ["r", "requirements"]:
-        result = do_run(runner, cmd)
+        result = do_run(runner, cmd, filename=filename)
         check_result(result, expected)
 
     expected = """\
@@ -369,10 +383,19 @@ pytest
 matplotlib
     """
 
-    result = do_run(runner, "requirements", "-e", "dev", "--no-sort")
+    result = do_run(runner, "requirements", "-e", "dev", "--no-sort", filename=filename)
     check_result(result, expected)
 
-    result = do_run(runner, "requirements", "-e", "dev", "-e", "test", "--no-sort")
+    result = do_run(
+        runner,
+        "requirements",
+        "-e",
+        "dev",
+        "-e",
+        "test",
+        "--no-sort",
+        filename=filename,
+    )
     check_result(result, expected)
 
     expected = """\
@@ -396,6 +419,7 @@ other
         "thing;python_version<'3.10'",
         "-r",
         "other",
+        filename=filename,
     )
 
     check_result(result, expected)
@@ -409,10 +433,12 @@ pandas
 pytest
     """
 
-    result = do_run(runner, "requirements", "-e", "dev")
+    result = do_run(runner, "requirements", "-e", "dev", filename=filename)
     check_result(result, expected)
 
-    result = do_run(runner, "requirements", "-e", "dev", "-e", "test")
+    result = do_run(
+        runner, "requirements", "-e", "dev", "-e", "test", filename=filename
+    )
     check_result(result, expected)
 
     expected = """\
@@ -435,6 +461,7 @@ thing;python_version<"3.10"
         "thing;python_version<'3.10'",
         "-r",
         "other",
+        filename=filename,
     )
 
     check_result(result, expected)
@@ -461,6 +488,7 @@ thing; python_version < "3.10"
         "-r",
         "other",
         "--no-remove-whitespace",
+        filename=filename,
     )
 
     check_result(result, expected)
@@ -470,7 +498,15 @@ setuptools
 build
     """
 
-    result = do_run(runner, "requirements", "-e", "dist-pypi", "--no-base", "--no-sort")
+    result = do_run(
+        runner,
+        "requirements",
+        "-e",
+        "dist-pypi",
+        "--no-base",
+        "--no-sort",
+        filename=filename,
+    )
     check_result(result, expected)
 
     expected = """\
@@ -478,7 +514,9 @@ build
 setuptools
     """
 
-    result = do_run(runner, "requirements", "-e", "dist-pypi", "--no-base")
+    result = do_run(
+        runner, "requirements", "-e", "dist-pypi", "--no-base", filename=filename
+    )
     check_result(result, expected)
 
 
@@ -489,19 +527,19 @@ def check_results_conda_req(path, expected):
     assert result == dedent(expected)
 
 
-def test_conda_requirements():
+def test_conda_requirements(filename):
     runner = CliRunner()
 
-    result = do_run(runner, "c", "hello.txt")
+    result = do_run(runner, "c", "hello.txt", filename=filename)
 
     assert isinstance(result.exception, ValueError)
 
-    result = do_run(runner, "c", "--prefix", "hello", "a", "b")
+    result = do_run(runner, "c", "--prefix", "hello", "a", "b", filename=filename)
 
     assert isinstance(result.exception, ValueError)
 
     # stdout
-    result = do_run(runner, "c")
+    result = do_run(runner, "c", filename=filename)
 
     expected = """\
 #conda requirements
@@ -526,7 +564,14 @@ athing
         """
 
         for cmd in ["c", "conda-requirements"]:
-            do_run(runner, cmd, "--prefix", str(d / "hello-"), "--no-header")
+            do_run(
+                runner,
+                cmd,
+                "--prefix",
+                str(d / "hello-"),
+                "--no-header",
+                filename=filename,
+            )
 
             check_results_conda_req(d / "hello-conda.txt", expected_conda)
             check_results_conda_req(d / "hello-pip.txt", expected_pip)
@@ -537,6 +582,7 @@ athing
             str(d / "conda-output.txt"),
             str(d / "pip-output.txt"),
             "--no-header",
+            filename=filename,
         )
 
         check_results_conda_req(d / "conda-output.txt", expected_conda)
@@ -551,6 +597,7 @@ athing
             "-c",
             "achannel",
             "--no-header",
+            filename=filename,
         )
 
         expected_conda = """\
@@ -562,11 +609,11 @@ conda-forge::cthing
         check_results_conda_req(d / "hello-pip.txt", expected_pip)
 
 
-def test_json():
+def test_json(filename):
     runner = CliRunner()
 
     # stdout
-    result = do_run(runner, "j")
+    result = do_run(runner, "j", filename=filename)
 
     expected = """\
 {"dependencies": ["bthing-conda", "conda-forge::cthing"], "pip": ["athing"], "channels": ["conda-forge"]}
@@ -589,7 +636,7 @@ def test_json():
             "channels": ["conda-forge"],
         }
 
-        do_run(runner, "json", "-o", str(d / "hello.json"))
+        do_run(runner, "json", "-o", str(d / "hello.json"), filename=filename)
 
         check_results(d / "hello.json", expected)
 
@@ -606,7 +653,16 @@ def test_json():
             "channels": ["conda-forge"],
         }
 
-        do_run(runner, "json", "-o", str(d / "there.json"), "-e", "dev", "--no-sort")
+        do_run(
+            runner,
+            "json",
+            "-o",
+            str(d / "there.json"),
+            "-e",
+            "dev",
+            "--no-sort",
+            filename=filename,
+        )
 
         check_results(d / "there.json", expected)
 
@@ -623,15 +679,17 @@ def test_json():
             "channels": ["conda-forge"],
         }
 
-        do_run(runner, "json", "-o", str(d / "there.json"), "-e", "dev")
+        do_run(
+            runner, "json", "-o", str(d / "there.json"), "-e", "dev", filename=filename
+        )
 
         check_results(d / "there.json", expected)
 
 
-def test_alias():
+def test_alias(filename):
     runner = CliRunner()
 
-    result = do_run(runner, "q")
+    result = do_run(runner, "q", filename=filename)
 
     assert isinstance(result.exception, BaseException)
 
@@ -646,7 +704,7 @@ def test_alias():
 #     check_result(result, expected)
 
 
-def test_overwrite():
+def test_overwrite(filename):
     runner = CliRunner(mix_stderr=True)
 
     with tempfile.TemporaryDirectory() as d_tmp:
@@ -657,7 +715,15 @@ def test_overwrite():
         assert not path.exists()
 
         result = do_run(
-            runner, "yaml", "-o", str(path), "-v", "-w", "force", catch_exceptions=False
+            runner,
+            "yaml",
+            "-o",
+            str(path),
+            "-v",
+            "-w",
+            "force",
+            catch_exceptions=False,
+            filename=filename,
         )
         # assert result.output.strip() == f"# Creating yaml {d_tmp}/out.yaml"
 
@@ -673,6 +739,7 @@ def test_overwrite():
                 "-w",
                 cmd,
                 catch_exceptions=False,
+                filename=filename,
             )
 
             if cmd == "force":
@@ -697,6 +764,7 @@ def test_overwrite():
             "-w",
             "force",
             catch_exceptions=False,
+            filename=filename,
         )
         orig_time = path.stat().st_mtime
 
@@ -704,7 +772,15 @@ def test_overwrite():
 
         for cmd in ["check", "skip", "force"]:
             result = do_run(
-                runner, "r", "-o", str(path), "-v", "-w", cmd, catch_exceptions=False
+                runner,
+                "r",
+                "-o",
+                str(path),
+                "-v",
+                "-w",
+                cmd,
+                catch_exceptions=False,
+                filename=filename,
             )
 
             if cmd == "force":

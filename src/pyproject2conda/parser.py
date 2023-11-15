@@ -133,7 +133,7 @@ def _default_parser() -> argparse.ArgumentParser:
         help="If specified skip pyproject dependency on this line",
     )
 
-    parser.add_argument("package", nargs="*")
+    parser.add_argument("packages", nargs="*")
 
     return parser
 
@@ -295,6 +295,47 @@ def _pyproject_to_value_parsed_pairs(
             out.append((value, parsed))
         elif value:
             out.append((value, {}))
+    return out  # pyright: ignore
+
+
+def _format_override_table(override_table: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    for name, v in override_table.items():
+        new = {
+            "pip": v.get("pip", False),
+            "skip": v.get("skip", False),
+            "channel": v.get("channel", None),
+            "packages": v.get("packages", []),
+        }
+
+        if new["channel"] and new["channel"].strip() == "pip":
+            new["pip"] = True
+            new["channel"] = None
+
+        if isinstance(new["packages"], str):
+            new["packages"] = [new["packages"]]
+
+        out[name] = new
+
+    return out
+
+
+def _apply_override_table(
+    value_parsed_list: list[tuple[str | None, dict[str, Any]]],
+    override_table: dict[str, Any],
+) -> list[tuple[str | None, dict[str, Any]]]:
+    out: list[tuple[str | None, dict[str, Any]]] = []
+
+    override_table = _format_override_table(override_table)
+
+    for value, parsed in value_parsed_list:
+        if value and (name := Requirement(value).name) in override_table:
+            new_parsed = dict(override_table[name], **parsed)
+        else:
+            new_parsed = parsed
+
+        out.append((value, new_parsed))
+
     return out
 
 
@@ -304,6 +345,7 @@ def value_comment_pairs_to_conda(
     sort: bool = True,
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
+    override_table: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Convert raw value/comment pairs to install lines"""
 
@@ -314,7 +356,12 @@ def value_comment_pairs_to_conda(
         if not value:
             raise ValueError("trying to add value that does not exist")
 
-    for value, parsed in _pyproject_to_value_parsed_pairs(value_comment_list):
+    value_parsed_list = _pyproject_to_value_parsed_pairs(value_comment_list)
+
+    if override_table:
+        value_parsed_list = _apply_override_table(value_parsed_list, override_table)
+
+    for value, parsed in value_parsed_list:
         if parsed:
             if parsed["pip"]:
                 _check_value(value)
@@ -326,7 +373,7 @@ def value_comment_pairs_to_conda(
                 else:
                     conda_deps.append(value)  # type: ignore
 
-            conda_deps.extend(parsed["package"])
+            conda_deps.extend(parsed["packages"])
         elif value:
             conda_deps.append(value)
 
@@ -354,6 +401,7 @@ def pyproject_to_conda_lists(
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
     remove_whitespace: bool = True,
+    override_table: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if python_include == "infer":
         # safer get
@@ -366,6 +414,14 @@ def pyproject_to_conda_lists(
         channels_doc = get_in(["tool", "pyproject2conda", "channels"], data, None)
         if channels_doc:
             channels = channels_doc.unwrap()
+
+    if override_table is None:
+        override_table_ = get_in(
+            ["tool", "pyproject2conda", "dependencies"], data, None
+        )
+        if override_table_:
+            override_table = override_table_.unwrap()
+
     if isinstance(channels, str):
         channels = [channels]
 
@@ -380,6 +436,7 @@ def pyproject_to_conda_lists(
         sort=sort,
         deps=deps,
         reqs=reqs,
+        override_table=override_table,
     )
 
     # clean up

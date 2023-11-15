@@ -49,14 +49,14 @@ def test_match_p2c_comment():
 
 
 def test_parse_p2c():
-    def get_expected(pip=False, skip=False, channel=None, package=None):
-        if package is None:
-            package = []
+    def get_expected(pip=False, skip=False, channel=None, packages=None):
+        if packages is None:
+            packages = []
         return {
             "pip": pip,
             "skip": skip,
             "channel": channel,
-            "package": package,
+            "packages": packages,
         }
 
     assert parser._parse_p2c(None) is None
@@ -72,15 +72,15 @@ def test_parse_p2c():
     )
 
     assert parser._parse_p2c("athing>=0.3,<0.2 ") == get_expected(
-        package=["athing>=0.3,<0.2"]
+        packages=["athing>=0.3,<0.2"]
     )
 
     assert parser._parse_p2c("athing>=0.3,<0.2 bthing ") == get_expected(
-        package=["athing>=0.3,<0.2", "bthing"]
+        packages=["athing>=0.3,<0.2", "bthing"]
     )
 
     assert parser._parse_p2c("'athing >= 0.3, <0.2' bthing ") == get_expected(
-        package=["athing >= 0.3, <0.2", "bthing"]
+        packages=["athing >= 0.3, <0.2", "bthing"]
     )
 
 
@@ -268,42 +268,89 @@ def test_package_name():
         d.to_conda_lists()
 
 
-def test_complete():
-    toml = dedent(
-        """\
-    [project]
-    name = "hello"
-    requires-python = ">=3.8, <3.11"
-    dependencies = [
-    "athing", # p2c: -p # a comment
-    "bthing", # p2c: -s bthing-conda
-    "cthing; python_version<'3.10'", # p2c: -c conda-forge
-    ]
+@pytest.mark.parametrize(
+    "toml",
+    [
+        # comment syntax
+        dedent(
+            """\
+        [project]
+        name = "hello"
+        requires-python = ">=3.8, <3.11"
+        dependencies = [
+        "athing", # p2c: -p # a comment
+        "bthing", # p2c: -s bthing-conda
+        "cthing; python_version<'3.10'", # p2c: -c conda-forge
+        ]
 
-    [project.optional-dependencies]
-    test = [
-    "pandas",
-    "pytest", # p2c: -c conda-forge
-    ]
-    dev-extras = [
-    # p2c: -s additional-thing # this is an additional conda package
-    "matplotlib", # p2c: -s conda-matplotlib
-    ]
-    dev = [
-    "hello[test]",
-    "hello[dev-extras]",
-    ]
-    dist-pypi = [
-    "setuptools",
-    "build", # p2c: -p
-    ]
+        [project.optional-dependencies]
+        test = [
+        "pandas",
+        "pytest", # p2c: -c conda-forge
+        ]
+        dev-extras = [
+        # p2c: -s additional-thing # this is an additional conda package
+        "matplotlib", # p2c: -s conda-matplotlib
+        ]
+        dev = [
+        "hello[test]",
+        "hello[dev-extras]",
+        ]
+        dist-pypi = [
+        "setuptools",
+        "build", # p2c: -p
+        ]
 
 
-    [tool.pyproject2conda]
-    channels = ['conda-forge']
-    """
-    )
+        [tool.pyproject2conda]
+        channels = ['conda-forge']
+        """
+        ),
+        # table syntax
+        dedent(
+            """\
+        [project]
+        name = "hello"
+        requires-python = ">=3.8, <3.11"
+        dependencies = [
+        "athing",
+        "bthing",
+        "cthing; python_version<'3.10'",
+        ]
 
+        [project.optional-dependencies]
+        test = [
+        "pandas",
+        "pytest",
+        ]
+        dev-extras = [
+        "matplotlib",
+        ]
+        dev = [
+        "hello[test]",
+        "hello[dev-extras]",
+        ]
+        dist-pypi = [
+        "setuptools",
+        "build",
+        ]
+
+
+        [tool.pyproject2conda]
+        channels = ['conda-forge']
+
+        [tool.pyproject2conda.dependencies]
+        athing = {pip = true}
+        bthing = {skip = true, packages = "bthing-conda"}
+        cthing = {channel = "conda-forge"}
+        pytest = {channel = "conda-forge"}
+        matplotlib = {skip = true, packages = ["additional-thing", "conda-matplotlib"]}
+        build = { channel = "pip" }
+        """
+        ),
+    ],
+)
+def test_complete(toml):
     d = parser.PyProject2Conda.from_string(toml)
 
     # test unknown extra
@@ -613,24 +660,49 @@ dependencies:
         assert f(allow_empty=True) == "No dependencies for this environment\n"
 
 
-def test_spaces():
-    toml = dedent(
-        """\
-    [project]
-    name = "hello"
-    requires-python = ">=3.8, <3.11"
-    dependencies = [
-    "athing >0.5", # p2c: -p # a comment
-    "bthing > 1.0", # p2c: -s 'bthing-conda > 2.0'
-    "cthing; python_version < '3.10'", # p2c: -c conda-forge
-    ]
+@pytest.mark.parametrize(
+    "toml",
+    [
+        dedent(
+            """\
+            [project]
+            name = "hello"
+            requires-python = ">=3.8, <3.11"
+            dependencies = [
+            "athing >0.5", # p2c: -p # a comment
+            "bthing > 1.0", # p2c: -s 'bthing-conda > 2.0'
+            "cthing; python_version < '3.10'", # p2c: -c conda-forge
+            ]
 
 
-    [tool.pyproject2conda]
-    channels = ['conda-forge']
-    """
-    )
+            [tool.pyproject2conda]
+            channels = ['conda-forge']
+            """
+        ),
+        dedent(
+            """\
+            [project]
+            name = "hello"
+            requires-python = ">=3.8, <3.11"
+            dependencies = [
+            "athing >0.5",
+            "bthing > 1.0",
+            "cthing; python_version < '3.10'",
+            ]
 
+
+            [tool.pyproject2conda]
+            channels = ['conda-forge']
+
+            [tool.pyproject2conda.dependencies]
+            athing = {channel = "pip"}
+            bthing = {skip = true, packages = "bthing-conda > 2.0"}
+            cthing = {channel = "conda-forge"}
+            """
+        ),
+    ],
+)
+def test_spaces(toml):
     d = parser.PyProject2Conda.from_string(toml)
 
     expected = """\

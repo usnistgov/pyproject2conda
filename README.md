@@ -134,12 +134,12 @@ Note the comment lines `# p2c:...`. These are special tokens that
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
 ```bash
-usage: -c [-h] [-c CHANNEL] [-p] [-s] [package ...]
+usage: -c [-h] [-c CHANNEL] [-p] [-s] [packages ...]
 
 Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES
 
 positional arguments:
-  package
+  packages
 
 options:
   -h, --help            show this help message and exit
@@ -192,6 +192,40 @@ dependencies:
   - pip:
       - athing
 ```
+
+<!-- [[[end]]] -->
+
+### Alternate syntax: using table instead of comments
+
+While using comments to mark options has the convenience of placing the changes
+right next to the dependency, it can becore a bit cumbersome. If you feel this
+way, then you can use an alternative method to map `pip` dependencies to `conda`
+dependencies. For this, use the `tool.pyproject2.conda.dependencies` table. For
+example, we can do the same thing as above with:
+
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(path="tests/data/test-pyproject-alt.toml", begin="[tool.pyproject2conda.dependencies]", end="[tool.pyproject2conda.envs.base]")]]] -->
+
+```toml
+# ...
+[tool.pyproject2conda.dependencies]
+athing = { pip = true }
+bthing = { skip = true, packages = "bthing-conda" }
+cthing = { channel = "conda-forge" }
+pytest = { channel = "conda-forge" }
+matplotlib = { skip = true, packages = [
+  "additional-thing; python_version < '3.9'",
+  "conda-matplotlib"
+] }
+build = { channel = "pip" }
+# ...
+
+```
+
+Note that the table keys are the package name to be adjusted (no version
+modifiers in the name), and the following dictionary is similar to the options
+above. Also, you can specify `channel = "pip"` to force the package to be
+installed with pip (same as setting `pip = true`).
 
 <!-- [[[end]]] -->
 
@@ -661,7 +695,7 @@ $ p2c project -f tests/data/test-pyproject.toml --dry
 # Creating requirements base.txt
 athing
 bthing
-cthing;python_version<'3.10'
+cthing;python_version<"3.10"
 # --------------------
 # Creating yaml py310-test-extras.yaml
 channels:
