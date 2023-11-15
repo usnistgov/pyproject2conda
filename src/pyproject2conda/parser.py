@@ -17,11 +17,8 @@ from typing import (
     Any,
     Generator,
     Iterable,
-    Optional,
     Sequence,
     TextIO,
-    TypeVar,
-    Union,
     cast,
 )
 
@@ -29,22 +26,14 @@ if TYPE_CHECKING:
     import tomlkit.items
     import tomlkit.toml_document
 
+    from ._typing import OptStr, OptStrSeq, T
     from ._typing_compat import Self
 
 import tomlkit
-from packaging.specifiers import SpecifierSet
-from packaging.version import Version
+from packaging.requirements import Requirement
 from ruamel.yaml import YAML
 
 from pyproject2conda.utils import get_in
-
-# * Typing -----------------------------------------------------------------------------
-
-Tstr_opt = Optional[str]
-Tstr_seq_opt = Optional[Union[str, Sequence[str]]]
-
-T = TypeVar("T")
-
 
 # * Utilities --------------------------------------------------------------------------
 
@@ -62,6 +51,29 @@ _WHITE_SPACE_REGEX = re.compile(r"\s+")
 
 def _remove_whitespace(s: str) -> str:
     return re.sub(_WHITE_SPACE_REGEX, "", s)
+
+
+def _unique_list(values: Iterable[T]) -> list[T]:
+    """
+    Return only unique values in list.
+    Unlike using set(values), this preserves order.
+    """
+    output: list[T] = []
+    for v in values:
+        if v not in output:
+            output.append(v)
+    return output
+
+
+def _list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
+    if values:
+        output = "\n".join(values)
+        if eol:
+            output += "\n"
+    else:
+        output = ""
+
+    return output
 
 
 # * Default parser ---------------------------------------------------------------------
@@ -101,32 +113,9 @@ def _factory_empty_tomlkit_Array() -> tomlkit.items.Array:
     return tomlkit.items.Array([], tomlkit.items.Trivia())
 
 
-def _unique_list(values: Iterable[T]) -> list[T]:
-    """
-    Return only unique values in list.
-    Unlike using set(values), this preserves order.
-    """
-    output: list[T] = []
-    for v in values:
-        if v not in output:
-            output.append(v)
-    return output
-
-
-def _list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
-    if values:
-        output = "\n".join(values)
-        if eol:
-            output += "\n"
-    else:
-        output = ""
-
-    return output
-
-
 def _iter_value_comment_pairs(
     array: tomlkit.items.Array,  # pyright: ignore
-) -> Generator[tuple[Tstr_opt, Tstr_opt], None, None]:
+) -> Generator[tuple[OptStr, OptStr], None, None]:
     """Extract value and comments from array"""
     for v in array._value:  # pyright: ignore
         if v.value is not None and not isinstance(
@@ -145,7 +134,7 @@ def _iter_value_comment_pairs(
 
 
 def _matches_package_name(
-    dep: Tstr_opt,
+    dep: OptStr,
     package_name: str,
 ) -> list[str] | None:
     """
@@ -157,8 +146,6 @@ def _matches_package_name(
         extras = None
 
     else:
-        from packaging.requirements import Requirement
-
         r = Requirement(dep)
 
         if r.name == package_name and r.extras:
@@ -171,10 +158,10 @@ def _matches_package_name(
 def _get_value_comment_pairs(
     package_name: str,
     deps: tomlkit.items.Array,
-    extras: Tstr_seq_opt = None,
+    extras: OptStrSeq = None,
     opts: tomlkit.items.Table | None = None,
     include_base_dependencies: bool = True,
-) -> list[tuple[Tstr_opt, Tstr_opt]]:
+) -> list[tuple[OptStr, OptStr]]:
     """Recursively build dependency, comment pairs from deps and extras."""
     if include_base_dependencies:
         out = list(_iter_value_comment_pairs(deps))
@@ -211,10 +198,10 @@ def _get_value_comment_pairs(
 
 def _pyproject_to_value_comment_pairs(
     data: tomlkit.toml_document.TOMLDocument,
-    extras: Tstr_seq_opt = None,
+    extras: OptStrSeq = None,
     unique: bool = True,
     include_base_dependencies: bool = True,
-) -> list[tuple[Tstr_opt, Tstr_opt]]:
+) -> list[tuple[OptStr, OptStr]]:
     package_name = cast("str | None", get_in(["project", "name"], data, default=None))
 
     if package_name is None:
@@ -243,7 +230,7 @@ def _pyproject_to_value_comment_pairs(
     return value_comment_list
 
 
-def _match_p2c_comment(comment: Tstr_opt) -> Tstr_opt:
+def _match_p2c_comment(comment: OptStr) -> OptStr:
     if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
         return None
     elif re.match(r".*?##\s*p2c:", comment):
@@ -253,7 +240,7 @@ def _match_p2c_comment(comment: Tstr_opt) -> Tstr_opt:
         return match.group(1).strip()
 
 
-def _parse_p2c(match: Tstr_opt) -> dict[str, Any] | None:
+def _parse_p2c(match: OptStr) -> dict[str, Any] | None:
     """Parse match from _match_p2c_comment"""
 
     if match:
@@ -262,42 +249,49 @@ def _parse_p2c(match: Tstr_opt) -> dict[str, Any] | None:
         return None
 
 
-def parse_p2c_comment(comment: Tstr_opt) -> dict[str, Any] | None:
+def parse_p2c_comment(comment: OptStr) -> dict[str, Any] | None:
     if match := _match_p2c_comment(comment):
         return _parse_p2c(match)
     else:
         return None
 
 
-def _limit_deps_by_python_version(
-    deps: list[str], python_version: Tstr_opt = None
-) -> list[str]:
-    if python_version:
-        version = Version(python_version)
+def _limit_dep_by_python_version(
+    dep: str,
+    python_version: str | None = None,
+) -> str | None:
+    """Limit by python version"""
+    r = Requirement(dep)
+
+    if (
+        r.marker
+        and python_version
+        and (not r.marker.evaluate({"python_version": python_version}))
+    ):
+        return None
     else:
-        version = None
+        r.marker = None
+        r.extras = None
+        return str(r)
 
-    matcher = re.compile(
-        r"(?P<dep>.*?);\s*python_version\s*(?P<token>[<=>~]*)\s*[\'|\"](?P<version>.*?)[\'|\"]"
-    )
 
-    output: list[str] = []
+def _limit_deps_by_python_version(
+    deps: Iterable[str],
+    python_version: str | None = None,
+) -> list[str]:
+    out: list[str] = []
     for dep in deps:
-        if match := matcher.match(dep):
-            if not version or version in SpecifierSet(
-                match["token"] + match["version"]
-            ):
-                output.append(match["dep"])
-        else:
-            output.append(dep)
-    return output
+        if (v := _limit_dep_by_python_version(dep, python_version)) is not None:
+            out.append(v)
+    return out
 
 
 def value_comment_pairs_to_conda(
-    value_comment_list: list[tuple[Tstr_opt, Tstr_opt]],
+    value_comment_list: list[tuple[OptStr, OptStr]],
     sort: bool = True,
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
+    python_version: str | None = None,
 ) -> dict[str, Any]:
     """Convert raw value/comment pairs to install lines"""
 
@@ -315,18 +309,20 @@ def value_comment_pairs_to_conda(
                 pip_deps.append(value)  # type: ignore
             elif not parsed["skip"]:
                 _check_value(value)
+                if v := _limit_dep_by_python_version(value, python_version):
+                    if parsed["channel"]:
+                        v = "{}::{}".format(parsed["channel"], v)
+                    conda_deps.append(v)
 
-                if parsed["channel"]:
-                    conda_deps.append("{}::{}".format(parsed["channel"], value))
-                else:
-                    conda_deps.append(value)  # type: ignore
-
-            conda_deps.extend(parsed["package"])
+            conda_deps.extend(
+                _limit_deps_by_python_version(parsed["package"], python_version)
+            )
         elif value:
-            conda_deps.append(value)
+            if v := _limit_dep_by_python_version(value, python_version):
+                conda_deps.append(v)
 
     if deps:
-        conda_deps.extend(list(deps))
+        conda_deps.extend(_limit_deps_by_python_version(deps, python_version))
 
     if reqs:
         pip_deps.extend(list(reqs))
@@ -340,10 +336,10 @@ def value_comment_pairs_to_conda(
 
 def pyproject_to_conda_lists(
     data: tomlkit.toml_document.TOMLDocument,
-    extras: Tstr_seq_opt = None,
-    channels: Tstr_seq_opt = None,
-    python_include: Tstr_opt = None,
-    python_version: Tstr_opt = None,
+    extras: OptStrSeq = None,
+    channels: OptStrSeq = None,
+    python_include: OptStr = None,
+    python_version: OptStr = None,
     include_base_dependencies: bool = True,
     sort: bool = True,
     deps: Sequence[str] | None = None,
@@ -375,6 +371,7 @@ def pyproject_to_conda_lists(
         sort=sort,
         deps=deps,
         reqs=reqs,
+        python_version=python_version,
     )
 
     if python_include:
@@ -382,10 +379,10 @@ def pyproject_to_conda_lists(
     if channels:
         output["channels"] = channels
 
-    # limit python version/remove python_verions <=> part
-    output["dependencies"] = _limit_deps_by_python_version(
-        output["dependencies"], python_version
-    )
+    # # limit python version/remove python_verions <=> part
+    # output["dependencies"] = _limit_deps_by_python_version(
+    #     output["dependencies"], python_version
+    # )
 
     if remove_whitespace:
         output = {k: [_remove_whitespace(x) for x in v] for k, v in output.items()}
@@ -395,14 +392,14 @@ def pyproject_to_conda_lists(
 
 def pyproject_to_conda(
     data: tomlkit.toml_document.TOMLDocument,
-    extras: Tstr_seq_opt = None,
-    channels: Tstr_seq_opt = None,
-    name: Tstr_opt = None,
-    python_include: Tstr_opt = None,
+    extras: OptStrSeq = None,
+    channels: OptStrSeq = None,
+    name: OptStr = None,
+    python_include: OptStr = None,
     stream: str | Path | TextIO | None = None,
-    python_version: Tstr_opt = None,
+    python_version: OptStr = None,
     include_base_dependencies: bool = True,
-    header_cmd: Tstr_opt = None,
+    header_cmd: OptStr = None,
     sort: bool = True,
     deps: Sequence[str] | None = None,
     reqs: Sequence[str] | None = None,
@@ -511,7 +508,7 @@ def _output_to_yaml(
     dependencies: list[str] | None,
     channels: list[str] | None = None,
     pip: list[str] | None = None,
-    name: Tstr_opt = None,
+    name: OptStr = None,
     stream: str | Path | TextIO | None = None,
     header_cmd: str | None = None,
     allow_empty: bool = False,
@@ -545,9 +542,9 @@ class PyProject2Conda:
     def __init__(
         self,
         data: tomlkit.toml_document.TOMLDocument,
-        name: Tstr_opt = None,
-        channels: Tstr_seq_opt = None,
-        python_include: Tstr_opt = None,
+        name: OptStr = None,
+        channels: OptStrSeq = None,
+        python_include: OptStr = None,
     ) -> None:
         self.data = data
         self.name = name
@@ -556,12 +553,12 @@ class PyProject2Conda:
 
     def to_conda_yaml(
         self,
-        extras: Tstr_seq_opt = None,
-        name: Tstr_opt = None,
-        channels: Tstr_seq_opt = None,
-        python_include: Tstr_opt = None,
+        extras: OptStrSeq = None,
+        name: OptStr = None,
+        channels: OptStrSeq = None,
+        python_include: OptStr = None,
         stream: str | Path | TextIO | None = None,
-        python_version: Tstr_opt = None,
+        python_version: OptStr = None,
         include_base_dependencies: bool = True,
         header_cmd: str | None = None,
         sort: bool = True,
@@ -591,10 +588,10 @@ class PyProject2Conda:
 
     def to_conda_lists(
         self,
-        extras: Tstr_seq_opt = None,
-        channels: Tstr_seq_opt = None,
-        python_include: Tstr_opt = None,
-        python_version: Tstr_opt = None,
+        extras: OptStrSeq = None,
+        channels: OptStrSeq = None,
+        python_include: OptStr = None,
+        python_version: OptStr = None,
         include_base_dependencies: bool = True,
         sort: bool = True,
         deps: Sequence[str] | None = None,
@@ -618,7 +615,7 @@ class PyProject2Conda:
 
     def to_requirement_list(
         self,
-        extras: Tstr_seq_opt = None,
+        extras: OptStrSeq = None,
         include_base_dependencies: bool = True,
         sort: bool = True,
         reqs: Sequence[str] | None = None,
@@ -646,7 +643,7 @@ class PyProject2Conda:
 
     def to_requirements(
         self,
-        extras: Tstr_seq_opt = None,
+        extras: OptStrSeq = None,
         include_base_dependencies: bool = True,
         header_cmd: str | None = None,
         stream: str | Path | TextIO | None = None,
@@ -676,15 +673,15 @@ class PyProject2Conda:
 
     def to_conda_requirements(
         self,
-        extras: Tstr_seq_opt = None,
-        channels: Tstr_seq_opt = None,
-        python_include: Tstr_opt = None,
-        python_version: Tstr_opt = None,
+        extras: OptStrSeq = None,
+        channels: OptStrSeq = None,
+        python_include: OptStr = None,
+        python_version: OptStr = None,
         prepend_channel: bool = False,
         stream_conda: str | Path | TextIO | None = None,
         stream_pip: str | Path | TextIO | None = None,
         include_base_dependencies: bool = True,
-        header_cmd: Tstr_opt = None,
+        header_cmd: OptStr = None,
         sort: bool = True,
         deps: Sequence[str] | None = None,
         reqs: Sequence[str] | None = None,
@@ -724,7 +721,7 @@ class PyProject2Conda:
 
         return deps_str, reqs_str
 
-    def _check_extras(self, extras: Tstr_seq_opt) -> None:
+    def _check_extras(self, extras: OptStrSeq) -> None:
         if extras is None:
             return
         elif isinstance(extras, str):
@@ -752,9 +749,9 @@ class PyProject2Conda:
     def from_string(
         cls,
         toml_string: str,
-        name: Tstr_opt = None,
-        channels: Tstr_seq_opt = None,
-        python_include: Tstr_opt = None,
+        name: OptStr = None,
+        channels: OptStrSeq = None,
+        python_include: OptStr = None,
     ) -> Self:
         data = tomlkit.parse(toml_string)
         return cls(
@@ -765,9 +762,9 @@ class PyProject2Conda:
     def from_path(
         cls,
         path: str | Path,
-        name: Tstr_opt = None,
-        channels: Tstr_seq_opt = None,
-        python_include: Tstr_opt = None,
+        name: OptStr = None,
+        channels: OptStrSeq = None,
+        python_include: OptStr = None,
     ) -> Self:
         path = Path(path)
 
@@ -779,16 +776,3 @@ class PyProject2Conda:
         return cls(
             data=data, name=name, channels=channels, python_include=python_include
         )
-
-
-# def _list_to_stream(values, stream=None):
-#     value = "\n".join(values)
-#     if isinstance(stream, (str, Path)):
-#         with open(stream, "w") as f:
-#             f.write(value)
-
-#     elif stream is None:
-#         return value
-
-#     else:
-#         stream.write(value)

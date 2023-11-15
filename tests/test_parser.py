@@ -638,7 +638,7 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.8, <3.11
-  - bthing-conda > 2.0
+  - bthing-conda>2.0
   - conda-forge::cthing
   - pip
   - pip:
