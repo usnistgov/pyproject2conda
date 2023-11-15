@@ -76,6 +76,35 @@ def _list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
     return output
 
 
+def _clean_pip_reqs(reqs: list[str]) -> list[str]:
+    return [str(Requirement(r)) for r in reqs]
+
+
+def _clean_conda_deps(deps: list[str], python_version: str | None = None) -> list[str]:
+    out: list[str] = []
+    for dep in deps:
+        # if have a channel, take it out
+        if "::" in dep:
+            channel, d = dep.split("::")
+        else:
+            channel, d = None, dep
+        r = Requirement(d)
+
+        if (
+            r.marker
+            and python_version
+            and (not r.marker.evaluate({"python_version": python_version}))
+        ):
+            continue
+        else:
+            r.marker = None
+            r.extras = set()
+            if channel:
+                r.name = f"{channel}::{r.name}"
+            out.append(str(r))
+    return out
+
+
 # * Default parser ---------------------------------------------------------------------
 
 
@@ -230,6 +259,7 @@ def _pyproject_to_value_comment_pairs(
     return value_comment_list
 
 
+# * Parsing p2c comments
 def _match_p2c_comment(comment: OptStr) -> OptStr:
     if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
         return None
@@ -256,65 +286,19 @@ def parse_p2c_comment(comment: OptStr) -> dict[str, Any] | None:
         return None
 
 
-def _clean_pip_reqs(reqs: list[str]) -> list[str]:
-    return [str(Requirement(r)) for r in reqs]
-
-
-def _clean_conda_deps(deps: list[str], python_version: str | None = None) -> list[str]:
-    out: list[str] = []
-    for dep in deps:
-        # if have a channel, take it out
-        if "::" in dep:
-            channel, d = dep.split("::")
-        else:
-            channel, d = None, dep
-        r = Requirement(d)
-
-        if (
-            r.marker
-            and python_version
-            and (not r.marker.evaluate({"python_version": python_version}))
-        ):
-            continue
-        else:
-            r.marker = None
-            r.extras = set()
-            if channel:
-                r.name = f"{channel}::{r.name}"
-            out.append(str(r))
+def _pyproject_to_value_parsed_pairs(
+    value_comment_list: list[tuple[OptStr, OptStr]],
+) -> list[tuple[str | None, dict[str, Any]]]:
+    out = []
+    for value, comment in value_comment_list:
+        if comment and (parsed := parse_p2c_comment(comment)):
+            out.append((value, parsed))
+        elif value:
+            out.append((value, {}))
     return out
 
 
-# def _limit_dep_by_python_version(
-#     dep: str,
-#     python_version: str | None = None,
-# ) -> str | None:
-#     """Limit by python version"""
-#     r = Requirement(dep)
-
-#     if (
-#         r.marker
-#         and python_version
-#         and (not r.marker.evaluate({"python_version": python_version}))
-#     ):
-#         return None
-#     else:
-#         r.marker = None
-#         r.extras = None
-#         return str(r)
-
-
-# def _limit_deps_by_python_version(
-#     deps: Iterable[str],
-#     python_version: str | None = None,
-# ) -> list[str]:
-#     out: list[str] = []
-#     for dep in deps:
-#         if (v := _limit_dep_by_python_version(dep, python_version)) is not None:
-#             out.append(v)
-#     return out
-
-
+# * To dependency list
 def value_comment_pairs_to_conda(
     value_comment_list: list[tuple[OptStr, OptStr]],
     sort: bool = True,
@@ -330,8 +314,8 @@ def value_comment_pairs_to_conda(
         if not value:
             raise ValueError("trying to add value that does not exist")
 
-    for value, comment in value_comment_list:
-        if comment and (parsed := parse_p2c_comment(comment)):
+    for value, parsed in _pyproject_to_value_parsed_pairs(value_comment_list):
+        if parsed:
             if parsed["pip"]:
                 _check_value(value)
                 pip_deps.append(value)  # type: ignore
