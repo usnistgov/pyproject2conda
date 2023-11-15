@@ -17,14 +17,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence, TypeVar
-
-if TYPE_CHECKING:
-    from ._typing_compat import TypeAlias
-
+from typing import Optional, Sequence, TypeVar, Union
 
 R = TypeVar("R")
 T = TypeVar("T")
 
-OptStr: TypeAlias = str | None
-OptStrSeq: TypeAlias = str | Sequence[str] | None
+OptStr = Optional[str]
+OptStrSeq = Union[str, Sequence[str], None]

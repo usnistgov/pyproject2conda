@@ -663,6 +663,9 @@ class PyProject2Conda:
         if reqs:
             out.extend(list(reqs))
 
+        # cleanup reqs:
+        out = _clean_pip_reqs(out)
+
         if remove_whitespace:
             out = [_remove_whitespace(x) for x in out]
 

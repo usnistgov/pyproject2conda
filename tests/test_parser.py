@@ -664,9 +664,9 @@ dependencies:
     )
 
     expected = """\
-    athing >0.5
-    bthing > 1.0
-    cthing; python_version < '3.10'
+    athing>0.5
+    bthing>1.0
+    cthing; python_version < "3.10"
     """
 
     assert dedent(expected) == d.to_requirements(remove_whitespace=False)
@@ -674,7 +674,7 @@ dependencies:
     expected = """\
     athing>0.5
     bthing>1.0
-    cthing;python_version<'3.10'
+    cthing;python_version<"3.10"
     """
 
     assert dedent(expected) == d.to_requirements(remove_whitespace=True)
