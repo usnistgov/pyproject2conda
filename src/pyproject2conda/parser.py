@@ -38,7 +38,7 @@ from ruamel.yaml import YAML
 
 from pyproject2conda.utils import get_in
 
-# -- typing ----------------------------------------------------------------------------
+# * Typing -----------------------------------------------------------------------------
 
 Tstr_opt = Optional[str]
 Tstr_seq_opt = Optional[Union[str, Sequence[str]]]
@@ -46,7 +46,7 @@ Tstr_seq_opt = Optional[Union[str, Sequence[str]]]
 T = TypeVar("T")
 
 
-# -- Utilities -------------------------------------------------------------------------
+# * Utilities --------------------------------------------------------------------------
 
 
 def _check_allow_empty(allow_empty: bool) -> str:
@@ -64,7 +64,7 @@ def _remove_whitespace(s: str) -> str:
     return re.sub(_WHITE_SPACE_REGEX, "", s)
 
 
-# --- Default parser -------------------------------------------------------------------
+# * Default parser ---------------------------------------------------------------------
 
 
 @lru_cache
@@ -153,17 +153,18 @@ def _matches_package_name(
 
     If it does, return extras, else return None
     """
-
     if not dep:
-        return None
-
-    pattern = rf"{package_name}\[(.*?)\]"
-    match = re.match(pattern, dep)
-
-    if match:
-        extras = match.group(1).split(",")
-    else:
         extras = None
+
+    else:
+        from packaging.requirements import Requirement
+
+        r = Requirement(dep)
+
+        if r.name == package_name and r.extras:
+            extras = list(r.extras)
+        else:
+            extras = None
     return extras
 
 
