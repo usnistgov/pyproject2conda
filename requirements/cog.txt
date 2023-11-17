@@ -9,8 +9,7 @@
 #
 cogapp
 packaging
-ruamel.yaml
 tomli
 tomlkit
 typer
-typing-extensions;python_version<'3.9'
+typing-extensions;python_version<"3.9"

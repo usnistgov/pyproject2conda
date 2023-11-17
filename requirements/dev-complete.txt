@@ -21,7 +21,7 @@ pytest-accept
 pytest-cov
 pytest-sugar
 pytest-xdist
-pytype;python_version<'3.11'
+pytype;python_version<"3.11"
 ruamel.yaml
 scriv
 setuptools-scm>=8.0
@@ -29,4 +29,4 @@ tomli
 tomlkit
 typer
 types-click
-typing-extensions;python_version<'3.9'
+typing-extensions;python_version<"3.9"

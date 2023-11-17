@@ -19,7 +19,8 @@ Modules
    :toctree: generated/
    :template: autodocsumm/module.rst
 
-   parser
+   overrides
+   requirements
    config
    cli
 
