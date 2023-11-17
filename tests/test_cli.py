@@ -70,7 +70,7 @@ def test_create(filename):
 
     result = do_run(runner, "yaml", filename="hello/there.toml")
 
-    assert isinstance(result.exception, ValueError)
+    assert isinstance(result.exception, FileNotFoundError)
 
     expected = """\
 channels:

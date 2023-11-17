@@ -132,7 +132,7 @@ Note the comment lines `# p2c:...`. These are special tokens that
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import p2c_argparser; p2c_argparser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
+<!-- [[[cog run_command("""python -c "from pyproject2conda.overrides import p2c_argparser; p2c_argparser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
 ```bash
 usage: -c [-h] [-c CHANNEL] [-p] [-s] [packages ...]
 
@@ -221,11 +221,6 @@ build = { channel = "pip" }
 # ...
 
 ```
-
-Note that the table keys are the package name to be adjusted (no version
-modifiers in the name), and the following dictionary is similar to the options
-above. Also, you can specify `channel = "pip"` to force the package to be
-installed with pip (same as setting `pip = true`).
 
 <!-- [[[end]]] -->
 
@@ -488,8 +483,8 @@ dependencies:
 `pyproject2conda` can also be used within python:
 
 ```pycon
->>> from pyproject2conda import PyProject2Conda
->>> p = PyProject2Conda.from_path("./tests/data/test-pyproject.toml")
+>>> from pyproject2conda.requirements import ParseDepends
+>>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
 >>> print(p.to_conda_yaml(python_include="infer").strip())
@@ -617,11 +612,11 @@ dependencies:
 or
 
 ```pycon
->>> from pyproject2conda import PyProject2Conda
->>> p = PyProject2Conda.from_path("./tests/data/test-pyproject.toml")
+>>> from pyproject2conda.requirements import ParseDepends
+>>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(extras='dist-pypi', include_base_dependencies=False).strip())
+>>> print(p.to_conda_yaml(extras='dist-pypi', include_base=False).strip())
 channels:
   - conda-forge
 dependencies:

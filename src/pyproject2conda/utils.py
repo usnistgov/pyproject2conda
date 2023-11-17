@@ -112,7 +112,7 @@ def update_target(
 
             update = any(target_time < dep.stat().st_mtime for dep in deps_filtered)
     else:
-        raise ValueError(f"unknown option overwrite={overwrite}")
+        raise ValueError(f"unknown option overwrite={overwrite}")  # pragma: no cover
 
     return update
 

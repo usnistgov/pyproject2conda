@@ -5,12 +5,9 @@ Requirements parsing (:mod:`~pyproject2conda.requirements`)
 
 from __future__ import annotations
 
-import argparse
-import re
-import shlex
-from functools import cached_property, lru_cache
+from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from typing import (
@@ -29,7 +26,6 @@ if TYPE_CHECKING:
     from ._typing import (
         MISSING_TYPE,
         OptStr,
-        OptStrSeq,
         RequirementCommentPair,
         RequirementOverridePair,
     )
@@ -52,6 +48,8 @@ from pyproject2conda.utils import (
     remove_whitespace_list as _remove_whitespace_list,
 )
 
+from .overrides import OverrideDeps, OverrideDict
+
 
 # * Utilities --------------------------------------------------------------------------
 def _check_allow_empty(allow_empty: bool) -> str:
@@ -62,7 +60,6 @@ def _check_allow_empty(allow_empty: bool) -> str:
         raise ValueError(msg)
 
 
-# ** Requirement
 def _clean_pip_reqs(reqs: list[str]) -> list[str]:
     return [str(Requirement(r)) for r in reqs]
 
@@ -111,7 +108,7 @@ def _update_requirement(
     extras: str | Iterable[str] | None | MISSING_TYPE = MISSING,
     specifier: str | SpecifierSet | None | MISSING_TYPE = MISSING,
     marker: str | Marker | None | MISSING_TYPE = MISSING,
-) -> Requirement:
+) -> Requirement:  # pragma: no cover
     if isinstance(requirement, str):
         requirement = Requirement(requirement)
     else:
@@ -174,7 +171,7 @@ def _iter_value_comment_pairs(
 def _requirement_comment_pairs(
     array: tomlkit.items.Array,
 ) -> list[RequirementCommentPair]:
-    out = []
+    out: list[RequirementCommentPair] = []
     for value, comment in _iter_value_comment_pairs(array):
         if value is None:
             r = None
@@ -192,7 +189,7 @@ def _resolve_extras(
     if isinstance(extras, str):
         extras = [extras]
 
-    out = []
+    out: list[RequirementCommentPair] = []
     for extra in extras:
         for requirement, comment in mapping_requirement_comment_pairs[extra]:
             if requirement is not None and requirement.name == package_name:
@@ -221,140 +218,7 @@ def _factory_empty_tomlkit_Table() -> tomlkit.items.Table:
     )
 
 
-# * Parsing p2c commets ----------------------------------------------------------------
-@lru_cache
-def p2c_argparser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES"
-    )
-
-    parser.add_argument(
-        "-c",
-        "--channel",
-        type=str,
-        help="Channel to add to the pyproject requirement",
-    )
-    parser.add_argument(
-        "-p",
-        "--pip",
-        action="store_true",
-        help="If specified, install pyproject dependency with pip",
-    )
-    parser.add_argument(
-        "-s",
-        "--skip",
-        action="store_true",
-        help="If specified skip pyproject dependency on this line",
-    )
-
-    parser.add_argument("packages", nargs="*")
-
-    return parser
-
-
-class OverrideDict(TypedDict, total=False):
-    """Dict for storing override options."""
-
-    pip: bool
-    skip: bool
-    channel: str | None
-    packages: str | list[str]
-
-
-def _match_p2c_comment(comment: OptStr) -> OptStr:
-    if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
-        return None
-    elif re.match(r".*?##\s*p2c:", comment):
-        # This checks for double ##.  If found, ignore line
-        return None
-    else:
-        return match.group(1).strip()
-
-
-def _parse_p2c(match: OptStr) -> OverrideDict | None:
-    """Parse match from _match_p2c_comment"""
-
-    if match:
-        return cast(OverrideDict, vars(p2c_argparser().parse_args(shlex.split(match))))
-    else:
-        return None
-
-
-def parse_p2c_comment(comment: OptStr) -> OverrideDict | None:
-    if match := _match_p2c_comment(comment):
-        return _parse_p2c(match)
-    else:
-        return None
-
-
-class OverrideDeps:
-    """Class to work with overrides from comment or table"""
-
-    def __init__(
-        self,
-        pip: bool = False,
-        skip: bool = False,
-        packages: str | list[str] | None = None,
-        channel: str | None = None,
-    ):
-        if channel is not None and channel.strip() in ["pip", "pypi"]:
-            channel = None
-            pip = True
-
-        self.pip = pip
-        self.skip = skip
-        self.channel = channel
-
-        if packages is None:
-            packages = []
-        elif isinstance(packages, str):
-            packages = [packages]
-        self.packages = packages
-
-    def __repr__(self) -> str:
-        return repr(self.__dict__)
-
-    @classmethod
-    def from_comment(
-        cls, comment: str | None, default: OverrideDict | None = None
-    ) -> Self | None:
-        parsed = parse_p2c_comment(comment)
-
-        kws: OverrideDict
-        if parsed is None:
-            if default is None:
-                return None
-            else:
-                kws = default
-        else:
-            if default:
-                kws = dict(default, **parsed)  # type: ignore
-            else:
-                kws = parsed
-
-        return cls(**kws)
-
-    @classmethod
-    def requirement_comment_to_override_pairs(
-        cls,
-        requirement_comment_pairs: list[RequirementCommentPair],
-        override_table: dict[str, OverrideDict],
-    ) -> list[RequirementOverridePair]:
-        out = []
-        for requirement, comment in requirement_comment_pairs:
-            if requirement is not None:
-                default = override_table.get(requirement.name, None)
-            else:
-                default = None
-
-            if (
-                override := cls.from_comment(comment=comment, default=default)
-            ) is not None or requirement is not None:
-                out.append((requirement, override))
-        return out
-
-
-# * Parser -----------------------------------------------------------------------------
+# ** output ----------------------------------------------------------------------------
 def _conda_yaml(
     name: str | None = None,
     channels: str | Iterable[str] | None = None,
@@ -371,7 +235,7 @@ def _conda_yaml(
     if not conda_deps and not pip_deps:
         raise ValueError
 
-    out = []
+    out: list[str] = []
     if name is not None:
         out.append(f"name: {name}")
 
@@ -387,7 +251,7 @@ def _conda_yaml(
         for dep in _as_list(conda_deps):
             out.append(f"  - {dep}")
 
-    if pip_deps is not None:
+    if pip_deps:
         out.append("  - pip")
         out.append("  - pip:")
 
@@ -427,7 +291,7 @@ def _create_header(cmd: str | None = None) -> str:
         )
 
     # prepend '# '
-    lines = []
+    lines: list[str] = []
     for line in header.split("\n"):
         if len(line.strip()) == 0:
             lines.append("#")
@@ -457,6 +321,7 @@ def _optional_write(
         stream.write(string)
 
 
+# * Main class
 class ParseDepends:
     """
     Parse pyproject.toml file for dependencies
@@ -509,7 +374,7 @@ class ParseDepends:
             out = {}
         else:
             out = out.unwrap()
-        return cast(dict[str, OverrideDict], out)
+        return cast("dict[str, OverrideDict]", out)
 
     @cached_property
     def channels(self) -> list[str]:
@@ -527,7 +392,7 @@ class ParseDepends:
 
     @property
     def extras(self) -> list[str]:
-        return list(self.optional_dependencies.keys())
+        return list(self.optional_dependencies.keys())  # pyright: ignore
 
     @cached_property
     def _requirement_override_pairs_base(
@@ -549,8 +414,8 @@ class ParseDepends:
         "package_name[extra,..]" to the actual dependencies.
         """
         unresolved: dict[str, list[RequirementCommentPair]] = {
-            k: _requirement_comment_pairs(v)
-            for k, v in self.optional_dependencies.items()
+            k: _requirement_comment_pairs(v)  # pyright: ignore
+            for k, v in self.optional_dependencies.items()  # pyright: ignore
         }
 
         resolved = {
@@ -559,7 +424,7 @@ class ParseDepends:
                 package_name=self.package_name,
                 mapping_requirement_comment_pairs=unresolved,
             )
-            for k, v in unresolved.items()
+            for k in unresolved
         }
 
         # comments -> overrides
@@ -689,18 +554,16 @@ class ParseDepends:
                     assert requirement is not None
                     pip_deps.append(str(requirement))
                 elif not override.skip:
-                    if requirement is None:
-                        print(requirement, override)
                     assert requirement is not None
-                    conda_deps.append(
-                        str(
-                            _clean_conda_requirement(
-                                requirement,
-                                python_version=python_version,
-                                channel=override.channel,
-                            )
-                        )
+
+                    r = _clean_conda_requirement(
+                        requirement,
+                        python_version=python_version,
+                        channel=override.channel,
                     )
+
+                    if r is not None:
+                        conda_deps.append(str(r))
 
                 conda_deps.extend(
                     _clean_conda_strings(
@@ -734,11 +597,11 @@ class ParseDepends:
 
     def to_conda_yaml(
         self,
-        extras: OptStrSeq = None,
+        extras: OptStr | Iterable[str] = None,
         pip_deps: str | Iterable[str] | None = None,
         conda_deps: str | Iterable[str] | None = None,
         name: OptStr = None,
-        channels: OptStrSeq = None,
+        channels: OptStr | Iterable[str] = None,
         python_include: OptStr = None,
         python_version: OptStr = None,
         include_base: bool = True,
@@ -781,7 +644,7 @@ class ParseDepends:
 
     def to_requirements(
         self,
-        extras: OptStrSeq = None,
+        extras: OptStr | Iterable[str] = None,
         include_base: bool = True,
         header_cmd: str | None = None,
         stream: str | Path | TextIO | None = None,
@@ -836,7 +699,7 @@ class ParseDepends:
         )
 
         if channels:
-            if isinstance(channels, str):
+            if isinstance(channels, str):  # pragma: no cover
                 channels = [channels]
             else:
                 channels = list(channels)

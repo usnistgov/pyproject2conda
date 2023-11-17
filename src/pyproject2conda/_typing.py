@@ -17,22 +17,21 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Sequence, TypeVar, Union
+from typing import TYPE_CHECKING, Optional, TypeVar
 
 R = TypeVar("R")
 T = TypeVar("T")
 
 
 OptStr = Optional[str]
-OptStrSeq = Union[str, Sequence[str], None]
 
 if TYPE_CHECKING:
     from typing import Literal, Tuple
 
     from packaging.requirements import Requirement
 
-    from .requirements import OverrideDeps
-    from .utils import _Missing
+    from .overrides import OverrideDeps
+    from .utils import _Missing  # pyright: ignore
 
     MISSING_TYPE = Literal[_Missing.MISSING]
 
