@@ -132,14 +132,14 @@ Note the comment lines `# p2c:...`. These are special tokens that
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
+<!-- [[[cog run_command("""python -c "from pyproject2conda.overrides import p2c_argparser; p2c_argparser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
 ```bash
-usage: -c [-h] [-c CHANNEL] [-p] [-s] [package ...]
+usage: -c [-h] [-c CHANNEL] [-p] [-s] [packages ...]
 
 Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES
 
 positional arguments:
-  package
+  packages
 
 options:
   -h, --help            show this help message and exit
@@ -191,6 +191,35 @@ dependencies:
   - pip
   - pip:
       - athing
+```
+
+<!-- [[[end]]] -->
+
+### Alternate syntax: using table instead of comments
+
+While using comments to mark options has the convenience of placing the changes
+right next to the dependency, it can becore a bit cumbersome. If you feel this
+way, then you can use an alternative method to map `pip` dependencies to `conda`
+dependencies. For this, use the `tool.pyproject2.conda.dependencies` table. For
+example, we can do the same thing as above with:
+
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(path="tests/data/test-pyproject-alt.toml", begin="[tool.pyproject2conda.dependencies]", end="[tool.pyproject2conda.envs.base]")]]] -->
+
+```toml
+# ...
+[tool.pyproject2conda.dependencies]
+athing = { pip = true }
+bthing = { skip = true, packages = "bthing-conda" }
+cthing = { channel = "conda-forge" }
+pytest = { channel = "conda-forge" }
+matplotlib = { skip = true, packages = [
+  "additional-thing; python_version < '3.9'",
+  "conda-matplotlib"
+] }
+build = { channel = "pip" }
+# ...
+
 ```
 
 <!-- [[[end]]] -->
@@ -454,8 +483,8 @@ dependencies:
 `pyproject2conda` can also be used within python:
 
 ```pycon
->>> from pyproject2conda import PyProject2Conda
->>> p = PyProject2Conda.from_path("./tests/data/test-pyproject.toml")
+>>> from pyproject2conda.requirements import ParseDepends
+>>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
 >>> print(p.to_conda_yaml(python_include="infer").strip())
@@ -583,11 +612,11 @@ dependencies:
 or
 
 ```pycon
->>> from pyproject2conda import PyProject2Conda
->>> p = PyProject2Conda.from_path("./tests/data/test-pyproject.toml")
+>>> from pyproject2conda.requirements import ParseDepends
+>>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(extras='dist-pypi', include_base_dependencies=False).strip())
+>>> print(p.to_conda_yaml(extras='dist-pypi', include_base=False).strip())
 channels:
   - conda-forge
 dependencies:
@@ -661,7 +690,7 @@ $ p2c project -f tests/data/test-pyproject.toml --dry
 # Creating requirements base.txt
 athing
 bthing
-cthing;python_version<'3.10'
+cthing;python_version<"3.10"
 # --------------------
 # Creating yaml py310-test-extras.yaml
 channels:

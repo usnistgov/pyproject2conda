@@ -28,7 +28,6 @@ dynamic = ["readme", "version"]
 requires-python = ">=3.8"
 dependencies = [
     "tomli",
-    "ruamel.yaml",
     "tomlkit",
     "typer",
     "packaging",
@@ -52,7 +51,7 @@ test = [
 ]
 dev-extras = [
     "setuptools-scm>=8.0", #
-    "pytest-accept", # p2c: -p
+    "pytest-accept",
     # "nbval",
     "ipython",
     "ipykernel",
@@ -66,11 +65,7 @@ typing = [
     "pyproject2conda[typing-extras]", #
     "pyproject2conda[test]",
 ]
-nox = [
-    "nox",
-    "noxopt", # p2c: -p
-    "ruamel.yaml",
-]
+nox = ["nox", "noxopt", "ruamel.yaml"]
 dev = [
     "pyproject2conda[test]", #
     "pyproject2conda[typing-extras]",
@@ -79,7 +74,7 @@ dev = [
 tools = [
     "pre-commit", #
     # "cruft",
-    "scriv", # p2c: -p
+    "scriv",
     "nbqa",
     "pyright",
 ]
@@ -111,6 +106,11 @@ dist-conda = [
     "boa",
 ]
 cog = ["cogapp"]
+
+[tool.pyproject2conda.dependencies]
+pytest-accept = { pip = true }
+noxopt = { pip = true }
+scriv = { pip = true }
 
 [tool.pyproject2conda]
 user_config = "config/userconfig.toml"
