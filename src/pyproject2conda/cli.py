@@ -19,7 +19,9 @@ import typer
 from typer.core import TyperGroup
 
 from pyproject2conda import __version__
-from pyproject2conda.parser import PyProject2Conda
+
+# from pyproject2conda.parser import PyProject2Conda
+from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
     parse_pythons,
     update_target,
@@ -365,8 +367,8 @@ def _get_header_cmd(
 
 
 @lru_cache
-def _get_pyproject2conda(filename: Union[str, Path]) -> PyProject2Conda:
-    return PyProject2Conda.from_path(filename)
+def _get_requirement_parser(filename: Union[str, Path]) -> ParseDepends:
+    return ParseDepends.from_path(filename)
 
 
 def _log_skipping(
@@ -450,12 +452,12 @@ def create_list(
 
     logger.info(f"filename: {filename}")
 
-    d = _get_pyproject2conda(filename)
+    d = _get_requirement_parser(filename)
 
     print("Extras:")
     print("=======")
 
-    for extra in d.list_extras():
+    for extra in d.extras:
         print("*", extra)
 
 
@@ -497,7 +499,7 @@ def yaml(
         python=python,
     )
 
-    d = _get_pyproject2conda(filename)
+    d = _get_requirement_parser(filename)
 
     _log_creating(logger, "yaml", output)
 
@@ -508,11 +510,11 @@ def yaml(
         stream=output,
         python_include=python_include,
         python_version=python_version,
-        include_base_dependencies=base,
+        include_base=base,
         header_cmd=_get_header_cmd(header, output),
         sort=sort,
-        deps=deps,
-        reqs=reqs,
+        conda_deps=deps,
+        pip_deps=reqs,
         allow_empty=allow_empty,
         remove_whitespace=remove_whitespace,
     )
@@ -543,17 +545,17 @@ def requirements(
         _log_skipping(logger, "requirements", output)
         return
 
-    d = _get_pyproject2conda(filename)
+    d = _get_requirement_parser(filename)
 
     _log_creating(logger, "requirements", output)
 
     s = d.to_requirements(
         extras=extras,
         stream=output,
-        include_base_dependencies=base,
+        include_base=base,
         header_cmd=_get_header_cmd(header, output),
         sort=sort,
-        reqs=reqs,
+        pip_deps=reqs,
         allow_empty=allow_empty,
         remove_whitespace=remove_whitespace,
     )
@@ -676,7 +678,7 @@ def conda_requirements(
         path_conda = prefix + "conda.txt"
         path_pip = prefix + "pip.txt"
 
-    d = _get_pyproject2conda(filename)
+    d = _get_requirement_parser(filename)
 
     _get_header_cmd(header, path_conda)
 
@@ -688,11 +690,11 @@ def conda_requirements(
         prepend_channel=prepend_channel,
         stream_conda=path_conda,
         stream_pip=path_pip,
-        include_base_dependencies=base,
+        include_base=base,
         header_cmd=_get_header_cmd(header, path_conda),
         sort=sort,
-        deps=deps,
-        reqs=reqs,
+        conda_deps=deps,
+        pip_deps=reqs,
     )
 
     if not path_conda:
@@ -729,7 +731,7 @@ def to_json(
 
     import json
 
-    d = _get_pyproject2conda(filename)
+    d = _get_requirement_parser(filename)
 
     python_include, python_version = parse_pythons(
         python_include=python_include,
@@ -737,16 +739,24 @@ def to_json(
         python=python,
     )
 
-    result = d.to_conda_lists(
+    conda_deps, pip_deps = d.conda_pip_requirements(
         extras=extras,
-        channels=channels,
         python_include=python_include,
         python_version=python_version,
-        include_base_dependencies=base,
+        include_base=base,
         sort=sort,
-        deps=deps,
-        reqs=reqs,
+        conda_deps=deps,
+        pip_deps=reqs,
     )
+
+    result = {
+        "dependencies": conda_deps,
+        "pip": pip_deps,
+    }
+
+    channels = channels or d.channels
+    if channels:
+        result["channels"] = channels
 
     if output:
         with open(output, "w") as f:

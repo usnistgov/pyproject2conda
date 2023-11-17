@@ -10,7 +10,6 @@ try:
 except PackageNotFoundError:  # pragma: no cover
     __version__ = "999"
 
-from .parser import PyProject2Conda
 
 __author__ = """William P. Krekelberg"""
 __email__ = "wpk@nist.gov"
@@ -18,5 +17,4 @@ __email__ = "wpk@nist.gov"
 
 __all__ = [
     "__version__",
-    "PyProject2Conda",
 ]

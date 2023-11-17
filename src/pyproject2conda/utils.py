@@ -5,11 +5,42 @@ Utility methods (:mod:`pyproject2conda.utils`)
 
 from __future__ import annotations
 
+import enum
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Mapping, Sequence
+    from typing import Any, Callable, Iterable, Mapping, Sequence
+
+    from ._typing import T
+
+
+# taken from https://github.com/python-attrs/attrs/blob/main/src/attr/_make.py
+class _Missing(enum.Enum):
+    """
+    Sentinel to indicate the lack of a value when ``None`` is ambiguous.
+
+    If extending attrs, you can use ``typing.Literal[MISSING]`` to show
+    that a value may be ``MISSING``.
+
+    .. versionchanged:: 21.1.0 ``bool(MISSING)`` is now False.
+    .. versionchanged:: 22.2.0 ``MISSING`` is now an ``enum.Enum`` variant.
+    """
+
+    MISSING = enum.auto()
+
+    def __repr__(self) -> str:
+        return "MISSING"  # pragma: no cover
+
+    def __bool__(self) -> bool:
+        return False  # pragma: no cover
+
+
+MISSING = _Missing.MISSING
+"""
+Sentinel to indicate the lack of a value when ``None`` is ambiguous.
+"""
 
 
 # taken from https://github.com/conda/conda-lock/blob/main/conda_lock/common.py
@@ -17,7 +48,7 @@ def get_in(
     keys: Sequence[Any],
     nested_dict: Mapping[Any, Any],
     default: Any = None,
-    factory: Callable[..., Any] | None = None,
+    factory: Callable[[], Any] | None = None,
 ) -> Any:
     """
     >>> foo = {'a': {'b': {'c': 1}}}
@@ -35,22 +66,6 @@ def get_in(
             return factory()
         else:
             return default
-
-
-# def compose_decorators(*decs: Dec[F]) -> Dec[F]:
-#     from functools import reduce
-#     def wrapper(func: F) -> F:
-#         return reduce(lambda x, f: f(x), reversed(decs), func)
-#     return wrapper
-
-
-# def compose_decorators(*decs: Dec[F]) -> Dec[F]:
-#     def wrapper(func: F) -> F:
-#         for d in reversed(decs):
-#             func = d(func)
-#         return func
-
-#     return wrapper
 
 
 def parse_pythons(
@@ -97,7 +112,7 @@ def update_target(
 
             update = any(target_time < dep.stat().st_mtime for dep in deps_filtered)
     else:
-        raise ValueError(f"unknown option overwrite={overwrite}")
+        raise ValueError(f"unknown option overwrite={overwrite}")  # pragma: no cover
 
     return update
 
@@ -147,3 +162,37 @@ def filename_from_template(
         template = template + f".{ext}"
 
     return template.format(**kws)
+
+
+_WHITE_SPACE_REGEX = re.compile(r"\s+")
+
+
+def remove_whitespace(s: str) -> str:
+    return re.sub(_WHITE_SPACE_REGEX, "", s)
+
+
+def remove_whitespace_list(s: Iterable[str]) -> list[str]:
+    return [remove_whitespace(x) for x in s]
+
+
+def unique_list(values: Iterable[T]) -> list[T]:
+    """
+    Return only unique values in list.
+    Unlike using set(values), this preserves order.
+    """
+    output: list[T] = []
+    for v in values:
+        if v not in output:
+            output.append(v)
+    return output
+
+
+def list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
+    if values:
+        output = "\n".join(values)
+        if eol:
+            output += "\n"
+    else:
+        output = ""
+
+    return output
