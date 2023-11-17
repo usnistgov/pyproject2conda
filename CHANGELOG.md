@@ -18,6 +18,15 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.10.0 — 2023-11-17
+
+### Added
+
+- Can now specify conda changes using `tool.pyproject2conda.dependencies` table.
+  This is an alternative to using `# p2c:` comments.
+- Refactored code. Split `parser` to `requirements` and `overrides`. Also
+  cleaned up the parsing logic to hopefully make future changes simpler.
+
 ## v0.9.0 — 2023-11-14
 
 ### Added
