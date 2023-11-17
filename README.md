@@ -132,7 +132,7 @@ Note the comment lines `# p2c:...`. These are special tokens that
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import _default_parser; _default_parser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
+<!-- [[[cog run_command("""python -c "from pyproject2conda.parser import p2c_argparser; p2c_argparser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
 ```bash
 usage: -c [-h] [-c CHANNEL] [-p] [-s] [packages ...]
 

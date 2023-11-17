@@ -17,12 +17,16 @@ def test_get_in():
 
 
 def test_list_to_string():
-    assert parser._list_to_str(["a", "b"], eol=True) == "a\nb\n"
-    assert parser._list_to_str(["a", "b"], eol=False) == "a\nb"
-    assert parser._list_to_str(None) == ""
+    from pyproject2conda.utils import list_to_str
+
+    assert list_to_str(["a", "b"], eol=True) == "a\nb\n"
+    assert list_to_str(["a", "b"], eol=False) == "a\nb"
+    assert list_to_str(None) == ""
 
 
 def test_match_p2c_comment():
+    from pyproject2conda.requirements import _match_p2c_comment
+
     expected = "-c -d"
     for comment in [
         "#p2c: -c -d",
@@ -31,7 +35,7 @@ def test_match_p2c_comment():
         "# p2c: -c -d # some other thing",
         "# some other thing # p2c: -c -d # another thing",
     ]:
-        match = parser._match_p2c_comment(comment)
+        match = _match_p2c_comment(comment)
 
         assert match == expected
 
@@ -43,7 +47,7 @@ def test_match_p2c_comment():
         "## p2c: -c -d # some other thing",
         "# some other thing ## p2c: -c -d # another thing",
     ]:
-        match = parser._match_p2c_comment(comment)
+        match = _match_p2c_comment(comment)
 
         assert match is None
 
@@ -59,27 +63,29 @@ def test_parse_p2c():
             "packages": packages,
         }
 
-    assert parser._parse_p2c(None) is None
+    from pyproject2conda.requirements import _parse_p2c
 
-    assert parser._parse_p2c("--pip") == get_expected(pip=True)
-    assert parser._parse_p2c("-p") == get_expected(pip=True)
+    assert _parse_p2c(None) is None
 
-    assert parser._parse_p2c("--skip") == get_expected(skip=True)
-    assert parser._parse_p2c("-s") == get_expected(skip=True)
+    assert _parse_p2c("--pip") == get_expected(pip=True)
+    assert _parse_p2c("-p") == get_expected(pip=True)
 
-    assert parser._parse_p2c("-s -c conda-forge") == get_expected(
+    assert _parse_p2c("--skip") == get_expected(skip=True)
+    assert _parse_p2c("-s") == get_expected(skip=True)
+
+    assert _parse_p2c("-s -c conda-forge") == get_expected(
         skip=True, channel="conda-forge"
     )
 
-    assert parser._parse_p2c("athing>=0.3,<0.2 ") == get_expected(
+    assert _parse_p2c("athing>=0.3,<0.2 ") == get_expected(
         packages=["athing>=0.3,<0.2"]
     )
 
-    assert parser._parse_p2c("athing>=0.3,<0.2 bthing ") == get_expected(
+    assert _parse_p2c("athing>=0.3,<0.2 bthing ") == get_expected(
         packages=["athing>=0.3,<0.2", "bthing"]
     )
 
-    assert parser._parse_p2c("'athing >= 0.3, <0.2' bthing ") == get_expected(
+    assert _parse_p2c("'athing >= 0.3, <0.2' bthing ") == get_expected(
         packages=["athing >= 0.3, <0.2", "bthing"]
     )
 
@@ -98,6 +104,8 @@ def test_value_comment_pairs():
 
 
 def test_header():
+    from pyproject2conda.requirements import _create_header
+
     expected = dedent(
         """\
 #
@@ -107,10 +115,10 @@ def test_header():
 #"""
     )
 
-    assert expected == parser._create_header()
+    assert expected == _create_header()
 
     cmd = "hello"
-    out = parser._create_header(cmd=cmd)
+    out = _create_header(cmd=cmd)
 
     header = dedent(
         f"""\
@@ -154,12 +162,14 @@ def test_yaml_to_str():
 def test_optional_write():
     from pathlib import Path
 
+    from pyproject2conda.requirements import _optional_write
+
     s = "hello"
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "tmp.txt"
 
         with open(p, "w") as f:
-            parser._optional_write(s, f)
+            _optional_write(s, f)
 
         with open(p, "r") as f:
             test = f.read()

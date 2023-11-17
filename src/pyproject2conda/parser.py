@@ -7,159 +7,51 @@ Main parser to turn `pyproject.toml` to other formats.
 """
 from __future__ import annotations
 
-import argparse
-import re
-import shlex
-from functools import lru_cache
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
-    Any,
-    Generator,
-    Iterable,
-    Sequence,
-    TextIO,
     cast,
 )
 
 if TYPE_CHECKING:
+    from typing import (
+        Any,
+        Sequence,
+        TextIO,
+    )
+
+    import tomlkit.container
     import tomlkit.items
     import tomlkit.toml_document
 
-    from ._typing import OptStr, OptStrSeq, T
+    from ._typing import OptStr, OptStrSeq
     from ._typing_compat import Self
 
 import tomlkit
 from packaging.requirements import Requirement
 from ruamel.yaml import YAML
 
-from pyproject2conda.utils import get_in
+from pyproject2conda.utils import (
+    get_in,
+    list_to_str,
+    unique_list,
+)
+from pyproject2conda.utils import (
+    remove_whitespace_list as _remove_whitespace_list,
+)
 
-# * Utilities --------------------------------------------------------------------------
-
-
-def _check_allow_empty(allow_empty: bool) -> str:
-    msg = "No dependencies for this environment\n"
-    if allow_empty:
-        return msg
-    else:
-        raise ValueError(msg)
-
-
-_WHITE_SPACE_REGEX = re.compile(r"\s+")
-
-
-def _remove_whitespace(s: str) -> str:
-    return re.sub(_WHITE_SPACE_REGEX, "", s)
-
-
-def _unique_list(values: Iterable[T]) -> list[T]:
-    """
-    Return only unique values in list.
-    Unlike using set(values), this preserves order.
-    """
-    output: list[T] = []
-    for v in values:
-        if v not in output:
-            output.append(v)
-    return output
-
-
-def _list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
-    if values:
-        output = "\n".join(values)
-        if eol:
-            output += "\n"
-    else:
-        output = ""
-
-    return output
-
-
-def _clean_pip_reqs(reqs: list[str]) -> list[str]:
-    return [str(Requirement(r)) for r in reqs]
-
-
-def _clean_conda_deps(deps: list[str], python_version: str | None = None) -> list[str]:
-    out: list[str] = []
-    for dep in deps:
-        # if have a channel, take it out
-        if "::" in dep:
-            channel, d = dep.split("::")
-        else:
-            channel, d = None, dep
-        r = Requirement(d)
-
-        if (
-            r.marker
-            and python_version
-            and (not r.marker.evaluate({"python_version": python_version}))
-        ):
-            continue
-        else:
-            r.marker = None
-            r.extras = set()
-            if channel:
-                r.name = f"{channel}::{r.name}"
-            out.append(str(r))
-    return out
-
-
-# * Default parser ---------------------------------------------------------------------
-
-
-@lru_cache
-def _default_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES"
-    )
-
-    parser.add_argument(
-        "-c",
-        "--channel",
-        type=str,
-        help="Channel to add to the pyproject requirement",
-    )
-    parser.add_argument(
-        "-p",
-        "--pip",
-        action="store_true",
-        help="If specified, install pyproject dependency with pip",
-    )
-    parser.add_argument(
-        "-s",
-        "--skip",
-        action="store_true",
-        help="If specified skip pyproject dependency on this line",
-    )
-
-    parser.add_argument("packages", nargs="*")
-
-    return parser
-
-
-def _factory_empty_tomlkit_Array() -> tomlkit.items.Array:
-    return tomlkit.items.Array([], tomlkit.items.Trivia())
-
-
-def _iter_value_comment_pairs(
-    array: tomlkit.items.Array,  # pyright: ignore
-) -> Generator[tuple[OptStr, OptStr], None, None]:
-    """Extract value and comments from array"""
-    for v in array._value:  # pyright: ignore
-        if v.value is not None and not isinstance(
-            v.value, tomlkit.items.Null
-        ):  # pyright: ignore
-            value = str(v.value)  # pyright: ignore
-        else:
-            value = None
-        if v.comment:  # pyright: ignore
-            comment = v.comment.as_string()
-        else:
-            comment = None
-        if value is None and comment is None:
-            continue
-        yield (value, comment)
+from .requirements import (
+    OverrideDict,
+    _add_header,
+    _check_allow_empty,
+    _clean_conda_strings,
+    _clean_pip_reqs,
+    _factory_empty_tomlkit_Array,
+    _factory_empty_tomlkit_Table,
+    _iter_value_comment_pairs,
+    _optional_write,
+    parse_p2c_comment,
+)
 
 
 def _matches_package_name(
@@ -248,47 +140,20 @@ def _pyproject_to_value_comment_pairs(
         opts=get_in(
             ["project", "optional-dependencies"],
             data,
-            factory=_factory_empty_tomlkit_Array,
+            factory=_factory_empty_tomlkit_Table,
         ),
         include_base_dependencies=include_base_dependencies,
     )
 
     if unique:
-        value_comment_list = _unique_list(value_comment_list)
+        value_comment_list = unique_list(value_comment_list)
 
     return value_comment_list
 
 
-# * Parsing p2c comments
-def _match_p2c_comment(comment: OptStr) -> OptStr:
-    if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
-        return None
-    elif re.match(r".*?##\s*p2c:", comment):
-        # This checks for double ##.  If found, ignore line
-        return None
-    else:
-        return match.group(1).strip()
-
-
-def _parse_p2c(match: OptStr) -> dict[str, Any] | None:
-    """Parse match from _match_p2c_comment"""
-
-    if match:
-        return vars(_default_parser().parse_args(shlex.split(match)))
-    else:
-        return None
-
-
-def parse_p2c_comment(comment: OptStr) -> dict[str, Any] | None:
-    if match := _match_p2c_comment(comment):
-        return _parse_p2c(match)
-    else:
-        return None
-
-
 def _pyproject_to_value_parsed_pairs(
     value_comment_list: list[tuple[OptStr, OptStr]],
-) -> list[tuple[str | None, dict[str, Any]]]:
+) -> list[tuple[str | None, OverrideDict]]:
     out = []
     for value, comment in value_comment_list:
         if comment and (parsed := parse_p2c_comment(comment)):
@@ -298,17 +163,19 @@ def _pyproject_to_value_parsed_pairs(
     return out  # pyright: ignore
 
 
-def _format_override_table(override_table: dict[str, Any]) -> dict[str, Any]:
+def _format_override_table(
+    override_table: dict[str, OverrideDict]
+) -> dict[str, OverrideDict]:
     out: dict[str, Any] = {}
     for name, v in override_table.items():
-        new = {
+        new: OverrideDict = {
             "pip": v.get("pip", False),
             "skip": v.get("skip", False),
             "channel": v.get("channel", None),
             "packages": v.get("packages", []),
         }
 
-        if new["channel"] and new["channel"].strip() == "pip":
+        if new["channel"] is not None and new["channel"].strip() == "pip":
             new["pip"] = True
             new["channel"] = None
 
@@ -321,16 +188,17 @@ def _format_override_table(override_table: dict[str, Any]) -> dict[str, Any]:
 
 
 def _apply_override_table(
-    value_parsed_list: list[tuple[str | None, dict[str, Any]]],
-    override_table: dict[str, Any],
-) -> list[tuple[str | None, dict[str, Any]]]:
-    out: list[tuple[str | None, dict[str, Any]]] = []
+    value_parsed_list: list[tuple[str | None, OverrideDict]],
+    override_table: dict[str, OverrideDict],
+) -> list[tuple[str | None, OverrideDict]]:
+    out: list[tuple[str | None, OverrideDict]] = []
 
     override_table = _format_override_table(override_table)
 
+    new_parsed: OverrideDict
     for value, parsed in value_parsed_list:
         if value and (name := Requirement(value).name) in override_table:
-            new_parsed = dict(override_table[name], **parsed)
+            new_parsed = dict(override_table[name], **parsed)  # type: ignore
         else:
             new_parsed = parsed
 
@@ -440,7 +308,7 @@ def pyproject_to_conda_lists(
     )
 
     # clean up
-    output["dependencies"] = _clean_conda_deps(
+    output["dependencies"] = _clean_conda_strings(
         output["dependencies"], python_version=python_version
     )
     output["pip"] = _clean_pip_reqs(output["pip"])
@@ -456,7 +324,7 @@ def pyproject_to_conda_lists(
     # )
 
     if remove_whitespace:
-        output = {k: [_remove_whitespace(x) for x in v] for k, v in output.items()}
+        output = {k: _remove_whitespace_list(v) for k, v in output.items()}
 
     return output
 
@@ -498,49 +366,6 @@ def pyproject_to_conda(
     )
 
 
-def _create_header(cmd: str | None = None) -> str:
-    from textwrap import dedent
-
-    if cmd:
-        header = dedent(
-            f"""
-        This file is autogenerated by pyproject2conda
-        with the following command:
-
-            $ {cmd}
-
-        You should not manually edit this file.
-        Instead edit the corresponding pyproject.toml file.
-        """
-        )
-    else:
-        header = dedent(
-            """
-        This file is autogenerated by pyproject2conda.
-        You should not manually edit this file.
-        Instead edit the corresponding pyproject.toml file.
-        """
-        )
-
-    # prepend '# '
-    lines = []
-    for line in header.split("\n"):
-        if len(line.strip()) == 0:
-            lines.append("#")
-        else:
-            lines.append("# " + line)
-    header = "\n".join(lines)
-    # header = "\n".join(["# " + line for line in header.split("\n")])
-    return header
-
-
-def _add_header(string: str, header_cmd: str | None) -> str:
-    if header_cmd is not None:
-        return _create_header(header_cmd) + "\n" + string
-    else:
-        return string
-
-
 def _yaml_to_string(
     data: dict[str, Any],
     yaml: Any = None,
@@ -561,18 +386,6 @@ def _yaml_to_string(
     if not add_final_eol:
         val = val[:-1]
     return _add_header(val.decode("utf-8"), header_cmd)
-
-
-def _optional_write(
-    string: str, stream: str | Path | TextIO | None, mode: str = "w"
-) -> None:
-    if stream is None:
-        return
-    if isinstance(stream, (str, Path)):
-        with open(stream, mode) as f:
-            f.write(string)
-    else:
-        stream.write(string)
 
 
 def _output_to_yaml(
@@ -708,7 +521,7 @@ class PyProject2Conda:
         out = _clean_pip_reqs(out)
 
         if remove_whitespace:
-            out = [_remove_whitespace(x) for x in out]
+            out = _remove_whitespace_list(out)
 
         if sort:
             return sorted(out)
@@ -741,7 +554,7 @@ class PyProject2Conda:
         if not reqs:
             return _check_allow_empty(allow_empty)
         else:
-            s = _add_header(_list_to_str(reqs), header_cmd)
+            s = _add_header(list_to_str(reqs), header_cmd)
             _optional_write(s, stream)
             return s
 
@@ -784,8 +597,8 @@ class PyProject2Conda:
             if deps:
                 deps = [dep if "::" in dep else f"{channel}::{dep}" for dep in deps]
 
-        deps_str = _add_header(_list_to_str(deps), header_cmd)
-        reqs_str = _add_header(_list_to_str(reqs), header_cmd)
+        deps_str = _add_header(list_to_str(deps), header_cmd)
+        reqs_str = _add_header(list_to_str(reqs), header_cmd)
 
         if stream_conda and deps_str:
             _optional_write(deps_str, stream_conda)
