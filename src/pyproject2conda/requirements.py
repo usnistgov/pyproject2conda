@@ -572,13 +572,10 @@ class ParseDepends:
                 )
 
             elif requirement:
-                conda_deps.append(
-                    str(
-                        _clean_conda_requirement(
-                            requirement, python_version=python_version
-                        )
-                    )
-                )
+                r = _clean_conda_requirement(requirement, python_version=python_version)
+
+                if r is not None:
+                    conda_deps.append(str(r))
 
         pip_deps, conda_deps = (
             self._cleanup(
