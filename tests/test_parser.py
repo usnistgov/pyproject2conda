@@ -345,79 +345,87 @@ def test_package_name():
         # comment syntax
         dedent(
             """\
-        [project]
-        name = "hello"
-        requires-python = ">=3.8, <3.11"
-        dependencies = [
-        "athing", # p2c: -p # a comment
-        "bthing", # p2c: -s bthing-conda
-        "cthing; python_version<'3.10'", # p2c: -c conda-forge
-        ]
+            [build-system]
+            requires = ["setuptools>=61.2", "setuptools_scm[toml]>=8.0"]
+            build-backend = "setuptools.build_meta"
 
-        [project.optional-dependencies]
-        test = [
-        "pandas",
-        "pytest", # p2c: -c conda-forge
-        ]
-        dev-extras = [
-        # p2c: -s additional-thing # this is an additional conda package
-        "matplotlib", # p2c: -s conda-matplotlib
-        ]
-        dev = [
-        "hello[test]",
-        "hello[dev-extras]",
-        ]
-        dist-pypi = [
-        "setuptools",
-        "build", # p2c: -p
-        ]
+            [project]
+            name = "hello"
+            requires-python = ">=3.8, <3.11"
+            dependencies = [
+            "athing", # p2c: -p # a comment
+            "bthing", # p2c: -s bthing-conda
+            "cthing; python_version<'3.10'", # p2c: -c conda-forge
+            ]
+
+            [project.optional-dependencies]
+            test = [
+            "pandas",
+            "pytest", # p2c: -c conda-forge
+            ]
+            dev-extras = [
+            # p2c: -s additional-thing # this is an additional conda package
+            "matplotlib", # p2c: -s conda-matplotlib
+            ]
+            dev = [
+            "hello[test]",
+            "hello[dev-extras]",
+            ]
+            dist-pypi = [
+            "setuptools",
+            "build", # p2c: -p
+            ]
 
 
-        [tool.pyproject2conda]
-        channels = ['conda-forge']
-        """
+            [tool.pyproject2conda]
+            channels = ['conda-forge']
+            """
         ),
         # Table syntax
         dedent(
             """\
-        [project]
-        name = "hello"
-        requires-python = ">=3.8, <3.11"
-        dependencies = [
-        "athing",
-        "bthing",
-        "cthing; python_version<'3.10'",
-        ]
+            [build-system]
+            requires = ["setuptools>=61.2", "setuptools_scm[toml]>=8.0"]
+            build-backend = "setuptools.build_meta"
 
-        [project.optional-dependencies]
-        test = [
-        "pandas",
-        "pytest",
-        ]
-        dev-extras = [
-        "matplotlib",
-        ]
-        dev = [
-        "hello[test]",
-        "hello[dev-extras]",
-        ]
-        dist-pypi = [
-        "setuptools",
-        "build",
-        ]
+            [project]
+            name = "hello"
+            requires-python = ">=3.8, <3.11"
+            dependencies = [
+            "athing",
+            "bthing",
+            "cthing; python_version<'3.10'",
+            ]
+
+            [project.optional-dependencies]
+            test = [
+            "pandas",
+            "pytest",
+            ]
+            dev-extras = [
+            "matplotlib",
+            ]
+            dev = [
+            "hello[test]",
+            "hello[dev-extras]",
+            ]
+            dist-pypi = [
+            "setuptools",
+            "build",
+            ]
 
 
-        [tool.pyproject2conda]
-        channels = ['conda-forge']
+            [tool.pyproject2conda]
+            channels = ['conda-forge']
 
-        [tool.pyproject2conda.dependencies]
-        athing = {pip = true}
-        bthing = {skip = true, packages = "bthing-conda"}
-        cthing = {channel = "conda-forge"}
-        pytest = {channel = "conda-forge"}
-        matplotlib = {skip = true, packages = ["additional-thing", "conda-matplotlib"]}
-        build = { channel = "pip" }
-        """
+            [tool.pyproject2conda.dependencies]
+            athing = {pip = true}
+            bthing = {skip = true, packages = "bthing-conda"}
+            cthing = {channel = "conda-forge"}
+            pytest = {channel = "conda-forge"}
+            matplotlib = {skip = true, packages = ["additional-thing", "conda-matplotlib"]}
+            build = { channel = "pip" }
+            """
         ),
     ],
 )
@@ -429,7 +437,22 @@ def test_complete(toml):
         d.to_conda_yaml(extras="a-thing")
 
     # test list:
-    assert d.extras == ["test", "dev-extras", "dev", "dist-pypi"]
+    assert d.extras == [
+        "test",
+        "dev-extras",
+        "dev",
+        "dist-pypi",
+        "build-system.requires",
+    ]
+
+    # test build-system.requires
+    expected = """\
+    setuptools>=61.2
+    setuptools_scm[toml]>=8.0
+    """
+    assert dedent(expected) == d.to_requirements(
+        extras="build-system.requires", include_base=False
+    )
 
     expected = """\
 channels:

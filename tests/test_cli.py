@@ -54,6 +54,7 @@ def test_list(filename):
         * dev-extras
         * dev
         * dist-pypi
+        * build-system.requires
         """
         check_result(result, expected)
 
