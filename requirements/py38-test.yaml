@@ -20,3 +20,4 @@ dependencies:
   - tomlkit
   - typer
   - typing-extensions
+  - pip

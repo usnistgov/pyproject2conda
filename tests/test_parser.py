@@ -186,7 +186,7 @@ def test_output_to_yaml():
         s = _conda_yaml()
 
     s = _conda_yaml(
-        conda_deps=["a"],
+        conda_deps=["a", "pip"],
         channels=["conda-forge"],
         pip_deps=["pip-thing"],
         name="hello",
@@ -336,7 +336,7 @@ def test_package_name():
     )
     d = requirements.ParseDepends.from_string(toml)
     with pytest.raises(ValueError):
-        d.conda_pip_requirements("dev")
+        d.conda_and_pip_requirements("dev")
 
 
 @pytest.mark.parametrize(
@@ -922,3 +922,36 @@ dependencies:
     """
 
     assert dedent(expected) == d.to_requirements(remove_whitespace=True)
+
+
+def test_include_pip():
+    toml = dedent(
+        """\
+        [build-system]
+        requires = ["setuptools>=61.2", "setuptools_scm[toml]>=8.0"]
+        build-backend = "setuptools.build_meta"
+
+        [project]
+        name = "hello"
+        requires-python = ">=3.8, <3.11"
+        dependencies = [
+        "athing",
+        ]
+
+        [project.optional-dependencies]
+        test = [
+        "xthing",
+        ]
+        """
+    )
+
+    expected = """\
+    dependencies:
+      - athing
+      - xthing
+      - pip
+    """
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    assert dedent(expected) == d.to_conda_yaml(extras="test", conda_deps="pip")

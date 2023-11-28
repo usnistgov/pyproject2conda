@@ -139,6 +139,12 @@ extras = ["dev"]
 [tool.pyproject2conda.envs.cog]
 style = "requirements"
 
+# make sure pip is in all conda environments
+# that we'll install package into
+[[tool.pyproject2conda.overrides]]
+envs = ["dev", "dev-complete", "dev-base", "test", "docs"]
+deps = ["pip"]
+
 [[tool.pyproject2conda.overrides]]
 envs = ["test-extras", "dist-conda", "dist-pypi"]
 base = false
