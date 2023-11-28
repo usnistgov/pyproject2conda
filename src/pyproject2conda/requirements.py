@@ -358,6 +358,16 @@ class ParseDepends:
         )
 
     @cached_property
+    def build_system_requires(self) -> tomlkit.items.Array:
+        """build-system.requires"""
+        return cast(
+            "tomlkit.items.Array",
+            self.get_in(
+                "build-system", "requires", factory=_factory_empty_tomlkit_Array
+            ),
+        )
+
+    @cached_property
     def optional_dependencies(self) -> tomlkit.items.Table:
         """project.optional-dependencies"""
         return cast(
@@ -392,7 +402,9 @@ class ParseDepends:
 
     @property
     def extras(self) -> list[str]:
-        return list(self.optional_dependencies.keys())  # pyright: ignore
+        return list(self.optional_dependencies.keys()) + [  # pyright: ignore
+            "build-system.requires"
+        ]
 
     @cached_property
     def _requirement_override_pairs_base(
@@ -428,12 +440,24 @@ class ParseDepends:
         }
 
         # comments -> overrides
-        return {
+        out = {
             k: OverrideDeps.requirement_comment_to_override_pairs(
                 requirement_comment_pairs=v, override_table=self.override_table
             )
             for k, v in resolved.items()
         }
+
+        # add in build-system.requires
+        out[
+            "build-system.requires"
+        ] = OverrideDeps.requirement_comment_to_override_pairs(
+            requirement_comment_pairs=_requirement_comment_pairs(
+                self.build_system_requires
+            ),
+            override_table=self.override_table,
+        )
+
+        return out
 
     @staticmethod
     def _cleanup(
