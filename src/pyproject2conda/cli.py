@@ -739,7 +739,7 @@ def to_json(
         python=python,
     )
 
-    conda_deps, pip_deps = d.conda_pip_requirements(
+    conda_deps, pip_deps = d.conda_and_pip_requirements(
         extras=extras,
         python_include=python_include,
         python_version=python_version,

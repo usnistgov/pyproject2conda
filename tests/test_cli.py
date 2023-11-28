@@ -54,6 +54,7 @@ def test_list(filename):
         * dev-extras
         * dev
         * dist-pypi
+        * build-system.requires
         """
         check_result(result, expected)
 
@@ -545,6 +546,7 @@ def test_conda_requirements(filename):
 #conda requirements
 bthing-conda
 conda-forge::cthing
+pip
 
 #pip requirements
 athing
@@ -558,6 +560,7 @@ athing
         expected_conda = """\
 bthing-conda
 conda-forge::cthing
+pip
         """
         expected_pip = """\
 athing
@@ -603,6 +606,7 @@ athing
         expected_conda = """\
 achannel::bthing-conda
 conda-forge::cthing
+achannel::pip
         """
 
         check_results_conda_req(d / "hello-conda.txt", expected_conda)
@@ -616,7 +620,7 @@ def test_json(filename):
     result = do_run(runner, "j", filename=filename)
 
     expected = """\
-{"dependencies": ["bthing-conda", "conda-forge::cthing"], "pip": ["athing"], "channels": ["conda-forge"]}
+{"dependencies": ["bthing-conda", "conda-forge::cthing", "pip"], "pip": ["athing"], "channels": ["conda-forge"]}
     """
 
     assert result.output == dedent(expected)
@@ -631,7 +635,7 @@ def test_json(filename):
         d = Path(d_tmp)
 
         expected = {  # type: ignore
-            "dependencies": ["bthing-conda", "conda-forge::cthing"],
+            "dependencies": ["bthing-conda", "conda-forge::cthing", "pip"],
             "pip": ["athing"],
             "channels": ["conda-forge"],
         }
@@ -648,6 +652,7 @@ def test_json(filename):
                 "conda-forge::pytest",
                 "additional-thing",
                 "conda-matplotlib",
+                "pip",
             ],
             "pip": ["athing"],
             "channels": ["conda-forge"],
@@ -674,6 +679,7 @@ def test_json(filename):
                 "conda-forge::pytest",
                 "conda-matplotlib",
                 "pandas",
+                "pip",
             ],
             "pip": ["athing"],
             "channels": ["conda-forge"],

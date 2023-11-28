@@ -232,27 +232,26 @@ def _conda_yaml(
         else:
             return x
 
-    if not conda_deps and not pip_deps:
-        raise ValueError
+    if not conda_deps:
+        raise ValueError("Must have at least one conda dependency (i.e., pip)")
 
     out: list[str] = []
     if name is not None:
         out.append(f"name: {name}")
 
-    if channels is not None:
+    if channels:
         out.append("channels:")
 
         for channel in _as_list(channels):
             out.append(f"  - {channel}")
 
     out.append("dependencies:")
-
-    if conda_deps is not None:
-        for dep in _as_list(conda_deps):
-            out.append(f"  - {dep}")
+    for dep in _as_list(conda_deps):
+        out.append(f"  - {dep}")
 
     if pip_deps:
-        out.append("  - pip")
+        if "pip" not in conda_deps:
+            raise ValueError("Must have pip in conda_deps")
         out.append("  - pip:")
 
         for dep in _as_list(pip_deps):
@@ -358,6 +357,16 @@ class ParseDepends:
         )
 
     @cached_property
+    def build_system_requires(self) -> tomlkit.items.Array:
+        """build-system.requires"""
+        return cast(
+            "tomlkit.items.Array",
+            self.get_in(
+                "build-system", "requires", factory=_factory_empty_tomlkit_Array
+            ),
+        )
+
+    @cached_property
     def optional_dependencies(self) -> tomlkit.items.Table:
         """project.optional-dependencies"""
         return cast(
@@ -392,7 +401,9 @@ class ParseDepends:
 
     @property
     def extras(self) -> list[str]:
-        return list(self.optional_dependencies.keys())  # pyright: ignore
+        return list(self.optional_dependencies.keys()) + [  # pyright: ignore
+            "build-system.requires"
+        ]
 
     @cached_property
     def _requirement_override_pairs_base(
@@ -428,12 +439,24 @@ class ParseDepends:
         }
 
         # comments -> overrides
-        return {
+        out = {
             k: OverrideDeps.requirement_comment_to_override_pairs(
                 requirement_comment_pairs=v, override_table=self.override_table
             )
             for k, v in resolved.items()
         }
+
+        # add in build-system.requires
+        out[
+            "build-system.requires"
+        ] = OverrideDeps.requirement_comment_to_override_pairs(
+            requirement_comment_pairs=_requirement_comment_pairs(
+                self.build_system_requires
+            ),
+            override_table=self.override_table,
+        )
+
+        return out
 
     @staticmethod
     def _cleanup(
@@ -510,7 +533,7 @@ class ParseDepends:
             out, remove_whitespace=remove_whitespace, unique=unique, sort=sort
         )
 
-    def conda_pip_requirements(
+    def conda_and_pip_requirements(
         self,
         extras: str | Iterable[str] | None = None,
         include_base: bool = True,
@@ -590,6 +613,14 @@ class ParseDepends:
                 + conda_deps
             )
 
+        # special if have pip requirements or just pip in conda_deps
+        # in this case, make sure pip is last
+        if "pip" in conda_deps:
+            conda_deps.remove("pip")
+            conda_deps.append("pip")
+        elif pip_deps:
+            conda_deps.append("pip")
+
         return conda_deps, pip_deps
 
     def to_conda_yaml(
@@ -611,7 +642,7 @@ class ParseDepends:
     ) -> str:
         self._check_extras(extras)
 
-        conda_deps, pip_deps = self.conda_pip_requirements(
+        conda_deps, pip_deps = self.conda_and_pip_requirements(
             extras=extras,
             include_base=include_base,
             pip_deps=pip_deps,
@@ -683,7 +714,7 @@ class ParseDepends:
         pip_deps: str | Iterable[str] | None = None,
         remove_whitespace: bool = True,
     ) -> tuple[str, str]:
-        conda_deps, pip_deps = self.conda_pip_requirements(
+        conda_deps, pip_deps = self.conda_and_pip_requirements(
             extras=extras,
             include_base=include_base,
             pip_deps=pip_deps,

@@ -18,6 +18,21 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.11.0 — 2023-11-28
+
+### Added
+
+- Can now access "build-system.requires" as an extra. This can be useful for
+  creating isolated environments to build a package.
+
+### Changed
+
+- Can now specify `pip` as a conda dependency. This is needed for cases that
+  there are no pip dependencies in the environment, but you want it there for
+  installing local packages. This may be the case if using `conda-lock` on an
+  environment. Note that, much like python is always first in the dependency
+  list, pip is always last.
+
 ## v0.10.0 — 2023-11-17
 
 ### Added
