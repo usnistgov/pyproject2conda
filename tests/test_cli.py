@@ -686,7 +686,15 @@ def test_json(filename):
         }
 
         do_run(
-            runner, "json", "-o", str(d / "there.json"), "-e", "dev", filename=filename
+            runner,
+            "json",
+            "-o",
+            str(d / "there.json"),
+            "-e",
+            "dev",
+            "-w",
+            "force",
+            filename=filename,
         )
 
         check_results(d / "there.json", expected)

@@ -170,8 +170,7 @@ def test_optional_write():
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "tmp.txt"
 
-        with open(p, "w") as f:
-            _optional_write(s, f)
+        _optional_write(s, p)
 
         with open(p, "r") as f:
             test = f.read()

@@ -16,7 +16,6 @@ if TYPE_CHECKING:
         Generator,
         Iterable,
         Sequence,
-        TextIO,
     )
 
     import tomlkit.container
@@ -49,6 +48,9 @@ from pyproject2conda.utils import (
 )
 
 from .overrides import OverrideDeps, OverrideDict
+
+# import logging
+# logger = logging.getLogger("pyproject2conda")
 
 
 # * Utilities --------------------------------------------------------------------------
@@ -309,15 +311,22 @@ def _add_header(string: str, header_cmd: str | None) -> str:
 
 
 def _optional_write(
-    string: str, stream: str | Path | TextIO | None, mode: str = "w"
+    string: str,
+    output: str | Path | None,
+    mode: str = "w",  # force: bool = False,
 ) -> None:
-    if stream is None:
+    if output is None:
         return
-    if isinstance(stream, (str, Path)):
-        with open(stream, mode) as f:
-            f.write(string)
-    else:
-        stream.write(string)
+
+    path = Path(output)
+    # if (not force) and path.is_file():
+    #     previous = path.read_text()
+    #     if previous == string:
+    #         logger.info(f"# Skipping {output}.  No change.")
+    #         return
+
+    with path.open(mode) as f:
+        f.write(string)
 
 
 # * Main class
@@ -634,7 +643,7 @@ class ParseDepends:
         python_version: OptStr = None,
         include_base: bool = True,
         header_cmd: str | None = None,
-        stream: str | Path | TextIO | None = None,
+        output: str | Path | None = None,
         sort: bool = True,
         remove_whitespace: bool = True,
         unique: bool = True,
@@ -666,7 +675,7 @@ class ParseDepends:
 
         out = _add_header(out, header_cmd)
 
-        _optional_write(out, stream)
+        _optional_write(out, output)
 
         return out
 
@@ -675,7 +684,7 @@ class ParseDepends:
         extras: OptStr | Iterable[str] = None,
         include_base: bool = True,
         header_cmd: str | None = None,
-        stream: str | Path | TextIO | None = None,
+        output: str | Path | None = None,
         sort: bool = True,
         pip_deps: Sequence[str] | None = None,
         allow_empty: bool = False,
@@ -694,7 +703,7 @@ class ParseDepends:
 
         out = _add_header(list_to_str(pip_deps), header_cmd)
 
-        _optional_write(out, stream)
+        _optional_write(out, output)
         return out
 
     def to_conda_requirements(
@@ -704,8 +713,8 @@ class ParseDepends:
         python_include: str | None = None,
         python_version: str | None = None,
         prepend_channel: bool = False,
-        stream_conda: str | Path | TextIO | None = None,
-        stream_pip: str | Path | TextIO | None = None,
+        output_conda: str | Path | None = None,
+        output_pip: str | Path | None = None,
         include_base: bool = True,
         header_cmd: str | None = None,
         sort: bool = True,
@@ -745,11 +754,11 @@ class ParseDepends:
         conda_deps_str = _add_header(list_to_str(conda_deps), header_cmd)
         pip_deps_str = _add_header(list_to_str(pip_deps), header_cmd)
 
-        if stream_conda and conda_deps_str:
-            _optional_write(conda_deps_str, stream_conda)
+        if output_conda and conda_deps_str:
+            _optional_write(conda_deps_str, output_conda)
 
-        if stream_pip and pip_deps_str:
-            _optional_write(pip_deps_str, stream_pip)
+        if output_pip and pip_deps_str:
+            _optional_write(pip_deps_str, output_pip)
 
         return conda_deps_str, pip_deps_str
 

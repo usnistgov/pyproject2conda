@@ -507,7 +507,7 @@ def yaml(
         extras=extras,
         channels=channels,
         name=name,
-        stream=output,
+        output=output,
         python_include=python_include,
         python_version=python_version,
         include_base=base,
@@ -551,7 +551,7 @@ def requirements(
 
     s = d.to_requirements(
         extras=extras,
-        stream=output,
+        output=output,
         include_base=base,
         header_cmd=_get_header_cmd(header, output),
         sort=sort,
@@ -688,8 +688,8 @@ def conda_requirements(
         python_version=python_version,
         channels=channels,
         prepend_channel=prepend_channel,
-        stream_conda=path_conda,
-        stream_pip=path_pip,
+        output_conda=path_conda,
+        output_pip=path_pip,
         include_base=base,
         header_cmd=_get_header_cmd(header, path_conda),
         sort=sort,
@@ -719,6 +719,7 @@ def to_json(
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     verbose: VERBOSE_CLI = None,  # pyright: ignore
+    overwrite: OVERWRITE_CLI = Overwrite.check,
 ) -> None:
     """
     Create json representation.
@@ -728,6 +729,10 @@ def to_json(
     "pip": pip dependencies.
     "channels": conda channels.
     """
+
+    if not update_target(output, filename, overwrite=overwrite.value):
+        _log_skipping(logger, "yaml", output)
+        return
 
     import json
 
