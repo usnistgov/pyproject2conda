@@ -119,7 +119,7 @@ def main() -> None:
 
     print(args)
 
-    flags = []
+    flags: list[str] = []
     if args.yes:
         flags.append("--yes")
     if args.dry:
@@ -142,7 +142,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    if __package__ is None:
+    if __package__ is None:  # pyright: ignore
         # Magic to be able to run script as either
         #   $ python -m tools.create_python
         # or

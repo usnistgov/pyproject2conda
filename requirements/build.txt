@@ -7,12 +7,6 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-mypy>=1.4.1
-packaging
-pytest
-pytype;python_version<"3.11"
-tomli
-tomlkit
-typer
-types-click
-typing-extensions;python_version<"3.9"
+build
+setuptools>=61.2
+setuptools_scm[toml]>=8.0

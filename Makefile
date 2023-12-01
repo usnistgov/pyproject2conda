@@ -136,13 +136,10 @@ coverage: ## check code coverage quickly with the default Python
 .PHONY: version-scm version-import version
 
 version-scm: ## check/update version of package with setuptools-scm
-	python -m setuptools_scm
+	nox -s build -- ++build version
 
 version-import: ## check version from python import
 	-python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
-
-version-update: ## update version using nox
-	nox -s update-version-scm
 
 version: version-scm version-import
 
@@ -175,67 +172,56 @@ test-all: requirements/test.txt ## run tests on every Python version with nox.
 	$(NOX) -s test
 
 # ** docs
-.PHONY: docs-build docs-release docs-clean docs-command
+.PHONY: docs-build docs-release docs-clean
 docs-build: ## build docs in isolation
-	$(NOX) -s docs -- -d build
+	$(NOX) -s docs -- +d build
 docs-clean: ## clean docs
 	rm -rf docs/_build/*
 	rm -rf docs/generated/*
 	rm -rf docs/reference/generated/*
 docs-clean-build: docs-clean docs-build ## clean and build
 docs-release: ## release docs.
-	$(NOX) -s docs -- -d release
-docs-command: ## run arbitrary command with command=...
-	$(NOX) -s docs -- --docs-run $(command)
+	$(NOX) -s docs -- +d release
 
 .PHONY: .docs-spelling docs-nist-pages docs-open docs-livehtml docs-clean-build docs-linkcheck
 docs-spelling: ## run spell check with sphinx
-	$(NOX) -s docs -- -d spelling
+	$(NOX) -s docs -- +d spelling
 docs-livehtml: ## use autobuild for docs
-	$(NOX) -s docs -- -d livehtml
+	$(NOX) -s docs -- +d livehtml
 docs-open: ## open the build
-	$(NOX) -s docs -- -d open
+	$(NOX) -s docs -- +d open
 docs-linkcheck: ## check links
-	$(NOX) -s docs -- -d linkcheck
+	$(NOX) -s docs -- +d linkcheck
 
-docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: requirements/docs.txt
+docs-build docs-release docs-clean docs-livehtml docs-linkcheck: requirements/docs.txt
 
 # ** typing
-.PHONY: typing-mypy typing-pyright typing-pytype typing-all typing-command
+.PHONY: typing-mypy typing-pyright typing-pytype typing-all
 typing-mypy: ## run mypy mypy_args=...
-	$(NOX) -s typing -- -m mypy
+	$(NOX) -s typing -- +m mypy
 typing-pyright: ## run pyright pyright_args=...
-	$(NOX) -s typing -- -m pyright
+	$(NOX) -s typing -- +m pyright
 typing-pytype: ## run pytype pytype_args=...
-	$(NOX) -s typing -- -m pytype
+	$(NOX) -s typing -- +m pytype
 typing-all:
-	$(NOX) -s typing -- -m mypy pyright pytype
-typing-command:
-	$(NOX) -s typing -- --typing-run $(command)
-typing-mypy typing-pyright typing-pytype typing-all typing-command: requirements/typing.txt
+	$(NOX) -s typing -- +m mypy pyright pytype
+typing-mypy typing-pyright typing-pytype typing-all: requirements/typing.txt
 
 # ** dist pypi
-.PHONY: dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command
-
-dist-pypi-build: ## build dist
-	$(NOX) -s dist-pypi -- -p build
-dist-pypi-testrelease: ## test release on testpypi
-	$(NOX) -s dist-pypi -- -p testrelease
-dist-pypi-release: ## release to pypi, can pass posargs=...
-	$(NOX) -s dist-pypi -- -p release
-dist-pypi-command: ## run command with command=...
-	$(NOX) -s dist-pypi -- --dist-pypi-run $(command)
-dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: requirements/dist-pypi.txt
+.PHONY: build testrelease release
+build: requirements/build.txt ## build dist
+	$(NOX) -s build
+testrelease: ## test release on testpypi
+	$(NOX) -s publish -- +p test
+release: ## release to pypi, can pass posargs=...
+	$(NOX) -s publish -- +p release
 
 # ** dist conda
-.PHONY: dist-conda-recipe dist-conda-build dist-conda-command
-dist-conda-recipe: ## build conda recipe can pass posargs=...
-	$(NOX) -s dist-conda -- -c recipe
-dist-conda-build: ## build conda recipe can pass posargs=...
-	$(NOX) -s dist-conda -- -c build
-dist-conda-command: ## run command with command=...
-	$(NOX) -s dist-conda -- -dist-conda-run $(command)
-dist-conda-build dist-conda-recipe dist-conda-command: requirements/dist-pypi.txt
+.PHONY: conda-recipe conda-build
+conda-recipe: ## build conda recipe can pass posargs=...
+	$(NOX) -s conda-recipe
+conda-build: ## build conda recipe can pass posargs=...
+	$(NOX) -s conda-build
 
 # ** list all options
 .PHONY: nox-list
@@ -287,7 +273,6 @@ pytest-nbval:  ## run pytest --nbval
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md
-	# P2C_COLUMNS=100 cog -rP README.md
 	nox -s cog
 	pre-commit run markdownlint --files README.md
 
@@ -296,3 +281,8 @@ cog-readme: ## apply cog to README.md
 .PHONY: README.pdf
 README.pdf: ## create README.pdf
 	pandoc -V colorlinks -V geometry:margin=0.8in README.md -o README.pdf
+
+.PHONY: typing-tools
+typing-tools:
+	mypy noxfile.py tools
+	pyright noxfile.py tools

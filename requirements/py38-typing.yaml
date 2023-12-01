@@ -14,9 +14,6 @@ dependencies:
   - mypy>=1.4.1
   - packaging
   - pytest
-  - pytest-cov
-  - pytest-sugar
-  - pytest-xdist
   - pytype
   - tomli
   - tomlkit

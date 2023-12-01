@@ -10,12 +10,20 @@
 channels:
   - conda-forge
 dependencies:
-  - python=3.9
-  - mypy>=1.4.1
+  - python=3.11
+  - autodocsumm
+  - ghp-import
+  - ipython
+  - myst-nb
   - packaging
-  - pytest
-  - pytype
+  - pyenchant
+  - sphinx-autobuild
+  - sphinx-book-theme
+  - sphinx-click
+  - sphinx-copybutton
+  - sphinx>=5.3.0
+  - sphinxcontrib-spelling
   - tomli
   - tomlkit
   - typer
-  - types-click
+  - pip

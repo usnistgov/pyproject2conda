@@ -640,9 +640,17 @@ def test_json(filename):
             "channels": ["conda-forge"],
         }
 
-        do_run(runner, "json", "-o", str(d / "hello.json"), filename=filename)
+        path = d / "hello.json"
+
+        do_run(runner, "json", "-o", str(path), filename=filename)
 
         check_results(d / "hello.json", expected)
+
+        orig_time = path.stat().st_mtime
+        do_run(runner, "json", "-o", str(path), filename=filename)
+        check_results(d / "hello.json", expected)
+
+        assert path.stat().st_mtime == orig_time
 
         expected = {  # type: ignore
             "dependencies": [

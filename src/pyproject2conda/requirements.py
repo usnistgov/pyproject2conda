@@ -252,7 +252,7 @@ def _conda_yaml(
         out.append(f"  - {dep}")
 
     if pip_deps:
-        if "pip" not in conda_deps:
+        if "pip" not in conda_deps:  # pragma: no cover
             raise ValueError("Must have pip in conda_deps")
         out.append("  - pip:")
 

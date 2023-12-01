@@ -156,7 +156,7 @@ class ProjectConfig:
     def expand_python_paths(self) -> list[str]:
         from glob import glob
 
-        paths = []
+        paths: list[str] = []
         for p in self.python_paths:
             paths.extend(glob(os.path.expanduser(p)))
         return paths
@@ -199,7 +199,7 @@ def glob_envs_to_paths(globs: list[str]) -> list[str]:
 
     env_map = get_conda_environment_map()
 
-    out = []
+    out: list[str] = []
     for glob in globs:
         found_envs = fnmatch.filter(env_map.keys(), glob)
         out.extend([f"{env_map[k]}/bin" for k in found_envs])
@@ -265,7 +265,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    if __package__ is None:
+    if __package__ is None:  # pyright: ignore
         # Magic to be able to run script as either
         #   $ python -m tools.create_python
         # or

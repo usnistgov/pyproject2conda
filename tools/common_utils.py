@@ -3,13 +3,13 @@ from __future__ import annotations
 
 
 def get_conda_environment_map(simplify: bool = True) -> dict[str, str]:
-    """Contruct mapping from environment env_name to path"""
+    """Construct mapping from environment env_name to path"""
     import subprocess
     from pathlib import Path
 
     result = subprocess.check_output(["conda", "env", "list"])
 
-    env_map = {}
+    env_map: dict[str, str] = {}
     for line in result.decode().split("\n"):
         if not line.startswith("#"):
             x = line.replace("*", "").split()

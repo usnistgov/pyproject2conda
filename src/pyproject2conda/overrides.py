@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 @lru_cache
 def p2c_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES"
+        description="Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES'"
     )
 
     parser.add_argument(
