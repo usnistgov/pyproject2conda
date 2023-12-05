@@ -50,7 +50,7 @@ test = [
     "pytest-sugar",
 ]
 dev-extras = [
-    "pytest-accept", #
+    "pytest-accept", # p2c: -p
     "ipython",
     "ipykernel",
 ]
@@ -65,6 +65,7 @@ typing = [
 ]
 nox = ["nox", "ruamel.yaml"]
 dev = [
+    # "pyproject2conda[nbval]", # optional
     "pyproject2conda[test]", #
     "pyproject2conda[typing-extras]",
     "pyproject2conda[dev-extras]",
@@ -72,7 +73,6 @@ dev = [
 tools = [
     "pre-commit", #
     "scriv",
-    # "nbqa",
     "pyright",
 ]
 dev-complete = [

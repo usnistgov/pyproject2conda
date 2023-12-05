@@ -454,7 +454,7 @@ To run the above, you first need [nox] installed. You can bootstrap the while
 procedure using [pipx] and the following command:
 
 ```bash
-pipx run --spec git+https://github.com/wpk-nist-gov/nox-bootstrap.git \
+pipx run --spec nox \
      nox -s bootstrap -- \
      ++python-paths "~/.conda/envs/python-3.*/bin" \
      ++dev-extras dev nox

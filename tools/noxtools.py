@@ -7,8 +7,6 @@ from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-from ruamel.yaml import YAML
-
 if TYPE_CHECKING:
     import sys
     from typing import Any, Iterable, TextIO, Union
@@ -835,6 +833,8 @@ def parse_envs(
 ) -> tuple[set[str], set[str], set[str], str | None]:
     """Parse an `environment.yaml` file."""
     import re
+
+    from ruamel.yaml import YAML
 
     def _default(x: str | Iterable[str] | None) -> set[str]:
         if x is None:

@@ -241,6 +241,22 @@ install-dev: ## install development version (run clean?)
 
 
 ################################################################################
+# * NOTEBOOK typing/testing
+################################################################################
+NOTEBOOKS ?= examples/usage
+.PHONY: mypy-notebook pyright-notebook typing-notebook
+mypy-notebook: ## run nbqa mypy
+	nbqa --nbqa-shell mypy $(NOTEBOOKS)
+pyright-notebook: ## run nbqa pyright
+	nbqa --nbqa-shell pyright $(NOTEBOOKS)
+typing-notebook: mypy-notebook pyright-notebook ## run nbqa mypy/pyright
+
+.PHONY: pytest-nbval
+pytest-notebook:  ## run pytest --nbval
+	pytest --nbval --nbval-current-env --nbval-sanitize-with=config/nbval.ini --dist loadscope -x $(NOTEBOOKS)
+
+
+################################################################################
 # * Other tools
 ################################################################################
 
@@ -258,18 +274,10 @@ tuna-import: ## Analyze load time for module
 	tuna tuna-loadtime.log
 	rm tuna-loadtime.log
 
-# nbqa-mypy
-NOTEBOOKS ?= examples/usage
-.PHONY: nbqa-mypy nbqa-pyright nbqa-typing
-nbqa-mypy: ## run nbqa mypy
-	nbqa --nbqa-shell mypy $(NOTEBOOKS)
-nbqa-pyright: ## run nbqa pyright
-	nbqa --nbqa-shell pyright $(NOTEBOOKS)
-nbqa-typing: nbqa-mypy nbqa-pyright ## run nbqa mypy/pyright
-
-.PHONY: pytest-nbval
-pytest-nbval:  ## run pytest --nbval
-	pytest --nbval --current-env --sanitize-with=config/nbval.ini $(NOTEBOOKS) -x
+.PHONY: typing-tools
+typing-tools:
+	mypy noxfile.py tools
+	pyright noxfile.py tools
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md
@@ -281,8 +289,3 @@ cog-readme: ## apply cog to README.md
 .PHONY: README.pdf
 README.pdf: ## create README.pdf
 	pandoc -V colorlinks -V geometry:margin=0.8in README.md -o README.pdf
-
-.PHONY: typing-tools
-typing-tools:
-	mypy noxfile.py tools
-	pyright noxfile.py tools
