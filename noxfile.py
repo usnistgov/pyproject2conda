@@ -592,7 +592,7 @@ def test_notebook(session: nox.Session, opts: SessionParams) -> None:
             session=session,
             envname="test-notebook",
             lock=opts.lock,
-            package=True,
+            package=get_package_wheel(session, opts="--no-deps --force-reinstall"),
             update=opts.update,
         ).install_all(log_session=opts.log_session, update_package=opts.update_package)
     )
