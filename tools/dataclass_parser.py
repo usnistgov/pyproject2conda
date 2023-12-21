@@ -101,7 +101,8 @@ class Option:
     def asdict(self) -> dict[str, Any]:
         return {
             k: v
-            for k, v in (
+            for k, v in
+            (
                 # Can't use asdict() since that deep copies and we need
                 # to filter using an identity check against UNDEFINED.
                 [
@@ -284,8 +285,8 @@ def _create_option(
     annotation: Any,
 ) -> Option:
     # Can also pass via annotations
-    # if this is the case, explicity options from add_option
-    # will take precidence.
+    # if this is the case, explicitly options from add_option
+    # will take precedence.
     # if get_origin(annotation) is Annotated:
     #     opt_type, opt_anno, *_ = get_args(annotation)
 

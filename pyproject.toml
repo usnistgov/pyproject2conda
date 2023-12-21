@@ -1,22 +1,26 @@
 [build-system]
-requires = ["setuptools>=61.2", "setuptools_scm[toml]>=8.0"]
 build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools>=61.2",
+    "setuptools_scm[toml]>=8.0",
+]
 
 [project]
 name = "pyproject2conda"
-authors = [{ name = "William P. Krekelberg", email = "wpk@nist.gov" }]
-license = { text = "NIST-PD" }
 description = "A script to convert a Python project declared on a pyproject.toml to a conda environment."
-# if using markdown
-# long_description_content_type = text/markdown
-keywords = ["pyproject2conda"]
+keywords = [
+    "pyproject2conda",
+]
+license = { text = "NIST-PD" }
+authors = [{ name = "William P. Krekelberg", email = "wpk@nist.gov" }]
+requires-python = ">=3.8,<=3.12"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
     "License :: Public Domain",
     "Operating System :: OS Independent",
-    "Intended Audience :: Science/Research",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -24,122 +28,74 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
 ]
-dynamic = ["readme", "version"]
-requires-python = ">=3.8"
+dynamic = [
+    "readme",
+    "version",
+]
 dependencies = [
+    "packaging",
     "tomli",
     "tomlkit",
     "typer",
-    "packaging",
     "typing-extensions; python_version<'3.9'",
 ]
-
-[project.urls]
-homepage = "https://github.com/usnistgov/pyproject2conda"
-documentation = "https://pages.nist.gov/pyproject2conda/"
-
 [project.optional-dependencies]
-all = [
-    "rich", #
-    "shellingham",
-]
-test = [
-    "pytest", #
-    "pytest-xdist",
-    "pytest-cov",
-    "pytest-sugar",
-]
-dev-extras = [
-    "pytest-accept", # p2c: -p
-    "ipython",
-    "ipykernel",
-]
-typing-extras = [
-    "pytype; python_version < '3.11'", #
-    "mypy >= 1.4.1",
-    "types-click",
-]
-typing = [
-    "pyproject2conda[typing-extras]", #
-    "pytest",
-]
-nox = ["nox", "ruamel.yaml"]
 dev = [
-    # "pyproject2conda[nbval]", # optional
-    "pyproject2conda[test]", #
+    "pyproject2conda[test]",
     "pyproject2conda[typing-extras]",
     "pyproject2conda[dev-extras]",
 ]
-tools = [
-    "pre-commit", #
-    "scriv",
-    "pyright",
-]
 dev-complete = [
-    "pyproject2conda[dev]", #
+    "pyproject2conda[dev]",
     "pyproject2conda[tools]",
-    "pyproject2conda[nox]",
+]
+dev-extras = [
+    "ipykernel",
+    "ipython",
+    "nox",
+    "pytest-accept",
 ]
 docs = [
-    "ipython", #
-    "pyenchant",
+    "autodocsumm",
     "ghp-import",
+    "ipython",
+    "myst-nb",
+    "pyenchant",
     "sphinx >= 5.3.0",
+    "sphinx-autobuild",
+    "sphinx-book-theme",
+    "sphinx-click",
     "sphinx-copybutton",
     "sphinxcontrib-spelling",
-    "sphinx-autobuild",
-    "myst-nb",
-    "sphinx-book-theme",
-    "autodocsumm",
-    "sphinx-click",
 ]
-cog = ["cogapp"]
-
-[tool.pyproject2conda.dependencies]
-pytest-accept = { pip = true }
-scriv = { pip = true }
-
-[tool.pyproject2conda]
-user_config = "config/userconfig.toml"
-template_python = "requirements/py{py}-{env}"
-template = "requirements/{env}"
-# defaults
-python = ["3.11"]
-channels = ["conda-forge"]
-style = ["yaml", "requirements"]
-default_envs = ["test", "typing", "docs", "dev", "dev-complete"]
-
-[tool.pyproject2conda.envs.test-extras]
-extras = ["test"]
-base = false
-
-[tool.pyproject2conda.envs.dev-base]
-extras = ["dev"]
-
-[tool.pyproject2conda.envs.cog]
-style = "requirements"
-
-[tool.pyproject2conda.envs.build]
-extras = "build-system.requires"
-reqs = ["build"]
-base = false
-style = "requirements"
-
-# make sure pip available to all conda environments
-# that install the package
-[[tool.pyproject2conda.overrides]]
-envs = ["test", "dev", "dev-complete", "dev-base", "docs"]
-deps = ["pip"]
-
-[[tool.pyproject2conda.overrides]]
-envs = ["test", "typing", "test-extras"]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-sugar",
+    "pytest-xdist",
+]
+tools = [
+    "pip-tools",
+    "pre-commit",
+    "pyright",
+    "scriv",
+]
+typing = [
+    "pyproject2conda[typing-extras]",
+    "pytest",
+]
+typing-extras = [
+    "mypy >= 1.4.1",
+    "pytype; python_version < '3.11'",
+    "types-click",
+]
+[project.urls]
+Documentation = "https://pages.nist.gov/pyproject2conda/"
+Homepage = "https://github.com/usnistgov/pyproject2conda"
 [project.scripts]
-pyproject2conda = "pyproject2conda.cli:app"
 p2c = "pyproject2conda.cli:app"
+pyproject2conda = "pyproject2conda.cli:app"
 
-## grayskull still messes some things up, but use scripts/recipe-append.sh for this
 [tool.setuptools]
 zip-safe = true # if using mypy, must be False
 include-package-data = true
@@ -149,8 +105,6 @@ license-files = ["LICENSE"]
 namespaces = true
 where = ["src"]
 
-## include = []
-## exclude = []
 [tool.setuptools.dynamic]
 readme = { file = [
     "README.md",
@@ -161,60 +115,12 @@ readme = { file = [
 [tool.setuptools_scm]
 fallback_version = "999"
 
-[tool.aliases]
-test = "pytest"
-
-[tool.pytest.ini_options]
-addopts = "--doctest-modules --doctest-glob='*.md'"
-testpaths = ["tests", "README.md"]
-
-[tool.coverage.report]
-exclude_also = ["if TYPE_CHECKING:", "@overload"]
-omit = ["*/vendored/*"]
-include = ["src/*"]
-
-[tool.isort]
-profile = "black"
-skip_gitignore = true
-known_first_party = ["pyproject2conda"]
+# * Linting --------------------------------------------------------------------
 
 [tool.ruff]
 fix = true
 line-length = 88
 target-version = "py38"
-select = [
-    # pyflakes
-    "F",
-    # pycodestyle
-    "E",
-    "W",
-    # isort
-    "I",
-    # pyupgrade
-    "UP",
-    # pydocstyle
-    "D",
-    # # flake8-2020
-    "YTT",
-    # # flake8-bugbear
-    # "B",
-    # flake8-quotes
-    "Q",
-    # # pylint
-    # "PLE", "PLR", "PLW",
-    # # misc lints
-    "PIE",
-    # # tidy imports
-    "TID",
-    # # implicit string concatenation
-    # "ISC",
-    # # type-checking imports
-    "TCH",
-]
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-# fixable = ["A", "B", "C", "D", "E", "F", "..."]
-unfixable = []
-# Exclude a variety of commonly ignored directories.
 exclude = [
     ".bzr",
     ".direnv",
@@ -239,94 +145,82 @@ exclude = [
     "tests/",
     "src/pyproject2conda/tests",
 ]
+
+[tool.ruff.lint]
+select = [
+    "F",      ## pyflakes
+    "E", "W", ## pycodestyle
+    "I",      ## isort
+    "UP",     ## pyupgrade
+    "D",      ## pydocstyle
+    "YTT",    ## flake8-2020
+    # "B",    ## flake8-bugbear
+    "Q",      ## flake8-quotes
+    # "PLE",  ## pylint
+    # "PLR"   ## pylint
+    # "PLW",  ## pylint
+    "PIE",    ## misc lints
+    "TID",    ## tidy imports
+    # "ISC",  ## implicit string concatenation
+    "TCH",    ## type-checking imports
+]
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+# fixable = ["A", "B", "C", "D", "E", "F", "..."]
+unfixable = []
+# Exclude a variety of commonly ignored directories.
 ignore = [
-    # # whitespace before ':' - doesn't work well with black
-    # "E203",
-    # module level import not at top of file
-    "E402",
-    # line too long - let black worry about that
-    "E501",
-    # do not assign a lambda expression, use a def
-    "E731",
-    # # line break before binary operator
-    # "W503",
-    # allow black line after docstring
-    "D202",
-    "D105",
-    "D205",
+    # "E203", ## whitespace before ':' - doesn't work well with black
+    "E402",   ## module level import not at top of file
+    "E501",   ## line too long - let black worry about that
+    "E731",   ## do not assign a lambda expression, use a def
+    # "W503", ## line break before binary operator
+    "D202",   ## blank line after docstring
+    "D105",   ## Missing magic method docstring
+    "D205",   ## blank line after summary
     # this leads to errors with placing titles in module
-    # docstrings
-    "D400",
-    "D401",
-    "D415",
-    "D102",
-    "D103",
-    # these are useful, but too many errors
-    # due to use of docfiller
-    "D417",
-    "D107",
-    "D203",
-    "D212",
-    # Allow relative imports
-    "TID252",
+    "D400",   ## First line should end with a period
+    "D401",   ## First line of docstring should be in imperative mood: "{first_line}"
+    "D415",   ## First line should end with a period, question mark, or exclamation point
+    "D102",   ## Missing docstring in public method
+    "D103",   ## Missing docstring in public function
+    # these are useful, but too many errors with docfiller
+    "D417",   ## Missing argument description in the docstring for {definition}: {name}
+    "D107",   ## Missing docstring in __init__
+    "D203",   ## 1 blank line required before class docstring
+    "D212",   ## Multi-line docstring summary should start at the first line
+    "TID252", ## Allow relative imports
 ]
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+# per-file-ignores = {  }
 
 [tool.ruff.per-file-ignores]
 "src/pyproject2conda/cli.py" = ["UP006", "UP007"]
 
-[tool.ruff.isort]
-known-first-party = ["pyproject2conda"]
+[tool.ruff.lint.isort]
+known-first-party = ["open_notebook"]
 
-[tool.ruff.mccabe]
-# Unlike Flake8, default to a complexity level of 10.
-max-complexity = 10
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.nbqa.addopts]
 ruff = ["--fix", "--extend-ignore=D100,B018"]
 
-[tool.flake8]
-docstring-convention = "numpy"
-ignore = [
-    # # whitespace before ':' - doesn't work well with black
-    "E203",
-    # module level import not at top of file
-    "E402",
-    # line too long - let black worry about that
-    "E501",
-    # do not assign a lambda expression, use a def
-    "E731",
-    # # line break before binary operator
-    "W503",
-    # allow black line after docstring
-    "D202",
-    "D105",
-    "D205",
-    # this leads to errors with placing titles in module
-    # docstrings
-    "D400",
-    "D401",
-    "D415",
-    "D102",
-    "D103",
-    # these are useful, but too many errors
-    # due to use of docfiller
-    "D417",
-    "D107",
-    "D203",
-    "D212",
-]
+# * Testing --------------------------------------------------------------------
 
-[tool.scriv]
-format = "md"
-md_header_level = "2"
-new_fragment_template = "file: changelog.d/templates/new_fragment.md.j2"
+[tool.pytest.ini_options]
+addopts = "--doctest-modules --doctest-glob='*.md' --pyargs"
+testpaths = ["pyproject2conda", "tests", "README.md"]
 
-[tool.commitizen]
-use_shortcuts = true
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:", "@overload"]
+omit = ["*/vendored/*", "*/_typing.py", "*/__main__.py"]
+include = ["src/*"]
 
-[tool.cruft]
+[tool.coverage.paths]
+source = ["src/", ".nox/**/site-packages/"]
+
+# * Typing
 
 [tool.mypy]
 files = ["src", "tests"]
@@ -350,7 +244,7 @@ module = []
 include = ["src", "tests"]
 exclude = ["**/__pycache__", ".tox/**", ".nox/**", "**/.mypy_cache"]
 strict = ["src/**/*.py"]
-pythonVersion = "3.10"
+pythonVersion = "3.11"
 typeCheckingMode = "basic"
 # enable subset of "strict"
 reportDuplicateImport = true
@@ -374,3 +268,53 @@ reportUnboundVariable = false
 
 [tool.pytype]
 inputs = ["src", "tests"]
+
+# * Dependency creation --------------------------------------------------------
+
+[tool.pyproject2conda]
+user_config = "config/userconfig.toml"
+template_python = "requirements/py{py}-{env}"
+template = "requirements/{env}"
+python = ["3.11"]
+channels = ["conda-forge"]
+style = ["yaml", "requirements"]
+default_envs = ["test", "typing", "docs", "dev", "dev-complete"]
+
+[tool.pyproject2conda.dependencies]
+pytest-accept = { pip = true }
+scriv = { pip = true }
+
+[tool.pyproject2conda.envs.build]
+extras = "build-system.requires"
+reqs = ["build"]
+base = false
+style = "requirements"
+
+[tool.pyproject2conda.envs.test-extras]
+extras = ["test"]
+base = false
+
+[[tool.pyproject2conda.overrides]]
+# Ensure these have pip in yaml file
+envs = ["test", "docs", "dev", "dev-complete"]
+deps = ["pip"]
+
+[[tool.pyproject2conda.overrides]]
+envs = ["test", "typing", "test-extras"]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+[tool.pip-tools]
+allow-unsafe = true
+strip-extras = true
+
+# * Other tools ----------------------------------------------------------------
+
+[tool.scriv]
+format = "md"
+md_header_level = "2"
+new_fragment_template = "file: changelog.d/templates/new_fragment.md.j2"
+
+[tool.commitizen]
+use_shortcuts = true
+
+[tool.cruft]

@@ -35,9 +35,8 @@ clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr docs/_build/
 	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+	rm -fr dist-conda/
+
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -45,8 +44,10 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
+clean-nox: ## remove all nox artifacts
+	rm -fr .nox
+
 clean-test: ## remove test and coverage artifacts
-	rm -fr .nox/
 	rm -f .coverage
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
@@ -102,15 +103,12 @@ pre-commit-codespell: ## run codespell. Note that this imports allowed words fro
 ################################################################################
 # * User setup
 ################################################################################
-.PHONY: user-venv user-autoenv-zsh user-all
-user-venv: ## create .venv file with name of conda env
-	echo $${PWD}/.nox/pyproject2conda/envs/dev > .venv
-
+.PHONY: user-autoenv-zsh user-all
 user-autoenv-zsh: ## create .autoenv.zsh files
-	echo conda activate $$(cat .venv) > .autoenv.zsh
+	echo conda activate ./.venv > .autoenv.zsh
 	echo conda deactivate > .autoenv_leave.zsh
 
-user-all: user-venv user-autoenv-zsh ## runs user scripts
+user-all: user-autoenv-zsh ## runs user scripts
 
 
 ################################################################################
@@ -276,8 +274,8 @@ tuna-import: ## Analyze load time for module
 
 .PHONY: typing-tools
 typing-tools:
-	mypy noxfile.py tools
-	pyright noxfile.py tools
+	mypy --strict noxfile.py tools/*.py
+	pyright noxfile.py tools/*.py
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md

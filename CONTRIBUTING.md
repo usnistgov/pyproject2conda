@@ -74,7 +74,7 @@ Ready to contribute? Here's how to make a contribution.
   git submodule update --init --recursive
   ```
 
-- Create development environment. See [](#bootstrap-development-environment) for
+- Create development environment. See [](#setup-development-environment) for
   details.
 
 - Initiate [pre-commit] with:
@@ -168,16 +168,9 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Using [pre-commit]
 
-It is highly recommended to enable [pre-commit]. To do so, you need to first
-install pre-commit. It is recommended to use [pipx] or [condax]
-
-```bash
-pipx/condax install pre-commit
-```
-
-Alternatively, you can install with your development environment.
-
-Then "install" the hooks with
+It is highly recommended to enable [pre-commit]. See
+[](#setup-development-environment) for installation instructions. To install the
+pre-commit hooks, run:
 
 ```bash
 pre-commit install
@@ -207,59 +200,43 @@ environment to use conda, while all other environments are virtualenvs. There
 are conda sessions for testing (`test-conda`), typing (`typing-conda`), docs
 (`docs-conda`), etc.
 
-### Setup user configuration
+### Installing interpreters for virtualenv creation
 
-As discussed below, we need to tell nox where to search for python interpreters
-(if using virtualenvs), and what "extras" from `pyproject.toml` to include in
-the users development environment. For this, create the file
-`config/userconfig.toml`. An example of this file is available at
-`config/userconfig.example.toml`. The variable `nox.python.paths` is a list of
-paths (with optional wildcards) added to the environment variable `PATH` to
-search for python interpreters. The variable `nox.extras.dev` is a list of
-"extras" to include (from `pyproject.toml`) in the development environment.
+If using virtualenvs across multiple python versions (e.g., `test`, `typing`,
+etc), you'll need to install python interpreters for each version. If using
+[pyenv], you should be good to go.
+
+Instead of using [pyenv], I use conda to create multiple invironments to hold
+different python version. You can use the following script to create the needed
+conda environments:
+
+```bash
+python tools/create_pythons.py -p 3.8 3.9 ...
+```
+
+Run with `--help` for more options.
+
+To tell nox where to find python interpreters created like above, define the
+environment variable:
+
+```bash
+NOX_PYTHON_PATH="~/.conda/python-3.*/bin"
+```
+
+or the user config file `config/userconfig.toml` with:
 
 ```toml
 # config/userconfig.toml
 [nox.python]
 paths = ["~/.conda/envs/python-3.*/bin"]
 
-# overrides dev environment for user
-[tool.pyproject2conda.envs.dev]
-extras = ["dev", "nox"]
-
 ```
 
-For example, the above file will add the paths `~/.conda/envs/python-3.*/bin` to
-the search path, and the development environment will include the extras `dev`
-and `nox` from the `project.optional-dependencies` section of the
-`pyproject.toml` file in the development environment. See
-[below](#creating-environmentyamlrequirementtxt-files) and [pyproject2conda] for
-more info.
-
-You can also create this file using either of the following commands:
-
-```bash
-nox -s config -- ++python-paths "~/.conda/envs/python-3.*/bin" ++dev-extras dev nox...
-# or
-python tools/projectconfig.py  --python-paths ... --dev-extras ...
-```
-
-Run the latter with `--help` for more options.
-
-### Installing interpreters for virtualenv creation
-
-If using virtualenvs across multiple python versions (e.g., `test_venv`,
-`typing_venv`, etc), you'll need to install python interpreters for each
-version. I've had trouble mixing pyenv with conda. Instead, I use conda to
-create multiple invironments to hold different python version. You can use the
-following script to create the needed conda environments:
-
-```bash
-python tools/create_pythons.py -p 3.8 3.9 ...
-```
-
-Run with `--help` for more options. Then, set the variable `nox.python.paths`
-(see [](#setup-user-configuration)).
+The variable `nox.python.paths` is a list of paths (with optional wildcards)
+added to the environment variable `PATH` to search for python interpreters. If
+using the environment variable `NOX_PYTHON_PATH`, paths should be separated with
+the colons (`:`). Either of the above will add the paths
+`~/.conda/envs/python-3.*/bin` to the search path.
 
 ### Nox session options
 
@@ -293,7 +270,7 @@ nox -s docs -- +d build open
 
 ### Creating environment.yaml/requirement.txt files
 
-The project is setup to create `environemt.yaml` and `requirement.txt` files
+The project is setup to create `environment.yaml` and `requirement.txt` files
 from `pyproject.toml`. This can be done using:
 
 ```bash
@@ -303,19 +280,31 @@ nox -s requirements
 This uses [pyproject2conda] to create the requirement files. Note that all
 requirement files are under something like
 `requirements/py{version}-{env-name}.yaml` (conda environment) or
-`requirements/{env-name}.txt` (virtual environment). The file
-`requirements/py{version}-dev.yaml` is user specific and **should not** be
-tracked by git.
+`requirements/{env-name}.txt` (virtual environment).
 
 Additionally, requirement files for virtualenvs (e.g., `requirements.txt` like
-files) will be "locked" using `pip-compile`. These files are placed under
-`requirements/lock`.
+files) will be "locked" using `pip-compile` from [pip-tools]. These files are
+placed under `requirements/lock`. Note the the session `requirements`
+automatically calls the session `pip-compile`.
+
+To upgrade the dependencies in the lock, you'll need to pass the option:
+
+```bash
+nox -s requirements/pip-compile -- +L/++pip-compile-upgrade
+```
 
 ## ipykernel
 
 The environments created by nox `dev` and `docs-conda` will try to add
-meaningful display names for ipykernel (assuming you're using
-[nb_conda_kernels])
+meaningful display names for ipykernel. These are installed at the user level.
+To cleanup the kernels (meaning, removing installed kernels that point to a
+removed environment), You can use the script `tools/clean_kernelspec.py`. This
+script should be run from the environment of the jupyter server. For example, if
+you run jupyter from a conda environment named `notebook`, run
+
+```bash
+conda run -n notebook python tools/clean_kernelspec.py
+```
 
 ## Building the docs
 
@@ -336,7 +325,7 @@ where commands can be one of:
   [ghp-import](https://github.com/c-w/ghp-import))
 - livehtml : Live documentation updates
 - open : open the documentation in a web browser
-- serve : Serve the created documentation webpage (Need this to view javescript
+- serve : Serve the created documentation webpage (Need this to view javascript
   in created pages).
 
 ## Testing with nox
@@ -354,6 +343,11 @@ nox -s test -- ++test-opts -x -v
 ```
 
 Use session `test-conda` to test under a conda environment.
+
+Note that by default, these will install an isolated copy of the package, as
+apposed to installing with `pip install -e . --no-deps`. This is similar to how
+[tox] works. This uses the nox session `build` behind the scenes. This should
+therefore be a fast operation.
 
 ## Building distribution for conda
 
@@ -417,6 +411,14 @@ nox -s testdist-conda -- ++version [version]
 
 to to likewise from conda.
 
+## Testing notebooks with [nbval]
+
+To test notebooks expected output using [nbval], run
+
+```bash
+nox -s test-notebook
+```
+
 ## Type checking
 
 Run:
@@ -436,114 +438,93 @@ yours. For conda, we recommend actually using [mamba]. Alternatively, you can
 setup `conda` to use the faster `mamba` solver. See [here][conda-fast-setup] for
 details.
 
-### Bootstrap development environment
+### Create development environment with conda
 
-The recommended method to install the development environment is to use nox. The
-following commands Will create the user config file `config/userconfig.toml`,
-the requirements files, and the development environment.
+To install a development environment using [conda]/[mamba] run:
 
 ```bash
-nox -s config requirements dev -- ++python-paths ... ++dev-extras ...
+conda env create -n {env-name} -f requirements/py{version}-dev.yaml
+conda activate {env-name}
+pip install -e . --no-deps
 ```
 
-See [](#setup-user-configuration) for more info on the flags. You can instead
-just run the session `bootstrap`, which in turn calls `config`, `requirements`,
-and `dev`.
+If you want to include some extra tools in the environment (instead of using
+[condax] or [pipx]), use `requirements/py{version}-dev-complete.yaml` instead.
 
-To run the above, you first need [nox] installed. You can bootstrap the while
-procedure using [pipx] and the following command:
+### Create development environment with pip
+
+Run something like the following:
 
 ```bash
-pipx run --spec nox \
-     nox -s bootstrap -- \
-     ++python-paths "~/.conda/envs/python-3.*/bin" \
-     ++dev-extras dev nox
-
-conda activate .nox/{project-name}/envs/dev
+python -m venv .venv
+source .venv/bin/activate
+# unlocked
+python -m pip install -r requirements/dev.txt
+# locked:
+pip-sync --python-path .venv/bin/python requirements/lock/py{version}-dev.txt
+python -m pip install -e . --no-deps
 ```
 
-where options `--python-paths` and `--dev-extras` are user specific. This will,
-in isolation, install nox, and run the `bootstrap` session.
+If you want to include the extra tools, replace `dev.txt` with
+`dev-complete.txt`.
 
-Note that nox environments are under `.nox/{project-name}/envs` instead of under
-`.nox`. This fixes some issues with things like [nb_conda_kernels], as well as
-other third party tools that expect conda environment to be located in a
-directory like `.../miniforge/envs/env-name`.
+### Create development environment with nox
+
+If you'd like to use nox to manage your development environment, use the
+following:
+
+```bash
+nox -s dev -- [++dev-envname dev/dev-complete]
+```
+
+where the option `++dev-envname` (default `dev`) can be used to specify what
+kind of development environment you'd like. This will create a [conda]
+environment under `.venv`. To instead create a [virtualenv] based development
+environment, use `nox -s dev-venv ....`.
 
 If you go this route, you may want to use something like
 [zsh-autoenv](https://github.com/Tarrasch/zsh-autoenv) (if using zsh shell) or
 [autoenv](https://github.com/hyperupcall/autoenv) (if using bash) to auto
 activate the development environment when in the parent directory.
 
-### Conda create development environment
-
-If instead you'd like to just install directly with conda, you can use:
+Note that you can bootstrap the whole process with [pipx] using:
 
 ```bash
-conda env create [-n {env-name}] -f requirements/py{version}-dev-complete.yaml
-conda activate {env-name}
-pip install -e . --no-deps
+pipx run --spec nox \
+     nox -s dev -- \
+     ++dev-envname dev/dev-complete
 ```
-
-This installs all optional dependencies except those need to build the docs. For
-that, please use nox.
 
 ### Development tools
 
 We recommend installing the following tools with [pipx] or [condax]. If you'd
-like to install them in the development environment instead, include the
-"extras" `tools` in the `nox.extras.dev` section of `config/userconfig.toml`
-file, or run:
-
-```bash
-nox -s config -- ++dev-extras dev nox tools
-```
-
-Alternatively, you can just create a conda environment using the commands in
-[](#conda-create-development-environment).
+like to install them in the development environment instead, use the
+`dev-complete` version of the commands above.
 
 Additional tools are:
 
+- [pip-tools]
 - [pre-commit]
-- [nox] with [noxopt]
-- [cruft]
 - [scriv]
+- [nbqa]
+- [pyright]
+- [cruft] (optional)
 - [commitizen] (optional)
-- [pyproject2conda] (optional)
 - [cog] (optional)
-- [nbqa] (optional)
-- [pyright] (recommended)
 
 These are setup using the following:
 
 ```console
+condax/pipx install pip-tools
 condax/pipx install pre-commit
-condax/pipx install cruft
 pipx install scriv
-
-# optional packages
-condax/pipx install commitizen
-condax/pipx install cogapp
 condax/pipx install nbqa
 condax/pipx install pyright
-```
 
-If you'd like to install a central [nox] to be used with this project, use one
-of the following:
-
-```bash
-pipx install nox
-pipx inject nox ruamel.yaml
-pipx inject nox noxopt
-```
-
-or
-
-```bash
-condax install nox
-condax inject nox ruamel.yaml
-conda activate ~/.condax/nox
-pip install noxopt
+# optional packages
+condax/pipx install cruft
+condax/pipx install commitizen
+condax/pipx install cogapp
 ```
 
 ## Package version
@@ -568,24 +549,25 @@ To do this in a given session, use:
 nox -s {session} -- +P/++update-package
 ```
 
-[conda]: https://docs.conda.io/en/latest/
-[virtualenv]: https://virtualenv.pypa.io/en/latest/
-[pipx]: https://github.com/pypa/pipx
-[condax]: https://github.com/mariusvniekerk/condax
-[mamba]: https://github.com/mamba-org/mamba
+[cog]: https://github.com/nedbat/cog
+[commitizen]: https://github.com/commitizen-tools/commitizen
 [conda-fast-setup]:
   https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community
-[pre-commit]: https://pre-commit.com/
-[nox]: https://github.com/wntrblm/nox
-[noxopt]: https://github.com/rmorshea/noxopt
-[tox]: https://tox.wiki/en/latest/
-[cruft]: https://github.com/cruft/cruft
-[cog]: https://github.com/nedbat/cog
-[git-flow]: https://github.com/nvie/gitflow
-[scriv]: https://github.com/nedbat/scrivl
+[conda]: https://docs.conda.io/en/latest/
+[condax]: https://github.com/mariusvniekerk/condax
 [conventional-style]: https://www.conventionalcommits.org/en/v1.0.0/
-[commitizen]: https://github.com/commitizen-tools/commitizen
-[nb_conda_kernels]: https://github.com/Anaconda-Platform/nb_conda_kernels
-[pyproject2conda]: https://github.com/wpk-nist-gov/pyproject2conda
+[cruft]: https://github.com/cruft/cruft
+[git-flow]: https://github.com/nvie/gitflow
+[mamba]: https://github.com/mamba-org/mamba
 [nbqa]: https://github.com/nbQA-dev/nbQA
+[nbval]: https://github.com/computationalmodelling/nbval
+[nox]: https://github.com/wntrblm/nox
+[pip-tools]: https://github.com/jazzband/pip-tools
+[pipx]: https://github.com/pypa/pipx
+[pre-commit]: https://pre-commit.com/
+[pyenv]: https://github.com/pyenv/pyenv
+[pyproject2conda]: https://github.com/wpk-nist-gov/pyproject2conda
 [pyright]: https://github.com/microsoft/pyright
+[scriv]: https://github.com/nedbat/scrivl
+[tox]: https://tox.wiki/en/latest/
+[virtualenv]: https://virtualenv.pypa.io/en/latest/

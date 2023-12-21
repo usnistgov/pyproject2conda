@@ -96,6 +96,23 @@ class ProjectConfig:
         else:
             return cls()
 
+    @classmethod
+    def from_path_and_environ(
+        cls, path: str | Path = "./config/userconfig.toml"
+    ) -> Self:
+        def _get_python_paths_from_environ() -> list[str]:
+            if python_paths_environ := os.environ.get("NOX_PYTHON_PATH"):
+                return python_paths_environ.split(":")
+            else:
+                return []
+
+        python_paths, env_extras = cls._path_to_params(path)
+
+        return cls(
+            python_paths=(python_paths or _get_python_paths_from_environ()),
+            env_extras=env_extras,
+        )
+
     @staticmethod
     def _params_to_string(
         python_paths: list[str], env_extras: dict[str, Mapping[str, Any]]
@@ -133,7 +150,7 @@ class ProjectConfig:
         # [nox.python]
         # paths = ["~/.conda/envs/python-3.*/bin"]
         #
-        # [tool.pyproject2conda.envs.dev]
+        # [tool.pyproject2conda.envs.dev-user]
         # extras = ["dev-complete"]
         """
         )
@@ -187,7 +204,7 @@ class ProjectConfig:
         if self.env_extras:
             config["environment-extras"] = self.env_extras
         else:
-            config["environment-extras"] = {"dev": ["nox", "dev"]}
+            config["environment-extras"] = {"dev-user": ["nox", "dev"]}
 
         return config
 
@@ -233,7 +250,7 @@ def main() -> None:
         "-d",
         "--dev-extras",
         nargs="+",
-        help="extras (from pyproject.toml) to include in development environment",
+        help="extras (from pyproject.toml) to include in `dev-user` environment",
     )
 
     p.add_argument(
@@ -259,7 +276,7 @@ def main() -> None:
         n.python_paths = python_paths
 
     if args.dev_extras:
-        n.env_extras["tool.pyproject2conda.envs.dev"] = {"extras": args.dev_extras}
+        n.env_extras["tool.pyproject2conda.envs.dev-user"] = {"extras": args.dev_extras}
 
     n.to_path(args.file)
 

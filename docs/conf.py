@@ -126,7 +126,7 @@ nb_execution_allow_errors = True
 github_username = "usnistgov"
 
 html_context = {
-    "github_user": "usnistgov",
+    "github_user": github_username,
     "github_repo": "pyproject2conda",
     "github_version": "main",
     "doc_path": "docs",
@@ -254,8 +254,7 @@ author = "William P. Krekelberg"
 def _get_version():
     import os
 
-    version = os.environ.get("SETUPTOOLS_SCM_PRETEND_VERSION", None)
-    if version is None:
+    if (version := os.environ.get("SETUPTOOLS_SCM_PRETEND_VERSION")) is None:
         version = pyproject2conda.__version__
     return version
 
