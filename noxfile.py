@@ -81,10 +81,11 @@ PYTHON_DEFAULT_VERSION = "3.11"
 # conda/mamba
 for backend in ["mamba", "micromamba", "conda"]:
     if shutil.which(backend):
-        CONDA_BACKEND: Literal["mamba", "micromamba", "conda"] = backend  # type: ignore
+        CONDA_BACKEND: Literal["mamba", "micromamba", "conda"] = backend  # type: ignore[assignment]
         break
 else:
-    raise ValueError("no conda-like backend found")
+    msg = "no conda-like backend found"
+    raise ValueError(msg)
 
 
 class SessionOptionsDict(TypedDict, total=False):
@@ -115,7 +116,7 @@ RUN_TYPE: TypeAlias = list[list[str]] | None
 RUN_ANNO = Annotated[
     RUN_TYPE,
     option(
-        help="Run external commands in session.  Specify multiple times for multiple commands."
+        help="Run external commands in session.  Specify multiple times for multiple commands.",
     ),
 ]
 OPT_ANNO = Annotated[OPT_TYPE, option(help="Options to command.")]
@@ -129,7 +130,9 @@ class SessionParams(DataclassParser):
     lock: bool = False
     update: bool = add_option("--update", "-U", help="update dependencies/package")
     update_package: bool = add_option(
-        "--update-package", "-P", help="update package only"
+        "--update-package",
+        "-P",
+        help="update package only",
     )
     log_session: bool = add_option("--log-session")
     version: str | None = None
@@ -149,7 +152,8 @@ class SessionParams(DataclassParser):
     requirements_force: bool = False
     requirements_run: RUN_ANNO = None
     requirements_no_notify: bool = add_option(
-        default=False, help="Skip notification of pip-compile"
+        default=False,
+        help="Skip notification of pip-compile",
     )
 
     # conda-lock
@@ -171,7 +175,8 @@ class SessionParams(DataclassParser):
         default=False,
     )
     pip_compile_upgrade_package: OPT_TYPE = add_option(
-        help="Upgrade package(s) in lock file", default=None
+        help="Upgrade package(s) in lock file",
+        default=None,
     )
     pip_compile_opts: OPT_TYPE = add_option(help="options to pip-compile")
     pip_compile_run: RUN_ANNO = None
@@ -226,7 +231,7 @@ class SessionParams(DataclassParser):
     ] = add_option("--typing", "-m")
     typing_run: RUN_ANNO = None
     typing_run_internal: RUN_TYPE = add_option(
-        help="Run internal (in session) commands."
+        help="Run internal (in session) commands.",
     )
 
     # build
@@ -323,9 +328,9 @@ def config(
     """Create the file ./config/userconfig.toml"""
     args: list[str] = []
     if opts.dev_extras:
-        args += ["--dev-extras"] + opts.dev_extras
+        args += ["--dev-extras", *opts.dev_extras]
     if opts.python_paths:
-        args += ["--python-paths"] + opts.python_paths
+        args += ["--python-paths", *opts.python_paths]
 
     session.run("python", "tools/projectconfig.py", *args)
 
@@ -416,20 +421,20 @@ def conda_lock(
 
         # check if skip
         env = "-".join(name.split("-")[1:])
-        if conda_lock_include:
-            if not any(c == env for c in conda_lock_include):  # pyright: ignore
-                session.log(f"Skipping {lockfile} (include)")
-                return
+        if conda_lock_include and not any(c == env for c in conda_lock_include):
+            session.log(f"Skipping {lockfile} (include)")
+            return
 
-        if conda_lock_exclude:
-            if any(c == env for c in conda_lock_exclude):  # pyright: ignore
-                session.log(f"Skipping {lockfile} (exclude)")
-                return
+        if conda_lock_exclude and any(c == env for c in conda_lock_exclude):
+            session.log(f"Skipping {lockfile} (exclude)")
+            return
 
         # check hashes
 
         with check_for_change_manager(
-            *deps, target_path=lockfile, force_write=opts.conda_lock_force
+            *deps,
+            target_path=lockfile,
+            force_write=opts.conda_lock_force,
         ) as changed:
             if opts.conda_lock_force or changed:
                 session.log(f"Creating {lockfile}")
@@ -461,7 +466,9 @@ def pip_compile(
     """Run pip-compile."""
 
     runner = Installer(
-        session=session, pip_deps=["pip-tools"], update=opts.update
+        session=session,
+        pip_deps=["pip-tools"],
+        update=opts.update,
     ).install_all(log_session=opts.log_session)
 
     if opts.pip_compile_run:
@@ -478,7 +485,7 @@ def pip_compile(
     )
 
     if opts.pip_compile_upgrade:
-        options = options + ["-U"]
+        options = [*options, "-U"]
 
     if opts.pip_compile_upgrade_package:
         options = options + prepend_flag("-P", opts.pip_compile_upgrade_package)
@@ -498,8 +505,8 @@ def pip_compile(
         if not reqspath.is_file():
             if env in envs_dev_optional:
                 continue
-            else:
-                raise ValueError(f"Missing file {reqspath}")
+            msg = f"Missing file {reqspath}"
+            raise ValueError(msg)
 
         lockpath = infer_requirement_path(
             env,
@@ -510,7 +517,9 @@ def pip_compile(
         )
 
         with check_for_change_manager(
-            reqspath, target_path=lockpath, force_write=force
+            reqspath,
+            target_path=lockpath,
+            force_write=force,
         ) as changed:
             if force or changed:
                 session.log(f"Creating {lockpath}")
@@ -563,9 +572,9 @@ def test(
             session=session,
             envname="test",
             lock=opts.lock,
-            ## To use editable install
+            # To use editable install
             # package=True,
-            ## To use full install
+            # To use full install
             package=get_package_wheel(session, opts="--no-deps --force-reinstall"),
             update=opts.update,
         ).install_all(log_session=opts.log_session, update_package=opts.update_package)
@@ -604,7 +613,7 @@ def test_notebook(session: nox.Session, opts: SessionParams) -> None:
     --nbval-sanitize-with=config/nbval.ini
     --dist loadscope
      examples/usage
-   """
+   """,
     )
 
     test_opts = (opts.test_opts or []) + test_nbval_opts
@@ -628,7 +637,9 @@ def coverage(
     opts: SessionParams,
 ) -> None:
     runner = Installer(
-        session=session, pip_deps="coverage[toml]", update=opts.update
+        session=session,
+        pip_deps="coverage[toml]",
+        update=opts.update,
     ).install_all()
 
     runner.run_commands(opts.coverage_run)
@@ -642,7 +653,7 @@ def coverage(
     for c in cmd:
         if c == "combine":
             paths = list(
-                Path(session.virtualenv.location).parent.glob("test-*/tmp/.coverage")
+                Path(session.virtualenv.location).parent.glob("test-*/tmp/.coverage"),
             )
             if update_target(".coverage", *paths):
                 session.run("coverage", "combine", "--keep", "-a", *map(str, paths))
@@ -738,7 +749,7 @@ def docs(
         cmd.remove("serve")
 
     if cmd:
-        args = ["make", "-C", "docs"] + combine_list_str(cmd)
+        args = ["make", "-C", "docs", *combine_list_str(cmd)]
         session.run(*args, external=True)
 
     if open_page:
@@ -776,7 +787,9 @@ def lint(
     `nox -s lint -- --lint-run "pre-commit run --hook-stage manual --all-files`
     """
     runner = Installer(
-        session=session, pip_deps="pre-commit", update=opts.update
+        session=session,
+        pip_deps="pre-commit",
+        update=opts.update,
     ).install_all(log_session=opts.log_session)
 
     if opts.lint_run:
@@ -787,7 +800,7 @@ def lint(
 
 # ** type checking
 @add_opts
-def typing(
+def typing(  # noqa: C901
     session: nox.Session,
     opts: SessionParams,
 ) -> None:
@@ -832,8 +845,8 @@ def typing(
         if c.endswith("-notebook"):
             session.run("make", c, external=True)
             continue
-        else:
-            _run_info(c)
+
+        _run_info(c)
 
         if c == "mypy":
             session.run("mypy", "--color-output")
@@ -889,7 +902,8 @@ def build(session: nox.Session, opts: SessionParams) -> None:
 
             out = session.run(*args, silent=opts.build_silent)
             if opts.build_silent:
-                session.log(out.strip().split("\n")[-1])  # type: ignore
+                assert isinstance(out, str)
+                session.log(out.strip().split("\n")[-1])
 
 
 def get_package_wheel(
@@ -918,11 +932,12 @@ def get_package_wheel(
 
         # save that this was called:
         if reuse:
-            get_package_wheel._called = True  # type: ignore
+            get_package_wheel._called = True  # type: ignore[attr-defined]
 
     paths = list(dist_location.glob("*.whl"))
     if len(paths) != 1:
-        raise ValueError("something wonky with paths {paths}")
+        msg = "something wonky with paths {paths}"
+        raise ValueError(msg)
 
     path = str(paths[0])
 
@@ -967,7 +982,9 @@ def conda_recipe(
 ) -> None:
     """Run grayskull to create recipe"""
     runner = Installer(
-        session=session, pip_deps=["grayskull"], update=opts.update
+        session=session,
+        pip_deps=["grayskull"],
+        update=opts.update,
     ).install_all(log_session=opts.log_session)
 
     run, commands = opts.conda_recipe_run, opts.conda_recipe
@@ -1005,7 +1022,8 @@ def conda_recipe(
                 "dist-conda",
             )
             _append_recipe(
-                f"dist-conda/{PACKAGE_NAME}/meta.yaml", "config/recipe-append.yaml"
+                f"dist-conda/{PACKAGE_NAME}/meta.yaml",
+                "config/recipe-append.yaml",
             )
             session.run("cat", f"dist-conda/{PACKAGE_NAME}/meta.yaml", external=True)
 
@@ -1021,7 +1039,9 @@ def conda_recipe(
                     str(d),
                 )
                 session.run(
-                    "cat", str(Path(d) / PACKAGE_NAME / "meta.yaml"), external=True
+                    "cat",
+                    str(Path(d) / PACKAGE_NAME / "meta.yaml"),
+                    external=True,
                 )
 
 
@@ -1029,7 +1049,9 @@ def conda_recipe(
 @add_opts
 def conda_build(session: nox.Session, opts: SessionParams) -> None:
     runner = Installer.from_envname(
-        session=session, update=opts.update, conda_deps=["boa", "anaconda-client"]
+        session=session,
+        update=opts.update,
+        conda_deps=["boa", "anaconda-client"],
     ).install_all(log_session=opts.log_session)
 
     cmds, run = opts.conda_build, opts.conda_build_run
@@ -1051,7 +1073,8 @@ def conda_build(session: nox.Session, opts: SessionParams) -> None:
     for cmd in cmds:
         if cmd == "build":
             if not (d := Path(f"./dist-conda/{PACKAGE_NAME}/meta.yaml")).exists():
-                raise ValueError(f"no file {d}")
+                msg = f"no file {d}"
+                raise ValueError(msg)
 
             session.run(
                 "conda",
@@ -1069,13 +1092,15 @@ def cog(session: nox.Session, opts: SessionParams) -> None:
     """Run cog."""
 
     Installer.from_envname(
-        session=session, update=opts.update, pip_deps="cogapp", package="-e ."
+        session=session,
+        update=opts.update,
+        pip_deps="cogapp",
     ).install_all(log_session=opts.log_session)
     session.run("cog", "-rP", "README.md", env={"COLUMNS": "100"})
 
 
 # * Utilities -------------------------------------------------------------------------
-def _create_doc_examples_symlinks(session: nox.Session, clean: bool = True) -> None:
+def _create_doc_examples_symlinks(session: nox.Session, clean: bool = True) -> None:  # noqa: C901
     """Create symlinks from docs/examples/*.md files to /examples/usage/..."""
 
     import os
@@ -1097,13 +1122,14 @@ def _create_doc_examples_symlinks(session: nox.Session, clean: bool = True) -> N
 
         if path.exists():
             return path
-        else:
-            for ext in exts:
-                p = path.with_suffix(ext)
-                if p.exists():
-                    return p
 
-        raise ValueError(f"no path found for base {path}")
+        for ext in exts:
+            p = path.with_suffix(ext)
+            if p.exists():
+                return p
+
+        msg = f"no path found for base {path}"
+        raise ValueError(msg)
 
     root = Path("./docs/examples/")
     if clean:
@@ -1131,12 +1157,15 @@ def _create_doc_examples_symlinks(session: nox.Session, clean: bool = True) -> N
             os.symlink(target_rel, link)
 
 
-def _append_recipe(recipe_path: str, append_path: str) -> None:
-    with open(recipe_path) as f:
+def _append_recipe(recipe_path: str | Path, append_path: str | Path) -> None:
+    recipe_path = Path(recipe_path)
+    append_path = Path(append_path)
+
+    with recipe_path.open() as f:
         recipe = f.readlines()
 
-    with open(append_path) as f:
+    with append_path.open() as f:
         append = f.readlines()
 
-    with open(recipe_path, "w") as f:
-        f.writelines(recipe + ["\n"] + append)
+    with recipe_path.open("w") as f:
+        f.writelines([*recipe, "\n", *append])

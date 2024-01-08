@@ -13,11 +13,7 @@ def get_conda_environment_map(simplify: bool = True) -> dict[str, str]:
     for line in result.decode().split("\n"):
         if not line.startswith("#"):
             x = line.replace("*", "").split()
-            n = len(x)
-            if n == 1:
-                # this is path environment
-                pass
-            elif n == 2:
+            if len(x) == 2:
                 env_map[x[0]] = x[1]
     if simplify:
         home = str(Path.home())

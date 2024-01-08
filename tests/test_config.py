@@ -1,20 +1,18 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
-import pytest
-import pyproject2conda
-from pyproject2conda.cli import app
-from pyproject2conda.config import Config
-from pyproject2conda import utils
-
-from click.testing import CliRunner
-
-# from typer.testing import CliRunner
-
-
-from pathlib import Path
+import filecmp
 import tempfile
 
-import filecmp
+# from typer.testing import CliRunner
+from pathlib import Path
 from textwrap import dedent
+
+import pytest
+from click.testing import CliRunner
+
+import pyproject2conda
+from pyproject2conda import utils
+from pyproject2conda.cli import app
+from pyproject2conda.config import Config
 
 ROOT = Path(__file__).resolve().parent / "data"
 
@@ -24,13 +22,13 @@ def do_run(runner, command, *opts, filename=None, must_exist=False):
         filename = str(ROOT / "test-pyproject.toml")
     filename = Path(filename)
     if must_exist and not filename.exists():
-        raise ValueError(f"filename {filename} does not exist")
+        msg = f"filename {filename} does not exist"
+        raise ValueError(msg)
 
-    result = runner.invoke(app, [command, "-f", str(filename), *opts])
-    return result
+    return runner.invoke(app, [command, "-f", str(filename), *opts])
 
 
-def test_template():
+def test_template() -> None:
     assert utils.filename_from_template(None) is None
 
     expected = "py38-test.yaml"
@@ -48,7 +46,7 @@ def test_template():
     assert t == expected
 
 
-def test_option_override():
+def test_option_override() -> None:
     toml = """\
     [project]
     name = "hello"
@@ -86,7 +84,7 @@ def test_option_override():
 
     d = Config.from_string(dedent(toml))
 
-    output = list(d.iter(envs=["base"]))
+    output = list(d.iter_envs(envs=["base"]))
 
     assert output[0] == (
         "yaml",
@@ -107,7 +105,7 @@ def test_option_override():
         },
     )
 
-    output = list(d.iter(envs=["base2"]))
+    output = list(d.iter_envs(envs=["base2"]))
 
     assert output[0] == (
         "yaml",
@@ -129,7 +127,7 @@ def test_option_override():
         },
     )
 
-    output = list(d.iter(envs=["base"], template="there-{env}"))
+    output = list(d.iter_envs(envs=["base"], template="there-{env}"))
 
     assert output[0] == (
         "yaml",
@@ -150,7 +148,7 @@ def test_option_override():
         },
     )
 
-    output = list(d.iter(envs=["base"], allow_empty=True, template="there-{env}"))
+    output = list(d.iter_envs(envs=["base"], allow_empty=True, template="there-{env}"))
 
     assert output[0] == (
         "yaml",
@@ -172,7 +170,7 @@ def test_option_override():
     )
 
     output = list(
-        d.iter(
+        d.iter_envs(
             envs=["base"],
             allow_empty=True,
             remove_whitespace=False,
@@ -200,7 +198,7 @@ def test_option_override():
     )
 
 
-def test_dry():
+def test_dry() -> None:
     runner = CliRunner()
 
     expected = """\
@@ -231,7 +229,7 @@ pytest
     assert result.output == dedent(expected)
 
 
-def test_config_only_default():
+def test_config_only_default() -> None:
     expected = [
         (
             "yaml",
@@ -277,10 +275,10 @@ def test_config_only_default():
     for s in [s0, s1, s2]:
         c = Config.from_string(s)
 
-        assert list(c.iter()) == expected
+        assert list(c.iter_envs()) == expected
 
 
-def test_config_overrides():
+def test_config_overrides() -> None:
     # test overrides env
     s = """
     [tool.pyproject2conda]
@@ -314,10 +312,10 @@ def test_config_overrides():
         },
     )
 
-    assert list(c.iter())[0] == expected
+    assert next(iter(c.iter_envs())) == expected
 
 
-def test_conifg_overrides_no_envs():
+def test_conifg_overrides_no_envs() -> None:
     # test overrides env
     s = """
     [tool.pyproject2conda]
@@ -331,10 +329,10 @@ def test_conifg_overrides_no_envs():
     c = Config.from_string(s)
 
     with pytest.raises(ValueError):
-        c.overrides
+        c.overrides  # noqa: B018
 
 
-def test_config_python_include_version():
+def test_config_python_include_version() -> None:
     s = """
     [tool.pyproject2conda.envs.test-1]
     extras = ["test"]
@@ -393,12 +391,12 @@ def test_config_python_include_version():
         ),
     ]
 
-    assert list(c.iter()) == expected
+    assert list(c.iter_envs()) == expected
 
     # no output:
 
 
-def test_config_user_config():
+def test_config_user_config() -> None:
     # test overrides env
     s = """
     [tool.pyproject2conda.envs.test]
@@ -460,7 +458,7 @@ def test_config_user_config():
         ),
     ]
 
-    assert list(c.iter()) == expected
+    assert list(c.iter_envs()) == expected
 
     # blank config, only user
     s = """
@@ -475,7 +473,7 @@ def test_config_user_config():
     }
 
 
-def test_version():
+def test_version() -> None:
     runner = CliRunner()
 
     result = runner.invoke(app, ["--version"])
@@ -486,7 +484,7 @@ def test_version():
     )
 
 
-def test_multiple():
+def test_multiple() -> None:
     runner = CliRunner()
 
     t1 = tempfile.TemporaryDirectory()
@@ -503,7 +501,7 @@ def test_multiple():
     )
 
     # running this again?
-    result = do_run(
+    do_run(
         runner,
         "project",
         "-v",
@@ -583,7 +581,7 @@ def test_multiple():
     do_run(runner, "req", "-o", f"{path2}/base.txt")
 
     paths1 = Path(path1).glob("*")
-    names1 = set(x.name for x in paths1)
+    names1 = {x.name for x in paths1}
 
     expected = set(
         "base.txt py310-dev.yaml py310-dist-pypi.yaml py310-test-extras.yaml py310-test.yaml py310-user-dev.yaml py311-test-extras.yaml py311-test.yaml test-extras.txt".split()
@@ -592,7 +590,7 @@ def test_multiple():
     assert names1 == expected
 
     paths2 = Path(path2).glob("*")
-    names2 = set(x.name for x in paths2)
+    names2 = {x.name for x in paths2}
 
     assert expected == names2
 

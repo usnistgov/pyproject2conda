@@ -7,6 +7,7 @@ jupyter server, run the following:
 
 $ conda run -n notebook python path/to/clean_kernelspec.py
 """
+from __future__ import annotations
 
 import json
 import logging
@@ -23,7 +24,7 @@ def get_kernelspec_data() -> None:
     from subprocess import check_output
 
     s = check_output(
-        ["jupyter", "kernelspec", "list", "--json", "--log-level", "ERROR"]
+        ["jupyter", "kernelspec", "list", "--json", "--log-level", "ERROR"],
     )
 
     to_remove: list[str] = []

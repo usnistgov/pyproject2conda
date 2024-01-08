@@ -134,68 +134,121 @@ exclude = [
     ".ruff_cache",
     ".svn",
     ".tox",
+    ".nox",
     ".venv",
+    "venv",
     "__pypackages__",
     "_build",
     "buck-out",
     "build",
     "dist",
     "node_modules",
-    "venv",
-    "tests/",
-    "src/pyproject2conda/tests",
+    # "tests/",
+    # "src/pyproject2conda/tests",
 ]
+unsafe-fixes = true
 
 [tool.ruff.lint]
+preview = true
 select = [
-    "F",      ## pyflakes
-    "E", "W", ## pycodestyle
-    "I",      ## isort
-    "UP",     ## pyupgrade
-    "D",      ## pydocstyle
-    "YTT",    ## flake8-2020
-    # "B",    ## flake8-bugbear
-    "Q",      ## flake8-quotes
-    # "PLE",  ## pylint
-    # "PLR"   ## pylint
-    # "PLW",  ## pylint
-    "PIE",    ## misc lints
-    "TID",    ## tidy imports
-    # "ISC",  ## implicit string concatenation
-    "TCH",    ## type-checking imports
+    "F",     # - pyflakes
+    "E",     # - pycodestyle
+    "W",     # - pycodestyle
+    "I",     # - isort
+    "UP",    # - pyupgrade
+    "D",     # - pydocstyle
+    "YTT",   # - flake8-2020
+    "B",     # - flake8-bugbear
+    "Q",     # - flake8-quotes
+    "PLC",   # - pylint
+    "PLE",   # - pylint
+    "PLR",   # - pylint
+    "PLW",   # - pylint
+    "PIE",   # - misc lints
+    "TID",   # - tidy imports
+    "TCH",   # - type-checking imports
+    "N",     # - pep8-naming
+    "C90",   # - mccabe
+    "ANN",   # - flake8-annotation
+    "BLE",   # - flake8-blind-except
+    "A",     # - flake8-builtins
+    "C4",    # - flake8-comprehensions
+    "EM",    # - flake8-errmsg
+    "FA",    # - flake8-future-annotations
+    "ICN",   # - flake8-import-conventions
+    "T20",   # - flake8-print
+    "PT",    # - flake8-pytest-style
+    "RET",   # - flake8-return
+    "SIM",   # - flake8-simplify
+    "ARG",   # - flake8-unused-arguments
+    "PTH",   # - flake8-use-pathlib
+    "TD",    # - flake8-todos
+    "FIX",   # - flake8-fixme
+    "PGH",   # - pygrep-hooks
+    "FLY",   # - flynt
+    "PERF",  # - Perflint
+    "FURB",  # - refurb
+    "LOG",   # - flake8-loggin
+    "RUF",   # - ruff specific
+    # Possibly useful?
+    # "G",   # - flake8-logging-format
+    # "ERA", # - eradicate
+    # "PD",  # - pandas-vet
+    # "NPY", # - numpy-specific-rules
+    # Overkill
+    # "SLF", # - flake8-self
+    # These conflict with formatter
+    # "COM", # - flake8-commas
+    # "ISC", # - flake8-implicit-str-concat
+
 ]
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 # fixable = ["A", "B", "C", "D", "E", "F", "..."]
 unfixable = []
 # Exclude a variety of commonly ignored directories.
 ignore = [
-    # "E203", ## whitespace before ':' - doesn't work well with black
-    "E402",   ## module level import not at top of file
-    "E501",   ## line too long - let black worry about that
-    "E731",   ## do not assign a lambda expression, use a def
-    # "W503", ## line break before binary operator
-    "D202",   ## blank line after docstring
-    "D105",   ## Missing magic method docstring
-    "D205",   ## blank line after summary
+    "E402",   # - module level import not at top of file
+    "E501",   # - line too long - let black worry about that
+    "E731",   # - do not assign a lambda expression, use a def
+    "D105",   # - Missing magic method docstring
+    "D202",   # - blank line after docstring
+    "D205",   # - blank line after summary
     # this leads to errors with placing titles in module
-    "D400",   ## First line should end with a period
-    "D401",   ## First line of docstring should be in imperative mood: "{first_line}"
-    "D415",   ## First line should end with a period, question mark, or exclamation point
-    "D102",   ## Missing docstring in public method
-    "D103",   ## Missing docstring in public function
+    "D102",   # - Missing docstring in public method
+    "D103",   # - Missing docstring in public function
+    "D400",   # - First line should end with a period
+    "D401",   # - First line of docstring should be in imperative mood: "{first_line}"
+    "D415",   # - First line should end with a period, question mark, or exclamation point
     # these are useful, but too many errors with docfiller
-    "D417",   ## Missing argument description in the docstring for {definition}: {name}
-    "D107",   ## Missing docstring in __init__
-    "D203",   ## 1 blank line required before class docstring
-    "D212",   ## Multi-line docstring summary should start at the first line
-    "TID252", ## Allow relative imports
+    "D107",   # - Missing docstring in __init__
+    "D203",   # - 1 blank line required before class docstring
+    "D212",   # - Multi-line docstring summary should start at the first line
+    "D417",   # - Missing argument description in the docstring for {definition}: {name}
+    "TID252", # - Allow relative imports
+    # New
+    "ANN101",
+    "ANN102",
+    "ANN401",
+    # pylint
+    "PLR2004",
+    # "PLR0913",
+    # "PLR0917",
+    "PLC0415", # - import should be at top level (leads to issues with imports in func?)
 ]
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-# per-file-ignores = {  }
 
-[tool.ruff.per-file-ignores]
-"src/pyproject2conda/cli.py" = ["UP006", "UP007"]
+[tool.ruff.lint.pylint]
+max-args = 15
+max-positional-args = 15
+max-public-methods = 30
+
+
+[tool.ruff.lint.per-file-ignores]
+"noxfile.py" = ["RUF009"]
+"tools/dataclass_parser.py" = ["A002", "A003"]
+"**/cli.py" = ["FA100", "ARG001", "T201", "PLR0913", "PLR0917"]
+"tests/*.py" = ["D100", "ANN", "PT011"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pyproject2conda"]
@@ -228,7 +281,7 @@ show_error_codes = true
 warn_unused_ignores = true
 warn_return_any = true
 warn_unused_configs = true
-exclude = [".eggs", ".tox", "doc", "docs", ".nox"]
+exclude = [".eggs", ".tox", ".nox", ".venv", "docs"]
 check_untyped_defs = true
 strict = true
 
@@ -242,9 +295,11 @@ module = []
 
 [tool.pyright]
 include = ["src", "tests"]
-exclude = ["**/__pycache__", ".tox/**", ".nox/**", "**/.mypy_cache"]
-strict = ["src/**/*.py"]
+exclude = ["**/__pycache__", ".tox/**", ".nox/**", ".venv/**", "**/.mypy_cache"]
+# strict = ["src", "tests", "noxfile.py", "tools/*.py"]
+strict = ["src", "noxfile.py", "tools/*.py"]
 pythonVersion = "3.11"
+# typeCheckingMode = "strict"
 typeCheckingMode = "basic"
 # enable subset of "strict"
 reportDuplicateImport = true

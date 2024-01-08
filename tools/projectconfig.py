@@ -93,18 +93,18 @@ class ProjectConfig:
         if path.exists():
             python_paths, env_extras = cls._path_to_params(path)
             return cls(python_paths=python_paths, env_extras=env_extras)
-        else:
-            return cls()
+
+        return cls()
 
     @classmethod
     def from_path_and_environ(
-        cls, path: str | Path = "./config/userconfig.toml"
+        cls,
+        path: str | Path = "./config/userconfig.toml",
     ) -> Self:
         def _get_python_paths_from_environ() -> list[str]:
             if python_paths_environ := os.environ.get("NOX_PYTHON_PATH"):
                 return python_paths_environ.split(":")
-            else:
-                return []
+            return []
 
         python_paths, env_extras = cls._path_to_params(path)
 
@@ -115,7 +115,8 @@ class ProjectConfig:
 
     @staticmethod
     def _params_to_string(
-        python_paths: list[str], env_extras: dict[str, Mapping[str, Any]]
+        python_paths: list[str],
+        env_extras: dict[str, Mapping[str, Any]],
     ) -> str:
         import configparser
         import json
@@ -152,18 +153,19 @@ class ProjectConfig:
         #
         # [tool.pyproject2conda.envs.dev-user]
         # extras = ["dev-complete"]
-        """
+        """,
         )
 
         return header + s
 
     def to_path(self, path: str | Path | None = None) -> str:
         s = self._params_to_string(
-            python_paths=self.python_paths, env_extras=self.env_extras
+            python_paths=self.python_paths,
+            env_extras=self.env_extras,
         )
 
         if path is not None:
-            with open(path, "w") as f:
+            with Path(path).open("w") as f:
                 f.write(s)
         return s
 
@@ -175,23 +177,24 @@ class ProjectConfig:
 
         paths: list[str] = []
         for p in self.python_paths:
-            paths.extend(glob(os.path.expanduser(p)))
+            paths.extend(glob(os.path.expanduser(p)))  # noqa: PTH207, PTH111
         return paths
 
     def add_paths_to_environ(
-        self, paths: list[str] | None, prepend: bool = True
+        self,
+        paths: list[str] | None,
+        prepend: bool = True,
     ) -> None:
         if paths is None:
             paths = self.expand_python_paths()
         paths_str = ":".join(map(str, paths))
-        if prepend:
-            fmt = "{path_new}:{path_old}"
-        else:
-            fmt = "{path_old}:{path_new}"
+        fmt = "{path_new}:{path_old}" if prepend else "{path_old}:{path_new}"
         os.environ["PATH"] = fmt.format(path_new=paths_str, path_old=os.environ["PATH"])
 
     def to_nox_config(
-        self, add_paths_to_environ: bool = True, prepend: bool = True
+        self,
+        add_paths_to_environ: bool = True,
+        prepend: bool = True,
     ) -> dict[str, Any]:
         config: dict[str, Any] = {}
 
@@ -282,12 +285,12 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    if __package__ is None:  # pyright: ignore
+    if __package__ is None:  # pyright: ignore[reportUnnecessaryComparison]
         # Magic to be able to run script as either
         #   $ python -m tools.create_python
         # or
         #   $ python tools/create_python.py
         here = Path(__file__).absolute()
-        __package__ = here.parent.name
+        __package__ = here.parent.name  # noqa: A001
 
     main()

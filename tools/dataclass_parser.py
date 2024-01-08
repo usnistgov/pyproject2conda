@@ -68,7 +68,7 @@ _NoneType = type(None)
 
 UNDEFINED = cast(
     Any,
-    type("Undefined", (), {"__repr__": lambda self: "UNDEFINED"})(),  # pyright: ignore
+    type("Undefined", (), {"__repr__": lambda self: "UNDEFINED"})(),  # pyright: ignore[reportUnknownLambdaType]  # noqa: ARG005
 )
 
 
@@ -96,7 +96,8 @@ class Option:
         if self.flags is not UNDEFINED:
             for f in self.flags:
                 if not f.startswith(self.prefix_char):
-                    raise ValueError(f"Option only supports flags, but got {f!r}")
+                    msg = f"Option only supports flags, but got {f!r}"
+                    raise ValueError(msg)
 
     def asdict(self) -> dict[str, Any]:
         return {
@@ -115,7 +116,9 @@ class Option:
         }
 
     def add_argument_to_parser(
-        self, parser: ArgumentParser, prefix_char: str = "-"
+        self,
+        parser: ArgumentParser,
+        prefix_char: str = "-",
     ) -> None:
         kwargs = self.asdict()
 
@@ -132,7 +135,8 @@ class Option:
                 elif flag.startswith("-"):
                     new_flags.append(prefix_char + flag.lstrip("-"))
                 else:
-                    raise ValueError(f"bad flag {flag} prefix_char {prefix_char}")
+                    msg = f"bad flag {flag} prefix_char {prefix_char}"
+                    raise ValueError(msg)
 
             flags = new_flags
 
@@ -183,7 +187,7 @@ def add_option(
     nargs: str | int | None = UNDEFINED,
     required: bool = UNDEFINED,
     type: int | float | Callable[[Any], Any] = UNDEFINED,
-    **field_kws: Any,
+    **field_kws: Any,  # noqa: ARG001
 ) -> Any:
     return field(
         metadata={
@@ -199,7 +203,7 @@ def add_option(
                 nargs=nargs,
                 required=required,
                 type=type,
-            )
+            ),
         },
         default=default,
     )
@@ -212,7 +216,7 @@ class DataclassParser:
     def parser(cls, prefix_char: str = "-", **kwargs: Any) -> ArgumentParser:
         parser = ArgumentParser(prefix_chars=prefix_char, **kwargs)
 
-        for _, opt in get_dataclass_options(cls).items():
+        for opt in get_dataclass_options(cls).values():
             opt.add_argument_to_parser(parser, prefix_char=prefix_char)
 
         return parser
@@ -245,7 +249,7 @@ def get_dataclass_options(cls: Any) -> dict[str, Option]:
     return {
         name: _create_option(name=name, opt=opt, annotation=annotation)
         for name, (annotation, opt) in _get_dataclass_annotations_and_options(
-            cls
+            cls,
         ).items()
     }
 
@@ -262,20 +266,17 @@ def _get_dataclass_annotations_and_options(
     for f in cls_fields:
         if f.name.startswith("_") or not f.init:
             continue
-        else:
-            opt = f.metadata.get("option", Option(default=f.default))
 
-            # Can also pass via annotations
-            annotation = annotations[f.name]
-            if get_origin(annotation) is Annotated:
-                annotation, opt_anno, *_ = get_args(annotation)
-                if isinstance(opt_anno, Option):
-                    opt = Option(**{**opt_anno.asdict(), **opt.asdict()})
+        opt = f.metadata.get("option", Option(default=f.default))
 
-            out[f.name] = (annotation, opt)
-            #     annotations[f.name],
-            #     f.metadata.get("option", Option(default=f.default)),
-            # )
+        # Can also pass via annotations
+        annotation = annotations[f.name]
+        if get_origin(annotation) is Annotated:
+            annotation, opt_anno, *_ = get_args(annotation)
+            if isinstance(opt_anno, Option):
+                opt = Option(**{**opt_anno.asdict(), **opt.asdict()})
+
+        out[f.name] = (annotation, opt)
     return out
 
 
@@ -312,16 +313,15 @@ def _create_option(
         opt = replace(opt, action="append")
 
     if opt.type is UNDEFINED:
-        if choices:
-            opt_type = type(choices[0])
-
-        else:
-            opt_type = underlying_type
+        opt_type = type(choices[0]) if choices else underlying_type
 
         if not callable(opt_type):
-            raise TypeError(
+            msg = (
                 f"Annotation {annotation} for parameter {name!r} is not callable."
                 f"Declare arg type with Annotated[..., Option(type=...)] instead."
+            )
+            raise TypeError(
+                msg,
             )
         opt = replace(opt, type=opt_type)
 
@@ -340,7 +340,10 @@ def _create_option(
 
 
 def _get_underlying_type(
-    opt: Any, allow_optional: bool = True, depth: int = 0, max_depth: int = 2
+    opt: Any,
+    allow_optional: bool = True,
+    depth: int = 0,
+    max_depth: int = 2,
 ) -> tuple[int, Any]:
     """
     Parse nested list of type -> (depth, type)
@@ -358,12 +361,18 @@ def _get_underlying_type(
         opt_arg, *extras = get_args(opt)
         if not extras:
             depth_out, type_ = _get_underlying_type(
-                opt_arg, allow_optional=False, depth=depth + 1, max_depth=max_depth
+                opt_arg,
+                allow_optional=False,
+                depth=depth + 1,
+                max_depth=max_depth,
             )
 
     elif allow_optional and (underlying := _get_underlying_if_optional(opt)):
         depth_out, type_ = _get_underlying_type(
-            underlying, allow_optional=False, depth=depth, max_depth=max_depth
+            underlying,
+            allow_optional=False,
+            depth=depth,
+            max_depth=max_depth,
         )
 
     return depth_out, type_
@@ -373,9 +382,9 @@ def _get_underlying_if_optional(t: Any, pass_through: bool = False) -> Any:
     if _is_union_type(t):
         args = get_args(t)
         if len(args) == 2 and _NoneType in args:
-            for t in args:
-                if t != _NoneType:
-                    return t
+            for arg in args:
+                if arg != _NoneType:
+                    return arg
     elif pass_through:
         return t
 
@@ -390,5 +399,5 @@ def _is_union_type(t: Any) -> bool:
 
         origin = get_origin(t)
         return origin is types.UnionType or origin is Union
-    else:
-        return False
+
+    return False

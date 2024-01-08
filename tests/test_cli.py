@@ -1,20 +1,17 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call, assignment"
-from pyproject2conda.cli import app
-
-from click.testing import CliRunner
+import json
+import locale
+import sys
+import tempfile
+from pathlib import Path
 
 # from typer.testing import CliRunner
-
 from textwrap import dedent
 
-from pathlib import Path
-import tempfile
-import json
-
-import sys
-
 import pytest
+from click.testing import CliRunner
 
+from pyproject2conda.cli import app
 
 ROOT = Path(__file__).resolve().parent / "data"
 
@@ -26,14 +23,13 @@ def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
     #     filename = str(ROOT / "test-pyproject.toml")
     filename = Path(filename)
     if must_exist and not filename.exists():
-        raise ValueError(f"filename {filename} does not exist")
+        msg = f"filename {filename} does not exist"
+        raise ValueError(msg)
 
-    result = runner.invoke(app, [command, "-f", str(filename), *opts], **kwargs)
-
-    return result
+    return runner.invoke(app, [command, "-f", str(filename), *opts], **kwargs)
 
 
-def check_result(result, expected):
+def check_result(result, expected) -> None:
     assert result.output == dedent(expected)
 
 
@@ -42,7 +38,7 @@ def filename(request):
     return ROOT / request.param
 
 
-def test_list(filename):
+def test_list(filename) -> None:
     runner = CliRunner()
 
     for cmd in ["l", "list"]:
@@ -59,12 +55,10 @@ def test_list(filename):
         check_result(result, expected)
 
     result = do_run(runner, "list", "-v", filename=filename)
-    # TODO: the logger writes to output
-    # assert result.output == f"filename: {ROOT / 'test-pyproject.toml'} [pyproject2conda - INFO]"
     check_result(result, expected)
 
 
-def test_create(filename):
+def test_create(filename) -> None:  # noqa: C901, PLR0915
     runner = CliRunner()
 
     # test unknown file
@@ -362,7 +356,7 @@ dependencies:
         check_result(result, expected)
 
 
-def test_requirements(filename):
+def test_requirements(filename) -> None:
     runner = CliRunner()
 
     expected = """\
@@ -521,14 +515,14 @@ setuptools
     check_result(result, expected)
 
 
-def check_results_conda_req(path, expected):
-    with open(path, "r") as f:
+def check_results_conda_req(path, expected) -> None:
+    with Path(path).open(encoding=locale.getpreferredencoding(False)) as f:
         result = f.read()
 
     assert result == dedent(expected)
 
 
-def test_conda_requirements(filename):
+def test_conda_requirements(filename) -> None:
     runner = CliRunner()
 
     result = do_run(runner, "c", "hello.txt", filename=filename)
@@ -613,7 +607,7 @@ achannel::pip
         check_results_conda_req(d / "hello-pip.txt", expected_pip)
 
 
-def test_json(filename):
+def test_json(filename) -> None:
     runner = CliRunner()
 
     # stdout
@@ -625,8 +619,8 @@ def test_json(filename):
 
     assert result.output == dedent(expected)
 
-    def check_results(path, expected):
-        with open(path, "r") as f:
+    def check_results(path, expected) -> None:
+        with Path(path).open(encoding=locale.getpreferredencoding(False)) as f:
             result = json.load(f)
 
         assert result == expected
@@ -634,7 +628,7 @@ def test_json(filename):
     with tempfile.TemporaryDirectory() as d_tmp:
         d = Path(d_tmp)
 
-        expected = {  # type: ignore
+        expected = {
             "dependencies": ["bthing-conda", "conda-forge::cthing", "pip"],
             "pip": ["athing"],
             "channels": ["conda-forge"],
@@ -652,7 +646,7 @@ def test_json(filename):
 
         assert path.stat().st_mtime == orig_time
 
-        expected = {  # type: ignore
+        expected = {
             "dependencies": [
                 "bthing-conda",
                 "conda-forge::cthing",
@@ -679,7 +673,7 @@ def test_json(filename):
 
         check_results(d / "there.json", expected)
 
-        expected = {  # type: ignore
+        expected = {
             "dependencies": [
                 "additional-thing",
                 "bthing-conda",
@@ -708,7 +702,7 @@ def test_json(filename):
         check_results(d / "there.json", expected)
 
 
-def test_alias(filename):
+def test_alias(filename) -> None:
     runner = CliRunner()
 
     result = do_run(runner, "q", filename=filename)
@@ -726,7 +720,7 @@ def test_alias(filename):
 #     check_result(result, expected)
 
 
-def test_overwrite(filename):
+def test_overwrite(filename) -> None:
     runner = CliRunner(mix_stderr=True)
 
     with tempfile.TemporaryDirectory() as d_tmp:
@@ -736,7 +730,7 @@ def test_overwrite(filename):
 
         assert not path.exists()
 
-        result = do_run(
+        do_run(
             runner,
             "yaml",
             "-o",
@@ -752,7 +746,7 @@ def test_overwrite(filename):
         orig_time = path.stat().st_mtime
 
         for cmd in ["check", "skip", "force"]:
-            result = do_run(
+            do_run(
                 runner,
                 "yaml",
                 "-o",
@@ -777,7 +771,7 @@ def test_overwrite(filename):
         path = d / "out.txt"
         assert not path.exists()
 
-        result = do_run(
+        do_run(
             runner,
             "r",
             "-o",
@@ -793,7 +787,7 @@ def test_overwrite(filename):
         # assert result.output.strip() == f"# Creating requirements {d_tmp}/out.txt"
 
         for cmd in ["check", "skip", "force"]:
-            result = do_run(
+            do_run(
                 runner,
                 "r",
                 "-o",

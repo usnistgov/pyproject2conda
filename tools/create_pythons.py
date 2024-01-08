@@ -6,23 +6,29 @@ from functools import lru_cache
 
 assert sys.version_info >= (3, 9)
 
+import logging
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+
 
 @lru_cache
 def conda_cmd() -> str:
     import shutil
 
     if shutil.which("mamba"):
-        return "mamba"
+        out = "mamba"
     elif shutil.which("conda"):
-        return "conda"
+        out = "conda"
     else:
-        raise ValueError("must have mamba or conda on path")
+        msg = "must have mamba or conda on path"
+        raise ValueError(msg)
+    return out
 
 
 def create_env_from_spec(
     env_name: str,
     spec: str | list[str],
-    verbose: bool = True,
     flags: str | list[str] | None = None,
 ) -> None:
     import shlex
@@ -35,18 +41,17 @@ def create_env_from_spec(
         flags = " ".join(flags)
 
     cmd = f"{conda_cmd()} create -n {env_name} {flags} {spec} "
-    if verbose:
-        print(cmd)
+    logging.info(f"running {cmd}")
 
     out = subprocess.check_call(shlex.split(cmd))
     if out != 0:
-        raise RuntimeError(f"failed {cmd}")
+        msg = f"failed {cmd}"
+        raise RuntimeError(msg)
 
 
 def create_environments(
     template: str = "test-{version}",
     versions: str | list[str] | None = None,
-    verbose: bool = True,
     flags: str | list[str] | None = None,
     env_map: dict[str, str] | None = None,
 ) -> None:
@@ -61,17 +66,17 @@ def create_environments(
 
         if env_map and env_name in env_map:
             # environment exists
-            if verbose:
-                print(
-                    f"Skipping environment {env_name}.  Pass `--no-skip` to force recreation."
-                )
+            logging.info(
+                f"Skipping environment {env_name}.  Pass `--no-skip` to force recreation.",
+            )
         else:
-            if verbose:
-                print(f"Creating environment {env_name}.")
+            logging.info(f"Creating environment {env_name}.")
 
             spec = f"python={version}"
             create_env_from_spec(
-                env_name=env_name, spec=spec, flags=flags, verbose=verbose
+                env_name=env_name,
+                spec=spec,
+                flags=flags,
             )
 
 
@@ -79,7 +84,7 @@ def main() -> None:
     import argparse
 
     p = argparse.ArgumentParser(
-        description="Create conda environments for creating virtualenvs"
+        description="Create conda environments for creating virtualenvs",
     )
 
     p.add_argument(
@@ -103,11 +108,18 @@ def main() -> None:
         """,
     )
     p.add_argument(
-        "--yes", default=False, action="store_true", help="pass `--yes` to conda create"
+        "--yes",
+        default=False,
+        action="store_true",
+        help="pass `--yes` to conda create",
     )
     p.add_argument("--dry", default=False, action="store_true", help="Do dry run.")
     p.add_argument(
-        "-v", dest="verbose", default=False, action="store_true", help="verbose"
+        "-v",
+        dest="verbose",
+        default=False,
+        action="store_true",
+        help="verbose",
     )
     p.add_argument(
         "--skip",
@@ -117,7 +129,10 @@ def main() -> None:
 
     args = p.parse_args()
 
-    print(args)
+    if args.verbose:
+        logger.setLevel(logging.INFO)
+
+    logging.info(f"{args=}")
 
     flags: list[str] = []
     if args.yes:
@@ -135,14 +150,13 @@ def main() -> None:
     create_environments(
         versions=args.python_version,
         template=args.template,
-        verbose=args.verbose,
         flags=flags,
         env_map=env_map,
     )
 
 
 if __name__ == "__main__":
-    if __package__ is None:  # pyright: ignore
+    if __package__ is None:  # pyright: ignore[reportUnnecessaryComparison]
         # Magic to be able to run script as either
         #   $ python -m tools.create_python
         # or
@@ -150,6 +164,6 @@ if __name__ == "__main__":
         from pathlib import Path
 
         here = Path(__file__).absolute()
-        __package__ = here.parent.name
+        __package__ = here.parent.name  # noqa: A001
 
     main()

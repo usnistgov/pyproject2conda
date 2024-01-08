@@ -32,7 +32,7 @@
 
 # `pyproject2conda`
 
-A script to convert `pyproject.toml` dependencies to `environemnt.yaml` files.
+A script to convert `pyproject.toml` dependencies to `environment.yaml` files.
 
 ## Overview
 
