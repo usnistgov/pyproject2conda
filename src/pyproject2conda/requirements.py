@@ -58,8 +58,7 @@ def _check_allow_empty(allow_empty: bool) -> str:
     msg = "No dependencies for this environment\n"
     if allow_empty:
         return msg
-    else:
-        raise ValueError(msg)
+    raise ValueError(msg)
 
 
 def _clean_pip_reqs(reqs: list[str]) -> list[str]:
@@ -77,11 +76,11 @@ def _clean_conda_requirement(
         and (not requirement.marker.evaluate({"python_version": python_version}))
     ):
         return None
-    else:
-        requirement = _update_requirement(requirement, marker=None, extras=None)
-        if channel:
-            requirement.name = f"{channel}::{requirement.name}"
-        return requirement
+
+    requirement = _update_requirement(requirement, marker=None, extras=None)
+    if channel:
+        requirement.name = f"{channel}::{requirement.name}"
+    return requirement
 
 
 def _clean_conda_strings(
@@ -103,7 +102,7 @@ def _clean_conda_strings(
     return out
 
 
-def _update_requirement(
+def _update_requirement(  # noqa: C901, PLR0912
     requirement: str | Requirement,
     name: str | MISSING_TYPE = MISSING,
     url: str | None | MISSING_TYPE = MISSING,
@@ -129,7 +128,6 @@ def _update_requirement(
             extras = {extras}
         else:
             extras = set(extras)
-
         requirement.extras = extras
 
     if specifier is not MISSING:
@@ -137,7 +135,6 @@ def _update_requirement(
             specifier = SpecifierSet()
         elif isinstance(specifier, str):
             specifier = SpecifierSet(specifier)
-
         requirement.specifier = specifier
 
     if marker is not MISSING:
@@ -151,20 +148,15 @@ def _update_requirement(
 
 # ** Dependencices
 def _iter_value_comment_pairs(
-    array: tomlkit.items.Array,  # pyright: ignore
+    array: tomlkit.items.Array,
 ) -> Generator[tuple[OptStr, OptStr], None, None]:
     """Extract value and comments from array"""
-    for v in array._value:  # pyright: ignore
-        if v.value is not None and not isinstance(
-            v.value, tomlkit.items.Null
-        ):  # pyright: ignore
-            value = str(v.value)  # pyright: ignore
+    for v in array._value:  # pyright: ignore[reportPrivateUsage]
+        if v.value is not None and not isinstance(v.value, tomlkit.items.Null):
+            value = str(v.value)
         else:
             value = None
-        if v.comment:  # pyright: ignore
-            comment = v.comment.as_string()
-        else:
-            comment = None
+        comment = v.comment.as_string() if v.comment else None
         if value is None and comment is None:
             continue
         yield (value, comment)
@@ -175,10 +167,7 @@ def _requirement_comment_pairs(
 ) -> list[RequirementCommentPair]:
     out: list[RequirementCommentPair] = []
     for value, comment in _iter_value_comment_pairs(array):
-        if value is None:
-            r = None
-        else:
-            r = Requirement(value)
+        r = None if value is None else Requirement(value)
         out.append((r, comment))
     return out
 
@@ -208,11 +197,11 @@ def _resolve_extras(
 
 
 # ** factories
-def _factory_empty_tomlkit_Array() -> tomlkit.items.Array:
+def _factory_empty_tomlkit_array() -> tomlkit.items.Array:
     return tomlkit.items.Array([], tomlkit.items.Trivia())
 
 
-def _factory_empty_tomlkit_Table() -> tomlkit.items.Table:
+def _factory_empty_tomlkit_table() -> tomlkit.items.Table:
     return tomlkit.items.Table(
         value=tomlkit.container.Container(),
         trivia=tomlkit.items.Trivia(),
@@ -231,11 +220,11 @@ def _conda_yaml(
     def _as_list(x: str | Iterable[str]) -> Iterable[str]:
         if isinstance(x, str):
             return [x]
-        else:
-            return x
+        return x
 
     if not conda_deps:
-        raise ValueError("Must have at least one conda dependency (i.e., pip)")
+        msg = "Must have at least one conda dependency (i.e., pip)"
+        raise ValueError(msg)
 
     out: list[str] = []
     if name is not None:
@@ -243,21 +232,23 @@ def _conda_yaml(
 
     if channels:
         out.append("channels:")
-
-        for channel in _as_list(channels):
-            out.append(f"  - {channel}")
+        # for channel in _as_list(channels):
+        #     out.append(f"  - {channel}")
+        out.extend(f"  - {channel}" for channel in _as_list(channels))
 
     out.append("dependencies:")
-    for dep in _as_list(conda_deps):
-        out.append(f"  - {dep}")
+    # for dep in _as_list(conda_deps):
+    #     out.append(f"  - {dep}")
+    out.extend(f"  - {dep}" for dep in _as_list(conda_deps))
 
     if pip_deps:
-        if "pip" not in conda_deps:
-            raise ValueError("Must have pip in conda_deps")
+        if "pip" not in conda_deps:  # pragma: no cover
+            msg = "Must have pip in conda_deps"
+            raise ValueError(msg)
         out.append("  - pip:")
-
-        for dep in _as_list(pip_deps):
-            out.append(f"      - {dep}")
+        # for dep in _as_list(pip_deps):
+        #     out.append(f"      - {dep}")
+        out.extend(f"      - {dep}" for dep in _as_list(pip_deps))
 
     s = "\n".join(out)
 
@@ -298,16 +289,14 @@ def _create_header(cmd: str | None = None) -> str:
             lines.append("#")
         else:
             lines.append("# " + line)
-    header = "\n".join(lines)
+    return "\n".join(lines)
     # header = "\n".join(["# " + line for line in header.split("\n")])
-    return header
 
 
 def _add_header(string: str, header_cmd: str | None) -> str:
     if header_cmd is not None:
         return _create_header(header_cmd) + "\n" + string
-    else:
-        return string
+    return string
 
 
 def _optional_write(
@@ -339,7 +328,7 @@ class ParseDepends:
     data : tomlkit
     """
 
-    def __init__(self, data: tomlkit.toml_document.TOMLDocument):
+    def __init__(self, data: tomlkit.toml_document.TOMLDocument) -> None:
         self.data = data
 
     def get_in(
@@ -352,7 +341,8 @@ class ParseDepends:
     @cached_property
     def package_name(self) -> str:
         if (out := self.get_in("project", "name")) is None:
-            raise ValueError("Must specify `project.name`")
+            msg = "Must specify `project.name`"
+            raise ValueError(msg)
         return cast(str, out)
 
     @cached_property
@@ -361,7 +351,7 @@ class ParseDepends:
         return cast(
             "tomlkit.items.Array",
             self.get_in(
-                "project", "dependencies", factory=_factory_empty_tomlkit_Array
+                "project", "dependencies", factory=_factory_empty_tomlkit_array
             ),
         )
 
@@ -371,7 +361,7 @@ class ParseDepends:
         return cast(
             "tomlkit.items.Array",
             self.get_in(
-                "build-system", "requires", factory=_factory_empty_tomlkit_Array
+                "build-system", "requires", factory=_factory_empty_tomlkit_array
             ),
         )
 
@@ -381,38 +371,29 @@ class ParseDepends:
         return cast(
             "tomlkit.items.Table",
             self.get_in(
-                "project", "optional-dependencies", factory=_factory_empty_tomlkit_Table
+                "project", "optional-dependencies", factory=_factory_empty_tomlkit_table
             ),
         )
 
     @cached_property
     def override_table(self) -> dict[str, OverrideDict]:
         out = self.get_in("tool", "pyproject2conda", "dependencies", default=MISSING)
-        if out is MISSING:
-            out = {}
-        else:
-            out = out.unwrap()
-        return cast("dict[str, OverrideDict]", out)
+        return cast("dict[str, OverrideDict]", {} if out is MISSING else out.unwrap())
 
     @cached_property
     def channels(self) -> list[str]:
         channels_doc = self.get_in("tool", "pyproject2conda", "channels")
         if channels_doc:
             channels = channels_doc.unwrap()
-            if isinstance(channels, str):
-                channels = [channels]
-            else:
-                channels = list(channels)
+            channels = [channels] if isinstance(channels, str) else list(channels)
         else:
             channels = []
 
-        return channels  # type: ignore
+        return channels  # type: ignore[no-any-return]
 
     @property
     def extras(self) -> list[str]:
-        return list(self.optional_dependencies.keys()) + [  # pyright: ignore
-            "build-system.requires"
-        ]
+        return [*self.optional_dependencies.keys(), "build-system.requires"]
 
     @cached_property
     def _requirement_override_pairs_base(
@@ -434,8 +415,8 @@ class ParseDepends:
         "package_name[extra,..]" to the actual dependencies.
         """
         unresolved: dict[str, list[RequirementCommentPair]] = {
-            k: _requirement_comment_pairs(v)  # pyright: ignore
-            for k, v in self.optional_dependencies.items()  # pyright: ignore
+            k: _requirement_comment_pairs(v)  # pyright: ignore[reportUnknownArgumentType]
+            for k, v in self.optional_dependencies.items()  # pyright: ignore[reportUnknownVariableType]
         }
 
         resolved = {
@@ -504,12 +485,14 @@ class ParseDepends:
     def _check_extras(self, extras: str | Iterable[str] | None) -> None:
         if extras is None:
             return
-        elif isinstance(extras, str):
+
+        if isinstance(extras, str):
             extras = [extras]
 
         for extra in extras:
             if extra not in self.extras:
-                raise ValueError(f"{extras} not in {self.extras}")
+                msg = f"{extras} not in {self.extras}"
+                raise ValueError(msg)
 
     def pip_requirements(
         self,
@@ -530,19 +513,15 @@ class ParseDepends:
             if requirement is not None
         ]
 
-        # TODO: extra checks?
         if pip_deps:
-            if isinstance(pip_deps, str):
-                pip_deps = [pip_deps]
-            else:
-                pip_deps = list(pip_deps)
+            pip_deps = [pip_deps] if isinstance(pip_deps, str) else list(pip_deps)
             out.extend(_clean_pip_reqs(pip_deps))
 
         return self._cleanup(
             out, remove_whitespace=remove_whitespace, unique=unique, sort=sort
         )
 
-    def conda_and_pip_requirements(
+    def conda_and_pip_requirements(  # noqa: C901
         self,
         extras: str | Iterable[str] | None = None,
         include_base: bool = True,
@@ -554,24 +533,21 @@ class ParseDepends:
         python_version: str | None = None,
         python_include: str | None = None,
     ) -> tuple[list[str], list[str]]:
+        def _init_deps(deps: str | Iterable[str] | None) -> list[str]:
+            if deps is None:
+                return []
+            if isinstance(deps, str):
+                return [deps]
+            return list(deps)
+
         self._check_extras(extras)
 
         if python_include == "infer":
             # safer get
             if (x := self.get_in("project", "requires-python")) is None:
-                raise ValueError(
-                    "No value for `requires-python` in pyproject.toml file"
-                )
-            else:
-                python_include = "python" + str(x)
-
-        def _init_deps(deps: str | Iterable[str] | None) -> list[str]:
-            if deps is None:
-                return []
-            elif isinstance(deps, str):
-                return [deps]
-            else:
-                return list(deps)
+                msg = "No value for `requires-python` in pyproject.toml file"
+                raise ValueError(msg)
+            python_include = "python" + str(x)
 
         pip_deps = _clean_pip_reqs(_init_deps(pip_deps))
         conda_deps = _clean_conda_strings(
@@ -736,10 +712,9 @@ class ParseDepends:
         )
 
         if channels:
-            if isinstance(channels, str):  # pragma: no cover
-                channels = [channels]
-            else:
-                channels = list(channels)
+            channels = (
+                [channels] if isinstance(channels, str) else list(channels)
+            )  # pragma: no cover
         else:
             channels = self.channels
 
@@ -772,7 +747,7 @@ class ParseDepends:
 
     @classmethod
     def from_path(cls, path: str | Path) -> Self:
-        with open(path, "rb") as f:
+        with Path(path).open("rb") as f:
             data = tomlkit.load(f)
         return cls(data=data)
 

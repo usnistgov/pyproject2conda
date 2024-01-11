@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 @lru_cache
 def p2c_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES"
+        description="Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES'"
     )
 
     parser.add_argument(
@@ -50,11 +50,10 @@ def p2c_argparser() -> argparse.ArgumentParser:
 def _match_p2c_comment(comment: OptStr) -> OptStr:
     if not comment or not (match := re.match(r".*?#\s*p2c:\s*([^\#]*)", comment)):
         return None
-    elif re.match(r".*?##\s*p2c:", comment):
+    if re.match(r".*?##\s*p2c:", comment):
         # This checks for double ##.  If found, ignore line
         return None
-    else:
-        return match.group(1).strip()
+    return match.group(1).strip()
 
 
 def _parse_p2c(match: OptStr) -> OverrideDict | None:
@@ -62,15 +61,13 @@ def _parse_p2c(match: OptStr) -> OverrideDict | None:
 
     if match:
         return cast(OverrideDict, vars(p2c_argparser().parse_args(shlex.split(match))))
-    else:
-        return None
+    return None
 
 
 def _parse_p2c_comment(comment: OptStr) -> OverrideDict | None:
     if match := _match_p2c_comment(comment):
         return _parse_p2c(match)
-    else:
-        return None
+    return None
 
 
 # * Main classes -----------------------------------------------------------------------
@@ -92,8 +89,8 @@ class OverrideDeps:
         skip: bool = False,
         packages: str | list[str] | None = None,
         channel: str | None = None,
-    ):
-        if channel is not None and channel.strip() in ["pip", "pypi"]:
+    ) -> None:
+        if channel is not None and channel.strip() in {"pip", "pypi"}:
             channel = None
             pip = True
 
@@ -120,13 +117,11 @@ class OverrideDeps:
         if parsed is None:
             if default is None:
                 return None
-            else:
-                kws = default
+            kws = default
+        elif default:
+            kws = dict(default, **parsed)  # type: ignore[assignment]
         else:
-            if default:
-                kws = dict(default, **parsed)  # type: ignore
-            else:
-                kws = parsed
+            kws = parsed
 
         return cls(**kws)
 

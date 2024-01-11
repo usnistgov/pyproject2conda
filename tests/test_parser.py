@@ -1,16 +1,18 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 from __future__ import annotations
+
+import locale
 import tempfile
+from textwrap import dedent
+
 import pytest
 
 # from pyproject2conda import parser
 from pyproject2conda import requirements
 from pyproject2conda.utils import get_in
 
-from textwrap import dedent
 
-
-def test_get_in():
+def test_get_in() -> None:
     d = {"a": {"b": {"c": 3}}}
 
     assert get_in(["a", "b", "c"], d) == 3
@@ -18,15 +20,15 @@ def test_get_in():
     assert get_in(["a", "d"], d, "hello") == "hello"
 
 
-def test_list_to_string():
+def test_list_to_string() -> None:
     from pyproject2conda.utils import list_to_str
 
     assert list_to_str(["a", "b"], eol=True) == "a\nb\n"
     assert list_to_str(["a", "b"], eol=False) == "a\nb"
-    assert list_to_str(None) == ""
+    assert list_to_str(None) == ""  # noqa: PLC1901
 
 
-def test_match_p2c_comment():
+def test_match_p2c_comment() -> None:
     from pyproject2conda.overrides import _match_p2c_comment
 
     expected = "-c -d"
@@ -54,7 +56,7 @@ def test_match_p2c_comment():
         assert match is None
 
 
-def test_parse_p2c():
+def test_parse_p2c() -> None:
     def get_expected(pip=False, skip=False, channel=None, packages=None):
         if packages is None:
             packages = []
@@ -105,7 +107,7 @@ def test_parse_p2c():
 #     assert out["dependencies"] == ["hello", "there"]
 
 
-def test_header():
+def test_header() -> None:
     from pyproject2conda.requirements import _create_header
 
     expected = dedent(
@@ -161,7 +163,7 @@ def test_header():
 #     assert s == dedent(expected)
 
 
-def test_optional_write():
+def test_optional_write() -> None:
     from pathlib import Path
 
     from pyproject2conda.requirements import _optional_write
@@ -172,13 +174,13 @@ def test_optional_write():
 
         _optional_write(s, p)
 
-        with open(p, "r") as f:
+        with Path(p).open(encoding=locale.getpreferredencoding(False)) as f:
             test = f.read()
 
         assert test == s
 
 
-def test_output_to_yaml():
+def test_output_to_yaml() -> None:
     from pyproject2conda.requirements import _conda_yaml
 
     with pytest.raises(ValueError):
@@ -205,7 +207,7 @@ dependencies:
     assert s == dedent(expected)
 
 
-def test_infer():
+def test_infer() -> None:
     toml = dedent(
         """\
     [project]
@@ -299,7 +301,7 @@ def test_pip_requirements() -> None:
     assert d.to_requirements(pip_deps="hello") == expected
 
 
-def test_package_name():
+def test_package_name() -> None:
     toml = dedent(
         """\
     [project]
@@ -428,7 +430,7 @@ def test_package_name():
         ),
     ],
 )
-def test_complete(toml):
+def test_complete(toml) -> None:
     d = requirements.ParseDepends.from_string(toml)
 
     # test unknown extra
@@ -658,7 +660,7 @@ dependencies:
     )
 
 
-def test_missing_dependencies():
+def test_missing_dependencies() -> None:
     toml = dedent(
         """\
     [project]
@@ -873,7 +875,7 @@ dependencies:
         ),
     ],
 )
-def test_spaces(toml):
+def test_spaces(toml) -> None:
     d = requirements.ParseDepends.from_string(toml)
 
     expected = """\
@@ -923,7 +925,7 @@ dependencies:
     assert dedent(expected) == d.to_requirements(remove_whitespace=True)
 
 
-def test_include_pip():
+def test_include_pip() -> None:
     toml = dedent(
         """\
         [build-system]

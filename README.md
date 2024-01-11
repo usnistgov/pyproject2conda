@@ -32,7 +32,7 @@
 
 # `pyproject2conda`
 
-A script to convert `pyproject.toml` dependencies to `environemnt.yaml` files.
+A script to convert `pyproject.toml` dependencies to `environment.yaml` files.
 
 ## Overview
 
@@ -136,7 +136,7 @@ Note the comment lines `# p2c:...`. These are special tokens that
 ```bash
 usage: -c [-h] [-c CHANNEL] [-p] [-s] [packages ...]
 
-Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES
+Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES'
 
 positional arguments:
   packages

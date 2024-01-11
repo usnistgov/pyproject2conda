@@ -35,9 +35,8 @@ clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr docs/_build/
 	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+	rm -fr dist-conda/
+
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -45,8 +44,10 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
+clean-nox: ## remove all nox artifacts
+	rm -fr .nox
+
 clean-test: ## remove test and coverage artifacts
-	rm -fr .nox/
 	rm -f .coverage
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
@@ -102,15 +103,12 @@ pre-commit-codespell: ## run codespell. Note that this imports allowed words fro
 ################################################################################
 # * User setup
 ################################################################################
-.PHONY: user-venv user-autoenv-zsh user-all
-user-venv: ## create .venv file with name of conda env
-	echo $${PWD}/.nox/pyproject2conda/envs/dev > .venv
-
+.PHONY: user-autoenv-zsh user-all
 user-autoenv-zsh: ## create .autoenv.zsh files
-	echo conda activate $$(cat .venv) > .autoenv.zsh
+	echo conda activate ./.venv > .autoenv.zsh
 	echo conda deactivate > .autoenv_leave.zsh
 
-user-all: user-venv user-autoenv-zsh ## runs user scripts
+user-all: user-autoenv-zsh ## runs user scripts
 
 
 ################################################################################
@@ -136,13 +134,10 @@ coverage: ## check code coverage quickly with the default Python
 .PHONY: version-scm version-import version
 
 version-scm: ## check/update version of package with setuptools-scm
-	python -m setuptools_scm
+	nox -s build -- ++build version
 
 version-import: ## check version from python import
 	-python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
-
-version-update: ## update version using nox
-	nox -s update-version-scm
 
 version: version-scm version-import
 
@@ -175,67 +170,56 @@ test-all: requirements/test.txt ## run tests on every Python version with nox.
 	$(NOX) -s test
 
 # ** docs
-.PHONY: docs-build docs-release docs-clean docs-command
+.PHONY: docs-build docs-release docs-clean
 docs-build: ## build docs in isolation
-	$(NOX) -s docs -- -d build
+	$(NOX) -s docs -- +d build
 docs-clean: ## clean docs
 	rm -rf docs/_build/*
 	rm -rf docs/generated/*
 	rm -rf docs/reference/generated/*
 docs-clean-build: docs-clean docs-build ## clean and build
 docs-release: ## release docs.
-	$(NOX) -s docs -- -d release
-docs-command: ## run arbitrary command with command=...
-	$(NOX) -s docs -- --docs-run $(command)
+	$(NOX) -s docs -- +d release
 
 .PHONY: .docs-spelling docs-nist-pages docs-open docs-livehtml docs-clean-build docs-linkcheck
 docs-spelling: ## run spell check with sphinx
-	$(NOX) -s docs -- -d spelling
+	$(NOX) -s docs -- +d spelling
 docs-livehtml: ## use autobuild for docs
-	$(NOX) -s docs -- -d livehtml
+	$(NOX) -s docs -- +d livehtml
 docs-open: ## open the build
-	$(NOX) -s docs -- -d open
+	$(NOX) -s docs -- +d open
 docs-linkcheck: ## check links
-	$(NOX) -s docs -- -d linkcheck
+	$(NOX) -s docs -- +d linkcheck
 
-docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: requirements/docs.txt
+docs-build docs-release docs-clean docs-livehtml docs-linkcheck: requirements/docs.txt
 
 # ** typing
-.PHONY: typing-mypy typing-pyright typing-pytype typing-all typing-command
+.PHONY: typing-mypy typing-pyright typing-pytype typing-all
 typing-mypy: ## run mypy mypy_args=...
-	$(NOX) -s typing -- -m mypy
+	$(NOX) -s typing -- +m mypy
 typing-pyright: ## run pyright pyright_args=...
-	$(NOX) -s typing -- -m pyright
+	$(NOX) -s typing -- +m pyright
 typing-pytype: ## run pytype pytype_args=...
-	$(NOX) -s typing -- -m pytype
+	$(NOX) -s typing -- +m pytype
 typing-all:
-	$(NOX) -s typing -- -m mypy pyright pytype
-typing-command:
-	$(NOX) -s typing -- --typing-run $(command)
-typing-mypy typing-pyright typing-pytype typing-all typing-command: requirements/typing.txt
+	$(NOX) -s typing -- +m mypy pyright pytype
+typing-mypy typing-pyright typing-pytype typing-all: requirements/typing.txt
 
 # ** dist pypi
-.PHONY: dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command
-
-dist-pypi-build: ## build dist
-	$(NOX) -s dist-pypi -- -p build
-dist-pypi-testrelease: ## test release on testpypi
-	$(NOX) -s dist-pypi -- -p testrelease
-dist-pypi-release: ## release to pypi, can pass posargs=...
-	$(NOX) -s dist-pypi -- -p release
-dist-pypi-command: ## run command with command=...
-	$(NOX) -s dist-pypi -- --dist-pypi-run $(command)
-dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: requirements/dist-pypi.txt
+.PHONY: build testrelease release
+build: requirements/build.txt ## build dist
+	$(NOX) -s build
+testrelease: ## test release on testpypi
+	$(NOX) -s publish -- +p test
+release: ## release to pypi, can pass posargs=...
+	$(NOX) -s publish -- +p release
 
 # ** dist conda
-.PHONY: dist-conda-recipe dist-conda-build dist-conda-command
-dist-conda-recipe: ## build conda recipe can pass posargs=...
-	$(NOX) -s dist-conda -- -c recipe
-dist-conda-build: ## build conda recipe can pass posargs=...
-	$(NOX) -s dist-conda -- -c build
-dist-conda-command: ## run command with command=...
-	$(NOX) -s dist-conda -- -dist-conda-run $(command)
-dist-conda-build dist-conda-recipe dist-conda-command: requirements/dist-pypi.txt
+.PHONY: conda-recipe conda-build
+conda-recipe: ## build conda recipe can pass posargs=...
+	$(NOX) -s conda-recipe
+conda-build: ## build conda recipe can pass posargs=...
+	$(NOX) -s conda-build
 
 # ** list all options
 .PHONY: nox-list
@@ -252,6 +236,22 @@ install: ## install the package to the active Python's site-packages (run clean?
 
 install-dev: ## install development version (run clean?)
 	pip install -e . --no-deps
+
+
+################################################################################
+# * NOTEBOOK typing/testing
+################################################################################
+NOTEBOOKS ?= examples/usage
+.PHONY: mypy-notebook pyright-notebook typing-notebook
+mypy-notebook: ## run nbqa mypy
+	nbqa --nbqa-shell mypy $(NOTEBOOKS)
+pyright-notebook: ## run nbqa pyright
+	nbqa --nbqa-shell pyright $(NOTEBOOKS)
+typing-notebook: mypy-notebook pyright-notebook ## run nbqa mypy/pyright
+
+.PHONY: pytest-nbval
+pytest-notebook:  ## run pytest --nbval
+	pytest --nbval --nbval-current-env --nbval-sanitize-with=config/nbval.ini --dist loadscope -x $(NOTEBOOKS)
 
 
 ################################################################################
@@ -272,22 +272,13 @@ tuna-import: ## Analyze load time for module
 	tuna tuna-loadtime.log
 	rm tuna-loadtime.log
 
-# nbqa-mypy
-NOTEBOOKS ?= examples/usage
-.PHONY: nbqa-mypy nbqa-pyright nbqa-typing
-nbqa-mypy: ## run nbqa mypy
-	nbqa --nbqa-shell mypy $(NOTEBOOKS)
-nbqa-pyright: ## run nbqa pyright
-	nbqa --nbqa-shell pyright $(NOTEBOOKS)
-nbqa-typing: nbqa-mypy nbqa-pyright ## run nbqa mypy/pyright
-
-.PHONY: pytest-nbval
-pytest-nbval:  ## run pytest --nbval
-	pytest --nbval --current-env --sanitize-with=config/nbval.ini $(NOTEBOOKS) -x
+.PHONY: typing-tools
+typing-tools:
+	mypy --strict noxfile.py tools/*.py
+	pyright noxfile.py tools/*.py
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md
-	# P2C_COLUMNS=100 cog -rP README.md
 	nox -s cog
 	pre-commit run markdownlint --files README.md
 

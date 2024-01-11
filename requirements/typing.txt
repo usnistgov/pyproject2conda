@@ -10,9 +10,6 @@
 mypy>=1.4.1
 packaging
 pytest
-pytest-cov
-pytest-sugar
-pytest-xdist
 pytype;python_version<"3.11"
 tomli
 tomlkit

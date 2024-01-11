@@ -5,6 +5,7 @@ Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 """
 # * Imports -------------------------------------------------------------------
 
+import locale
 import logging
 import os
 from enum import Enum
@@ -33,7 +34,7 @@ from ._typing_compat import Annotated
 # * Logger -----------------------------------------------------------------------------
 
 FORMAT = "%(message)s [%(name)s - %(levelname)s]"
-logging.basicConfig(level=logging.WARN, format=FORMAT)
+logging.basicConfig(level=logging.WARNING, format=FORMAT)
 logger = logging.getLogger("pyproject2conda")
 
 
@@ -57,13 +58,14 @@ class AliasedGroup(TyperGroup):
         matches = [x for x in self.list_commands(ctx) if x.startswith(cmd_name)]
         if not matches:
             return None
-        elif len(matches) == 1:
+        if len(matches) == 1:
             return super().get_command(ctx, matches[0])
         ctx.fail(
             "Too many matches: %s" % ", ".join(sorted(matches))
         )  # pragma: no cover
+        return None
 
-    def list_commands(self, ctx: click.Context) -> Iterable[str]:
+    def list_commands(self, ctx: click.Context) -> Iterable[str]:  # noqa: ARG002
         return list(self.commands)
 
 
@@ -79,7 +81,7 @@ def version_callback(value: bool) -> None:
 
 @app_typer.callback()
 def main(
-    version: bool = typer.Option(  # pyright: ignore
+    version: bool = typer.Option(
         None, "--version", "-v", callback=version_callback, is_eager=True
     ),
 ) -> None:
@@ -97,7 +99,7 @@ def main(
             $ p2c y ...
             $ python -m pyproject2conda ...
     """
-    return None
+    return
 
 
 # * Options ----------------------------------------------------------------------------
@@ -362,8 +364,8 @@ def _get_header_cmd(
         from pathlib import Path
 
         return " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
-    else:
-        return None
+
+    return None
 
 
 @lru_cache
@@ -414,11 +416,10 @@ def add_verbose_logger(
                 # leave where it is:
                 pass
             else:
-                # TODO: test this for real
                 if verbosity < 0:  # pragma: no cover
                     level = logging.ERROR
                 elif verbosity == 0:  # pragma: no cover
-                    level = logging.WARN
+                    level = logging.WARNING
                 elif verbosity == 1:
                     level = logging.INFO
                 else:  # pragma: no cover
@@ -446,7 +447,7 @@ def add_verbose_logger(
 @add_verbose_logger(logger)
 def create_list(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
-    verbose: VERBOSE_CLI = None,  # pyright: ignore
+    verbose: VERBOSE_CLI = None,
 ) -> None:
     """List available extras."""
 
@@ -478,7 +479,7 @@ def yaml(
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
-    verbose: VERBOSE_CLI = None,  # pyright: ignore
+    verbose: VERBOSE_CLI = None,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
@@ -534,7 +535,7 @@ def requirements(
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
-    verbose: VERBOSE_CLI = None,  # pyright: ignore
+    verbose: VERBOSE_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
@@ -591,7 +592,7 @@ def project(
     if user_config == "infer" or user_config is None:
         user_config = c.user_config()
 
-    for style, d in c.iter(
+    for style, d in c.iter_envs(
         envs=envs,
         template=template,
         template_python=template_python,
@@ -624,8 +625,9 @@ def project(
 
             elif style == "requirements":
                 requirements(filename=filename, **d)
-            else:
-                raise ValueError(f"unknown style {style}")  # pragma: no cover
+            else:  # pragma: no cover
+                msg = f"unknown style {style}"
+                raise ValueError(msg)
 
 
 # ** Conda requirements
@@ -651,7 +653,7 @@ def conda_requirements(
     # paths,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-    verbose: VERBOSE_CLI = None,  # pyright: ignore
+    verbose: VERBOSE_CLI = None,
 ) -> None:
     """
     Create requirement files for conda and pip.
@@ -669,10 +671,12 @@ def conda_requirements(
     )
 
     if path_conda and not path_pip:
-        raise ValueError("can only specify neither or both path_conda and path_pip")
+        msg = "can only specify neither or both path_conda and path_pip"
+        raise ValueError(msg)
 
     if path_conda and path_pip and prefix is not None:
-        raise ValueError("specify path_conda and path_pip or prefix, not all")
+        msg = "specify path_conda and path_pip or prefix, not all"
+        raise ValueError(msg)
 
     if prefix is not None:
         path_conda = prefix + "conda.txt"
@@ -718,7 +722,7 @@ def to_json(
     base: BASE_DEPENDENCIES_CLI = True,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-    verbose: VERBOSE_CLI = None,  # pyright: ignore
+    verbose: VERBOSE_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
 ) -> None:
     """
@@ -764,7 +768,7 @@ def to_json(
         result["channels"] = channels
 
     if output:
-        with open(output, "w") as f:
+        with Path(output).open("w", encoding=locale.getpreferredencoding(False)) as f:
             json.dump(result, f)
     else:
         print(json.dumps(result))  # , indent=2))

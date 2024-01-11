@@ -1,42 +1,193 @@
-"""Utilities to work with nox."""
-
+"""Utilities to work with nox"""
 from __future__ import annotations
 
+import os
 import shlex
+from contextlib import contextmanager
+from functools import cached_property, reduce
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence, TextIO, cast
+from typing import TYPE_CHECKING, cast
 
-from ruamel.yaml import YAML
+# fmt: off
+from nox.sessions import SessionRunner
+
+# * Override SessionRunner._create_venv ------------------------------------------------
+
+_create_venv_super = SessionRunner._create_venv  # pyright: ignore[reportPrivateUsage]
+
+def override_sessionrunner_create_venv(self: SessionRunner) -> None:
+    """Override SessionRunner._create_venv"""
+
+    if callable(self.func.venv_backend):
+        # if passed a callable backend, always use just that
+        logger.info("Using custom callable venv_backend")
+
+        self.venv = self.func.venv_backend(self)
+        #     location=self.envdir,
+        #     interpreter=self.func.python,
+        #     reuse_existing=self.func.reuse_venv or self.global_config.reuse_existing_virtualenvs,
+        #     venv_params=self.func.venv_params,
+        #     runner=self,
+        # )
+        return None
+
+    logger.info("Using nox venv_backend")
+    return _create_venv_super(self)
+
+SessionRunner._create_venv = override_sessionrunner_create_venv  # type: ignore[method-assign] # pyright: ignore[reportPrivateUsage]
+# fmt: on
+
+import operator
+
+from nox.logger import logger
+from nox.virtualenv import CondaEnv, VirtualEnv
 
 if TYPE_CHECKING:
-    from collections.abc import Collection
+    import sys
+    from typing import Any, Callable, Iterable, Iterator, Literal, Union
 
-    import nox
+    from nox import Session
+
+    PathLike = Union[str, Path]
+
+    if sys.version_info < (3, 11):
+        from typing_extensions import Self
+    else:
+        from typing import Self
+
+
+def factory_conda_backend(
+    backend: Literal["conda", "mamba", "micromamba"] = "conda",
+    location: str | None = None,
+) -> Callable[..., CondaEnv]:
+    def passthrough_venv_backend(
+        runner: SessionRunner,
+    ) -> CondaEnv:
+        # override allowed_globals
+        CondaEnv.allowed_globals = ("conda", "mamba", "micromamba", "conda-lock")  # type: ignore[assignment]
+
+        assert isinstance(runner.func.python, str)
+        return CondaEnv(
+            location=location or runner.envdir,
+            interpreter=runner.func.python,
+            reuse_existing=runner.func.reuse_venv
+            or runner.global_config.reuse_existing_virtualenvs,
+            venv_params=runner.func.venv_params,
+            conda_cmd=backend,
+        )
+
+    return passthrough_venv_backend
+
+
+def factory_virtualenv_backend(
+    backend: Literal["virtualenv", "venv"] = "virtualenv",
+    location: str | None = None,
+) -> Callable[..., CondaEnv | VirtualEnv]:
+    def passthrough_venv_backend(
+        runner: SessionRunner,
+    ) -> VirtualEnv:
+        venv = VirtualEnv(
+            location=location or runner.envdir,
+            interpreter=runner.func.python,  # type: ignore[arg-type]
+            reuse_existing=runner.func.reuse_venv
+            or runner.global_config.reuse_existing_virtualenvs,
+            venv_params=runner.func.venv_params,
+            venv=(backend == "venv"),
+        )
+        venv.create()
+        return venv
+
+    return passthrough_venv_backend
 
 
 # * Top level installation functions ---------------------------------------------------
 def py_prefix(python_version: Any) -> str:
     if isinstance(python_version, str):
         return "py" + python_version.replace(".", "")
-    else:
-        raise ValueError(f"passed non-string value {python_version}")
+    msg = f"passed non-string value {python_version}"
+    raise ValueError(msg)
 
 
-def session_environment_filename(
+def _verify_path(
+    path: PathLike,
+) -> Path:
+    path = Path(path)
+    if not path.is_file():
+        msg = f"Path {path} is not a file"
+        raise ValueError(msg)
+    return path
+
+
+def _verify_paths(
+    paths: PathLike | Iterable[PathLike] | None,
+) -> list[Path]:
+    if paths is None:
+        return []
+    if isinstance(paths, (str, Path)):
+        paths = [paths]
+    return [_verify_path(p) for p in paths]
+
+
+def infer_requirement_path_with_fallback(
     name: str | None,
     ext: str | None = None,
     python_version: str | None = None,
     lock: bool = False,
-) -> str:
-    """Get filename for a conda yaml or pip requirements file."""
-    if name is None:
-        raise ValueError("must supply name")
+    check_exists: bool = True,
+    lock_fallback: bool = False,
+) -> tuple[bool, Path]:
+    if lock_fallback:
+        try:
+            path = infer_requirement_path(
+                name=name,
+                ext=ext,
+                python_version=python_version,
+                lock=lock,
+                check_exists=True,
+            )
+        except FileNotFoundError:
+            logger.info("Falling back to non-locked")
+            lock = False
+            path = infer_requirement_path(
+                name=name,
+                ext=ext,
+                python_version=python_version,
+                lock=lock,
+                check_exists=True,
+            )
 
+    else:
+        path = infer_requirement_path(
+            name=name,
+            ext=ext,
+            python_version=python_version,
+            lock=lock,
+            check_exists=check_exists,
+        )
+    return lock, path
+
+
+def infer_requirement_path(
+    name: str | None,
+    ext: str | None = None,
+    python_version: str | None = None,
+    lock: bool = False,
+    check_exists: bool = True,
+) -> Path:
+    """Get filename for a conda yaml or pip requirements file."""
+
+    if name is None:
+        msg = "must supply name"
+        raise ValueError(msg)
+
+    # adjust filename
     filename = name
-    if ext is not None:
+    if ext is not None and not filename.endswith(ext):
         filename = filename + ext
     if python_version is not None:
-        filename = f"{py_prefix(python_version)}-{filename}"
+        prefix = py_prefix(python_version)
+        if not filename.startswith(prefix):
+            filename = f"{prefix}-{filename}"
 
     if lock:
         if filename.endswith(".yaml"):
@@ -46,117 +197,926 @@ def session_environment_filename(
         elif filename.endswith(".txt"):
             pass
         else:
-            raise ValueError(f"unknown file extension for {filename}")
+            msg = f"unknown file extension for {filename}"
+            raise ValueError(msg)
 
-        return f"./requirements/lock/{filename}"
+        filename = f"./requirements/lock/{filename}"
     else:
-        return f"./requirements/{filename}"
+        filename = f"./requirements/{filename}"
+
+    path = Path(filename)
+    if check_exists and not path.is_file():
+        msg = f"{path} does not exist"
+        raise FileNotFoundError(msg)
+
+    return path
 
 
-def pkg_install_condaenv(
-    session: nox.Session,
-    name: str,
+def _infer_requirement_paths(
+    names: str | Iterable[str] | None,
     lock: bool = False,
-    display_name: str | None = None,
-    install_package: bool = True,
-    update: bool = False,
-    update_package: bool = False,
-    log_session: bool = False,
-    deps: Collection[str] | None = None,
-    reqs: Collection[str] | None = None,
-    channels: Collection[str] | None = None,
-    filename: str | None = None,
-    **kwargs: Any,
-) -> None:
-    """Install requirements.  If need fine control, do it in calling func."""
+    ext: str | None = None,
+    python_version: str | None = None,
+) -> list[Path]:
+    if names is None:
+        return []
 
-    def check_filename(filename: str | Path) -> str:
-        if not Path(filename).exists():
-            raise ValueError(f"file {filename} does not exist")
-        session.log(f"Environment file: {filename}")
-        return str(filename)
-
-    assert isinstance(session.python, str)
-    filename = filename or session_environment_filename(
-        name=name, ext=".yaml", python_version=session.python, lock=lock
-    )
-
-    if lock:
-        session_install_envs_lock(
-            session=session,
-            lockfile=check_filename(filename),
-            display_name=display_name,
-            update=update,
-            update_package=update_package,
-            install_package=install_package,
-            **kwargs,
+    if isinstance(names, str):
+        names = [names]
+    return [
+        infer_requirement_path(
+            name,
+            lock=lock,
+            ext=ext,
+            python_version=python_version,
         )
-
-    else:
-        session_install_envs(
-            session,
-            check_filename(filename),
-            display_name=display_name,
-            update=update,
-            update_package=update_package,
-            deps=deps,
-            reqs=reqs,
-            channels=channels,
-            install_package=install_package,
-            **kwargs,
-        )
-
-    if log_session:
-        session_log_session(session, conda=True)
+        for name in names
+    ]
 
 
-def pkg_install_venv(
-    session: nox.Session,
-    name: str,  # pyright: ignore
-    lock: bool = False,
-    requirement_paths: Collection[str] | None = None,
-    constraint_paths: Collection[str] | None = None,
-    extras: str | Collection[str] | None = None,
-    reqs: Collection[str] | None = None,
-    display_name: str | None = None,
-    update: bool = False,
-    update_package: bool = False,
-    install_package: bool = False,
-    no_deps: bool = True,
-    log_session: bool = False,
-) -> None:
-    if lock:
-        raise ValueError("lock not yet supported for install_pip")
+def is_conda_session(session: Session) -> bool:
+    from nox.virtualenv import CondaEnv
 
-    session_install_pip(
-        session=session,
-        requirement_paths=requirement_paths,
-        constraint_paths=constraint_paths,
-        extras=extras,
-        reqs=reqs,
-        display_name=display_name,
-        update=update,
-        update_package=update_package,
-        install_package=install_package,
-        no_deps=no_deps,
-        lock=lock,
-    )
-
-    if log_session:
-        session_log_session(session, conda=False)
+    return isinstance(session.virtualenv, CondaEnv)
 
 
-def session_log_session(session: nox.Session, conda: bool = True) -> None:
-    logfile = Path(session.create_tmp()) / "env_info.txt"
+# * Main class ----------------------------------------------------------------
+class Installer:
+    """
+    Class to handle installing package/dependencies
 
-    session.log(f"writing environment log to {logfile}")
+    Parameters
+    ----------
+    session : nox.Session
+    update : bool, default=False
+    lock : bool, default=False
+    package: str or bool, optional
+    pip_deps : str or list of str, optional
+        pip dependencies
+    requirements : str or list of str
+        pip requirement file(s) (pip install -r requirements[0] ...)
+        Can either be a full path or a envname (for example,
+        "test" will get resolved to ./requirements/test.txt)
+    constraints : str or list of str
+        pip constraint file(s) (pip install -c ...)
+    config_path :
+        Where to save env config for future comparison.  Defaults to
+        `session.create_tmp() / "env.json"`.
+    """
 
-    with logfile.open("w") as f:
-        if conda:
-            session.run("conda", "list", stdout=f)
+    def __init__(
+        self,
+        session: Session,
+        *,
+        update: bool = False,
+        lock: bool = False,
+        package: str | bool | None = None,
+        pip_deps: str | Iterable[str] | None = None,
+        requirements: PathLike | Iterable[PathLike] | None = None,
+        constraints: PathLike | Iterable[PathLike] | None = None,
+        config_path: PathLike | None = None,
+        # conda specific things:
+        conda_deps: str | Iterable[str] | None = None,
+        conda_yaml: PathLike | None = None,
+        create_venv: bool | None = False,
+        channels: str | Iterable[str] | None = None,
+    ) -> None:
+        self.session = session
+
+        self.update = update
+        self.lock = lock
+
+        if config_path is None:
+            config_path = Path(self.session.create_tmp()) / "env.json"
         else:
-            session.run("python", "--version", stdout=f)
-            session.run("pip", "list", stdout=f)
+            config_path = Path(config_path)
+        self.config_path = config_path
+
+        if isinstance(package, bool):
+            package = "-e . --no-deps" if package else None
+        self.package = package
+
+        self.pip_deps: list[str] = sorted(_remove_whitespace_list(pip_deps or []))
+
+        self.requirements = sorted(_verify_paths(requirements))
+        self.constraints = sorted(_verify_paths(constraints))
+
+        # conda stuff
+        self.conda_deps: list[str] = sorted(_remove_whitespace_list(conda_deps or []))
+        self.channels: list[str] = sorted(_remove_whitespace_list(channels or []))
+
+        if conda_yaml is not None:
+            conda_yaml = _verify_path(conda_yaml)
+        self.conda_yaml = conda_yaml
+
+        if create_venv is None:
+            create_venv = self.is_conda_session()
+        self.create_venv = create_venv
+
+        self._check_params()
+
+    def _check_params(self) -> None:
+        if not self.is_conda_session():
+            if self.conda_deps or self.conda_yaml:
+                msg = f"passing conda parameters to non conda session {self.conda_deps=} {self.conda_yaml=}"
+                raise ValueError(
+                    msg,
+                )
+
+            if self.lock and (
+                not self.requirements or self.pip_deps or self.constraints
+            ):
+                msg = "Can only pass requirements for locked virtualenv"
+                raise ValueError(msg)
+
+        elif self.lock:
+            if self.conda_yaml is None:
+                msg = "Must pass `conda_yaml=conda-lock-file`"
+                raise ValueError(msg)
+
+            if (
+                self.conda_deps
+                or self.channels
+                or self.pip_deps
+                or self.requirements
+                or self.constraints
+            ):
+                msg = "Can not pass conda_deps, channels, pip_deps, requirements, constraints if using conda-lock"
+                raise ValueError(
+                    msg,
+                )
+
+        # if not self.is_conda_session():
+        #     if self.conda_deps or self.conda_yaml:
+        #         raise ValueError(
+        #             f"passing conda parameters to non conda session {self.conda_deps=} {self.conda_yaml=}"
+        #         )
+
+        # if self.lock:
+        #     if not self.is_conda_session():
+        #         if (not self.requirements) or self.pip_deps or self.constraints:
+        #             raise ValueError("Can only pass requirements for locked virtualenv")
+
+        #     else:
+        #         if self.conda_yaml is None:
+        #             raise ValueError("Must pass `conda_yaml=conda-lock-file`")
+        #         elif (
+        #             self.conda_deps
+        #             or self.channels
+        #             or self.pip_deps
+        #             or self.requirements
+        #             or self.constraints
+        #         ):
+        #             raise ValueError(
+        #                 "Can not pass conda_deps, channels, pip_deps, requirements, constraints if using conda-lock"
+        #             )
+
+    @cached_property
+    def config(self) -> dict[str, Any]:
+        """Dictionary of relevant info for this session"""
+        out: dict[str, Any] = {}
+        out["lock"] = self.lock
+
+        # special for package:
+        if self.package:
+            out["package"] = get_package_hash(self.package)
+
+        for k in ["pip_deps", "conda_deps", "channels"]:
+            if v := getattr(self, k):
+                out[k] = v
+
+        # file hashes
+        for k in ["requirements", "constraints", "conda_yaml"]:
+            if v := getattr(self, k):
+                if isinstance(v, Path):
+                    v = [v]
+                out[k] = {str(path): _get_file_hash(path) for path in v}
+
+        return out
+
+    def save_config(self) -> Self:
+        import json
+
+        # in case config path got clobbered
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        self.session.log(f"saving config to {self.config_path}")
+        with self.config_path.open("w") as f:
+            json.dump(self.config, f)
+        return self
+
+    @cached_property
+    def previous_config(self) -> dict[str, Any]:
+        if not self.config_path.exists():
+            return {}
+
+        import json
+
+        with self.config_path.open() as f:
+            return json.load(f)  # type: ignore[no-any-return]
+
+    def log_session(self) -> Self:
+        logfile = Path(self.session.create_tmp()) / "env_info.txt"
+        self.session.log(f"writing environment log to {logfile}")
+
+        with logfile.open("w") as f:
+            self.session.run("python", "--version", stdout=f)
+
+            if self.is_conda_session():
+                self.session.run("conda", "list", stdout=f, external=True)
+            else:
+                self.session.run("pip", "list", stdout=f)
+
+        return self
+
+    # Interface
+    @property
+    def python_version(self) -> str:
+        return cast(str, self.session.python)
+
+    def is_conda_session(self) -> bool:
+        return is_conda_session(self.session)
+
+    @property
+    def env(self) -> dict[str, str]:
+        """Override environment variables"""
+        if tmpdir := os.environ.get("TMPDIR"):
+            return {"TMPDIR": tmpdir}
+        return {}
+
+    @property
+    def conda_cmd(self) -> str:
+        venv = self.session.virtualenv
+        assert isinstance(venv, CondaEnv)
+        return venv.conda_cmd
+
+    def is_micromamba(self) -> bool:
+        return self.is_conda_session() and self.conda_cmd == "micromamba"
+
+    @cached_property
+    def python_full_path(self) -> str:
+        path = self.session.run_always(
+            "python",
+            "-c",
+            "import sys; print(sys.executable)",
+            silent=True,
+        )
+        if not isinstance(path, str):
+            msg = "accessing python_full_path with value None"
+            raise ValueError(msg)
+        return path.strip()
+
+    @property
+    def _session_runner(self) -> SessionRunner:
+        return self.session._runner  # pyright: ignore[reportPrivateUsage]
+
+    @cached_property
+    def skip_install(self) -> bool:
+        return self._session_runner.global_config.no_install and getattr(
+            self._session_runner.venv,
+            "_reused",
+            False,
+        )
+
+    @cached_property
+    def package_changed(self) -> bool:
+        """Whether the package has changed"""
+        if changed := self.config.get("package") != self.previous_config.get("package"):
+            self.session.log("package changed")
+        return changed
+
+    @cached_property
+    def changed(self) -> bool:
+        """Check for changes (excluding package)"""
+
+        a, b = (
+            {k: v for k, v in config.items() if k != "package"}
+            for config in (self.config, self.previous_config)
+        )
+
+        out = a != b
+
+        msg = "changed" if out else "unchanged"
+        self.session.log(f"session {self.session.name} {msg}")
+
+        return out
+
+    # Smart runners
+    def run_commands(
+        self,
+        commands: Iterable[str | Iterable[str]] | None,
+        external: bool = True,
+        **kwargs: Any,
+    ) -> Self:
+        if commands:
+            kwargs.update(external=external)
+            for opt in combine_list_list_str(commands):
+                self.session.run(*opt, **kwargs)
+        return self
+
+    def set_ipykernel_display_name(
+        self,
+        name: str,
+        display_name: str | None = None,
+        user: bool = True,
+        update: bool = False,
+    ) -> Self:
+        if self.changed or update or self.update:
+            if display_name is None:
+                display_name = f"Python [venv: {name}]"
+            self.session.run_always(
+                "python",
+                "-m",
+                "ipykernel",
+                "install",
+                "--user" if user else "--sys-prefix",
+                "--name",
+                name,
+                "--display-name",
+                display_name,
+                success_codes=[0, 1],
+            )
+
+        return self
+
+    def install_all(
+        self,
+        update_package: bool = False,
+        log_session: bool = False,
+        save_config: bool = True,
+    ) -> Self:
+        if self.create_venv:
+            assert self.is_conda_session()
+            self.create_conda_env()
+
+        out = (
+            (self.conda_install_deps() if self.is_conda_session() else self)
+            .pip_install_deps()
+            .pip_install_package(update=update_package)
+        )
+
+        if log_session:
+            out = out.log_session()
+
+        if save_config:
+            out = out.save_config()
+
+        return out
+
+    def pip_install_package(
+        self,
+        *args: Any,
+        update: bool = False,
+        opts: str | list[str] | None = None,
+        **kwargs: Any,
+    ) -> Self:
+        """Install the package"""
+        if self.package is None or self.skip_install:
+            pass
+
+        elif self.changed or self.package_changed or (update := self.update or update):
+            command = shlex.split(self.package, posix=True)
+
+            if update:
+                command.append("--upgrade")
+
+            if opts:
+                command.extend(combine_list_str(opts))
+
+            self.session.install(*command, *args, **kwargs)
+
+        return self
+
+    @cached_property
+    def session_python_path(self) -> str:
+        return cast(
+            str,
+            self.session.run_always(
+                "python",
+                "-c",
+                "import sys; print(sys.executable)",
+                silent=True,
+            ),
+        )
+
+    def pip_install_deps(
+        self,
+        *args: Any,
+        update: bool = False,
+        opts: str | Iterable[str] | None = None,
+        **kwargs: Any,
+    ) -> Self:
+        if self.skip_install:
+            pass
+
+        elif self.changed or (update := update or self.update):
+            # # Playing with using pip-sync.
+            # # Not sure its worth it?
+            if self.lock:
+                self.session.run_always("which", "pip-sync", external=True)
+                self.session.run_always(
+                    "pip-sync",
+                    "--python-executable",
+                    self.python_full_path,
+                    *map(str, self.requirements),
+                    silent=True,
+                    external=True,
+                )
+
+            else:
+                install_args: list[str] = (
+                    prepend_flag("-r", *map(str, self.requirements))
+                    + prepend_flag("-c", *map(str, self.constraints))
+                    + self.pip_deps
+                )
+
+                if install_args:
+                    if update:
+                        install_args = ["--upgrade", *install_args]
+
+                    if opts:
+                        install_args.extend(combine_list_str(opts))
+                    self.session.install(*install_args, *args, **kwargs)
+
+        return self
+
+    def create_conda_env(self, update: bool = False) -> Self:
+        venv = self.session.virtualenv
+        assert isinstance(venv, CondaEnv)
+
+        if venv._clean_location():  # pyright: ignore[reportPrivateUsage]
+            cmd = "create"
+        elif self.changed or update or self.update:
+            cmd = "update"
+        else:
+            venv._reused = True  # pyright: ignore[reportPrivateUsage]
+            cmd = "reuse"
+
+        cmds = [cmd]
+        if cmd == "update":
+            cmds.append("--prune")
+
+        # create environment
+        self.session.log(
+            f"{cmd.capitalize()} conda environment in {venv.location_name}",
+        )
+
+        if cmd != "reuse":
+            extra_params = self._session_runner.func.venv_params or []
+
+            if self.lock and not self.is_micromamba():
+                # use conda-lock
+                if self.conda_cmd == "conda":
+                    extra_params.append("--no-mamba")
+                else:
+                    extra_params.append("--mamba")
+
+                extra_params.extend(["--prefix", venv.location])
+
+                cmds = ["conda-lock", "install", *extra_params, str(self.conda_yaml)]
+            else:
+                cmds = (
+                    [self.conda_cmd]
+                    + ([] if self.is_micromamba() else ["env"])
+                    + cmds
+                    + (["--yes"] if self.is_micromamba() else [])
+                    + [
+                        "--prefix",
+                        venv.location,
+                        "--file",
+                        str(self.conda_yaml),
+                    ]
+                    + extra_params
+                )
+
+            # NOTE: Use the normal tmpdir for safety (might be missing env/tmp)
+            if cmd == "create":
+                self.session._run(*cmds, silent=True, env=self.env)  # pyright: ignore[reportPrivateUsage]
+            else:
+                self.session.run_always(*cmds, silent=True, env=self.env)
+
+        return self
+
+    def conda_install_deps(
+        self,
+        update: bool = False,
+        opts: str | Iterable[str] | None = None,
+        channels: str | Iterable[str] | None = None,
+        prune: bool = False,
+        **kwargs: Any,
+    ) -> Self:
+        if (not self.conda_deps) or self.skip_install:
+            pass
+
+        elif self.changed or (update := (update or self.update)):
+            channels = channels or self.channels
+            if channels:
+                kwargs.update(channel=channels)
+
+            deps = list(self.conda_deps)
+
+            if update and not self.is_micromamba():
+                deps.insert(0, "--update-all")
+
+            if prune and not self.is_micromamba():
+                deps.insert(0, "--prune")
+
+            if (update or prune) and self.is_micromamba():
+                self.session.warn(
+                    "Trying to run update with micromamba.  You should rebuild the session instead.",
+                )
+
+            if opts:
+                deps.extend(combine_list_str(opts))
+
+            self.session.conda_install(*deps, **kwargs, env=self.env)
+
+        return self
+
+    @classmethod
+    def from_envname_pip(
+        cls,
+        session: Session,
+        envname: str | Iterable[str] | None = None,
+        lock: bool = False,
+        requirements: PathLike | Iterable[PathLike] | None = None,
+        **kwargs: Any,
+    ) -> Self:
+        if lock:
+            assert isinstance(session.python, str)
+            requirements = _verify_paths(requirements) + _infer_requirement_paths(
+                envname,
+                ext=".txt",
+                lock=lock,
+                python_version=session.python,
+            )
+
+        elif envname is not None:
+            requirements = _verify_paths(requirements) + _infer_requirement_paths(
+                envname,
+                ext=".txt",
+            )
+
+        return cls(
+            session=session,
+            lock=lock,
+            requirements=requirements,
+            **kwargs,
+        )
+
+    @classmethod
+    def from_envname_conda(
+        cls,
+        session: Session,
+        envname: str | None = None,
+        conda_yaml: PathLike | None = None,
+        lock: bool = False,
+        lock_fallback: bool = True,
+        conda_deps: str | Iterable[str] | None = None,
+        pip_deps: str | Iterable[str] | None = None,
+        channels: str | Iterable[str] | None = None,
+        package: str | None = None,
+        create_venv: bool | None = None,
+        **kwargs: Any,
+    ) -> Self:
+        """
+        Parameters
+        ----------
+        envname :
+            Base name for file.  For example, passing
+            envname = "dev" will convert to
+            `requirements/py{py}-dev.yaml` for `filename`
+        """
+
+        if envname is not None and conda_yaml is None:
+            assert isinstance(session.python, str)
+            lock, conda_yaml = infer_requirement_path_with_fallback(
+                envname,
+                ext=".yaml",
+                python_version=session.python,
+                lock=lock,
+                lock_fallback=lock_fallback,
+            )
+        elif envname is None and conda_yaml is not None:
+            conda_yaml = _verify_path(conda_yaml)
+
+        else:
+            msg = "Pass one of envname or conda_yaml"
+            raise ValueError(msg)
+
+        return cls(
+            session=session,
+            lock=lock,
+            conda_yaml=conda_yaml,
+            conda_deps=conda_deps,
+            pip_deps=pip_deps,
+            channels=channels,
+            package=package,
+            create_venv=create_venv,
+            **kwargs,
+        )
+
+    @classmethod
+    def from_envname(
+        cls,
+        session: Session,
+        envname: str | Iterable[str] | None = None,
+        lock: bool = False,
+        lock_fallback: bool | None = None,
+        **kwargs: Any,
+    ) -> Self:
+        if lock_fallback is None:
+            lock_fallback = is_conda_session(session)
+
+        if is_conda_session(session):
+            assert isinstance(envname, str) or envname is None
+            return cls.from_envname_conda(
+                session=session,
+                envname=envname,
+                lock=lock,
+                lock_fallback=lock_fallback,
+                **kwargs,
+            )
+
+        return cls.from_envname_pip(
+            session=session,
+            envname=envname,
+            lock=lock,
+            # lock_fallback=lock_fallback,
+            **kwargs,
+        )
+
+
+# * Utilities --------------------------------------------------------------------------
+# def _to_list_of_str(x: str | Iterable[str] | None) -> list[str]:
+#     if x is None:
+#         return []
+#     elif isinstance(x, str):
+#         return [x]
+#     elif isinstance(x, list):
+#         return x
+#     else:
+#         return list(x)
+
+
+def _remove_whitespace(s: str) -> str:
+    import re
+
+    return re.sub(r"\s+", "", s)
+
+
+def _remove_whitespace_list(s: str | Iterable[str]) -> list[str]:
+    if isinstance(s, str):
+        s = [s]
+    return [_remove_whitespace(x) for x in s]
+
+
+def combine_list_str(opts: str | Iterable[str]) -> list[str]:
+    if not opts:
+        return []
+
+    if isinstance(opts, str):
+        opts = [opts]
+    return shlex.split(" ".join(opts))
+
+
+def combine_list_list_str(opts: Iterable[str | Iterable[str]]) -> Iterable[list[str]]:
+    return (combine_list_str(opt) for opt in opts)
+
+
+def sort_like(values: Iterable[Any], like: Iterable[Any]) -> list[Any]:
+    """Sort `values` in order of `like`."""
+    # only unique
+    sorter = {k: i for i, k in enumerate(like)}
+    return sorted(set(values), key=lambda k: sorter[k])
+
+
+def update_target(
+    target: str | Path,
+    *deps: str | Path,
+    allow_missing: bool = False,
+) -> bool:
+    """Check if target is older than deps:"""
+    target = Path(target)
+    if not target.exists():
+        return True
+
+    deps_filtered: list[Path] = []
+    for d in map(Path, deps):
+        if d.exists():
+            deps_filtered.append(d)
+        elif not allow_missing:
+            msg = f"dependency {d} does not exist"
+            raise ValueError(msg)
+
+    target_time = target.stat().st_mtime
+    return any(target_time < dep.stat().st_mtime for dep in deps_filtered)
+
+
+def prepend_flag(flag: str, *args: str | Iterable[str]) -> list[str]:
+    """
+    Add in a flag before each arg.
+
+    >>> prepent_flag("-k", "a", "b")
+    ["-k", "a", "-k", "b"]
+    """
+
+    args_: list[str] = []
+    for x in args:
+        if isinstance(x, str):
+            args_.append(x)
+        else:
+            args_.extend(x)
+
+    return reduce(operator.iadd, [[flag, _] for _ in args_], [])
+
+
+def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
+    import hashlib
+
+    md5 = hashlib.md5()
+    with Path(path).open("rb") as f:
+        while True:
+            data = f.read(buff_size)
+            if not data:
+                break
+            md5.update(data)
+    return md5.hexdigest()
+
+
+def _get_zipfile_hash(path: str | Path) -> str:
+    import hashlib
+    from zipfile import ZipFile
+
+    md5 = hashlib.md5()
+
+    with ZipFile(path, "r") as f:
+        for thing in f.infolist():
+            md5 = hashlib.md5(f.read(thing))
+
+    return md5.hexdigest()
+
+
+def get_package_hash(package: str) -> list[str]:
+    import re
+
+    out: list[str] = []
+
+    for x in shlex.split(package):
+        out.append(x)
+
+        # remove possible extras
+        x_clean = re.sub(r"\[.*?\]$", "", x)
+        if Path(x_clean).is_file():
+            if x_clean.endswith(".whl"):
+                out.append(_get_zipfile_hash(x_clean))
+            else:
+                out.append(_get_file_hash(x_clean))
+
+    return out
+
+
+@contextmanager
+def check_for_change_manager(
+    *deps: str | Path,
+    hash_path: str | Path | None = None,
+    target_path: str | Path | None = None,
+    force_write: bool = False,
+) -> Iterator[bool]:
+    """
+    Context manager to look for changes in dependencies.
+
+    Yields
+    ------
+    changed: bool
+
+    If exit normally, write hashes to hash_path file
+    """
+
+    try:
+        changed, hashes, hash_path = check_hash_path_for_change(
+            *deps,
+            target_path=target_path,
+            hash_path=hash_path,
+        )
+
+        yield changed
+
+    except Exception as e:
+        raise e
+
+    else:
+        if force_write or changed:
+            logger.info(f"Writing {hash_path}")
+
+            # make sure the parent directory exists:
+            hash_path.parent.mkdir(parents=True, exist_ok=True)
+            write_hashes(hash_path=hash_path, hashes=hashes)
+
+
+def check_hash_path_for_change(
+    *deps: str | Path,
+    target_path: str | Path | None = None,
+    hash_path: str | Path | None = None,
+) -> tuple[bool, dict[str, str], Path]:
+    """
+    Checks a json file `hash_path` for hashes of `other_paths`.
+
+    if specify target_path and no hash_path, set `hash_path=target_path.parent / (target_path.name + ".hash.json")`.
+    if specify hash_path and no target, set
+
+    Parameters
+    ----------
+    *deps :
+        files on which target_path/hash_path depends.
+    hash_path :
+        Path of file containing hashes of `deps`.
+    target_path :
+        Target file (i.e., the final file to be created).
+        Defaults to hash_path.
+
+
+    Returns
+    -------
+    changed : bool
+    hashes : dict[str, str]
+    hash_path : Path
+
+    """
+    import json
+
+    msg = "Must specify target_path or hash_path"
+
+    if target_path is None:
+        assert hash_path is not None, msg
+        target_path = hash_path = Path(hash_path)
+    else:
+        target_path = Path(target_path)
+        if hash_path is None:
+            hash_path = target_path.parent / (target_path.name + ".hash.json")
+        else:
+            hash_path = Path(hash_path)
+
+    hashes: dict[str, str] = {
+        os.path.relpath(k, hash_path.parent): _get_file_hash(k) for k in deps
+    }
+
+    if not target_path.is_file():
+        changed = True
+
+    elif hash_path.is_file():
+        with hash_path.open() as f:
+            previous_hashes: dict[str, Any] = json.load(f)
+
+        changed = False
+        for k, h in hashes.items():
+            previous = previous_hashes.get(k)
+            if previous is None or previous != h:
+                changed = True
+                hashes = {**previous_hashes, **hashes}
+                break
+
+    else:
+        changed = True
+
+    return changed, hashes, hash_path
+
+
+def write_hashes(hash_path: str | Path, hashes: dict[str, Any]) -> None:
+    import json
+
+    with Path(hash_path).open("w") as f:
+        json.dump(hashes, f, indent=2)
+        f.write("\n")
+
+
+def open_webpage(path: str | Path | None = None, url: str | None = None) -> None:
+    """
+    Open webpage from path or url.
+
+    Useful if want to view webpage with javascript, etc., as well as static html.
+    """
+    import webbrowser
+    from urllib.request import pathname2url
+
+    if path:
+        url = "file://" + pathname2url(str(Path(path).absolute()))
+    if url:
+        webbrowser.open(url)
+
+
+def session_run_commands(
+    session: Session,
+    commands: list[list[str]] | None,
+    external: bool = True,
+    **kws: Any,
+) -> None:
+    """Run commands command."""
+
+    if commands:
+        kws.update(external=external)
+        for opt in combine_list_list_str(commands):
+            session.run(*opt, **kws)
 
 
 # * User config ------------------------------------------------------------------------
@@ -178,874 +1138,149 @@ def load_nox_config(path: str | Path = "./config/userconfig.toml") -> dict[str, 
 
     from .projectconfig import ProjectConfig
 
-    return ProjectConfig.from_path(path).to_nox_config()
-
-
-# * Basic utilities --------------------------------------------------------------------
-def combine_list_str(opts: list[str]) -> list[str]:
-    if opts:
-        return shlex.split(" ".join(opts))
-    else:
-        return []
-
-
-def combine_list_list_str(opts: list[list[str]]) -> Iterable[list[str]]:
-    return (combine_list_str(opt) for opt in opts)
-
-
-def sort_like(values: Collection[Any], like: Sequence[Any]) -> list[Any]:
-    """Sort `values` in order of `like`."""
-    # only unique
-    sorter = {k: i for i, k in enumerate(like)}
-    return sorted(set(values), key=lambda k: sorter[k])
-
-
-def update_target(
-    target: str | Path, *deps: str | Path, allow_missing: bool = False
-) -> bool:
-    """Check if target is older than deps:"""
-    target = Path(target)
-
-    deps_filtered = []
-    for d in map(Path, deps):
-        if d.exists():
-            deps_filtered.append(d)
-        elif not allow_missing:
-            raise ValueError(f"dependency {d} does not exist")
-
-    if not target.exists():
-        return True
-    else:
-        target_time = target.stat().st_mtime
-
-        update = any(target_time < dep.stat().st_mtime for dep in deps_filtered)
-
-    return update
-
-
-def prepend_flag(flag: str, *args: str | Sequence[str]) -> list[str]:
-    """
-    Add in a flag before each arg.
-
-    >>> prepent_flag("-k", "a", "b")
-    ["-k", "a", "-k", "b"]
-    """
-
-    args_ = []
-    for x in args:
-        if isinstance(x, str):
-            args_.append(x)
-        else:
-            args_.extend(x)
-
-    return sum([[flag, _] for _ in args_], [])
-
-
-def open_webpage(path: str | Path | None = None, url: str | None = None) -> None:
-    """
-    Open webpage from path or url.
-
-    Useful if want to view webpage with javascript, etc., as well as static html.
-    """
-    import webbrowser
-    from urllib.request import pathname2url
-
-    if path:
-        url = "file://" + pathname2url(str(Path(path).absolute()))
-    if url:
-        webbrowser.open(url)
-
-
-# * Package install --------------------------------------------------------------------
-# ** Utilities
-def session_skip_install(session: nox.Session) -> bool:
-    """
-    Utility to check if we're skipping install and reusing existing venv
-    This is a hack and may need to change if upstream changes.
-    """
-    return session._runner.global_config.no_install and session._runner.venv._reused  # type: ignore
-
-
-def session_run_commands(
-    session: nox.Session, commands: list[list[str]], external: bool = True, **kws: Any
-) -> None:
-    """Run commands command."""
-
-    if commands:
-        kws.update(external=external)
-        for opt in combine_list_list_str(commands):
-            session.run(*opt, **kws)
-
-
-def session_set_ipykernel_display_name(
-    session: nox.Session, display_name: str | None, check_skip_install: bool = True
-) -> None:
-    """Rename ipython kernel display name."""
-    if not display_name or (check_skip_install and session_skip_install(session)):
-        return
-    else:
-        command = f"python -m ipykernel install --sys-prefix --display-name {display_name}".split()
-        # continue if fails
-        session.run(*command, success_codes=[0, 1])
-
-
-def session_install_package(
-    session: nox.Session,
-    package: str = ".",
-    develop: bool = True,
-    no_deps: bool = True,
-    *args: str,
-    **kwargs: Any,
-) -> None:
-    """Install package into session."""
-
-    if session_skip_install(session):
-        return
-
-    if develop:
-        command = ["-e"]
-    else:
-        command = []
-
-    command.append(package)
-
-    if no_deps:
-        command.append("--no-deps")
-
-    session.install(*command, *args, **kwargs)
-
-
-# ** conda-lock
-def session_install_envs_lock(
-    session: nox.Session,
-    lockfile: str | Path,
-    extras: str | list[str] | None = None,
-    display_name: str | None = None,
-    update: bool = False,
-    update_package: bool = False,
-    install_package: bool = False,
-) -> bool:
-    """Install dependencies using conda-lock."""
-
-    if session_skip_install(session):
-        return True
-
-    unchanged, hashes = env_unchanged(
-        session, lockfile, prefix="lock", other=dict(install_package=install_package)
-    )
-
-    do_dep = update or (not unchanged)
-    do_pkg = install_package and (do_dep or update_package)
-
-    if do_dep:
-        if extras:
-            if isinstance(extras, str):
-                extras = extras.split(",")
-            extras = cast(list[str], sum([["--extras", _] for _ in extras], []))
-        else:
-            extras = []
-
-        session.run(
-            "conda-lock",
-            "install",
-            "--mamba",
-            *extras,
-            "-p",
-            str(session.virtualenv.location),
-            str(lockfile),
-            silent=True,
-            external=True,
-        )
-
-    if do_pkg:
-        session_install_package(session)
-
-    if do_dep or do_pkg:
-        session_set_ipykernel_display_name(session, display_name)
-        write_hashfile(hashes, session=session, prefix="lock")
-
-    return unchanged
-
-
-# ** Conda
-def parse_envs(
-    *paths: str | Path,
-    remove_python: bool = True,
-    deps: Collection[str] | None = None,
-    reqs: Collection[str] | None = None,
-    channels: Collection[str] | None = None,
-) -> tuple[set[str], set[str], set[str], str | None]:
-    """Parse an `environment.yaml` file."""
-    import re
-
-    def _default(x: str | Iterable[str] | None) -> set[str]:
-        if x is None:
-            return set()
-        elif isinstance(x, str):
-            x = [x]
-        return set(x)
-
-    channels = _default(channels)
-    deps = _default(deps)
-    reqs = _default(reqs)
-    name = None
-
-    python_match = re.compile(r"\s*(python)\s*[~<=>].*")
-
-    def _get_context(path: str | Path | TextIO) -> TextIO | Path:
-        if hasattr(path, "readline"):
-            from contextlib import nullcontext
-
-            return nullcontext(path)  # type: ignore
-        else:
-            return Path(path).open("r")
-
-    for path in paths:
-        with _get_context(path) as f:
-            data = YAML(typ="safe", pure=True).load(f)
-
-        channels.update(data.get("channels", []))
-        name = data.get("name", name)
-
-        # check dependencies for pip
-        for d in data.get("dependencies", []):
-            if isinstance(d, dict):
-                reqs.update(cast(list[str], d.get("pip")))
-            else:
-                if remove_python and not python_match.match(d):
-                    deps.add(d)
-
-    return channels, deps, reqs, name
-
-
-def session_install_envs(
-    session: nox.Session,
-    *paths: str | Path,
-    remove_python: bool = True,
-    deps: Collection[str] | None = None,
-    reqs: Collection[str] | None = None,
-    channels: Collection[str] | None = None,
-    conda_install_kws: dict[str, Any] | None = None,
-    install_kws: dict[str, Any] | None = None,
-    display_name: str | None = None,
-    update: bool = False,
-    update_package: bool = False,
-    install_package: bool = False,
-) -> bool:
-    """Parse and install everything. Pass an already merged yaml file."""
-
-    if session_skip_install(session):
-        return True
-
-    channels, deps, reqs, name = parse_envs(
-        *paths,
-        remove_python=remove_python,
-        deps=deps,
-        reqs=reqs,
-        channels=channels,
-    )
-
-    unchanged, hashes = env_unchanged(
-        session,
-        prefix="env",
-        other=dict(
-            deps=deps,
-            reqs=reqs,
-            channels=channels,
-            install_package=install_package,
-        ),
-    )
-
-    do_dep = update or (not unchanged)
-    do_pkg = install_package and (do_dep or update_package)
-
-    if do_dep:
-        if not channels:
-            channels = ""
-        if deps:
-            conda_install_kws = conda_install_kws or {}
-            conda_install_kws.update(channel=channels)
-            if update:
-                deps = ["--update-all"] + list(deps)
-
-            session.conda_install(*deps, **(conda_install_kws or {}))
-
-        if reqs:
-            if update:
-                reqs = ["--upgrade"] + list(reqs)
-            session.install(*reqs, **(install_kws or {}))
-
-    if do_pkg:
-        session_install_package(session)
-
-    if do_dep or do_pkg:
-        session_set_ipykernel_display_name(session, display_name)
-        write_hashfile(hashes, session=session, prefix="env")
-
-    return unchanged
-
-
-# ** Pip
-def session_install_pip(
-    session: nox.Session,
-    requirement_paths: str | Collection[str] | None = None,
-    constraint_paths: str | Collection[str] | None = None,
-    extras: str | Collection[str] | None = None,
-    reqs: str | Collection[str] | None = None,
-    display_name: str | None = None,
-    update: bool = False,
-    update_package: bool = False,
-    install_package: bool = False,
-    no_deps: bool = True,
-    lock: bool = False,
-) -> bool:
-    if session_skip_install(session):
-        return True
-
-    def _check_param(x: None | str | list[str] | Iterable[str]) -> list[str]:
-        if x is None:
-            return []
-        elif isinstance(x, str):
-            return [x]
-        elif isinstance(x, list):
-            return x
-        else:
-            return list(x)
-
-    def _verify_paths(paths: str | list[str]) -> list[str]:
-        if isinstance(paths, str):
-            paths = [paths]
-
-        out = []
-        for path in paths:
-            if Path(path).exists():
-                out.append(path)
-            else:
-                inferred = session_environment_filename(name=path, lock=lock)
-                if Path(inferred).exists():
-                    out.append(inferred)
-                else:
-                    raise ValueError(f"no file {path} found/inferred")
-        return out
-
-    # parameters
-    extras = _check_param(extras)
-    if extras:
-        install_package = True
-        extras = ",".join(extras)
-        install_package_args = ["-e", f".[{extras}]"]
-    elif install_package:
-        install_package_args = ["-e", "."]
-    else:
-        install_package_args = []
-
-    if install_package and no_deps:
-        install_package_args.append("--no-deps")
-
-    requirement_paths = _verify_paths(_check_param(requirement_paths))
-    constraint_paths = _verify_paths(_check_param(constraint_paths))
-    reqs = _check_param(reqs)
-    paths = list(requirement_paths) + list(constraint_paths)
-
-    # check update
-    unchanged, hashes = env_unchanged(
-        session,
-        *paths,
-        prefix="pip",
-        other=dict(
-            reqs=reqs, extras=extras, install_package=install_package, no_deps=no_deps
-        ),
-    )
-
-    do_dep = update or (not unchanged)
-    do_pkg = install_package and (do_dep or update_package)
-
-    if do_dep:
-        # do install
-        install_args = (
-            prepend_flag("-r", *requirement_paths)
-            + prepend_flag("-c", *constraint_paths)
-            + list(reqs)
-        )
-
-        if install_args:
-            if update:
-                install_args = ["--upgrade"] + list(install_args)
-            session.install(*install_args)
-
-    if do_pkg:
-        session.install(*install_package_args)
-
-    if do_dep or do_pkg:
-        session_set_ipykernel_display_name(session, display_name)
-        write_hashfile(hashes, session=session, prefix="pip")
-
-    return unchanged
-
-
-# ** Hash environment
-
-PREFIX_HASH_EXTS = Literal["env", "lock", "pip"]
-
-
-def env_unchanged(
-    session: nox.Session,
-    *paths: str | Path,
-    prefix: PREFIX_HASH_EXTS,
-    verbose: bool = True,
-    hashes: dict[str, str] | None = None,
-    other: dict[str, Any] | None = None,
-) -> tuple[bool, dict[str, str]]:
-    hashfile = hashfile_path(session, prefix)
-
-    if hashes is None:
-        hashes = get_hashes(*paths, other=other)
-
-    if hashfile.exists():
-        if verbose:
-            session.log(f"hash file {hashfile} exists")
-        unchanged = hashes == read_hashfile(hashfile)
-    else:
-        unchanged = False
-
-    if unchanged:
-        session.log(f"session {session.name} unchanged")
-    else:
-        session.log(f"session {session.name} changed")
-
-    return unchanged, hashes
-
-
-def get_hashes(
-    *paths: str | Path,
-    other: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    """Get md5 hashes for paths."""
-
-    out: dict[str, Any] = {"path": {str(path): _get_file_hash(path) for path in paths}}
-
-    if other:
-        import hashlib
-
-        other_hashes = {}
-        for k, v in other.items():
-            if isinstance(v, str):
-                s = v
-            else:
-                try:
-                    s = str(sorted(v))
-                except Exception:
-                    s = str(v)
-            other_hashes[k] = hashlib.md5(s.encode("utf-8")).hexdigest()
-
-        out["other"] = other_hashes
-
-    return out
-
-
-def hashfile_path(session: nox.Session, prefix: PREFIX_HASH_EXTS) -> Path:
-    """Path for hashfile for this session."""
-    return Path(session.create_tmp()) / f"{prefix}.json"
-
-
-def write_hashfile(
-    hashes: dict[str, str],
-    session: nox.Session,
-    prefix: PREFIX_HASH_EXTS,
-) -> None:
-    import json
-
-    path = hashfile_path(session, prefix)
-
-    with open(path, "w") as f:
-        json.dump(hashes, f)
-
-
-def read_hashfile(
-    path: str | Path,
-) -> dict[str, str]:
-    import json
-
-    with open(path) as f:
-        data = json.load(f)
-    return cast(dict[str, str], data)
-
-
-def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
-    import hashlib
-
-    md5 = hashlib.md5()
-    with open(path, "rb") as f:
-        while True:
-            data = f.read(buff_size)
-            if not data:
-                break
-            md5.update(data)
-    return md5.hexdigest()
-
-
-# * Old stuff --------------------------------------------------------------------------
-# def session_install_envs_merge(
-#     session,
-#     *paths,
-#     remove_python=True,
-#     deps=None,
-#     reqs=None,
-#     channels=None,
-#     conda_install_kws=None,
-#     install_kws=None,
-#     display_name=None,
-#     update=False,
-# ) -> bool:
-#     """Merge files (using conda-merge) and then create env"""
-
-#     if session_skip_install(session):
-#         return True
-
-#     unchanged, hashes = env_unchanged(
-#         session, *paths, prefix="env", other=dict(deps=deps, reqs=reqs)
-#     )
-#     if unchanged and not update:
-#         return unchanged
-
-#     # first create a temporary file for the environment
-#     with tempfile.TemporaryDirectory() as d:
-#         yaml = Path(d) / "tmp_env.yaml"
-#         with yaml.open("w") as f:
-#             session.run("conda-merge", *paths, stdout=f, external=True)
-#         session.run("cat", str(yaml), external=True, silent=True)
-
-#         channels, deps, reqs, _ = parse_envs(
-#             yaml, remove_python=remove_python, deps=deps, reqs=reqs, channels=channels
-#         )
-
-#     if deps:
-#         if conda_install_kws is None:
-#             conda_install_kws = {}
-#         conda_install_kws.update(channel=channels)
-#         session.conda_install(*deps, **conda_install_kws)
-
-#     if reqs:
-#         if install_kws is None:
-#             install_kws = {}
-#         session.install(*reqs, **install_kws)
-
-#     session_set_ipykernel_display_name(session, display_name)
-
-#     write_hashfile(hashes, session=session, prefix="env")
-
-#     return unchanged
-
-
-# def _remove_python_from_yaml(path):
-#     from yaml import safe_dump
-
-#     path = Path(path)
-
-#     with path.open("r") as f:
-#         data = safe_load(f)
-
-#     from copy import deepcopy
-
-#     out = deepcopy(data)
-
-#     for dep in list(out["dependencies"]):
-#         if isinstance(dep, str) and dep[: len("python")] == "python":
-#             out["dependencies"].remove(dep)
-
-#     path_out = path.with_suffix(".final.yaml")
-
-#     with path_out.open("w") as f:
-#         safe_dump(out, f)
-
-#     return path_out
-
-
-# def session_install_envs_update(
-#     session: nox.Session,
-#     conda_backend: str,
-#     *paths: str | Path,
-#     remove_python: bool = True,
-#     deps: Sequence[str] | None = None,
-#     reqs: Sequence[str] | None = None,
-#     conda_install_kws: Mapping[str, str] | None = None,
-#     install_kws: Mapping[str, str] | None = None,
-#     display_name: str | None = None,
-# ) -> None:
-#     """Install multiple 'environment.yaml' files."""
-
-#     if session_skip_install(session):
-#         return
-
-#     from shutil import which
-
-#     if not which("conda-merge"):
-#         session.conda_install("conda-merge")
-
-#     # pin the python version
-
-#     with tempfile.TemporaryDirectory() as d:
-#         yaml = Path(d) / "tmp_env.yaml"
-#         with yaml.open("w") as f:
-#             session.run("conda-merge", *paths, stdout=f, external=True)
-
-#         if remove_python:
-#             yaml = _remove_python_from_yaml(yaml)
-
-#         session.run("cat", str(yaml), external=True, silent=False)
-
-#         session.run(
-#             conda_backend,
-#             "env",
-#             "update",
-#             "--prefix",
-#             session.virtualenv.location,
-#             "--file",
-#             str(yaml),
-#             silent=True,
-#             external=True,
-#         )
-
-#     session_set_ipykernel_display_name(session, display_name)
-
-
-# def pin_python_version(session: nox.Session):
-#     path = Path(session.virtualenv.location) / "conda-meta" / "pinned"
-
-#     with path.open("w") as f:
-#         session.run(
-#             "python",
-#             "-c",
-#             """import sys; print("python=={v.major}.{v.minor}.{v.micro}".format(v=sys.version_info))""",
-#             stdout=f,
-#         )
-
-# def session_install_envs_update_pin(
-#     session: nox.Session,
-#     conda_backend: str,
-#     *paths: str | Path,
-#         display_name: str | None = None,
-#     **kws,
-# ) -> None:
-#     """Install multiple 'environment.yaml' files."""
-
-#     if session_skip_install(session):
-#         return
-
-#     from shutil import which
-
-#     if not which("conda-merge"):
-#         session.conda_install("conda-merge")
-
-#     # pin the python version
-#     pin_python_version(session)
-
-#     with tempfile.TemporaryDirectory() as d:
-#         yaml = Path(d) / "tmp_env.yaml"
-#         with yaml.open("w") as f:
-#             session.run("conda-merge", *paths, stdout=f, external=True)
-
-#         session.run("cat", str(yaml), external=True, silent=False)
-
-#         session.run(
-#             conda_backend,
-#             "env",
-#             "update",
-#             "--prefix",
-#             session.virtualenv.location,
-#             "--file",
-#             str(yaml),
-#             silent=True,
-#             external=True,
-#             **kws,
-#         )
-
-#     session_set_ipykernel_display_name(session, display_name)
-
-
-# def parse_args_for_flag(args, flag, action="value"):
-#     """
-#     Parse args for flag and pop it off args
-
-#     Parameters
-#     ----------
-#     args : iterable
-#         For example, session.posargs.
-#     flag : string
-#         For example, `flag='--run-external'
-#     action : {'value', 'values', 'store_true', 'store_false'}
-
-#     If flag can take multiple values, they should be separated by commas
-
-#     If multiples, return a tuple, else return a string.
-#     """
-#     flag = flag.strip()
-#     n = len(flag)
-
-#     def process_value(arg):
-#         if action == "store_true":
-#             value = True
-#         elif action == "store_false":
-#             value = False
+    return ProjectConfig.from_path_and_environ(path).to_nox_config()
+
+
+# * Create env from decorator ----------------------------------------------------------
+# class VenvBackend:
+#     """Create a callable venv_backend."""
+
+#     def __init__(
+#         self,
+#         parse_posargs: Callable[..., dict[str, Any]],
+#         envname: str | None = None,
+#         requirements: str | Path | None = None,
+#         backend: Literal[
+#             "conda", "mamba", "micromamba", "virtualenv", "venv"
+#         ] = "conda",
+#         lock_fallback: bool | None = None,
+#     ) -> None:
+#         self.envname = envname
+#         self.backend = backend
+#         self.parse_posargs = parse_posargs
+#         self.lock_fallback = lock_fallback or self.is_conda()
+
+#         self._requirements = requirements
+
+#     def set_opts(self, *posargs: str) -> None:
+#         self.opts: dict[str, Any] = self.parse_posargs(*posargs)
+
+#     @property
+#     def lock(self) -> bool:
+#         return cast(bool, self.opts.get("lock", False))
+
+#     @property
+#     def update(self) -> bool:
+#         return cast(bool, self.opts.get("update", False))
+
+#     def is_conda(self) -> bool:
+#         return self.backend in {"conda", "mamba", "micromamba"}
+
+#     def set_requirements(self, python_version: str | None) -> None:
+#         if self._requirements is not None:
+#             r = Path(self._requirements)
+#         elif self.envname is None:
+#             r = None
 #         else:
-#             s = arg.split("=")
-#             if len(s) != 2:
-#                 raise ValueError(f"must supply {flag}=value")
-#             if action == "value":
-#                 value = s[-1].strip()
-#             else:
-#                 value = tuple(_.strip() for _ in s[-1].split(","))
+#             if self.is_conda():
+#                 assert (
+#                     python_version is not None
+#                 ), "Must pass python version for conda env"
 
-#         return value
-
-#     def check_for_flag(arg):
-#         s = arg.strip()
-#         if action.startswith("value"):
-#             return s[:n] == f"{flag}"
-#         else:
-#             return s == flag
-
-#     # initial value
-#     if action == "store_true":
-#         value = False
-#     elif action == "store_false":
-#         value = True
-#     elif action in ["value", "values"]:
-#         value = None
-#     else:
-#         raise ValueError(
-#             f"action {action} must be one of [store_true, store_false, value, values]"
-#         )
-
-#     out = []
-#     for arg in args:
-#         if check_for_flag(arg):
-#             value = process_value(arg)
-#         else:
-#             out.append(arg)
-
-#     return value, out
-
-
-# def parse_args_run_external(args):
-#     """Parse (and pop) for --run-external flag"""
-#     return parse_args_for_flag(args, flag="--run-external", action="store_true")
-
-
-# def parse_args_test_version(args):
-#     """Parse for flag --test-version=..."""
-#     return parse_args_for_flag(args, flag="--test-version", action="value")
-
-
-# def parse_args_pip_extras(args, default=None, join=True):
-#     """Parse for flag '--pip-extras=..."""
-#     extras, args = parse_args_for_flag(args, flag="--pip-extras", action="values")
-
-#     if extras:
-#         extras = set(extras)
-
-#     if default:
-#         if extras is None:
-#             extras = set()
-#         if isinstance(default, str):
-#             default = (default,)
-#         for d in default:
-#             extras.update(d.split(","))
-
-#     if extras and join:
-#         extras = ",".join(extras)
-
-#     return extras, args
-
-
-# def check_args_with_default(args, default=None):
-#     """If no args and have a default, place it in args."""
-#     if not args and default:
-#         if isinstance(default, str):
-#             default = default.split()
-#         args = default
-#     return args
-
-
-# def run_with_external_check(
-#     session, args=None, default=None, check_run_external=True, **kws
-# ):
-#     """
-#     Use session.run with session.posargs.
-#     Perform `seesion.run(*args)`, where `args` comes from posargs.
-#     If no posargs, then use default.
-#     Also, check for flag '--run-external'.  If present,
-#     call `session.run(*args, external=True)`
-#     """
-
-#     if args is None:
-#         args = session.posargs
-
-#     if check_run_external:
-#         external, args = parse_args_run_external(args)
-#     else:
-#         external = False
-
-#     args = check_args_with_default(args, default=default)
-
-# #     session.log(f"args {args}")
-# #     session.log(f"external {external}")
-# #     session.run(*args, external=external, **kws)
-
-
-## This should actually go in the noxfile.  Keeping here
-## in case want it again in the future.
-# @group.session(python=PYTHON_DEFAULT_VERSION)
-# def conda_merge(
-#     session: Session,
-#     conda_merge_force: bool = False,
-#     update: FORCE_REINSTALL_CLI = False,
-# ):
-#     """Merge environments using conda-merge."""
-#     import tempfile
-#     session_install_envs(
-#         session,
-#         reqs=["conda-merge", "ruamel.yaml"],
-#         update=update,
-#     )
-
-#     env_base = ROOT / "environment.yaml"
-#     env_dir = ROOT / "environment"
-
-#     def create_env(*extras, others=None, name=None, base=True):
-#         if name is None:
-#             name = extras[0]
-#         env = env_dir / f"{name}.yaml"
-
-#         deps = []
-#         if base:
-#             deps.append(str(env_base))
-#         for extra in extras:
-#             deps.append(str(env_dir / f"{extra}-extras.yaml"))
-
-#         if conda_merge_force or update_target(env, *deps):
-#             session.log(f"creating {env}")
-
-#             args = ["conda-merge"] + deps
-#             with tempfile.TemporaryDirectory() as d:
-#                 tmp_path = Path(d) / "tmp_env.yaml"
-
-#                 with tmp_path.open("w") as f:
-#                     session.run(*args, stdout=f)
-
-#                 run_str = dedent(
-#                     f"""
-#                 from ruamel.yaml import YAML; from pathlib import Path;
-#                 pin, pout = Path("{tmp_path}"), Path("{env}")
-#                 y = YAML(); y.indent(mapping=2, sequence=4, offset=2)
-#                 y.dump(y.load(pin.open("r")), pout.open("w"))
-#                 """
+#             r = Path(
+#                 infer_requirement_path(
+#                     name=self.envname,
+#                     python_version=python_version,
+#                     ext=".yaml" if self.is_conda() else ".txt",
+#                     lock=self.lock,
+#                     lock_fallback=self.lock_fallback,
 #                 )
+#             )
 
-#                 session.run("python", "-c", run_str, silent=True)
+#         self.requirements = r
 
-#     for extra in ["test", "docs"]:
-#         create_env(extra, base=True)
+#     def set_tmp_path(self, location: str) -> None:
+#         self.tmp_path = Path(location) / "tmp"
 
-#     create_env("test", "typing", name="typing", base=True)
-#     create_env("dev", "test", "typing", "nox", name="dev", base=True)
+#     def set_params_from_runner(self, runner: SessionRunner) -> None:
+#         self.set_opts(*runner.posargs)
+#         self.set_requirements(python_version=runner.func.python)
+#         self.set_tmp_path(location=runner.envdir)
+
+#     @property
+#     def hash_path(self) -> Path:
+#         if self.requirements is None:
+#             raise ValueError("trying to use hash_path with no requirements")
+#         return self.tmp_path / (self.requirements.name + ".hash.json")
+
+#     @property
+#     def config_path(self) -> Path:
+#         return self.tmp_path / "env.json"
+
+#     def create_conda_env(self, runner: SessionRunner, reuse_existing: bool) -> CondaEnv:
+#         venv = CondaEnv(
+#             location=runner.envdir,
+#             interpreter=runner.func.python,
+#             reuse_existing=reuse_existing,
+#             venv_params=runner.func.venv_params,
+#             conda_cmd=self.backend.replace("micro", ""),
+#         )
+#         if not self.requirements:
+#             venv.create()
+#             return venv
+
+#         create = venv._clean_location()
+
+#         with check_for_change_manager(
+#             self.requirements,
+#             hash_path=self.hash_path,
+#             force_write=create or self.update,
+#         ) as changed:
+#             if create:
+#                 cmds = ["create"]
+#             elif changed or self.update:
+#                 # recreate
+#                 self.config_path.unlink(missing_ok=True)
+#                 cmds = ["update", "--prune"]
+#             else:
+#                 # reuse
+#                 cmds = ["reuse"]
+#                 venv._reused = True
+
+#             # create environment
+#             cmd = cmds[0]
+#             logger.info(f"{cmd.capitalize()} conda environment in {venv.location_name}")
+#             if cmd != "reuse":
+#                 cmds = (
+#                     [self.backend, "env"]
+#                     # + ([] if self.backend == "micromamba" else ["env"])
+#                     + cmds
+#                     + [
+#                         "--yes",
+#                         "--prefix",
+#                         venv.location,
+#                         "--file",
+#                         str(self.requirements),
+#                     ]
+#                 )
+#                 if venv_params := runner.func.venv_params:
+#                     cmds.extend(venv_params)
+
+#                 logger.info(" ".join(cmds))
+#                 nox.command.run(cmds, silent=False, log=nox.options.verbose or False)
+#         return venv
+
+#     def __call__(
+#         self,
+#         location: str,
+#         interpreter: str | None,
+#         reuse_existing: bool,
+#         venv_params: Any,
+#         runner: SessionRunner,
+#     ) -> CondaEnv:
+#         self.set_params_from_runner(runner)
+
+#         if self.is_conda():
+#             return self.create_conda_env(runner=runner, reuse_existing=reuse_existing)
+#         else:
+#             raise ValueError
