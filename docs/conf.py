@@ -25,7 +25,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-sys.path.insert(0, Path("../src").resolve())
+sys.path.insert(0, str(Path("../src").resolve()))
 
 import pyproject2conda
 
@@ -123,6 +123,9 @@ nb_kernel_rgx_aliases = {
 }
 
 nb_execution_allow_errors = True
+
+# Whether to remove stderr
+nb_output_stderr = "remove"
 
 # - top level variables --------------------------------------------------------
 # set github_username variable to be subbed later.
@@ -337,9 +340,14 @@ html_static_path = ["_static"]
 # Sometimes the savefig directory doesn't exist and needs to be created
 # https://github.com/ipython/ipython/issues/8733
 # becomes obsolete when we can pin ipython>=5.2; see ci/requirements/doc.yml
-ipython_savefig_dir = Path(__file__).parent / "_build" / "html" / "_static"
-if not ipython_savefig_dir.is_dir():
-    ipython_savefig_dir.mkdir(parents=True)
+def get_ipython_savefig_dir() -> str:
+    d = Path(__file__).parent / "_build" / "html" / "_static"
+    if not d.is_dir():
+        d.mkdir(parents=True)
+    return d
+
+
+ipython_savefig_dir = get_ipython_savefig_dir()
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
