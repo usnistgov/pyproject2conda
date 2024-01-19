@@ -133,7 +133,7 @@ coverage: ## check code coverage quickly with the default Python
 ################################################################################
 .PHONY: version-scm version-import version
 
-version-scm: ## check/update version of package with setuptools-scm
+version-scm: ## check/update version of package from scm
 	nox -s build -- ++build version
 
 version-import: ## check version from python import
@@ -252,6 +252,10 @@ typing-notebook: mypy-notebook pyright-notebook ## run nbqa mypy/pyright
 .PHONY: pytest-nbval
 pytest-notebook:  ## run pytest --nbval
 	pytest --nbval --nbval-current-env --nbval-sanitize-with=config/nbval.ini --dist loadscope -x $(NOTEBOOKS)
+
+.PHONY: clean-kernelspec
+clean-kernelspec: ## cleanup unused kernels (assuming notebooks handled by conda environment notebook)
+	conda run -n notebook python tools/clean_kernelspec.py
 
 
 ################################################################################

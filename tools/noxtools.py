@@ -261,7 +261,7 @@ class Installer:
         pip constraint file(s) (pip install -c ...)
     config_path :
         Where to save env config for future comparison.  Defaults to
-        `session.create_tmp() / "env.json"`.
+        `session.virtualenv.location / "tmp" / "env.json"`.
     """
 
     def __init__(
@@ -287,7 +287,7 @@ class Installer:
         self.lock = lock
 
         if config_path is None:
-            config_path = Path(self.session.create_tmp()) / "env.json"
+            config_path = self.tmp_path / "env.json"
         else:
             config_path = Path(config_path)
         self.config_path = config_path
@@ -346,31 +346,6 @@ class Installer:
                     msg,
                 )
 
-        # if not self.is_conda_session():
-        #     if self.conda_deps or self.conda_yaml:
-        #         raise ValueError(
-        #             f"passing conda parameters to non conda session {self.conda_deps=} {self.conda_yaml=}"
-        #         )
-
-        # if self.lock:
-        #     if not self.is_conda_session():
-        #         if (not self.requirements) or self.pip_deps or self.constraints:
-        #             raise ValueError("Can only pass requirements for locked virtualenv")
-
-        #     else:
-        #         if self.conda_yaml is None:
-        #             raise ValueError("Must pass `conda_yaml=conda-lock-file`")
-        #         elif (
-        #             self.conda_deps
-        #             or self.channels
-        #             or self.pip_deps
-        #             or self.requirements
-        #             or self.constraints
-        #         ):
-        #             raise ValueError(
-        #                 "Can not pass conda_deps, channels, pip_deps, requirements, constraints if using conda-lock"
-        #             )
-
     @cached_property
     def config(self) -> dict[str, Any]:
         """Dictionary of relevant info for this session"""
@@ -415,8 +390,24 @@ class Installer:
         with self.config_path.open() as f:
             return json.load(f)  # type: ignore[no-any-return]
 
+    @cached_property
+    def tmp_path(self) -> Path:
+        """
+        Override session.create_tmp
+
+        If override venv.location, then create tmp will
+        not work correctly.  This will create a
+        directory `venv.location / tmp`
+        """
+        return Path(self.session.virtualenv.location) / "tmp"
+
+    def create_tmp_path(self) -> Path:
+        tmp = self.tmp_path
+        self.tmp_path.mkdir(parents=True, exist_ok=True)
+        return tmp
+
     def log_session(self) -> Self:
-        logfile = Path(self.session.create_tmp()) / "env_info.txt"
+        logfile = Path(self.create_tmp_path()) / "env_info.txt"
         self.session.log(f"writing environment log to {logfile}")
 
         with logfile.open("w") as f:
@@ -645,6 +636,8 @@ class Installer:
         assert isinstance(venv, CondaEnv)
 
         if venv._clean_location():  # pyright: ignore[reportPrivateUsage]
+            # Also clean out session tmp directory
+            # shutil.rmtree(self.session.create_tmp())
             cmd = "create"
         elif self.changed or update or self.update:
             cmd = "update"

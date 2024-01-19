@@ -1,8 +1,9 @@
 [build-system]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
 requires = [
-    "setuptools>=61.2",
-    "setuptools_scm[toml]>=8.0",
+    "hatch-fancy-pypi-readme",
+    "hatch-vcs",
+    "hatchling",
 ]
 
 [project]
@@ -12,6 +13,7 @@ keywords = [
     "pyproject2conda",
 ]
 license = { text = "NIST-PD" }
+license-files = { paths = ["LICENSE"] }
 authors = [{ name = "William P. Krekelberg", email = "wpk@nist.gov" }]
 requires-python = ">=3.8,<=3.12"
 classifiers = [
@@ -96,24 +98,16 @@ Homepage = "https://github.com/usnistgov/pyproject2conda"
 p2c = "pyproject2conda.cli:app"
 pyproject2conda = "pyproject2conda.cli:app"
 
-[tool.setuptools]
-zip-safe = true # if using mypy, must be False
-include-package-data = true
-license-files = ["LICENSE"]
+[tool.hatch.version]
+source = "vcs"
 
-[tool.setuptools.packages.find]
-namespaces = true
-where = ["src"]
-
-[tool.setuptools.dynamic]
-readme = { file = [
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE"
-], content-type = "text/markdown" }
-
-[tool.setuptools_scm]
-fallback_version = "999"
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+fragments = [
+    { path = "README.md" },
+    { path = "CHANGELOG.md" },
+    { path = "LICENSE" },
+]
 
 # * Linting --------------------------------------------------------------------
 
@@ -273,7 +267,7 @@ include = ["src/*"]
 [tool.coverage.paths]
 source = ["src/", ".nox/**/site-packages/"]
 
-# * Typing
+# * Typing ---------------------------------------------------------------------
 
 [tool.mypy]
 files = ["src", "tests"]

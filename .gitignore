@@ -103,6 +103,12 @@ ENV/
 # mypy
 .mypy_cache/
 
+# pytpe
+.pytype/
+
+# PDF output
+README.pdf
+
 # IDE settings
 .vscode/
 pyrightconfig.json

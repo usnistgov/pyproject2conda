@@ -288,7 +288,7 @@ def dev(
     session: Session,
     opts: SessionParams,
 ) -> None:
-    """Create development environment using either conda (dev) or virtualenv (dev-venv) in location ~/.venv"""
+    """Create development environment using either conda (dev) or virtualenv (dev-venv) in location `.venv`"""
 
     (
         Installer.from_envname(
@@ -887,7 +887,7 @@ def build(session: nox.Session, opts: SessionParams) -> None:
 
     for cmd in opts.build or ["build"]:
         if cmd == "version":
-            session.run("python", "-m", "setuptools_scm")
+            session.run("python", "-m", "hatchling", "version")
 
         elif cmd == "build":
             if Path(outdir := opts.build_outdir).exists():
