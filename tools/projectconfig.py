@@ -57,6 +57,7 @@ class ProjectConfig:
         env_extras: Mapping[str, Mapping[str, Any]] | None = None,
         copy: bool = True,
     ) -> Self:
+        """Create new object like current object."""
         return type(self)(
             python_paths=python_paths or self.python_paths,
             env_extras=env_extras or self.env_extras,
@@ -88,6 +89,7 @@ class ProjectConfig:
 
     @classmethod
     def from_path(cls, path: str | Path = "./config/userconfig.toml") -> Self:
+        """Create object from path."""
         path = Path(path)
 
         if path.exists():
@@ -101,6 +103,8 @@ class ProjectConfig:
         cls,
         path: str | Path = "./config/userconfig.toml",
     ) -> Self:
+        """Create object from path and environment variable."""
+
         def _get_python_paths_from_environ() -> list[str]:
             if python_paths_environ := os.environ.get("NOX_PYTHON_PATH"):
                 return python_paths_environ.split(":")
@@ -159,6 +163,7 @@ class ProjectConfig:
         return header + s
 
     def to_path(self, path: str | Path | None = None) -> str:
+        """Create output file."""
         s = self._params_to_string(
             python_paths=self.python_paths,
             env_extras=self.env_extras,
@@ -173,6 +178,7 @@ class ProjectConfig:
         return f"<ProjectConfig(python_paths={self.python_paths}, env_extras={self.env_extras})>"
 
     def expand_python_paths(self) -> list[str]:
+        """Expand wildcards in path"""
         from glob import glob
 
         paths: list[str] = []
@@ -185,6 +191,7 @@ class ProjectConfig:
         paths: list[str] | None,
         prepend: bool = True,
     ) -> None:
+        """Add path(s) to environment variable `PATH`"""
         if paths is None:
             paths = self.expand_python_paths()
         paths_str = ":".join(map(str, paths))
@@ -196,6 +203,7 @@ class ProjectConfig:
         add_paths_to_environ: bool = True,
         prepend: bool = True,
     ) -> dict[str, Any]:
+        """Create nox configuration."""
         config: dict[str, Any] = {}
 
         if self.python_paths:
@@ -213,6 +221,7 @@ class ProjectConfig:
 
 
 def glob_envs_to_paths(globs: list[str]) -> list[str]:
+    """Convert globbed environments to paths."""
     import fnmatch
 
     from .common_utils import get_conda_environment_map
@@ -228,6 +237,7 @@ def glob_envs_to_paths(globs: list[str]) -> list[str]:
 
 
 def main() -> None:
+    """Main runner."""
     import argparse
 
     p = argparse.ArgumentParser(description="Create the file config/userconfig.toml")
@@ -291,6 +301,6 @@ if __name__ == "__main__":
         # or
         #   $ python tools/create_python.py
         here = Path(__file__).absolute()
-        __package__ = here.parent.name  # noqa: A001
+        __package__ = here.parent.name
 
     main()

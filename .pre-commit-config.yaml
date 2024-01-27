@@ -28,9 +28,8 @@ repos:
       - id: sync-pre-commit-deps
 
   # * Pyproject-fmt
-  # NOTE: This is pretty different from prettier formatting.
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "1.5.3"
+    rev: "1.7.0"
     hooks:
       - id: pyproject-fmt
         args: ["--indent=4", "--keep-full-version"]
@@ -38,19 +37,17 @@ repos:
 
   # * Prettier
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v4.0.0-alpha.7"
+    rev: "v4.0.0-alpha.8"
     hooks:
       - id: prettier
         alias: markdownlint
         stages: [commit]
         additional_dependencies:
           - prettier-plugin-toml
-        # defer to project-fmt for pyproject.toml
-        exclude: pyproject.toml|^requirements/lock/.*[.]yml|^.copier-answers.ya?ml
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.11.0
+    rev: v0.12.1
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -63,35 +60,60 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies:
-          - black==23.11.0
-        # exclude: ^README.md
+          - black==24.1.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.1.8"
+    rev: "v0.1.14"
     hooks:
       - id: ruff
+        types_or: ["python", "pyi", "jupyter"]
         args: ["--fix", "--show-fixes"]
       - id: ruff-format
-
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
-    hooks:
-      - id: nbqa-ruff
-        additional_dependencies: [ruff==0.1.8]
-        # Replace with builtin if/when available
-      - id: nbqa
-        alias: nbqa-ruff-format
-        name: nbqa-ruff-format
-        additional_dependencies: [ruff==0.1.8]
-        args: ["ruff format --force-exclude"]
+        types_or: ["python", "pyi", "jupyter"]
 
   # * Spelling
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
       - id: codespell
-        types_or: [python, rst, markdown, cython, c, jupyter]
         additional_dependencies: [tomli]
-        args: [-I, docs/spelling_wordlist.txt]
+        args: ["-I", "docs/spelling_wordlist.txt"]
+        exclude_types: [jupyter]
+
+  # * Notebook formatting
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.1
+    hooks:
+      - id: nbqa
+        alias: nbqa-codespell
+        name: nbqa-codespell
+        additional_dependencies: [codespell==2.2.6, tomli]
+        args:
+          [
+            "codespell",
+            "--ignore-words=docs/spelling_wordlist.txt",
+            "--nbqa-shell",
+          ]
+      - id: nbqa
+        alias: nbqa-codespell
+        name: nbqa-codespell-markdown
+        additional_dependencies: [codespell==2.2.6, tomli]
+        args:
+          [
+            "codespell",
+            "--ignore-words=docs/spelling_wordlist.txt",
+            "--nbqa-md",
+            "--nbqa-shell",
+          ]
+
+      # Use ruff for this instead ...
+      # - id: nbqa-ruff
+      #   additional_dependencies: [ruff==0.1.14]
+      #   # Replace with builtin if/when available
+      # - id: nbqa
+      #   alias: nbqa-ruff-format
+      #   name: nbqa-ruff-format
+      #   additional_dependencies: [ruff==0.1.14]
+      #   args: ["ruff format --force-exclude"]
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen

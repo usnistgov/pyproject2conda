@@ -278,6 +278,37 @@ def test_config_only_default() -> None:
         assert list(c.iter_envs()) == expected
 
 
+def test_config_errors() -> None:
+    s = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+
+    [tool.pyproject2conda.envs.test]
+    extras = true
+    """
+
+    # raise error for bad env
+    c = Config.from_string(s)
+    with pytest.raises(ValueError):
+        c.channels(env_name="hello")
+
+    s1 = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+
+    [tool.pyproject2conda.envs.test]
+    style = "thing"
+    """
+
+    # raise error for bad env
+    c = Config.from_string(s1)
+    with pytest.raises(ValueError):
+        c.style(env_name="test")
+
+    with pytest.raises(ValueError):
+        list(c.iter_envs())
+
+
 def test_config_overrides() -> None:
     # test overrides env
     s = """
@@ -460,12 +491,39 @@ def test_config_user_config() -> None:
 
     assert list(c.iter_envs()) == expected
 
+    # bad user
+    s_user2 = """
+    [[tool.pyproject2conda.envs]]
+    extras = ["a", "b"]
+    python = "3.9"
+
+    [[tool.pyproject2conda.overrides]]
+    envs = ["test"]
+    base = false
+    """
+
+    with pytest.raises(TypeError):
+        c = Config.from_string(s, s_user2)
+
+    s_user2 = """
+    [tool.pyproject2conda.envs]
+    extras = ["a", "b"]
+    python = "3.9"
+
+    [tool.pyproject2conda.overrides]
+    envs = ["test"]
+    base = false
+    """
+
+    with pytest.raises(TypeError):
+        c = Config.from_string(s, s_user2)
+
     # blank config, only user
-    s = """
+    s2 = """
     [tool.pyproject2conda]
     """
 
-    c = Config.from_string(s, s_user)
+    c = Config.from_string(s2, s_user)
 
     assert c.data == {
         "envs": {"user": {"extras": ["a", "b"], "python": "3.9"}},

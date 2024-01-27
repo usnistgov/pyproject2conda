@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 # * Comment parsing --------------------------------------------------------------------
 @lru_cache
 def p2c_argparser() -> argparse.ArgumentParser:
+    """Parser for p2c comment options."""
     parser = argparse.ArgumentParser(
         description="Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES'"
     )
@@ -58,7 +59,6 @@ def _match_p2c_comment(comment: OptStr) -> OptStr:
 
 def _parse_p2c(match: OptStr) -> OverrideDict | None:
     """Parse match from _match_p2c_comment"""
-
     if match:
         return cast(OverrideDict, vars(p2c_argparser().parse_args(shlex.split(match))))
     return None
@@ -111,6 +111,7 @@ class OverrideDeps:
     def from_comment(
         cls, comment: str | None, default: OverrideDict | None = None
     ) -> Self | None:
+        """Create from comment."""
         parsed = _parse_p2c_comment(comment)
 
         kws: OverrideDict
@@ -131,6 +132,7 @@ class OverrideDeps:
         requirement_comment_pairs: list[RequirementCommentPair],
         override_table: dict[str, OverrideDict],
     ) -> list[RequirementOverridePair]:
+        """Create from override pairs."""
         out: list[RequirementOverridePair] = []
         for requirement, comment in requirement_comment_pairs:
             if requirement is not None:

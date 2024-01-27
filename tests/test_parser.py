@@ -301,6 +301,62 @@ def test_pip_requirements() -> None:
     assert d.to_requirements(pip_deps="hello") == expected
 
 
+def test_bad_comment_pip() -> None:
+    toml = dedent(
+        """\
+    [project]
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    # p2c: -p # a comment
+    "bthing", # p2c: -s bthing-conda
+    "cthing; python_version<'3.10'", # p2c: -c conda-forge
+    ]
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    with pytest.raises(TypeError):
+        assert d.to_conda_yaml()
+
+
+def test_bad_comment_conda() -> None:
+    toml = dedent(
+        """\
+    [project]
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    "athing",
+    # p2c: -c hello
+    ]
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    with pytest.raises(TypeError):
+        assert d.to_conda_yaml()
+
+
+def test_to_conda_requirements_error() -> None:
+    toml = dedent(
+        """\
+    [project]
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    "athing", # p2c: -p # a comment
+    "bthing", # p2c: -s bthing-conda
+    "cthing; python_version<'3.10'", # p2c: -c conda-forge
+    ]
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    with pytest.raises(ValueError):
+        d.to_conda_requirements(channels=["hello", "there"], prepend_channel=True)
+
+
 def test_package_name() -> None:
     toml = dedent(
         """\

@@ -151,7 +151,7 @@ def _iter_value_comment_pairs(
     array: tomlkit.items.Array,
 ) -> Generator[tuple[OptStr, OptStr], None, None]:
     """Extract value and comments from array"""
-    for v in array._value:  # pyright: ignore[reportPrivateUsage]
+    for v in array._value:  # pyright: ignore[reportPrivateUsage]  # noqa: SLF001
         if v.value is not None and not isinstance(v.value, tomlkit.items.Null):
             value = str(v.value)
         else:
@@ -334,12 +334,14 @@ class ParseDepends:
     def get_in(
         self, *keys: str, default: Any = None, factory: Callable[[], Any] | None = None
     ) -> Any:
+        """Generic getter."""
         return get_in(
             keys=keys, nested_dict=self.data, default=default, factory=factory
         )
 
     @cached_property
     def package_name(self) -> str:
+        """Clean name of package."""
         if (out := self.get_in("project", "name")) is None:
             msg = "Must specify `project.name`"
             raise ValueError(msg)
@@ -377,11 +379,13 @@ class ParseDepends:
 
     @cached_property
     def override_table(self) -> dict[str, OverrideDict]:
+        """tool.pyproject2conda.dependencies"""
         out = self.get_in("tool", "pyproject2conda", "dependencies", default=MISSING)
         return cast("dict[str, OverrideDict]", {} if out is MISSING else out.unwrap())
 
     @cached_property
     def channels(self) -> list[str]:
+        """tool.pyproject2conda.channels"""
         channels_doc = self.get_in("tool", "pyproject2conda", "channels")
         if channels_doc:
             channels = channels_doc.unwrap()
@@ -393,6 +397,7 @@ class ParseDepends:
 
     @property
     def extras(self) -> list[str]:
+        """build-system.requires"""
         return [*self.optional_dependencies.keys(), "build-system.requires"]
 
     @cached_property
@@ -503,6 +508,7 @@ class ParseDepends:
         remove_whitespace: bool = True,
         sort: bool = True,
     ) -> list[str]:
+        """Pip dependencies."""
         self._check_extras(extras)
 
         out: list[str] = [
@@ -521,7 +527,7 @@ class ParseDepends:
             out, remove_whitespace=remove_whitespace, unique=unique, sort=sort
         )
 
-    def conda_and_pip_requirements(  # noqa: C901
+    def conda_and_pip_requirements(  # noqa: C901, PLR0912
         self,
         extras: str | Iterable[str] | None = None,
         include_base: bool = True,
@@ -533,6 +539,8 @@ class ParseDepends:
         python_version: str | None = None,
         python_include: str | None = None,
     ) -> tuple[list[str], list[str]]:
+        """Conda and pip requirements."""
+
         def _init_deps(deps: str | Iterable[str] | None) -> list[str]:
             if deps is None:
                 return []
@@ -559,10 +567,15 @@ class ParseDepends:
         ):
             if override is not None:
                 if override.pip:
-                    assert requirement is not None
+                    if requirement is None:
+                        msg = "requirement is None"
+                        raise TypeError(msg)
                     pip_deps.append(str(requirement))
+
                 elif not override.skip:
-                    assert requirement is not None
+                    if requirement is None:
+                        msg = "requirement is None"
+                        raise TypeError(msg)
 
                     r = _clean_conda_requirement(
                         requirement,
@@ -625,6 +638,7 @@ class ParseDepends:
         unique: bool = True,
         allow_empty: bool = False,
     ) -> str:
+        """Create yaml string."""
         self._check_extras(extras)
 
         conda_deps, pip_deps = self.conda_and_pip_requirements(
@@ -666,6 +680,7 @@ class ParseDepends:
         allow_empty: bool = False,
         remove_whitespace: bool = True,
     ) -> str:
+        """Create requirements string."""
         pip_deps = self.pip_requirements(
             extras=extras,
             include_base=include_base,
@@ -699,6 +714,7 @@ class ParseDepends:
         pip_deps: str | Iterable[str] | None = None,
         remove_whitespace: bool = True,
     ) -> tuple[str, str]:
+        """Create conda and pip requirements files."""
         conda_deps, pip_deps = self.conda_and_pip_requirements(
             extras=extras,
             include_base=include_base,
@@ -719,7 +735,9 @@ class ParseDepends:
             channels = self.channels
 
         if conda_deps and channels and prepend_channel:
-            assert len(channels) == 1
+            if len(channels) != 1:
+                msg = "Can only pass single channel to prepend."
+                raise ValueError(msg)
             channel = channels[0]
             # add in channel if none exists
             conda_deps = [
@@ -742,11 +760,13 @@ class ParseDepends:
         cls,
         toml_string: str,
     ) -> Self:
+        """Create object from string."""
         data = tomlkit.parse(toml_string)
         return cls(data=data)
 
     @classmethod
     def from_path(cls, path: str | Path) -> Self:
+        """Create object from path."""
         with Path(path).open("rb") as f:
             data = tomlkit.load(f)
         return cls(data=data)

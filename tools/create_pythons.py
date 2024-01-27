@@ -4,7 +4,9 @@ from __future__ import annotations
 import sys
 from functools import lru_cache
 
-assert sys.version_info >= (3, 9)
+if sys.version_info < (3, 9):
+    msg = "Requires python >= 3.9"
+    raise RuntimeError(msg)
 
 import logging
 
@@ -14,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 @lru_cache
 def conda_cmd() -> str:
+    """Get conda/mamba command."""
     import shutil
 
     if shutil.which("mamba"):
@@ -31,6 +34,7 @@ def create_env_from_spec(
     spec: str | list[str],
     flags: str | list[str] | None = None,
 ) -> None:
+    """Create environment from spec."""
     import shlex
     import subprocess
 
@@ -41,7 +45,7 @@ def create_env_from_spec(
         flags = " ".join(flags)
 
     cmd = f"{conda_cmd()} create -n {env_name} {flags} {spec} "
-    logging.info(f"running {cmd}")
+    logging.info("running %s", cmd)
 
     out = subprocess.check_call(shlex.split(cmd))
     if out != 0:
@@ -55,6 +59,7 @@ def create_environments(
     flags: str | list[str] | None = None,
     env_map: dict[str, str] | None = None,
 ) -> None:
+    """Create environment."""
     if versions is None:
         versions = ["3.8", "3.9", "3.10", "3.11"]
 
@@ -67,10 +72,11 @@ def create_environments(
         if env_map and env_name in env_map:
             # environment exists
             logging.info(
-                f"Skipping environment {env_name}.  Pass `--no-skip` to force recreation.",
+                "Skipping environment %s.  Pass `--no-skip` to force recreation.",
+                env_name,
             )
         else:
-            logging.info(f"Creating environment {env_name}.")
+            logging.info("Creating environment %s.", env_name)
 
             spec = f"python={version}"
             create_env_from_spec(
@@ -81,6 +87,7 @@ def create_environments(
 
 
 def main() -> None:
+    """Main runner."""
     import argparse
 
     p = argparse.ArgumentParser(
@@ -132,7 +139,7 @@ def main() -> None:
     if args.verbose:
         logger.setLevel(logging.INFO)
 
-    logging.info(f"{args=}")
+    logging.info(f"{args=}")  # noqa: G004
 
     flags: list[str] = []
     if args.yes:
@@ -164,6 +171,6 @@ if __name__ == "__main__":
         from pathlib import Path
 
         here = Path(__file__).absolute()
-        __package__ = here.parent.name  # noqa: A001
+        __package__ = here.parent.name
 
     main()

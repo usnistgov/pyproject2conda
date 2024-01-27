@@ -76,7 +76,7 @@ def version_callback(value: bool) -> None:
     """Versioning call back."""
     if value:
         typer.echo(f"pyproject2conda, version {__version__}")
-        raise typer.Exit()
+        raise typer.Exit
 
 
 @app_typer.callback()
@@ -376,7 +376,9 @@ def _get_requirement_parser(filename: Union[str, Path]) -> ParseDepends:
 def _log_skipping(
     logger: logging.Logger, style: str, output: Union[str, Path, None]
 ) -> None:
-    logger.info(f"Skipping {style} {output}. Pass `-w force` to force recreate output")
+    logger.info(
+        "Skipping %s %s. Pass `-w force` to force recreate output", style, output
+    )
 
 
 def _log_creating(
@@ -430,9 +432,8 @@ def add_verbose_logger(
             # add error logger to function call
             try:
                 return func(*args, **kwargs)
-            except Exception as error:
-                # logger.exception(str(error))
-                logger.error(str(error))
+            except Exception:
+                logger.exception("found error")
                 raise
 
         return wrapped
@@ -450,8 +451,7 @@ def create_list(
     verbose: VERBOSE_CLI = None,
 ) -> None:
     """List available extras."""
-
-    logger.info(f"filename: {filename}")
+    logger.info("filename: %s", filename)
 
     d = _get_requirement_parser(filename)
 
@@ -486,7 +486,6 @@ def yaml(
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
-
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return
@@ -541,7 +540,6 @@ def requirements(
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create requirements.txt for pip dependencies."""
-
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "requirements", output)
         return
@@ -663,7 +661,6 @@ def conda_requirements(
     conda install --file {path_conda}
     pip install -r {path_pip}
     """
-
     python_include, python_version = parse_pythons(
         python_include=python_include,
         python_version=python_version,
@@ -733,7 +730,6 @@ def to_json(
     "pip": pip dependencies.
     "channels": conda channels.
     """
-
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return

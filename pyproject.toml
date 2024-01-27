@@ -101,6 +101,11 @@ pyproject2conda = "pyproject2conda.cli:app"
 [tool.hatch.version]
 source = "vcs"
 
+[tool.hatch.build]
+exclude = [
+  ".*_cache",
+]
+
 [tool.hatch.metadata.hooks.fancy-pypi-readme]
 content-type = "text/markdown"
 fragments = [
@@ -114,144 +119,94 @@ fragments = [
 [tool.ruff]
 fix = true
 line-length = 88
-target-version = "py38"
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".nox",
+# Handle notebooks as well
+extend-include = ["*.ipynb"]
+extend-exclude = [
     ".venv",
-    "venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
+    "dist-conda",
     # "tests/",
     # "src/pyproject2conda/tests",
 ]
 unsafe-fixes = true
 
 [tool.ruff.lint]
+# use nbqa for ruff linting
 preview = true
-select = [
-    "F",     # - pyflakes
-    "E",     # - pycodestyle
-    "W",     # - pycodestyle
-    "I",     # - isort
-    "UP",    # - pyupgrade
-    "D",     # - pydocstyle
-    "YTT",   # - flake8-2020
-    "B",     # - flake8-bugbear
-    "Q",     # - flake8-quotes
-    "PLC",   # - pylint
-    "PLE",   # - pylint
-    "PLR",   # - pylint
-    "PLW",   # - pylint
-    "PIE",   # - misc lints
-    "TID",   # - tidy imports
-    "TCH",   # - type-checking imports
-    "N",     # - pep8-naming
-    "C90",   # - mccabe
-    "ANN",   # - flake8-annotation
-    "BLE",   # - flake8-blind-except
-    "A",     # - flake8-builtins
-    "C4",    # - flake8-comprehensions
-    "EM",    # - flake8-errmsg
-    "FA",    # - flake8-future-annotations
-    "ICN",   # - flake8-import-conventions
-    "T20",   # - flake8-print
-    "PT",    # - flake8-pytest-style
-    "RET",   # - flake8-return
-    "SIM",   # - flake8-simplify
-    "ARG",   # - flake8-unused-arguments
-    "PTH",   # - flake8-use-pathlib
-    "TD",    # - flake8-todos
-    "FIX",   # - flake8-fixme
-    "PGH",   # - pygrep-hooks
-    "FLY",   # - flynt
-    "PERF",  # - Perflint
-    "FURB",  # - refurb
-    "LOG",   # - flake8-loggin
-    "RUF",   # - ruff specific
-    # Possibly useful?
-    # "G",   # - flake8-logging-format
-    # "ERA", # - eradicate
-    # "PD",  # - pandas-vet
-    # "NPY", # - numpy-specific-rules
-    # Overkill
-    # "SLF", # - flake8-self
-    # These conflict with formatter
-    # "COM", # - flake8-commas
-    # "ISC", # - flake8-implicit-str-concat
-
-]
+select = ["ALL"]
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 # fixable = ["A", "B", "C", "D", "E", "F", "..."]
-unfixable = []
+# unfixable = []
 # Exclude a variety of commonly ignored directories.
 ignore = [
-    "E402",   # - module level import not at top of file
-    "E501",   # - line too long - let black worry about that
-    "E731",   # - do not assign a lambda expression, use a def
-    "D105",   # - Missing magic method docstring
-    "D202",   # - blank line after docstring
-    "D205",   # - blank line after summary
-    # this leads to errors with placing titles in module
-    "D102",   # - Missing docstring in public method
-    "D103",   # - Missing docstring in public function
-    "D400",   # - First line should end with a period
-    "D401",   # - First line of docstring should be in imperative mood: "{first_line}"
-    "D415",   # - First line should end with a period, question mark, or exclamation point
-    # these are useful, but too many errors with docfiller
-    "D107",   # - Missing docstring in __init__
-    "D203",   # - 1 blank line required before class docstring
-    "D212",   # - Multi-line docstring summary should start at the first line
-    "D417",   # - Missing argument description in the docstring for {definition}: {name}
-    "TID252", # - Allow relative imports
-    # New
-    "ANN101",
-    "ANN102",
-    "ANN401",
-    # pylint
-    "PLR2004",
-    # "PLR0913",
-    # "PLR0917",
-    "PLC0415", # - import should be at top level (leads to issues with imports in func?)
+    "PD",        # - not using pandas?
+    "NPY",       # - not using numpy?
+    "CPY",       # - Don't require copyright
+    "ERA",       # - eradicate (want to keep some stuff)
+    "FBT",       # - bools are ok
+    # * Annotations
+    # "SLF001",  # - flake8-self (private access sometimes OK)
+    # "ANN",     # - Annotations (just use mypy/pyright)
+    "ANN101",    # - Leads to issues with methods and self
+    "ANN102",    # - Leads to issues with classmethods and cls
+    "ANN401",    # - Any ok sometimes
+    # * pylint
+    # "PLR2004", # - numbers in comparison sometimes ok
+    # "PLR0913", # - complexity sometimes ok
+    # "PLR0917", # - complexity sometimes ok
+    # * Allow non top level imports
+    "PLC0415",   # - import should be at top level (leads to issues with imports in func?)
+    "TID252",    # - Allow relative imports
+    "E402",      # - module level import not at top of file
+    # * Other
+    "E501",      # - line too long - let formatter fix this
+    "E731",      # - do not assign a lambda expression, use a def
+    # * Docstrings
+    "D105",      # - Missing magic method docstring
+    "D205",      # - blank line after summary
+    # * This leads to errors with placing titles in module
+    # "D102",    # - Missing docstring in public method
+    # "D103",    # - Missing docstring in public function
+    "D400",      # - First line should end with a period
+    "D401",      # - First line of docstring should be in imperative mood: "{first_line}"
+    "D415",      # - First line should end with a period, question mark, or exclamation point
+    # * Not a fan of these.  And lead to issues with docfiller
+    # "D202",    # - blank line after docstring
+    "D107",      # - Missing docstring in __init__
+    "D203",      # - 1 blank line required before class docstring
+    "D212",      # - Multi-line docstring summary should start at the first line
+    "D417",      # - Missing argument description in the docstring for {definition}: {name} (bad with docfiller)
+    # * These conflict with formatter
+    "COM",       # - flake8-commas, formatter should take care of this?
+    "ISC",       # - flake8-implicit-str-concat
 ]
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
 [tool.ruff.lint.pylint]
 max-args = 15
 max-positional-args = 15
 max-public-methods = 30
 
-
 [tool.ruff.lint.per-file-ignores]
+"docs/conf.py" = ["INP001"]
+"tests/*.py" = ["D", "S101"]
 "noxfile.py" = ["RUF009"]
-"tools/dataclass_parser.py" = ["A002", "A003"]
-"**/cli.py" = ["FA100", "ARG001", "T201", "PLR0913", "PLR0917"]
-"tests/*.py" = ["D100", "ANN", "PT011"]
+"tools/*.py" = ["S", "A", "SLF001"]
+"**/*.ipynb" = ["D100", "B018", "INP001"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/*.py" = ["ANN", "PT011", "PLC2701", "PLR2004"]
+"**/cli.py" = ["FA100", "ARG001", "T201", "PLR0913", "PLR0917", "D102"]
+"tools/cog_utils.py" = ["D"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pyproject2conda"]
 
 [tool.ruff.format]
 docstring-code-format = true
-
-[tool.nbqa.addopts]
-ruff = ["--fix", "--extend-ignore=D100,B018"]
 
 # * Testing --------------------------------------------------------------------
 
