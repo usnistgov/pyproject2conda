@@ -6,17 +6,17 @@
 #
 appnope==0.1.3
     # via ipykernel
-argcomplete==3.1.6
+argcomplete==3.2.2
     # via nox
 asttokens==2.4.1
     # via stack-data
 click==8.1.7
     # via typer
-colorlog==6.7.0
+colorlog==6.8.2
     # via nox
-comm==0.2.0
+comm==0.2.1
     # via ipykernel
-coverage==7.3.2
+coverage==7.4.1
     # via
     #   coverage
     #   pytest-cov
@@ -24,7 +24,7 @@ debugpy==1.8.0
     # via ipykernel
 decorator==5.1.1
     # via ipython
-distlib==0.3.7
+distlib==0.3.8
     # via virtualenv
 execnet==2.0.2
     # via pytest-xdist
@@ -34,9 +34,9 @@ filelock==3.13.1
     # via virtualenv
 iniconfig==2.0.0
     # via pytest
-ipykernel==6.27.1
+ipykernel==6.29.0
     # via -r requirements/dev.txt
-ipython==8.18.1
+ipython==8.20.0
     # via
     #   -r requirements/dev.txt
     #   ipykernel
@@ -44,7 +44,7 @@ jedi==0.19.1
     # via ipython
 jupyter-client==8.6.0
     # via ipykernel
-jupyter-core==5.5.0
+jupyter-core==5.7.1
     # via
     #   ipykernel
     #   jupyter-client
@@ -52,11 +52,11 @@ matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
-mypy==1.7.1
+mypy==1.8.0
     # via -r requirements/dev.txt
 mypy-extensions==1.0.0
     # via mypy
-nest-asyncio==1.5.8
+nest-asyncio==1.6.0
     # via ipykernel
 nox==2023.4.22
     # via -r requirements/dev.txt
@@ -71,15 +71,15 @@ parso==0.8.3
     # via jedi
 pexpect==4.9.0
     # via ipython
-platformdirs==4.0.0
+platformdirs==4.1.0
     # via
     #   jupyter-core
     #   virtualenv
-pluggy==1.3.0
+pluggy==1.4.0
     # via pytest
-prompt-toolkit==3.0.41
+prompt-toolkit==3.0.43
     # via ipython
-psutil==5.9.6
+psutil==5.9.8
     # via ipykernel
 ptyprocess==0.7.0
     # via pexpect
@@ -87,7 +87,7 @@ pure-eval==0.2.2
     # via stack-data
 pygments==2.17.2
     # via ipython
-pytest==7.4.3
+pytest==7.4.4
     # via
     #   -r requirements/dev.txt
     #   pytest-accept
@@ -104,7 +104,7 @@ pytest-xdist==3.5.0
     # via -r requirements/dev.txt
 python-dateutil==2.8.2
     # via jupyter-client
-pyzmq==25.1.1
+pyzmq==25.1.2
     # via
     #   ipykernel
     #   jupyter-client
@@ -124,7 +124,7 @@ tornado==6.4
     # via
     #   ipykernel
     #   jupyter-client
-traitlets==5.14.0
+traitlets==5.14.1
     # via
     #   comm
     #   ipykernel
@@ -136,11 +136,11 @@ typer==0.9.0
     # via -r requirements/dev.txt
 types-click==7.1.8
     # via -r requirements/dev.txt
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   mypy
     #   typer
 virtualenv==20.25.0
     # via nox
-wcwidth==0.2.12
+wcwidth==0.2.13
     # via prompt-toolkit

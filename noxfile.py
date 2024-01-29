@@ -182,6 +182,7 @@ class SessionParams(DataclassParser):
     )
     pip_compile_opts: OPT_TYPE = add_option(help="options to pip-compile")
     pip_compile_run: RUN_ANNO = None
+    pip_compile_run_internal: RUN_ANNO = None
 
     # test
     test_no_pytest: bool = False
@@ -459,11 +460,15 @@ def conda_lock(
 
 @nox.session(name="pip-compile", **ALL_KWS)
 @add_opts
-def pip_compile(
+def pip_compile(  # noqa: C901
     session: Session,
     opts: SessionParams,
 ) -> None:
-    """Run pip-compile."""
+    """Run pip-compile.
+
+    Note that this session is also used to run pip-sync with correct python version for
+    tests/typing/etc.
+    """
     runner = Installer(
         session=session,
         pip_deps=["pip-tools"],
@@ -473,6 +478,10 @@ def pip_compile(
     if opts.pip_compile_run:
         # run commands and exit
         runner.run_commands(opts.pip_compile_run)
+        return
+
+    if opts.pip_compile_run_internal:
+        runner.run_commands(opts.pip_compile_run_internal, external=False)
         return
 
     options = opts.pip_compile_opts or []

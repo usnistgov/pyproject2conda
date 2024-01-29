@@ -12,7 +12,6 @@ ipython
 mypy>=1.4.1
 nox
 packaging
-pip-tools
 pre-commit
 pyright
 pytest

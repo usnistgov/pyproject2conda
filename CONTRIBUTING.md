@@ -503,7 +503,6 @@ like to install them in the development environment instead, use the
 
 Additional tools are:
 
-- [pip-tools]
 - [pre-commit]
 - [scriv]
 - [nbqa]
@@ -515,7 +514,6 @@ Additional tools are:
 These are setup using the following:
 
 ```console
-condax/pipx install pip-tools
 condax/pipx install pre-commit
 pipx install scriv
 condax/pipx install nbqa

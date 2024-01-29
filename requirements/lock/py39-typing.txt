@@ -4,7 +4,7 @@
 #
 #    pip-compile --allow-unsafe --output-file=requirements/lock/py39-typing.txt --strip-extras requirements/typing.txt
 #
-attrs==23.1.0
+attrs==23.2.0
     # via pytype
 click==8.1.7
     # via typer
@@ -14,13 +14,13 @@ importlab==0.8.1
     # via pytype
 iniconfig==2.0.0
     # via pytest
-jinja2==3.1.2
+jinja2==3.1.3
     # via pytype
 libcst==1.1.0
     # via pytype
-markupsafe==2.1.3
+markupsafe==2.1.4
     # via jinja2
-mypy==1.7.1
+mypy==1.8.0
     # via -r requirements/typing.txt
 mypy-extensions==1.0.0
     # via
@@ -36,17 +36,17 @@ packaging==23.2
     # via
     #   -r requirements/typing.txt
     #   pytest
-pluggy==1.3.0
+pluggy==1.4.0
     # via pytest
 pycnite==2023.10.11
     # via pytype
-pydot==1.4.2
+pydot==2.0.0
     # via pytype
 pyparsing==3.1.1
     # via pydot
-pytest==7.4.3
+pytest==8.0.0
     # via -r requirements/typing.txt
-pytype==2023.11.29 ; python_version < "3.11"
+pytype==2024.1.24 ; python_version < "3.11"
     # via -r requirements/typing.txt
 pyyaml==6.0.1
     # via libcst
@@ -65,7 +65,7 @@ typer==0.9.0
     # via -r requirements/typing.txt
 types-click==7.1.8
     # via -r requirements/typing.txt
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   libcst
     #   mypy

@@ -619,8 +619,15 @@ class Installer:
             # # Playing with using pip-sync.
             # # Not sure its worth it?
             if self.lock:
-                self.session.run_always("which", "pip-sync", external=True)
+                # Using pip-compile-{python_version} session.
+                if not isinstance(self.session.python, str):
+                    raise TypeError
                 self.session.run_always(
+                    "nox",
+                    "-s",
+                    f"pip-compile-{self.session.python}",
+                    "--",
+                    "++pip-compile-run-internal",
                     "pip-sync",
                     "--python-executable",
                     self.python_full_path,
@@ -629,6 +636,23 @@ class Installer:
                     external=True,
                 )
 
+                # Using central pip-sync
+                # The above fixes an fixes issue with using pip-sync on already
+                # created environments with dependencies like
+                # "thing; python_version < '3.9'".  For some reason
+                # the below will work fine on creation, but will not work
+                # correctly (python_version is not that of
+                # `--python-executable`, but that behind pip-sync).
+                #
+                # self.session.run_always("which", "pip-sync", external=True)
+                # self.session.run_always(
+                #     "pip-sync",
+                #     "--python-executable",
+                #     self.python_full_path,
+                #     *map(str, self.requirements),
+                #     silent=True,
+                #     external=True,
+                # )
             else:
                 install_args: list[str] = (
                     prepend_flag("-r", *map(str, self.requirements))
