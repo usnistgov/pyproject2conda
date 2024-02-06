@@ -246,7 +246,9 @@ class SessionParams(DataclassParser):
     build_silent: bool = False
 
     # publish
-    publish: list[Literal["release", "test"]] | None = add_option("-p", "--publish")
+    publish: list[Literal["release", "test", "check"]] | None = add_option(
+        "-p", "--publish"
+    )
     publish_run: RUN_ANNO = None
 
     # conda-recipe/grayskull
@@ -985,6 +987,9 @@ def publish(session: nox.Session, opts: SessionParams) -> None:
 
         elif cmd == "release":
             session.run("twine", "upload", "dist/*")
+
+        elif cmd == "check":
+            session.run("twine", "check", "--strict", "dist/*")
 
 
 # # ** Dist conda

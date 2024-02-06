@@ -211,13 +211,30 @@ known-first-party = ["pyproject2conda"]
 [tool.ruff.format]
 docstring-code-format = true
 
+[tool.check-wheel-contents]
+toplevel = ["pyproject2conda"]
+src_dir = ["src"]
+
 # * Testing --------------------------------------------------------------------
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --doctest-glob='*.md' --pyargs"
-testpaths = ["pyproject2conda", "tests", "README.md"]
+addopts = [
+    "--doctest-modules",
+    "--doctest-glob=*.md",
+    "--pyargs",
+    "--cov-config=pyproject.toml",
+]
+testpaths = [
+    "pyproject2conda",
+    "README.md",
+    "tests",
+]
+
+[tool.coverage.run]
+branch = true
 
 [tool.coverage.report]
+show_missing = true
 exclude_also = ["if TYPE_CHECKING:", "@overload"]
 omit = ["*/vendored/*", "*/_typing.py", "*/__main__.py"]
 include = ["src/*"]

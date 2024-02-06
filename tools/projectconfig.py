@@ -14,7 +14,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Mapping
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    import sys
+
+    if sys.version_info < (3, 11):
+        from typing_extensions import Self
+    else:
+        from typing import Self
 
 
 class ProjectConfig:
