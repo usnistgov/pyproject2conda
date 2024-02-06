@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 import filecmp
+import logging
 import tempfile
 
 # from typer.testing import CliRunner
@@ -542,8 +543,10 @@ def test_version() -> None:
     )
 
 
-def test_multiple() -> None:
+def test_multiple(caplog) -> None:
     runner = CliRunner()
+
+    caplog.set_level(logging.INFO)
 
     t1 = tempfile.TemporaryDirectory()
     path1 = t1.name
@@ -558,11 +561,25 @@ def test_multiple() -> None:
         f"{path1}/" + "{env}",
     )
 
+    assert "Creating" in caplog.text
+
     # running this again?
     do_run(
         runner,
         "project",
         "-v",
+        "--template-python",
+        f"{path1}/" + "py{py}-{env}",
+        "--template",
+        f"{path1}/" + "{env}",
+    )
+
+    assert "Skipping requirements" in caplog.text
+
+    # run again no verbose:
+    do_run(
+        runner,
+        "project",
         "--template-python",
         f"{path1}/" + "py{py}-{env}",
         "--template",

@@ -396,6 +396,28 @@ def test_package_name() -> None:
         d.conda_and_pip_requirements("dev")
 
 
+def test_conda_and_pip_simple() -> None:
+    toml = dedent(
+        """\
+    [project]
+    name = "hello"
+    dependencies = [
+    "a",
+    # thing
+    "b",
+    ]
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    conda_deps, pip_deps = d.conda_and_pip_requirements()
+
+    assert conda_deps == ["a", "b"]
+
+    assert pip_deps == []
+
+
 @pytest.mark.parametrize(
     "toml",
     [

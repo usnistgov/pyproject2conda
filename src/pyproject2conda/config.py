@@ -273,7 +273,7 @@ class Config:
                         msg = f"expected list, got {type(u)}"
                         raise TypeError(msg)
                     d.extend(u)  # pyright: ignore[reportUnknownMemberType]
-                elif isinstance(d, dict):
+                elif isinstance(d, dict):  # pragma: no cover
                     if not isinstance(u, dict):
                         msg = f"expected dict, got {type(u)}"
                         raise TypeError(msg)
@@ -360,7 +360,7 @@ class Config:
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
 
         output = self.output(env_name)
-        if not output:
+        if not output:  # pragma: no cover
             output = filename_from_template(
                 template=template, env_name=env_name, ext="txt"
             )

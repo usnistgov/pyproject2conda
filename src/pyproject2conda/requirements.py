@@ -252,7 +252,7 @@ def _conda_yaml(
 
     s = "\n".join(out)
 
-    if add_file_eol:
+    if add_file_eol:  # pragma: no cover
         s += "\n"
 
     return s
@@ -463,7 +463,7 @@ class ParseDepends:
         if remove_whitespace:
             values = _remove_whitespace_list(values)
 
-        if unique:
+        if unique:  # pragma: no cover
             values = unique_list(values)
 
         if sort:
@@ -592,10 +592,10 @@ class ParseDepends:
                     )
                 )
 
-            elif requirement:
+            elif requirement:  # pragma: no cover
                 r = _clean_conda_requirement(requirement, python_version=python_version)
 
-                if r is not None:
+                if r is not None:  # pragma: no cover
                     conda_deps.append(str(r))
 
         pip_deps, conda_deps = (

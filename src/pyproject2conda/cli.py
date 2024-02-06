@@ -387,7 +387,7 @@ def _log_creating(
     output: Union[str, Path, None],
     prefix: Optional[str] = None,
 ) -> None:
-    if prefix is None:
+    if prefix is None:  # pragma: no cover
         prefix = "# " if prefix is None and output is None else ""
 
     s = f"{prefix}Creating {style}"

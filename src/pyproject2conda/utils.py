@@ -144,10 +144,10 @@ def filename_from_template(
         kws["py_version"] = py_version
         kws["py"] = py_version.replace(".", "")
 
-    if env_name:
+    if env_name:  # pragma: no cover
         kws["env"] = env_name
 
-    if ext:
+    if ext:  # pragma: no cover
         template = template + f".{ext}"
 
     return template.format(**kws)

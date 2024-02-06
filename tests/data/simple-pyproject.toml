@@ -1,0 +1,9 @@
+[project]
+name = "hello"
+requires-python = ">=3.8,<3.11"
+dependencies = [
+    "athing", # p2c: -p # a comment
+    "bthing", # p2c: -s "bthing-conda"
+    "cthing; python_version < '3.10'", # p2c: -c conda-forge
+
+]
