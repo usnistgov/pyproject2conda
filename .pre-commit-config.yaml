@@ -136,3 +136,25 @@ repos:
         additional_dependencies: [pyupgrade]
         stages: [manual]
         args: [--py38-plus]
+
+  # ** typos
+  # Probably stick with codespell, but this might also be nice...
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.18.2
+    hooks:
+      - id: typos
+        stages: [manual]
+        exclude: "[.]ipynb$"
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.1
+    hooks:
+      - id: nbqa
+        alias: nbqa-typos
+        name: nbqa-typos
+        additional_dependencies: [typos==1.18.2]
+        args: ["typos", "--nbqa-shell"]
+      - id: nbqa
+        alias: nbqa-typos
+        name: nbqa-typos-markdown
+        additional_dependencies: [typos==1.18.2]
+        args: ["typos", "--nbqa-shell", "--nbqa-md"]

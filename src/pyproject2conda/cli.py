@@ -63,7 +63,7 @@ class AliasedGroup(TyperGroup):
         ctx.fail(
             "Too many matches: %s" % ", ".join(sorted(matches))
         )  # pragma: no cover
-        return None
+        return None  # pragma: no cover
 
     def list_commands(self, ctx: click.Context) -> Iterable[str]:  # noqa: ARG002
         return list(self.commands)
@@ -223,7 +223,7 @@ PYTHON_VERSION_CLI = Annotated[
     typer.Option(
         "--python-version",
         help="""
-         Python version to check `python_verion <=> {python_version}` lines against. That is,
+         Python version to check `python_version <=> {python_version}` lines against. That is,
          this version is used to limit packages in resulting output. For example, if have a
          line like `a-package; python_version < '3.9'`, Using `--python-version 3.10` will
          not include `a-package`, while `--python-version 3.8` will include `a-package`.

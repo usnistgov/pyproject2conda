@@ -61,44 +61,16 @@ clean-test: ## remove test and coverage artifacts
 pre-commit-init: ## install pre-commit
 	pre-commit install
 
-pre-commit: ## run pre-commit
-	pre-commit run
-
 pre-commit-all: ## run pre-commit on all files
 	pre-commit run --all-files
 
-.PHONY: pre-commit-lint pre-commit-lint-notebooks pre-commit-prettier pre-commit-lint-markdown
-pre-commit-lint: ## run ruff and black on on all files
-	pre-commit run --all-files ruff
-	pre-commit run --all-files black
-	pre-commit run --all-files blacken-docs
-
-pre-commit-lint-notebooks: ## Run nbqa linting
-	pre-commit run --all-files nbqa-ruff
-	pre-commit run --all-files nbqa-black
-
-pre-commit-prettier: ## run prettier on all files.
-	pre-commit run --all-files prettier
-
-pre-commit-lint-markdown: ## run markdown linter.
-	pre-commit run --all-files --hook-stage manual markdownlint-cli2
-
-.PHONY: pre-commit-lint-extra pre-commit-mypy pre-commit-codespell
-pre-commit-lint-extra: ## run all extra linting (isort, flake8, pyupgrade, nbqa isort and pyupgrade)
-	pre-commit run --all-files --hook-stage manual isort
-	pre-commit run --all-files --hook-stage manual flake8
-	pre-commit run --all-files --hook-stage manual pyupgrade
-	pre-commit run --all-files --hook-stage manual nbqa-pyupgrade
-	pre-commit run --all-files --hook-stage manual nbqa-isort
-
-pre-commit-mypy: ## run mypy
-	pre-commit run --all-files --hook-stage manual mypy
-
-pre-commit-pyright: ## run pyright
-	pre-commit run --all-files --hook-stage manual pyright
-
 pre-commit-codespell: ## run codespell. Note that this imports allowed words from docs/spelling_wordlist.txt
-	pre-commit run --all-files --hook-stage manual codespell
+	pre-commit run --all-files codespell
+	pre-commit run --all-files nbqa-codespell
+
+pre-commit-typos:  ## run typos.
+	pre-commit run --all-files --hook-stage manual typos
+	pre-commit run --all-files --hook-stage manual nbqa-typos
 
 ################################################################################
 # * User setup
