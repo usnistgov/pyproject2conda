@@ -62,7 +62,7 @@ repos:
         additional_dependencies:
           - black==24.1.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.1.14"
+    rev: "v0.2.1"
     hooks:
       - id: ruff
         types_or: ["python", "pyi", "jupyter"]
@@ -117,7 +117,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.13.0
+    rev: v3.14.1
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -152,9 +152,11 @@ repos:
         alias: nbqa-typos
         name: nbqa-typos
         additional_dependencies: [typos==1.18.2]
+        stages: [manual]
         args: ["typos", "--nbqa-shell"]
       - id: nbqa
         alias: nbqa-typos
         name: nbqa-typos-markdown
         additional_dependencies: [typos==1.18.2]
+        stages: [manual]
         args: ["typos", "--nbqa-shell", "--nbqa-md"]

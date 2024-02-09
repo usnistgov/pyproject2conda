@@ -953,7 +953,7 @@ def get_package_wheel(
 
     paths = list(dist_location.glob("*.whl"))
     if len(paths) != 1:
-        msg = "something wonky with paths {paths}"
+        msg = f"something wonky with paths {paths}"
         raise ValueError(msg)
 
     path = str(paths[0])
