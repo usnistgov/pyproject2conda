@@ -7,6 +7,7 @@ jupyter server, run the following:
 
 $ conda run -n notebook python path/to/clean_kernelspec.py
 """
+
 from __future__ import annotations
 
 import json

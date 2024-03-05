@@ -10,17 +10,19 @@ argcomplete==3.2.2
     # via nox
 asttokens==2.4.1
     # via stack-data
+attrs==23.2.0
+    # via
+    #   jsonschema
+    #   referencing
 click==8.1.7
     # via typer
 colorlog==6.8.2
     # via nox
 comm==0.2.1
     # via ipykernel
-coverage==7.4.1
-    # via
-    #   coverage
-    #   pytest-cov
-debugpy==1.8.0
+coverage==7.4.3
+    # via pytest-cov
+debugpy==1.8.1
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -30,24 +32,34 @@ execnet==2.0.2
     # via pytest-xdist
 executing==2.0.1
     # via stack-data
+fastjsonschema==2.19.1
+    # via nbformat
 filelock==3.13.1
     # via virtualenv
 iniconfig==2.0.0
     # via pytest
-ipykernel==6.29.2
+ipykernel==6.29.3
     # via -r requirements/dev.txt
-ipython==8.21.0
+ipython==8.22.2
     # via
     #   -r requirements/dev.txt
     #   ipykernel
 jedi==0.19.1
     # via ipython
+jsonschema==4.21.1
+    # via nbformat
+jsonschema-specifications==2023.12.1
+    # via jsonschema
 jupyter-client==8.6.0
-    # via ipykernel
+    # via
+    #   ipykernel
+    #   nbclient
 jupyter-core==5.7.1
     # via
     #   ipykernel
     #   jupyter-client
+    #   nbclient
+    #   nbformat
 matplotlib-inline==0.1.6
     # via
     #   ipykernel
@@ -56,9 +68,15 @@ mypy==1.8.0
     # via -r requirements/dev.txt
 mypy-extensions==1.0.0
     # via mypy
+nbclient==0.9.0
+    # via -r requirements/dev.txt
+nbformat==5.9.2
+    # via nbclient
 nest-asyncio==1.6.0
     # via ipykernel
-nox==2023.4.22
+nodeenv==1.8.0
+    # via pyright
+nox==2024.3.2
     # via -r requirements/dev.txt
 packaging==23.2
     # via
@@ -87,14 +105,16 @@ pure-eval==0.2.2
     # via stack-data
 pygments==2.17.2
     # via ipython
-pytest==7.4.4
+pyright==1.1.352
+    # via -r requirements/dev.txt
+pytest==8.0.2
     # via
     #   -r requirements/dev.txt
     #   pytest-accept
     #   pytest-cov
     #   pytest-sugar
     #   pytest-xdist
-pytest-accept==0.1.9
+pytest-accept==0.1.10
     # via -r requirements/dev.txt
 pytest-cov==4.1.0
     # via -r requirements/dev.txt
@@ -102,12 +122,20 @@ pytest-sugar==1.0.0
     # via -r requirements/dev.txt
 pytest-xdist==3.5.0
     # via -r requirements/dev.txt
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via jupyter-client
 pyzmq==25.1.2
     # via
     #   ipykernel
     #   jupyter-client
+referencing==0.33.0
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+rpds-py==0.18.0
+    # via
+    #   jsonschema
+    #   referencing
 six==1.16.0
     # via
     #   asttokens
@@ -116,9 +144,7 @@ stack-data==0.6.3
     # via ipython
 termcolor==2.4.0
     # via pytest-sugar
-tomli==2.0.1
-    # via -r requirements/dev.txt
-tomlkit==0.12.3
+tomlkit==0.12.4
     # via -r requirements/dev.txt
 tornado==6.4
     # via
@@ -132,15 +158,21 @@ traitlets==5.14.1
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
+    #   nbclient
+    #   nbformat
 typer==0.9.0
     # via -r requirements/dev.txt
 types-click==7.1.8
     # via -r requirements/dev.txt
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via
     #   mypy
     #   typer
-virtualenv==20.25.0
+virtualenv==20.25.1
     # via nox
 wcwidth==0.2.13
     # via prompt-toolkit
+
+# The following packages are considered to be unsafe in a requirements file:
+setuptools==69.1.1
+    # via nodeenv

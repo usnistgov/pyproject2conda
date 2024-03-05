@@ -13,16 +13,16 @@ dependencies:
   - python=3.11
   - ipykernel
   - ipython
-  - mypy>=1.4.1
+  - mypy>=1.8.0
+  - nbclient
   - nox
   - packaging
   - pre-commit
-  - pyright
+  - pyright>=1.1.352
   - pytest
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - tomli
   - tomlkit
   - typer
   - types-click

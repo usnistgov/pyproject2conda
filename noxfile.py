@@ -1,4 +1,5 @@
 """Config file for nox."""
+
 # * Imports ----------------------------------------------------------------------------
 from __future__ import annotations
 
@@ -160,9 +161,9 @@ class SessionParams(DataclassParser):
 
     # conda-lock
     conda_lock_channel: OPT_TYPE = add_option(help="conda channels")
-    conda_lock_platform: list[
-        Literal["osx-64", "linux-64", "win-64", "osx-arm64", "all"]
-    ] | None = add_option(help="platform(s) to buiuld lock file for.")
+    conda_lock_platform: (
+        list[Literal["osx-64", "linux-64", "win-64", "osx-arm64", "all"]] | None
+    ) = add_option(help="platform(s) to buiuld lock file for.")
     conda_lock_include: OPT_TYPE = add_option(help="lock files to create")
     conda_lock_run: RUN_ANNO = None
     conda_lock_mamba: bool = False
@@ -199,21 +200,24 @@ class SessionParams(DataclassParser):
     testdist_run: RUN_ANNO = None
 
     # docs
-    docs: list[
-        Literal[
-            "html",
-            "build",
-            "symlink",
-            "clean",
-            "livehtml",
-            "linkcheck",
-            "spelling",
-            "showlinks",
-            "release",
-            "open",
-            "serve",
+    docs: (
+        list[
+            Literal[
+                "html",
+                "build",
+                "symlink",
+                "clean",
+                "livehtml",
+                "linkcheck",
+                "spelling",
+                "showlinks",
+                "release",
+                "open",
+                "serve",
+            ]
         ]
-    ] | None = add_option("--docs", "-d", help="doc commands")
+        | None
+    ) = add_option("--docs", "-d", help="doc commands")
     docs_run: RUN_ANNO = None
 
     # lint (pre-commit)

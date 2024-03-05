@@ -7,11 +7,12 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-mypy>=1.4.1
+mypy>=1.8.0
 packaging
+pyright>=1.1.352
 pytest
 pytype;python_version<"3.11"
-tomli
+tomli;python_version<"3.11"
 tomlkit
 typer
 types-click

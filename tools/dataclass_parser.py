@@ -28,6 +28,7 @@ class Example(DataclassParser):
     no_cov: bool = False
 
 """
+
 from __future__ import annotations
 
 import sys

@@ -12,23 +12,29 @@ mypy==1.8.0
     # via -r requirements/typing.txt
 mypy-extensions==1.0.0
     # via mypy
+nodeenv==1.8.0
+    # via pyright
 packaging==23.2
     # via
     #   -r requirements/typing.txt
     #   pytest
 pluggy==1.4.0
     # via pytest
-pytest==8.0.0
+pyright==1.1.352
     # via -r requirements/typing.txt
-tomli==2.0.1
+pytest==8.0.2
     # via -r requirements/typing.txt
-tomlkit==0.12.3
+tomlkit==0.12.4
     # via -r requirements/typing.txt
 typer==0.9.0
     # via -r requirements/typing.txt
 types-click==7.1.8
     # via -r requirements/typing.txt
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via
     #   mypy
     #   typer
+
+# The following packages are considered to be unsafe in a requirements file:
+setuptools==69.1.1
+    # via nodeenv

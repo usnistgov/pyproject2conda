@@ -9,11 +9,12 @@
 #
 ipykernel
 ipython
-mypy>=1.4.1
+mypy>=1.8.0
+nbclient
 nox
 packaging
 pre-commit
-pyright
+pyright>=1.1.352
 pytest
 pytest-accept
 pytest-cov
@@ -21,7 +22,7 @@ pytest-sugar
 pytest-xdist
 pytype;python_version<"3.11"
 scriv
-tomli
+tomli;python_version<"3.11"
 tomlkit
 typer
 types-click

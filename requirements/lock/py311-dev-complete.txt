@@ -11,7 +11,10 @@ argcomplete==3.2.2
 asttokens==2.4.1
     # via stack-data
 attrs==23.2.0
-    # via scriv
+    # via
+    #   jsonschema
+    #   referencing
+    #   scriv
 certifi==2024.2.2
     # via requests
 cfgv==3.4.0
@@ -29,11 +32,9 @@ colorlog==6.8.2
     # via nox
 comm==0.2.1
     # via ipykernel
-coverage==7.4.1
-    # via
-    #   coverage
-    #   pytest-cov
-debugpy==1.8.0
+coverage==7.4.3
+    # via pytest-cov
+debugpy==1.8.1
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -43,17 +44,19 @@ execnet==2.0.2
     # via pytest-xdist
 executing==2.0.1
     # via stack-data
+fastjsonschema==2.19.1
+    # via nbformat
 filelock==3.13.1
     # via virtualenv
-identify==2.5.33
+identify==2.5.35
     # via pre-commit
 idna==3.6
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipykernel==6.29.2
+ipykernel==6.29.3
     # via -r requirements/dev-complete.txt
-ipython==8.21.0
+ipython==8.22.2
     # via
     #   -r requirements/dev-complete.txt
     #   ipykernel
@@ -61,12 +64,20 @@ jedi==0.19.1
     # via ipython
 jinja2==3.1.3
     # via scriv
+jsonschema==4.21.1
+    # via nbformat
+jsonschema-specifications==2023.12.1
+    # via jsonschema
 jupyter-client==8.6.0
-    # via ipykernel
+    # via
+    #   ipykernel
+    #   nbclient
 jupyter-core==5.7.1
     # via
     #   ipykernel
     #   jupyter-client
+    #   nbclient
+    #   nbformat
 markdown-it-py==3.0.0
     # via scriv
 markupsafe==2.1.5
@@ -81,13 +92,17 @@ mypy==1.8.0
     # via -r requirements/dev-complete.txt
 mypy-extensions==1.0.0
     # via mypy
+nbclient==0.9.0
+    # via -r requirements/dev-complete.txt
+nbformat==5.9.2
+    # via nbclient
 nest-asyncio==1.6.0
     # via ipykernel
 nodeenv==1.8.0
     # via
     #   pre-commit
     #   pyright
-nox==2023.4.22
+nox==2024.3.2
     # via -r requirements/dev-complete.txt
 packaging==23.2
     # via
@@ -106,7 +121,7 @@ platformdirs==4.2.0
     #   virtualenv
 pluggy==1.4.0
     # via pytest
-pre-commit==3.6.0
+pre-commit==3.6.2
     # via -r requirements/dev-complete.txt
 prompt-toolkit==3.0.43
     # via ipython
@@ -118,16 +133,16 @@ pure-eval==0.2.2
     # via stack-data
 pygments==2.17.2
     # via ipython
-pyright==1.1.350
+pyright==1.1.352
     # via -r requirements/dev-complete.txt
-pytest==7.4.4
+pytest==8.0.2
     # via
     #   -r requirements/dev-complete.txt
     #   pytest-accept
     #   pytest-cov
     #   pytest-sugar
     #   pytest-xdist
-pytest-accept==0.1.9
+pytest-accept==0.1.10
     # via -r requirements/dev-complete.txt
 pytest-cov==4.1.0
     # via -r requirements/dev-complete.txt
@@ -135,7 +150,7 @@ pytest-sugar==1.0.0
     # via -r requirements/dev-complete.txt
 pytest-xdist==3.5.0
     # via -r requirements/dev-complete.txt
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via jupyter-client
 pyyaml==6.0.1
     # via pre-commit
@@ -143,8 +158,16 @@ pyzmq==25.1.2
     # via
     #   ipykernel
     #   jupyter-client
+referencing==0.33.0
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
 requests==2.31.0
     # via scriv
+rpds-py==0.18.0
+    # via
+    #   jsonschema
+    #   referencing
 scriv==1.5.1
     # via -r requirements/dev-complete.txt
 six==1.16.0
@@ -155,9 +178,7 @@ stack-data==0.6.3
     # via ipython
 termcolor==2.4.0
     # via pytest-sugar
-tomli==2.0.1
-    # via -r requirements/dev-complete.txt
-tomlkit==0.12.3
+tomlkit==0.12.4
     # via -r requirements/dev-complete.txt
 tornado==6.4
     # via
@@ -171,17 +192,19 @@ traitlets==5.14.1
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
+    #   nbclient
+    #   nbformat
 typer==0.9.0
     # via -r requirements/dev-complete.txt
 types-click==7.1.8
     # via -r requirements/dev-complete.txt
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via
     #   mypy
     #   typer
-urllib3==2.2.0
+urllib3==2.2.1
     # via requests
-virtualenv==20.25.0
+virtualenv==20.25.1
     # via
     #   nox
     #   pre-commit
@@ -189,5 +212,5 @@ wcwidth==0.2.13
     # via prompt-toolkit
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==69.0.3
+setuptools==69.1.1
     # via nodeenv

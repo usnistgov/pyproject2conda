@@ -417,9 +417,9 @@ class Config:
     @classmethod
     def from_string(cls, s: str, user_config: str | None = None) -> Self:
         """Create from string representation of toml file."""
-        import tomli
+        from ._compat import tomllib
 
-        c = cls.from_toml_dict(tomli.loads(s))
+        c = cls.from_toml_dict(tomllib.loads(s))
 
         if user_config:
             u = cls.from_string(user_config)
@@ -431,10 +431,10 @@ class Config:
         cls, path: str | Path, user_config: str | Path | None = "infer"
     ) -> Self:
         """Create from toml file(s)."""
-        import tomli
+        from ._compat import tomllib
 
         with Path(path).open("rb") as f:
-            data = tomli.load(f)
+            data = tomllib.load(f)
 
         c = cls.from_toml_dict(data)
 

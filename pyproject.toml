@@ -36,7 +36,7 @@ dynamic = [
 ]
 dependencies = [
     "packaging",
-    "tomli",
+    "tomli; python_version<'3.11'",
     "tomlkit",
     "typer",
     "typing-extensions; python_version<'3.11'",
@@ -54,6 +54,7 @@ dev-complete = [
 dev-extras = [
     "ipykernel",
     "ipython",
+    "nbclient",
     "nox",
     "pytest-accept",
 ]
@@ -78,7 +79,6 @@ test = [
 ]
 tools = [
     "pre-commit",
-    "pyright",
     "scriv",
 ]
 typing = [
@@ -86,7 +86,8 @@ typing = [
     "pytest",
 ]
 typing-extras = [
-    "mypy >= 1.4.1",
+    "mypy >= 1.8.0",
+    "pyright >= 1.1.352",
     "pytype; python_version < '3.11'",
     "types-click",
 ]
@@ -129,7 +130,6 @@ extend-exclude = [
 unsafe-fixes = true
 
 [tool.ruff.lint]
-# use nbqa for ruff linting
 preview = true
 select = ["ALL"]
 # fixable = ["ALL"]

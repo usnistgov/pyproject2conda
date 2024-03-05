@@ -17,6 +17,7 @@
 # absolute, like shown here.
 #
 """Build docs."""
+
 from __future__ import annotations
 
 import os

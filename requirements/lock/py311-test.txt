@@ -6,10 +6,8 @@
 #
 click==8.1.7
     # via typer
-coverage==7.4.1
-    # via
-    #   coverage
-    #   pytest-cov
+coverage==7.4.3
+    # via pytest-cov
 execnet==2.0.2
     # via pytest-xdist
 iniconfig==2.0.0
@@ -21,7 +19,7 @@ packaging==23.2
     #   pytest-sugar
 pluggy==1.4.0
     # via pytest
-pytest==8.0.0
+pytest==8.0.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -35,11 +33,9 @@ pytest-xdist==3.5.0
     # via -r requirements/test.txt
 termcolor==2.4.0
     # via pytest-sugar
-tomli==2.0.1
-    # via -r requirements/test.txt
-tomlkit==0.12.3
+tomlkit==0.12.4
     # via -r requirements/test.txt
 typer==0.9.0
     # via -r requirements/test.txt
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via typer

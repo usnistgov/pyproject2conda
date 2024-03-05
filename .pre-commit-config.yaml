@@ -1,4 +1,3 @@
----
 # pre-commit install
 # pre-commit run --all-files
 # See https://pre-commit.com for more information
@@ -29,15 +28,15 @@ repos:
 
   # * Pyproject-fmt
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "1.7.0"
+    rev: 1.7.0
     hooks:
       - id: pyproject-fmt
-        args: ["--indent=4", "--keep-full-version"]
+        args: [--indent=4, --keep-full-version]
         files: ^pyproject.toml$
 
   # * Prettier
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v4.0.0-alpha.8"
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
         alias: markdownlint
@@ -51,24 +50,24 @@ repos:
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
-        args: ["--style prettier"]
+        args: [--style, prettier]
 
   # * Linting
   # To be replace by ruff analog when I find one ...
   - repo: https://github.com/adamchainz/blacken-docs
-    rev: "1.16.0"
+    rev: 1.16.0
     hooks:
       - id: blacken-docs
         additional_dependencies:
-          - black==24.1.0
+          - black==24.2.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.2.1"
+    rev: v0.3.0
     hooks:
       - id: ruff
-        types_or: ["python", "pyi", "jupyter"]
-        args: ["--fix", "--show-fixes"]
+        types_or: &ruff-types-or [python, pyi, jupyter]
+        args: [--fix, --show-fixes]
       - id: ruff-format
-        types_or: ["python", "pyi", "jupyter"]
+        types_or: *ruff-types-or
 
   # * Spelling
   - repo: https://github.com/codespell-project/codespell
@@ -76,61 +75,58 @@ repos:
     hooks:
       - id: codespell
         additional_dependencies: [tomli]
-        args: ["-I", "docs/spelling_wordlist.txt"]
+        args: [-I, docs/spelling_wordlist.txt]
         exclude_types: [jupyter]
 
-  # * Notebook formatting
+  # * Notebook spelling
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
+    rev: 1.8.3
     hooks:
       - id: nbqa
         alias: nbqa-codespell
         name: nbqa-codespell
-        additional_dependencies: [codespell==2.2.6, tomli]
+        additional_dependencies: &codespell-deps [codespell==2.2.6, tomli] # make sure same as above
         args:
-          [
-            "codespell",
-            "--ignore-words=docs/spelling_wordlist.txt",
-            "--nbqa-shell",
-          ]
+          [codespell, --ignore-words=docs/spelling_wordlist.txt, --nbqa-shell]
       - id: nbqa
         alias: nbqa-codespell
         name: nbqa-codespell-markdown
-        additional_dependencies: [codespell==2.2.6, tomli]
+        additional_dependencies: *codespell-deps
         args:
           [
-            "codespell",
-            "--ignore-words=docs/spelling_wordlist.txt",
-            "--nbqa-md",
-            "--nbqa-shell",
+            codespell,
+            --ignore-words=docs/spelling_wordlist.txt,
+            --nbqa-shell,
+            --nbqa-md,
           ]
 
-      # Use ruff for this instead ...
-      # - id: nbqa-ruff
-      #   additional_dependencies: [ruff==0.1.14]
-      #   # Replace with builtin if/when available
-      # - id: nbqa
-      #   alias: nbqa-ruff-format
-      #   name: nbqa-ruff-format
-      #   additional_dependencies: [ruff==0.1.14]
-      #   args: ["ruff format --force-exclude"]
+  # * Strip out metadata from notebooks
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      - id: nbstripout
+        args: [
+            --keep-output, # keep output (needed for nbval testing)
+            --extra-keys, # strip out kernelspec.  If use this, always have to reselect kernel when open a notebook...
+            "metadata.kernelspec metadata.kernel_spec",
+          ]
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.14.1
+    rev: v3.16.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
 
   # * Manual Linting ------------------------------------------------------------
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: v3.15.1
     hooks:
       - id: pyupgrade
         stages: [manual]
         args: [--py38-plus]
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
+    rev: 1.8.3
     hooks:
       - id: nbqa-pyupgrade
         additional_dependencies: [pyupgrade]
@@ -140,23 +136,23 @@ repos:
   # ** typos
   # Probably stick with codespell, but this might also be nice...
   - repo: https://github.com/crate-ci/typos
-    rev: v1.18.2
+    rev: v1.19.0
     hooks:
       - id: typos
         stages: [manual]
         exclude: "[.]ipynb$"
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
+    rev: 1.8.3
     hooks:
       - id: nbqa
         alias: nbqa-typos
         name: nbqa-typos
-        additional_dependencies: [typos==1.18.2]
+        additional_dependencies: &typos-deps [typos==1.19.0] # make sure save version as above.
         stages: [manual]
-        args: ["typos", "--nbqa-shell"]
+        args: [typos, --nbqa-shell]
       - id: nbqa
         alias: nbqa-typos
         name: nbqa-typos-markdown
-        additional_dependencies: [typos==1.18.2]
+        additional_dependencies: *typos-deps
         stages: [manual]
-        args: ["typos", "--nbqa-shell", "--nbqa-md"]
+        args: [typos, --nbqa-shell, --nbqa-md]

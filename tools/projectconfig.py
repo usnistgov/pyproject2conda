@@ -4,6 +4,7 @@ Methods to work with config file (for personal setup) of nox and other project t
 Right now, this is only for user specific nox config.  But leaving open it could be used
 for other things in the future.
 """
+
 from __future__ import annotations
 
 import configparser
