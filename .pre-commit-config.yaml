@@ -61,7 +61,7 @@ repos:
         additional_dependencies:
           - black==24.2.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+    rev: v0.3.2
     hooks:
       - id: ruff
         types_or: &ruff-types-or [python, pyi, jupyter]
@@ -79,41 +79,41 @@ repos:
         exclude_types: [jupyter]
 
   # * Notebook spelling
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.3
-    hooks:
-      - id: nbqa
-        alias: nbqa-codespell
-        name: nbqa-codespell
-        additional_dependencies: &codespell-deps [codespell==2.2.6, tomli] # make sure same as above
-        args:
-          [codespell, --ignore-words=docs/spelling_wordlist.txt, --nbqa-shell]
-      - id: nbqa
-        alias: nbqa-codespell
-        name: nbqa-codespell-markdown
-        additional_dependencies: *codespell-deps
-        args:
-          [
-            codespell,
-            --ignore-words=docs/spelling_wordlist.txt,
-            --nbqa-shell,
-            --nbqa-md,
-          ]
+  # - repo: https://github.com/nbQA-dev/nbQA
+  #   rev: 1.8.4
+  #   hooks:
+  #     - id: nbqa
+  #       alias: nbqa-codespell
+  #       name: nbqa-codespell
+  #       additional_dependencies: &codespell-deps [codespell==2.2.6, tomli] # make sure same as above
+  #       args:
+  #         [codespell, --ignore-words=docs/spelling_wordlist.txt, --nbqa-shell]
+  #     - id: nbqa
+  #       alias: nbqa-codespell
+  #       name: nbqa-codespell-markdown
+  #       additional_dependencies: *codespell-deps
+  #       args:
+  #         [
+  #           codespell,
+  #           --ignore-words=docs/spelling_wordlist.txt,
+  #           --nbqa-shell,
+  #           --nbqa-md,
+  #         ]
 
-  # * Strip out metadata from notebooks
-  - repo: https://github.com/kynan/nbstripout
-    rev: 0.7.1
-    hooks:
-      - id: nbstripout
-        args: [
-            --keep-output, # keep output (needed for nbval testing)
-            --extra-keys, # strip out kernelspec.  If use this, always have to reselect kernel when open a notebook...
-            "metadata.kernelspec metadata.kernel_spec",
-          ]
+  # # * Strip out metadata from notebooks
+  # - repo: https://github.com/kynan/nbstripout
+  #   rev: 0.7.1
+  #   hooks:
+  #     - id: nbstripout
+  #       args: [
+  #           --keep-output, # keep output (needed for nbval testing)
+  #           --extra-keys, # strip out kernelspec.  If use this, always have to reselect kernel when open a notebook...
+  #           "metadata.kernelspec metadata.kernel_spec",
+  #         ]
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.16.0
+    rev: v3.18.3
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -125,13 +125,13 @@ repos:
       - id: pyupgrade
         stages: [manual]
         args: [--py38-plus]
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.3
-    hooks:
-      - id: nbqa-pyupgrade
-        additional_dependencies: [pyupgrade]
-        stages: [manual]
-        args: [--py38-plus]
+  # - repo: https://github.com/nbQA-dev/nbQA
+  #   rev: 1.8.4
+  #   hooks:
+  #     - id: nbqa-pyupgrade
+  #       additional_dependencies: [pyupgrade]
+  #       stages: [manual]
+  #       args: [--py38-plus]
 
   # ** typos
   # Probably stick with codespell, but this might also be nice...
@@ -141,18 +141,18 @@ repos:
       - id: typos
         stages: [manual]
         exclude: "[.]ipynb$"
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.3
-    hooks:
-      - id: nbqa
-        alias: nbqa-typos
-        name: nbqa-typos
-        additional_dependencies: &typos-deps [typos==1.19.0] # make sure save version as above.
-        stages: [manual]
-        args: [typos, --nbqa-shell]
-      - id: nbqa
-        alias: nbqa-typos
-        name: nbqa-typos-markdown
-        additional_dependencies: *typos-deps
-        stages: [manual]
-        args: [typos, --nbqa-shell, --nbqa-md]
+  # - repo: https://github.com/nbQA-dev/nbQA
+  #   rev: 1.8.4
+  #   hooks:
+  #     - id: nbqa
+  #       alias: nbqa-typos
+  #       name: nbqa-typos
+  #       additional_dependencies: &typos-deps [typos==1.19.0] # make sure save version as above.
+  #       stages: [manual]
+  #       args: [typos, --nbqa-shell]
+  #     - id: nbqa
+  #       alias: nbqa-typos
+  #       name: nbqa-typos-markdown
+  #       additional_dependencies: *typos-deps
+  #       stages: [manual]
+  #       args: [typos, --nbqa-shell, --nbqa-md]

@@ -7,14 +7,9 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-channels:
-  - conda-forge
-dependencies:
-  - python=3.10
-  - packaging
-  - pytest
-  - tomli
-  - tomlkit
-  - typer
-  - types-click
-  - typing-extensions
+conda-lock>=2.5.5
+grayskull>=2.5.3
+mypy>=1.9.0
+nbqa>=1.8.4
+pyright>=1.1.353
+twine>=5.0.0

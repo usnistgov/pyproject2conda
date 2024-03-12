@@ -125,24 +125,28 @@ requirements/%.txt: pyproject.toml
 	nox -s requirements
 
 ################################################################################
+# * Typing
+################################################################################
+PIPXRUN = python tools/pipxrun.py
+PIPXRUN_OPTS = -r requirements/lock/py311-pipxrun-tools.txt -v
+.PHONY: mypy pyright
+mypy: ## Run mypy
+	$(PIPXRUN) $(PIPXRUN_OPTS) -c mypy
+pyright: ## Run pyright
+	$(PIPXRUN) $(PIPXRUN_OPTS) -c pyright
+typecheck: ## Run mypy and pyright
+	$(PIPXRUN) $(PIPXRUN_OPTS) -c mypy -c pyright
+
+.PHONY: typecheck-tools
+typecheck-tools:
+	$(PIPXRUN) $(PIPXRUN_OPTS) -c "mypy --strict" -c pyright -- noxfile.py tools/*.py
+
+################################################################################
 # * NOX
 ###############################################################################
-# NOTE: Below, we use requirement of the form "requirements/dev.txt"
-# Since any of these files will trigger a rebuild of all requirements,
-# the actual "txt" or "yaml" file doesn't matter
-# ** dev
 NOX=nox
-.PHONY: dev-env
-dev-env: requirements/dev.txt ## create development environment using nox
-	$(NOX) -e dev
-
-# ** testing
-.PHONY: test-all
-test-all: requirements/test.txt ## run tests on every Python version with nox.
-	$(NOX) -s test
-
 # ** docs
-.PHONY: docs-build docs-release docs-clean
+.PHONY: docs-build docs-clean docs-clean-build docs-release
 docs-build: ## build docs in isolation
 	$(NOX) -s docs -- +d build
 docs-clean: ## clean docs
@@ -151,53 +155,35 @@ docs-clean: ## clean docs
 	rm -rf docs/reference/generated/*
 docs-clean-build: docs-clean docs-build ## clean and build
 docs-release: ## release docs.
-	$(NOX) -s docs -- +d release
+	$(PIPXRUN) $(PIPXRUN_OPTS) -c "ghp-import -o -n -m \"update docs\" -b nist-pages" docs/_build/html
 
-.PHONY: .docs-spelling docs-nist-pages docs-open docs-livehtml docs-clean-build docs-linkcheck
+.PHONY: docs-open docs-spelling docs-livehtml docs-linkcheck
+docs-open: ## open the build
+	$(NOX) -s docs -- +d open
 docs-spelling: ## run spell check with sphinx
 	$(NOX) -s docs -- +d spelling
 docs-livehtml: ## use autobuild for docs
 	$(NOX) -s docs -- +d livehtml
-docs-open: ## open the build
-	$(NOX) -s docs -- +d open
 docs-linkcheck: ## check links
 	$(NOX) -s docs -- +d linkcheck
 
-docs-build docs-release docs-clean docs-livehtml docs-linkcheck: requirements/docs.txt
-
 # ** typing
-.PHONY: typing-mypy typing-pyright typing-pytype typing-all
+.PHONY: typing-mypy typing-pyright typing-typecheck
 typing-mypy: ## run mypy mypy_args=...
 	$(NOX) -s typing -- +m mypy
 typing-pyright: ## run pyright pyright_args=...
 	$(NOX) -s typing -- +m pyright
-typing-pytype: ## run pytype pytype_args=...
-	$(NOX) -s typing -- +m pytype
-typing-all:
-	$(NOX) -s typing -- +m mypy pyright pytype
-typing-mypy typing-pyright typing-pytype typing-all: requirements/typing.txt
+typing-typecheck:
+	$(NOX) -s typing -- +m mypy pyright
 
 # ** dist pypi
 .PHONY: build testrelease release
-build: requirements/build.txt ## build dist
+build: ## build dist
 	$(NOX) -s build
 testrelease: ## test release on testpypi
 	$(NOX) -s publish -- +p test
 release: ## release to pypi, can pass posargs=...
 	$(NOX) -s publish -- +p release
-
-.PHONY: check-release check-wheel check-dist
-check-release: ## run twine check on dist
-	$(NOX) -s publish -- +p check
-check-wheel: ## Run check-wheel-contents (requires check-wheel-contents to be installed)
-	check-wheel-contents dist/*.whl
-check-dist: check-release check-wheel ## Run check-release and check-wheel
-.PHONY:  list-wheel list-sdist list-dist
-list-wheel: ## Cat out contents of wheel
-	unzip -vl dist/*.whl
-list-sdist: ## Cat out contents of sdist
-	tar -tzvf dist/*.tar.gz
-list-dist: list-wheel list-sdist ## Cat out sdist and wheel contents
 
 # ** dist conda
 .PHONY: conda-recipe conda-build
@@ -211,46 +197,53 @@ conda-build: ## build conda recipe can pass posargs=...
 nox-list:
 	$(NOX) --list
 
-
 ################################################################################
-# * Installation
+# ** sdist/wheel check
 ################################################################################
-.PHONY: install install-dev
-install: ## install the package to the active Python's site-packages (run clean?)
-	pip install . --no-deps
-
-install-dev: ## install development version (run clean?)
-	pip install -e . --no-deps
-
+.PHONY: check-release check-wheel check-dist
+check-release: ## run twine check on dist
+	$(NOX) -s publish -- +p check
+check-wheel: ## Run check-wheel-contents (requires check-wheel-contents to be installed)
+	check-wheel-contents dist/*.whl
+check-dist: check-release check-wheel ## Run check-release and check-wheel
+.PHONY:  list-wheel list-sdist list-dist
+list-wheel: ## Cat out contents of wheel
+	unzip -vl dist/*.whl
+list-sdist: ## Cat out contents of sdist
+	tar -tzvf dist/*.tar.gz
+list-dist: list-wheel list-sdist ## Cat out sdist and wheel contents
 
 ################################################################################
 # * NOTEBOOK typing/testing
 ################################################################################
 NOTEBOOKS ?= examples/usage
-.PHONY: mypy-notebook pyright-notebook typing-notebook
+NBQA = $(PIPXRUN) $(PIPXRUN_OPTS) -c "nbqa --nbqa-shell \"$(PIPXRUN)\" $(NOTEBOOKS) $(PIPXRUN_OPTS) $(_NBQA)"
+.PHONY: mypy-notebook pyright-notebook typecheck-notebook test-notebook
+mypy-notebook: _NBQA = -c mypy
 mypy-notebook: ## run nbqa mypy
-	nbqa --nbqa-shell mypy $(NOTEBOOKS)
+	$(NBQA)
+pyright-notebook: _NBQA = -c pyright
 pyright-notebook: ## run nbqa pyright
-	nbqa --nbqa-shell pyright $(NOTEBOOKS)
-typing-notebook: mypy-notebook pyright-notebook ## run nbqa mypy/pyright
-
-.PHONY: pytest-nbval
-pytest-notebook:  ## run pytest --nbval
+	$(NBQA)
+typecheck-notebook: _NBQA = -c mypy -c pyright
+typecheck-notebook: ## run nbqa mypy/pyright
+	$(NBQA)
+test-notebook:  ## run pytest --nbval
 	pytest --nbval --nbval-current-env --nbval-sanitize-with=config/nbval.ini --dist loadscope -x $(NOTEBOOKS)
 
 .PHONY: clean-kernelspec
 clean-kernelspec: ## cleanup unused kernels (assuming notebooks handled by conda environment notebook)
-	conda run -n notebook python tools/clean_kernelspec.py
-
+	python tools/clean_kernelspec.py
 
 ################################################################################
 # * Other tools
 ################################################################################
-
 # Note that this requires `auto-changelog`, which can be installed with pip(x)
+.PHONY: auto-changelog
 auto-changelog: ## autogenerate changelog and print to stdout
 	auto-changelog -u -r usnistgov -v unreleased --tag-prefix v --stdout --template changelog.d/templates/auto-changelog/template.jinja2
 
+.PHONY:
 commitizen-changelog:
 	cz changelog --unreleased-version unreleased --dry-run --incremental
 
@@ -258,13 +251,8 @@ commitizen-changelog:
 .PHONY: tuna-analyze
 tuna-import: ## Analyze load time for module
 	python -X importtime -c 'import pyproject2conda' 2> tuna-loadtime.log
-	tuna tuna-loadtime.log
+	$(PIPXRUN) -c tuna tuna-loadtime.log
 	rm tuna-loadtime.log
-
-.PHONY: typing-tools
-typing-tools:
-	mypy --strict noxfile.py tools/*.py
-	pyright noxfile.py tools/*.py
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md

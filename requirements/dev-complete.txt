@@ -7,20 +7,16 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-ipykernel
-ipython
-mypy>=1.8.0
-nbclient
-nox
+mypy>=1.9.0
+nox>=2024.3.2
 packaging
+pipx
 pre-commit
-pyright>=1.1.352
 pytest
 pytest-accept
 pytest-cov
 pytest-sugar
 pytest-xdist
-pytype;python_version<"3.11"
 scriv
 tomli;python_version<"3.11"
 tomlkit

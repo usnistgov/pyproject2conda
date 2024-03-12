@@ -11,13 +11,9 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
-  - ipykernel
-  - ipython
-  - mypy>=1.8.0
-  - nbclient
-  - nox
+  - mypy>=1.9.0
+  - nox>=2024.3.2
   - packaging
-  - pyright>=1.1.352
   - pytest
   - pytest-cov
   - pytest-sugar

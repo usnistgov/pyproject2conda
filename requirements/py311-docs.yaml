@@ -12,9 +12,7 @@ channels:
 dependencies:
   - python=3.11
   - autodocsumm
-  - ghp-import
-  - ipython
-  - myst-nb
+  - myst-parser
   - packaging
   - pyenchant
   - sphinx-autobuild
