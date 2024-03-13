@@ -450,7 +450,6 @@ class Command:
         self,
         python_executable: str | None,
         python_version: str | None,
-        session: SessionInterfaceTemplate,
     ) -> list[str]:
         if self.name == "mypy":
             return [
@@ -463,7 +462,6 @@ class Command:
                 f"--pythonversion={_get_python_version(python_version)}",
             ]
 
-        session.debug("Unknown command %s", self.name)
         return []
 
     @staticmethod
@@ -522,7 +520,6 @@ class Command:
             *self._get_python_flags(
                 python_executable=python_executable,
                 python_version=python_version,
-                session=session,
             ),
             *self.args,
             *files,
@@ -540,7 +537,7 @@ class Command:
         env: Mapping[str, str] | None = None,
         include_outer_env: bool = True,
         **kwargs: Any,
-    ) -> int:
+    ) -> Any:
         """Run the command"""
         # _print_header(self.name)
 
@@ -557,15 +554,9 @@ class Command:
             session.log("Would run with commands: %s", command)
             return 0
 
-        try:
-            session.run(
-                *command, env=env, include_outer_env=include_outer_env, **kwargs
-            )
-        except RuntimeError as e:
-            session.log(str(e))
-            return 1
-        else:
-            return 0
+        return session.run(
+            *command, env=env, include_outer_env=include_outer_env, **kwargs
+        )
 
 
 def run(
@@ -581,7 +572,7 @@ def run(
     files: Iterable[str] | None = None,
     include_outer_env: bool = True,
     **kwargs: Any,
-) -> int:
+) -> Any:
     """Run command"""
     command = Command.from_command(*args)
 
@@ -697,6 +688,12 @@ def _parse_args(args: Sequence[str] | None = None) -> argparse.Namespace:
         help="Always use pipx to run the commands (No local fallback)",
     )
     parser.add_argument(
+        "--fail-fast",
+        dest="fail_fast",
+        action="store_true",
+        help="If passed, exit at first error.",
+    )
+    parser.add_argument(
         "files", type=str, default=[], nargs="*", help="Optional files to check."
     )
 
@@ -738,18 +735,24 @@ def main(args: Sequence[str] | None = None) -> int:
 
     session = Session()
 
-    return sum(
-        command.run(
-            session=session,
-            python_executable=options.python_executable,
-            python_version=options.python_version,
-            dry=options.dry,
-            verbosity=options.verbosity - options.quiet - 2,
-            pipx_only=options.pipx_only,
-            files=options.files,
-        )
-        for command in commands
-    )
+    s = 0
+
+    for command in commands:
+        try:
+            command.run(
+                session=session,
+                python_executable=options.python_executable,
+                python_version=options.python_version,
+                dry=options.dry,
+                verbosity=options.verbosity - options.quiet - 2,
+                pipx_only=options.pipx_only,
+                files=options.files,
+            )
+        except RuntimeError:  # noqa: PERF203
+            s += 1
+            if options.fail_fast:
+                return s
+    return s
 
 
 if __name__ == "__main__":

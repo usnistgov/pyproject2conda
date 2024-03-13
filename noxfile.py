@@ -745,11 +745,16 @@ def coverage(
 
     run = partial(pipxrun.run, specs=get_pipxrun_specs(), session=session)
 
+    paths = list(Path(".nox").glob("test-*/tmp/.coverage*"))
+
+    if "erase" in cmd:
+        for path in paths:
+            if path.exists():
+                session.log(f"removing {path}")
+                path.unlink()
+
     for c in cmd:
         if c == "combine":
-            paths = list(
-                Path(".nox").glob("test-*/tmp/.coverage"),
-            )
             if update_target(".coverage", *paths):
                 run(
                     "coverage",

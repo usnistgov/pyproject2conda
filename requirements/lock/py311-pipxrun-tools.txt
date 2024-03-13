@@ -60,7 +60,7 @@ pydantic==2.6.4           # via conda-lock
 pydantic-core==2.16.3     # via pydantic
 pygments==2.17.2          # via ipython, readme-renderer, rich
 pylev==1.4.0              # via clikit
-pyright==1.1.353
+pyright==1.1.354
 python-utils==3.8.2       # via progressbar2
 pyyaml==6.0.1             # via conda-lock
 rapidfuzz==3.6.2          # via grayskull
@@ -73,7 +73,7 @@ ruamel-yaml==0.18.6       # via conda-lock, conda-souschef, grayskull, ruamel-ya
 ruamel-yaml-clib==0.2.8   # via ruamel-yaml
 ruamel-yaml-jinja2==0.2.7  # via conda-souschef, grayskull
 semver==3.0.2             # via grayskull
-setuptools==69.1.1        # via conda-lock, grayskull, nodeenv
+setuptools==69.2.0        # via conda-lock, grayskull, nodeenv
 six==1.16.0               # via asttokens, html5lib
 smmap==5.0.1              # via gitdb
 soupsieve==2.5            # via beautifulsoup4
@@ -91,4 +91,4 @@ urllib3==1.26.18          # via conda-lock, requests, twine
 virtualenv==20.25.1       # via conda-lock
 wcwidth==0.2.13           # via prompt-toolkit
 webencodings==0.5.1       # via html5lib
-zipp==3.17.0              # via importlib-metadata
+zipp==3.18.0              # via importlib-metadata

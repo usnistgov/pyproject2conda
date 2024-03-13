@@ -36,7 +36,7 @@ pytest-xdist==3.5.0
 pyyaml==6.0.1             # via pre-commit
 requests==2.31.0          # via scriv
 scriv==1.5.1
-setuptools==69.1.1        # via nodeenv
+setuptools==69.2.0        # via nodeenv
 termcolor==2.4.0          # via pytest-sugar
 tomlkit==0.12.4
 typer==0.9.0

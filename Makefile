@@ -204,7 +204,7 @@ nox-list:
 check-release: ## run twine check on dist
 	$(NOX) -s publish -- +p check
 check-wheel: ## Run check-wheel-contents (requires check-wheel-contents to be installed)
-	check-wheel-contents dist/*.whl
+	$(PIPXRUN) -c check-wheel-contents dist/*.whl
 check-dist: check-release check-wheel ## Run check-release and check-wheel
 .PHONY:  list-wheel list-sdist list-dist
 list-wheel: ## Cat out contents of wheel
