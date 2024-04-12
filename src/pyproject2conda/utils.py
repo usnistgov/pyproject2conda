@@ -148,7 +148,7 @@ def filename_from_template(
         kws["env"] = env_name
 
     if ext:  # pragma: no cover
-        template = template + f".{ext}"
+        template += f".{ext}"
 
     return template.format(**kws)
 

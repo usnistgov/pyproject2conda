@@ -442,13 +442,13 @@ class ParseDepends:
         }
 
         # add in build-system.requires
-        out[
-            "build-system.requires"
-        ] = OverrideDeps.requirement_comment_to_override_pairs(
-            requirement_comment_pairs=_requirement_comment_pairs(
-                self.build_system_requires
-            ),
-            override_table=self.override_table,
+        out["build-system.requires"] = (
+            OverrideDeps.requirement_comment_to_override_pairs(
+                requirement_comment_pairs=_requirement_comment_pairs(
+                    self.build_system_requires
+                ),
+                override_table=self.override_table,
+            )
         )
 
         return out
@@ -606,10 +606,10 @@ class ParseDepends:
         )
 
         if python_include is not None:
-            conda_deps = (
-                self._cleanup([python_include], remove_whitespace=remove_whitespace)
-                + conda_deps
-            )
+            conda_deps = [
+                *self._cleanup([python_include], remove_whitespace=remove_whitespace),
+                *conda_deps,
+            ]
 
         # special if have pip requirements or just pip in conda_deps
         # in this case, make sure pip is last

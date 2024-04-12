@@ -114,14 +114,14 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.18.3
+    rev: v3.22.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
 
   # * Manual Linting ------------------------------------------------------------
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.1
+    rev: v3.15.2
     hooks:
       - id: pyupgrade
         stages: [manual]
@@ -137,7 +137,7 @@ repos:
   # ** typos
   # Probably stick with codespell, but this might also be nice...
   - repo: https://github.com/crate-ci/typos
-    rev: v1.19.0
+    rev: v1.20.7
     hooks:
       - id: typos
         stages: [manual]
