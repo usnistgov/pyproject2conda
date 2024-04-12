@@ -140,7 +140,7 @@ unsafe-fixes = true
 preview = true
 select = ["ALL"]
 # fixable = ["ALL"]
-unfixable = ["T"]
+unfixable = ["T", "PLR6104"]
 ignore = [
     "CPY",       # - Don't require copyright
     "ERA",       # - eradicate (want to keep some stuff)
