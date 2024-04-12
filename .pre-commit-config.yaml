@@ -8,7 +8,7 @@ default_install_hook_types:
 repos:
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -46,7 +46,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.12.1
+    rev: v0.13.0
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -59,9 +59,9 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies:
-          - black==24.2.0
+          - black==24.3.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.2
+    rev: v0.3.7
     hooks:
       - id: ruff
         types_or: &ruff-types-or [python, pyi, jupyter]

@@ -79,7 +79,7 @@ pipxrun-tools = [
     "grayskull >= 2.5.3",
     "nbqa >= 1.8.4",
     "pyproject2conda[mypy]",
-    "pyright >= 1.1.353",
+    "pyright >= 1.1.357, != 1.1.358", # skipping 1.1.358.  Breaks module_utilities.cached.
     "twine >= 5.0.0",
 ]
 test = [
@@ -140,7 +140,7 @@ unsafe-fixes = true
 preview = true
 select = ["ALL"]
 # fixable = ["ALL"]
-# unfixable = []
+unfixable = ["T"]
 ignore = [
     "CPY",       # - Don't require copyright
     "ERA",       # - eradicate (want to keep some stuff)

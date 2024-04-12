@@ -1036,7 +1036,7 @@ def get_package_wheel(
         session.log("Reuse isolated build")
     else:
         cmd = f"nox -s build -- ++build-outdir {dist_location} ++build-opts -w ++build-silent"
-        session.run(*shlex.split(cmd), external=True)
+        session.run_always(*shlex.split(cmd), external=True)
 
         # save that this was called:
         if reuse:

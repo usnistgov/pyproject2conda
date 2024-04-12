@@ -214,7 +214,7 @@ def infer_requirement_path(
     # adjust filename
     filename = name
     if ext is not None and not filename.endswith(ext):
-        filename = filename + ext
+        filename += ext
     if python_version is not None:
         prefix = py_prefix(python_version)
         if not filename.startswith(prefix):
@@ -1046,9 +1046,10 @@ def _get_zipfile_hash(path: str | Path) -> str:
 
     md5 = hashlib.md5()
 
-    with ZipFile(path, "r") as f:
-        for thing in f.infolist():
-            md5 = hashlib.md5(f.read(thing))
+    with ZipFile(path, "r") as zipfile:
+        for item in sorted(zipfile.infolist(), key=lambda x: x.filename):
+            md5.update(item.filename.encode())
+            md5.update(zipfile.read(item))
 
     return md5.hexdigest()
 
@@ -1064,6 +1065,9 @@ def get_package_hash(package: str) -> list[str]:
 
         # remove possible extras
         x_clean = re.sub(r"\[.*?\]$", "", x)
+        # remove possible thing@path -> path
+        x_clean = re.sub(r"^.*?\@", "", x_clean)
+
         if Path(x_clean).is_file():
             if x_clean.endswith(".whl"):
                 out.append(_get_zipfile_hash(x_clean))

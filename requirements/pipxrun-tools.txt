@@ -11,5 +11,5 @@ conda-lock>=2.5.5
 grayskull>=2.5.3
 mypy>=1.9.0
 nbqa>=1.8.4
-pyright>=1.1.353
+pyright!=1.1.358,>=1.1.357
 twine>=5.0.0
