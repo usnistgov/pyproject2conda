@@ -61,7 +61,7 @@ class AliasedGroup(TyperGroup):
         if len(matches) == 1:
             return super().get_command(ctx, matches[0])
         ctx.fail(
-            "Too many matches: %s" % ", ".join(sorted(matches))
+            "Too many matches: {}".format(", ".join(sorted(matches)))
         )  # pragma: no cover
         return None  # pragma: no cover
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import configparser
 import json
+import locale
 import os
 from copy import deepcopy
 from pathlib import Path
@@ -176,7 +177,7 @@ class ProjectConfig:
         )
 
         if path is not None:
-            with Path(path).open("w") as f:
+            with Path(path).open("w", encoding=locale.getpreferredencoding(False)) as f:
                 f.write(s)
         return s
 

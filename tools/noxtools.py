@@ -42,6 +42,7 @@ def override_sessionrunner_create_venv(self: SessionRunner) -> None:
 SessionRunner._create_venv = override_sessionrunner_create_venv  # type: ignore[method-assign] # pyright: ignore[reportPrivateUsage]
 # fmt: on
 
+import locale
 import operator
 
 from nox.logger import logger
@@ -1188,7 +1189,7 @@ def write_hashes(hash_path: str | Path, hashes: dict[str, Any]) -> None:
     """Write hashes to json file."""
     import json
 
-    with Path(hash_path).open("w") as f:
+    with Path(hash_path).open("w", encoding=locale.getpreferredencoding(False)) as f:
         json.dump(hashes, f, indent=2)
         f.write("\n")
 
