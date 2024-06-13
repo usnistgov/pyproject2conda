@@ -312,9 +312,9 @@ def _create_option(
         opt = replace(opt, action="append")
 
     if opt.type is UNDEFINED:
-        opt_type = type(choices[0]) if choices else underlying_type
+        opt_type = type(choices[0]) if choices else underlying_type  # pyright: ignore[reportUnknownVariableType]
 
-        if not callable(opt_type):
+        if not callable(opt_type):  # pyright: ignore[reportUnknownArgumentType]
             msg = (
                 f"Annotation {annotation} for parameter {name!r} is not callable."
                 f"Declare arg type with Annotated[..., Option(type=...)] instead."

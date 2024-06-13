@@ -39,6 +39,8 @@ from packaging.version import Version
 if TYPE_CHECKING:
     import argparse
     from types import ModuleType
+
+    # from typing import IO, Iterable, Iterator, Literal, Mapping, Sequence
     from typing import Iterable, Iterator, Mapping, Sequence
 
 # Optional imports
@@ -357,15 +359,25 @@ class Specifications:
 
 
 # * Dummy session -------------------------------------------------------------
+
+
 class SessionInterfaceTemplate(Protocol):
     """Generic session."""
 
     def run(
         self,
         *args: str | os.PathLike[str],
-        env: Mapping[str, str] | None,
+        env: Mapping[str, str | None] | None = None,
         include_outer_env: bool = True,
-        **kwargs: Any,
+        # **kwargs: Any,
+        # silent: bool = False,
+        # success_codes: Iterable[int] | None = None,
+        # log: bool = True,
+        # external: Literal["error", True, False] | None = None,
+        # stdout: int | IO[str] | None = None,
+        # stderr: int | IO[str] = subprocess.STDOUT,
+        # interrupt_timeout: float | None = 0.3,
+        # terminate_timeout: float | None = 0.2,
     ) -> Any | None: ...
 
     def log(self, *args: Any, **kwargs: Any) -> None: ...
@@ -373,6 +385,12 @@ class SessionInterfaceTemplate(Protocol):
     def warn(self, *args: Any, **kwargs: Any) -> None: ...
 
     def debug(self, *args: Any, **kwargs: Any) -> None: ...
+
+
+def _clean_env(env: Mapping[str, str | None] | None = None) -> dict[str, str] | None:
+    if env is None:
+        return None
+    return {k: v for k, v in env.items() if v is not None}
 
 
 class Session:
@@ -400,7 +418,7 @@ class Session:
     def run(
         self,
         *args: str | os.PathLike[str],
-        env: Mapping[str, str] | None = None,
+        env: Mapping[str, str | None] | None = None,
         include_outer_env: bool = True,  # noqa: ARG002
         **kwargs: Any,  # noqa: ARG002
     ) -> None:
@@ -410,7 +428,7 @@ class Session:
         full_cmd = shlex.join(cleaned_args)
 
         self.info("Running %s", full_cmd)
-        r = subprocess.run(cleaned_args, check=False, env=env)  # pyright: ignore[reportUnknownVariableType]
+        r = subprocess.run(cleaned_args, check=False, env=_clean_env(env))  # pyright: ignore[reportUnknownVariableType]
 
         returncode: int = r.returncode  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         if returncode != 0:

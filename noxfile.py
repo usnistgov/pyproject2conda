@@ -997,7 +997,8 @@ def build(session: nox.Session, opts: SessionParams) -> None:
             session.run(runner.python_full_path, "-m", "hatchling", "version")
 
         elif cmd == "build":
-            if Path(outdir := opts.build_outdir).exists():
+            outdir = opts.build_outdir
+            if Path(outdir).exists():
                 shutil.rmtree(outdir)
 
             args = f"{runner.python_full_path} -m build --outdir {outdir}".split()

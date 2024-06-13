@@ -580,7 +580,7 @@ nox -s {session} -- +P/++update-package
 [pyenv]: https://github.com/pyenv/pyenv
 [pyproject2conda]: https://github.com/wpk-nist-gov/pyproject2conda
 [pyright]: https://github.com/microsoft/pyright
-[scriv]: https://github.com/nedbat/scrivl
+[scriv]: https://github.com/nedbat/scriv
 [uv]: https://github.com/astral-sh/uv
 [tox]: https://tox.wiki/en/latest/
 [virtualenv]: https://virtualenv.pypa.io/en/latest/

@@ -12,7 +12,7 @@ from enum import Enum
 from functools import lru_cache, wraps
 from inspect import signature
 from pathlib import Path
-from typing import Any, Callable, Iterable, List, Optional, Union, cast
+from typing import Any, Callable, List, Optional, Union, cast
 
 # from click import click.Context
 import click
@@ -65,7 +65,7 @@ class AliasedGroup(TyperGroup):
         )  # pragma: no cover
         return None  # pragma: no cover
 
-    def list_commands(self, ctx: click.Context) -> Iterable[str]:  # noqa: ARG002
+    def list_commands(self, ctx: click.Context) -> List[str]:  # noqa: ARG002
         return list(self.commands)
 
 

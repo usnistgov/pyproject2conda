@@ -775,10 +775,11 @@ class Installer:
                 )
 
             # NOTE: Use the normal tmpdir for safety (might be missing env/tmp)
-            if cmd == "create":
-                self.session._run(*cmds, silent=True, env=self.env)  # pyright: ignore[reportPrivateUsage]
-            else:
-                self.session.run_always(*cmds, silent=True, env=self.env)
+            # if cmd == "create":
+            #     self.session._run(*cmds, silent=True, env=self.env)  # pyright: ignore[reportPrivateUsage]
+            # else:
+            #     self.session.run_always(*cmds, silent=True, env=self.env)
+            self.session.run_always(*cmds, silent=True, env=self.env)
 
         return self
 

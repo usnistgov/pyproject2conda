@@ -11,8 +11,8 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
-  - mypy>=1.9.0
-  - nox>=2024.3.2
+  - mypy>=1.10.0
+  - nox>=2024.4.15
   - packaging
   - pipx
   - pre-commit

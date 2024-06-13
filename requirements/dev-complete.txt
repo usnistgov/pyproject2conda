@@ -7,8 +7,8 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-mypy>=1.9.0
-nox>=2024.3.2
+mypy>=1.10.0
+nox>=2024.4.15
 packaging
 pipx
 pre-commit
