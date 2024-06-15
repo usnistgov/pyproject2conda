@@ -64,9 +64,11 @@ repos:
     rev: v0.4.8
     hooks:
       - id: ruff
+        alias: ruff-all
         types_or: &ruff-types-or [python, pyi, jupyter]
         args: [--fix, --show-fixes]
       - id: ruff-format
+        alias: ruff-all
         types_or: *ruff-types-or
 
   # * Spelling
