@@ -19,11 +19,7 @@ from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
-    Iterable,
-    Iterator,
     Literal,
-    Sequence,
     TypeAlias,
     TypedDict,
 )
@@ -57,6 +53,8 @@ import nox  # type: ignore[unused-ignore,import]
 # fmt: on
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Sequence
+
     from nox import Session
     from nox.virtualenv import CondaEnv
 

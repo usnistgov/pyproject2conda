@@ -49,10 +49,7 @@ from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
-    Container,
     Literal,
-    Sequence,
     Union,
     cast,
     get_args,
@@ -61,6 +58,8 @@ from typing import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Container, Sequence
+
     if sys.version_info < (3, 11):
         from typing_extensions import Self
     else:
@@ -393,10 +392,7 @@ def _get_underlying_if_optional(t: Any, pass_through: bool = False) -> Any:
 def _is_union_type(t: Any) -> bool:
     # types.UnionType only exists in Python 3.10+.
     # https://docs.python.org/3/library/stdtypes.html#types-union
-    if sys.version_info >= (3, 10):
-        import types
+    import types
 
-        origin = get_origin(t)
-        return origin is types.UnionType or origin is Union
-
-    return False
+    origin = get_origin(t)
+    return origin is types.UnionType or origin is Union

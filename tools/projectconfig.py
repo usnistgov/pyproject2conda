@@ -13,10 +13,11 @@ import locale
 import os
 from copy import deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import sys
+    from collections.abc import Mapping
 
     if sys.version_info < (3, 11):
         from typing_extensions import Self
