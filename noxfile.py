@@ -841,8 +841,7 @@ def docs(
     runner.run_commands(opts.docs_run)
 
     cmd = opts.docs or []
-    if not opts.docs_run and not cmd:
-        cmd = ["html"]
+    cmd = ["html"] if not opts.docs_run and not cmd else list(cmd)
 
     if "symlink" in cmd:
         cmd.remove("symlink")
@@ -931,6 +930,7 @@ def typing(  # noqa: C901
     session.env["MYPY_CACHE_DIR"] = str(Path(session.create_tmp()) / ".mypy_cache")
 
     if "clean" in cmd:
+        cmd = list(cmd)
         cmd.remove("clean")
 
         for name in [".mypy_cache", ".pytype"]:
@@ -1183,6 +1183,7 @@ def conda_build(session: nox.Session, opts: SessionParams) -> None:
     if cmds is None:
         cmds = []
 
+    cmds = list(cmds)
     if "clean" in cmds:
         cmds.remove("clean")
         session.log("removing directory dist-conda/build")
