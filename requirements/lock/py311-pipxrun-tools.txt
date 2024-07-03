@@ -3,7 +3,7 @@
 annotated-types==0.7.0    # via pydantic
 appdirs==1.4.4            # via ensureconda
 asttokens==2.4.1          # via stack-data
-autopep8==2.3.0           # via nbqa
+autopep8==2.3.1           # via nbqa
 backports-tarfile==1.2.0  # via jaraco-context
 beautifulsoup4==4.12.3    # via grayskull
 cachecontrol==0.14.0      # via conda-lock
@@ -22,14 +22,14 @@ distlib==0.3.8            # via virtualenv
 docutils==0.21.2          # via readme-renderer
 ensureconda==1.4.4        # via conda-lock
 executing==2.0.1          # via stack-data
-filelock==3.15.3          # via cachecontrol, ensureconda, virtualenv
+filelock==3.15.4          # via cachecontrol, ensureconda, virtualenv
 gitdb==4.0.11             # via gitpython
 gitpython==3.1.43         # via conda-lock
 grayskull==2.6.0          # via -r requirements/pipxrun-tools.txt
 html5lib==1.1             # via conda-lock
 idna==3.7                 # via requests
-importlib-metadata==7.2.0  # via keyring, twine
-ipython==8.25.0           # via nbqa
+importlib-metadata==8.0.0  # via keyring, twine
+ipython==8.26.0           # via nbqa
 jaraco-classes==3.4.0     # via keyring
 jaraco-context==5.3.0     # via keyring
 jaraco-functools==4.0.1   # via keyring
@@ -42,7 +42,7 @@ matplotlib-inline==0.1.7  # via ipython
 mdurl==0.1.2              # via markdown-it-py
 more-itertools==10.3.0    # via jaraco-classes, jaraco-functools
 msgpack==1.0.8            # via cachecontrol
-mypy==1.10.0              # via -r requirements/pipxrun-tools.txt
+mypy==1.10.1              # via -r requirements/pipxrun-tools.txt
 mypy-extensions==1.0.0    # via mypy
 nbqa==1.8.5               # via -r requirements/pipxrun-tools.txt
 nh3==0.2.17               # via readme-renderer
@@ -51,22 +51,22 @@ packaging==24.1           # via conda-lock, ensureconda, grayskull
 parso==0.8.4              # via jedi
 pastel==0.2.1             # via clikit
 pexpect==4.9.0            # via ipython
-pip==24.0                 # via grayskull
-pkginfo==1.11.1           # via conda-lock, grayskull, twine
+pip==24.1.1               # via grayskull
+pkginfo==1.10.0           # via conda-lock, grayskull, twine
 platformdirs==4.2.2       # via virtualenv
 progressbar2==4.4.2       # via grayskull
 prompt-toolkit==3.0.47    # via ipython
 ptyprocess==0.7.0         # via pexpect
 pure-eval==0.2.2          # via stack-data
 pycodestyle==2.12.0       # via autopep8
-pydantic==2.7.4           # via conda-lock
-pydantic-core==2.18.4     # via pydantic
+pydantic==2.8.0           # via conda-lock
+pydantic-core==2.20.0     # via pydantic
 pygments==2.18.0          # via ipython, readme-renderer, rich
 pylev==1.4.0              # via clikit
-pyright==1.1.368          # via -r requirements/pipxrun-tools.txt
+pyright==1.1.370          # via -r requirements/pipxrun-tools.txt
 python-utils==3.8.2       # via progressbar2
 pyyaml==6.0.1             # via conda-lock
-rapidfuzz==3.9.3          # via grayskull
+rapidfuzz==3.9.4          # via grayskull
 readme-renderer==43.0     # via twine
 requests==2.32.3          # via cachecontrol, conda-lock, ensureconda, grayskull, requests-toolbelt, twine
 requests-toolbelt==1.0.0  # via twine
@@ -76,7 +76,7 @@ ruamel-yaml==0.18.6       # via conda-lock, conda-souschef, grayskull, ruamel-ya
 ruamel-yaml-clib==0.2.8   # via ruamel-yaml
 ruamel-yaml-jinja2==0.2.7  # via conda-souschef, grayskull
 semver==3.0.2             # via grayskull
-setuptools==70.1.0        # via conda-lock, grayskull
+setuptools==70.2.0        # via conda-lock, grayskull
 six==1.16.0               # via asttokens, html5lib
 smmap==5.0.1              # via gitdb
 soupsieve==2.5            # via beautifulsoup4
@@ -88,10 +88,10 @@ tomli-w==1.0.0            # via grayskull
 tomlkit==0.12.5           # via conda-lock
 toolz==0.12.1             # via conda-lock
 traitlets==5.14.3         # via ipython, matplotlib-inline
-twine==5.1.0              # via -r requirements/pipxrun-tools.txt
+twine==5.1.1              # via -r requirements/pipxrun-tools.txt
 typing-extensions==4.12.2  # via conda-lock, ipython, mypy, pydantic, pydantic-core, python-utils
 urllib3==1.26.19          # via conda-lock, requests, twine
-virtualenv==20.26.2       # via conda-lock
+virtualenv==20.26.3       # via conda-lock
 wcwidth==0.2.13           # via prompt-toolkit
 webencodings==0.5.1       # via html5lib
 zipp==3.19.2              # via importlib-metadata

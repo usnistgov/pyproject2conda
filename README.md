@@ -616,7 +616,7 @@ or
 >>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(extras='dist-pypi', include_base=False).strip())
+>>> print(p.to_conda_yaml(extras="dist-pypi", include_base=False).strip())
 channels:
   - conda-forge
 dependencies:

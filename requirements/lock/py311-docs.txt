@@ -21,7 +21,7 @@ mdit-py-plugins==0.4.1    # via myst-parser
 mdurl==0.1.2              # via markdown-it-py
 myst-parser==3.0.1        # via -r requirements/docs.txt
 packaging==24.1           # via pydata-sphinx-theme, sphinx, -r requirements/docs.txt
-pydata-sphinx-theme==0.15.3  # via sphinx-book-theme
+pydata-sphinx-theme==0.15.4  # via sphinx-book-theme
 pyenchant==3.2.2          # via sphinxcontrib-spelling, -r requirements/docs.txt
 pygments==2.18.0          # via accessible-pygments, pydata-sphinx-theme, rich, sphinx
 pyyaml==6.0.1             # via myst-parser
