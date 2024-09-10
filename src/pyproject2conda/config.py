@@ -55,11 +55,6 @@ class Config:
             del out["envs"]
         return out
 
-    # def _get_env(self, env_name: str) -> dict[str, Any]:
-    #     env = self.get_in("envs", env_name)
-    #     env.update(**self._get_override(env_name))
-    #     return env  # type: ignore[no-any-return]
-
     def _get_value(
         self,
         key: str,
@@ -109,9 +104,6 @@ class Config:
         self, env_name: str | None = None, inherit: bool = True, default: Any = list
     ) -> list[str]:
         """Python getter"""
-        # if callable(default):
-        #     default = default()
-
         return self._get_value(  # type: ignore[no-any-return]
             key="python",
             env_name=env_name,
@@ -132,7 +124,6 @@ class Config:
             key="extras",
             env_name=env_name,
             inherit=False,
-            # as_list=True,
             default=env_name,
         )
 
@@ -157,11 +148,6 @@ class Config:
         return self._get_value(  # type: ignore[no-any-return]
             key="sort", env_name=env_name, inherit=inherit, default=default
         )
-
-    # def inherit(self, env_name: str, default: bool = True) -> bool:
-    #     return self._get_value(  # type: ignore[no-any-return]
-    #         key="inherit", env_name=env_name, inherit=True, default=default
-    #     )
 
     def base(self, env_name: str, default: bool = True) -> bool:
         """Base getter."""

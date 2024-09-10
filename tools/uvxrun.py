@@ -1,28 +1,24 @@
 """
-A script to invoke utilities from either pipx or from local installs.
+A script to invoke utilities from either uvx or from local installs.
 
 I got tired of installing mypy/pyright in a million venvs. I got around this
 for pyright using a central install and running in an activated venv. You can
 do likewise with mypy, by passing `--python-executable`. I got the bright idea
-to use `pipx` to manage mypy and pyright. But when working from my own machine,
-I'd already have the type checkers installed centrally. This script automates
-running these tools. It does the following:
+to use `uvx` (pipx originally) to manage mypy and pyright. But when working
+from my own machine, I'd already have the type checkers installed centrally.
+This script automates running these tools. It does the following:
 
 * Optionally can set the `specification` (i.e., "mypy==1.2.3...", etc)
-* Will check if the specification is installed. If it is, use it (unless pass
- `-x`). Otherwise, run the command via `pipx` (something like `pipx run
- mypy==1.2.3...`)
 * You can set the specifications from a `requirements.txt` file. So you can use
   tools like `pip-compile` to manage the versions.
 * Makes the `--python-executable` and `--pythonpath` flags to mypy and pyright
   the same. Defaults to using `sys.executable` from the python running this
 * Also sets `--python-version` and `--pythonversion` in mypy and pyright
-* For other tools, just run them from pipx or installed.
+* For other tools, just run them from using uvx (same as calling uvx directly)
 """
 
 from __future__ import annotations
 
-import locale
 import logging
 import os
 import re
@@ -34,7 +30,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from packaging.requirements import Requirement
-from packaging.version import Version
 
 if TYPE_CHECKING:
     import argparse
@@ -68,7 +63,7 @@ def _get_format(color: bool, add_timestamp: bool) -> str:
     return "%(name)s > %(message)s"
 
 
-class PipxRunFormatter(logging.Formatter):
+class UvxRunFormatter(logging.Formatter):
     """Custom formatter."""
 
     def __init__(self, add_timestamp: bool = False) -> None:
@@ -83,7 +78,7 @@ class PipxRunFormatter(logging.Formatter):
 
 if colorlog:
 
-    class PipxRunColoredFormatter(colorlog.ColoredFormatter):  # type: ignore[misc,name-defined]
+    class UvxRunColoredFormatter(colorlog.ColoredFormatter):  # type: ignore[misc,name-defined]
         """Colored formatter."""
 
         def __init__(
@@ -129,12 +124,12 @@ class LoggerWithSuccessAndOutput(logging.getLoggerClass()):  # type: ignore[misc
 
 
 logging.setLoggerClass(LoggerWithSuccessAndOutput)
-logger = cast(LoggerWithSuccessAndOutput, logging.getLogger("pipxrun"))
+logger = cast(LoggerWithSuccessAndOutput, logging.getLogger("uvxrun"))
 
 
 def _get_formatter(color: bool, add_timestamp: bool) -> logging.Formatter:
     if color and colorlog:
-        return PipxRunColoredFormatter(
+        return UvxRunColoredFormatter(
             reset=True,
             log_colors={
                 "DEBUG": "cyan",
@@ -148,7 +143,7 @@ def _get_formatter(color: bool, add_timestamp: bool) -> logging.Formatter:
             secondary_log_colors=None,
             add_timestamp=add_timestamp,
         )
-    return PipxRunFormatter(add_timestamp=add_timestamp)
+    return UvxRunFormatter(add_timestamp=add_timestamp)
 
 
 def setup_logging(
@@ -165,10 +160,6 @@ def setup_logging(
     level_number = max(0, logging.WARNING - 10 * verbosity)
     root_logger.setLevel(level_number)
 
-    # if verbose:
-    #     root_logger.setLevel(OUTPUT)
-    # else:
-    #     root_logger.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
 
     handler.setFormatter(_get_formatter(color, add_timestamp))
@@ -178,97 +169,10 @@ def setup_logging(
     logging.getLogger("sh").setLevel(logging.WARNING)
 
 
-# Original
-# class CustomFormatter(logging.Formatter):
-#     """Custom formatter."""
-
-#     def format(self, record: logging.LogRecord) -> str:
-#         """Custom format."""
-#         msg = textwrap.fill(
-#             super().format(record),
-#             width=_max_output_width(),
-#             subsequent_indent=" " * 4,
-#             break_long_words=False,
-#             replace_whitespace=False,
-#             drop_whitespace=False,
-#             break_on_hyphens=False,
-#         ).replace("\n", "\\\n")
-#         if msg.endswith("\\\n"):
-#             msg = msg.rstrip("\\\n") + "\n"
-
-#         return msg
-
-
-# handler = logging.StreamHandler(sys.stdout)
-# handler.setFormatter(
-#     CustomFormatter(
-#         "{name}({levelname}): {message}",
-#         style="{",
-#     )
-# )
-
-# logging.basicConfig(
-#     level=logging.WARNING,
-#     handlers=[
-#         handler,
-#     ],
-# )
-# logger = logging.getLogger("pipxrun")
-
-# def _set_verbosity_level(logger: logging.Logger, verbosity: int) -> None:
-#     """Set verbosity level."""
-#     level_number = max(0, logging.WARNING - 10 * verbosity)
-#     logger.setLevel(level_number)
-
-
 # * Utilities -----------------------------------------------------------------
 @lru_cache
 def _comment_re() -> re.Pattern[str]:
     return re.compile(r"(^|\s+)#.*$")
-
-
-# @lru_cache
-# def _max_output_width() -> int:
-#     import shutil
-
-#     width = shutil.get_terminal_size((80, 20)).columns
-
-#     min_width, max_width = 20, 150
-#     if width > max_width:
-#         width = max_width
-#     if width < min_width:
-#         width = min_width
-#     return width
-
-
-# def _print_header(name: str = "") -> None:
-#     if logger.isEnabledFor(logging.WARNING):
-#         fmt = f"{{:=<{_max_output_width()}}}"
-#         if name:
-#             name = f"= {name} "
-#         print(fmt.format(name))
-
-
-@lru_cache
-def _get_command_version(name: str, path: str) -> Version:
-    # Note that this version is faster than
-    # Calling subprocess to get --version (see bottom of file).
-    # But it might break on windows...
-
-    with Path(path).open(encoding=locale.getpreferredencoding(False)) as f:
-        python_executable = f.readline().strip().replace("#!", "")
-
-    return Version(
-        subprocess.check_output(
-            [
-                python_executable,
-                "-c",
-                f"from importlib.metadata import version; print(version('{name}'))",
-            ]
-        )
-        .decode()
-        .strip()
-    )
 
 
 def _parse_requirements(requirements: Path) -> Iterator[Requirement]:
@@ -367,15 +271,6 @@ class SessionInterfaceTemplate(Protocol):
         *args: str | os.PathLike[str],
         env: Mapping[str, str | None] | None = None,
         include_outer_env: bool = True,
-        # **kwargs: Any,
-        # silent: bool = False,
-        # success_codes: Iterable[int] | None = None,
-        # log: bool = True,
-        # external: Literal["error", True, False] | None = None,
-        # stdout: int | IO[str] | None = None,
-        # stderr: int | IO[str] = subprocess.STDOUT,
-        # interrupt_timeout: float | None = 0.3,
-        # terminate_timeout: float | None = 0.2,
     ) -> Any | None: ...
 
     def log(self, *args: Any, **kwargs: Any) -> None: ...
@@ -482,11 +377,11 @@ class Command:
         return []
 
     @staticmethod
-    def _get_pipx_flags(verbosity: int) -> list[str]:
+    def _get_uvx_flags(verbosity: int) -> list[str]:
         if verbosity > 0:
-            return [f"-{'v' * verbosity}"]
+            return ["-v"]
         if verbosity < 0:
-            return [f"-{'q' * -verbosity}"]
+            return ["-q"]
         return []
 
     def command(
@@ -495,42 +390,22 @@ class Command:
         python_executable: str | None,
         python_version: str | None,
         files: str | Iterable[str] | None,
-        pipx_only: bool = False,
         verbosity: int = 0,
     ) -> list[str]:
         """Create command list."""
-        from shutil import which
-
         if files is None:
             files = []
         elif isinstance(files, str):
             files = [files]
 
-        commands: list[str] = []
-        if not pipx_only and (exe_path := which(self.name)):
-            if self.spec is None:
-                session.log("Using local %s at %s", self.name, exe_path)
-                commands = [exe_path]
-            elif (
-                exe_version := _get_command_version(name=self.name, path=exe_path)
-            ) and exe_version in self.spec.specifier:
-                session.log(
-                    "Using local %s with version %s at %s",
-                    self.spec,
-                    exe_version,
-                    exe_path,
-                )
-                commands = [exe_path]
-
-        if not commands:
-            session.warn("Using pipx run %s", self.spec or self.name)
-            commands = [
-                "pipx",
-                "run",
-                *self._get_pipx_flags(verbosity=verbosity),
-                *([f"--spec={self.spec}"] if self.spec else []),
-                self.name,
-            ]
+        commands: list[str]
+        session.log("Using uvx %s", self.spec or self.name)
+        commands = [
+            "uvx",
+            *self._get_uvx_flags(verbosity=verbosity),
+            *([f"--from={self.spec}"] if self.spec else []),
+            self.name,
+        ]
 
         return [
             *commands,
@@ -550,20 +425,16 @@ class Command:
         files: Iterable[str] | None = None,
         dry: bool = False,
         verbosity: int = 0,
-        pipx_only: bool = False,
         env: Mapping[str, str] | None = None,
         include_outer_env: bool = True,
         **kwargs: Any,
     ) -> Any:
         """Run the command"""
-        # _print_header(self.name)
-
         command = self.command(
             session=session,
             python_executable=python_executable,
             python_version=python_version,
             files=files,
-            pipx_only=pipx_only,
             verbosity=verbosity,
         )
 
@@ -584,7 +455,6 @@ def run(
     python_version: str | None = None,
     python_executable: str | None = None,
     verbosity: int = -2,
-    pipx_only: bool = False,
     env: Mapping[str, str] | None = None,
     files: Iterable[str] | None = None,
     include_outer_env: bool = True,
@@ -609,7 +479,6 @@ def run(
         python_version=python_version,
         files=files,
         verbosity=verbosity,
-        pipx_only=pipx_only,
         env=env,
         include_outer_env=include_outer_env,
         **kwargs,
@@ -621,9 +490,7 @@ def _parse_args(args: Sequence[str] | None = None) -> argparse.Namespace:
     """Get parser."""
     from argparse import ArgumentParser
 
-    parser = ArgumentParser(
-        description="Run executable using pipx or from installed if matches specification."
-    )
+    parser = ArgumentParser(description="Run executable using uvx.")
     parser.add_argument(
         "--python-executable",
         dest="python_executable",
@@ -698,13 +565,6 @@ def _parse_args(args: Sequence[str] | None = None) -> argparse.Namespace:
         help="Lower verbosity level.  Pass multiple times to up level.",
     )
     parser.add_argument(
-        "-x",
-        "--pipx",
-        dest="pipx_only",
-        action="store_true",
-        help="Always use pipx to run the commands (No local fallback)",
-    )
-    parser.add_argument(
         "--fail-fast",
         dest="fail_fast",
         action="store_true",
@@ -762,7 +622,6 @@ def main(args: Sequence[str] | None = None) -> int:
                 python_version=options.python_version,
                 dry=options.dry,
                 verbosity=options.verbosity - options.quiet - 2,
-                pipx_only=options.pipx_only,
                 files=options.files,
             )
         except RuntimeError:  # noqa: PERF203
@@ -774,40 +633,3 @@ def main(args: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
-# Alternative method to get command version...
-# @lru_cache
-# def _version_re() -> re.Pattern[str]:
-#     return re.compile(
-#         r"\b([1-9][0-9]*!)?(0|[1-9][0-9]*)"
-#         r"(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))"
-#         r"?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?\b"
-#     )
-#
-#
-# @lru_cache
-# def _get_command_version(command: str, flag: str = "--version") -> Version | None:
-#     version_search = _version_re().search(
-#         subprocess.check_output([command, flag])
-#         .decode()
-#         .strip()
-#     )
-#     if version_search:
-#         return Version(version_search.group(0))
-#     return None
-#
-#
-# def _get_site(python_executable: str | Path) -> str:
-#     """Getesite-packages for python path (trying to make pytype work)"""
-#     return (
-#         subprocess.check_output(
-#             [
-#                 python_executable,
-#                 "-c",
-#                 "import sysconfig; print(sysconfig.get_paths()['purelib'])",
-#             ]
-#         )
-#         .decode()
-#         .strip()
-#     )

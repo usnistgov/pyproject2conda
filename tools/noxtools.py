@@ -27,12 +27,6 @@ def override_sessionrunner_create_venv(self: SessionRunner) -> None:
         logger.info("Using custom callable venv_backend")
 
         self.venv = self.func.venv_backend(self)
-        #     location=self.envdir,
-        #     interpreter=self.func.python,
-        #     reuse_existing=self.func.reuse_venv or self.global_config.reuse_existing_virtualenvs,
-        #     venv_params=self.func.venv_params,
-        #     runner=self,
-        # )
         return None
 
     logger.info("Using nox venv_backend")
@@ -686,23 +680,6 @@ class Installer:
                         external=True,
                     )
 
-                # Using central pip-sync
-                # The above fixes an fixes issue with using pip-sync on already
-                # created environments with dependencies like
-                # "thing; python_version < '3.9'".  For some reason
-                # the below will work fine on creation, but will not work
-                # correctly (python_version is not that of
-                # `--python-executable`, but that behind pip-sync).
-                #
-                # self.session.run_always("which", "pip-sync", external=True)
-                # self.session.run_always(
-                #     "pip-sync",
-                #     "--python-executable",
-                #     self.python_full_path,
-                #     *map(str, self.requirements),
-                #     silent=True,
-                #     external=True,
-                # )
             else:
                 install_args: list[str] = (
                     prepend_flag("-r", *map(str, self.requirements))
@@ -729,7 +706,7 @@ class Installer:
 
         if venv._clean_location():  # pyright: ignore[reportPrivateUsage]
             # Also clean out session tmp directory
-            # shutil.rmtree(self.session.create_tmp())
+            # shutil.rmtree(self.session.create_tmp())  # noqa: ERA001
             cmd = "create"
         elif self.changed or update or self.update:
             cmd = "update"
@@ -774,11 +751,6 @@ class Installer:
                     + extra_params
                 )
 
-            # NOTE: Use the normal tmpdir for safety (might be missing env/tmp)
-            # if cmd == "create":
-            #     self.session._run(*cmds, silent=True, env=self.env)  # pyright: ignore[reportPrivateUsage]
-            # else:
-            #     self.session.run_always(*cmds, silent=True, env=self.env)
             self.session.run_always(*cmds, silent=True, env=self.env)
 
         return self
@@ -939,23 +911,11 @@ class Installer:
             session=session,
             envname=envname,
             lock=lock,
-            # lock_fallback=lock_fallback,
             **kwargs,
         )
 
 
 # * Utilities --------------------------------------------------------------------------
-# def _to_list_of_str(x: str | Iterable[str] | None) -> list[str]:
-#     if x is None:
-#         return []
-#     elif isinstance(x, str):
-#         return [x]
-#     elif isinstance(x, list):
-#         return x
-#     else:
-#         return list(x)
-
-
 def _remove_whitespace(s: str) -> str:
     import re
 
@@ -1242,148 +1202,3 @@ def load_nox_config(path: str | Path = "./config/userconfig.toml") -> dict[str, 
     from .projectconfig import ProjectConfig
 
     return ProjectConfig.from_path_and_environ(path).to_nox_config()
-
-
-# * Create env from decorator ----------------------------------------------------------
-# class VenvBackend:
-#     """Create a callable venv_backend."""
-
-#     def __init__(
-#         self,
-#         parse_posargs: Callable[..., dict[str, Any]],
-#         envname: str | None = None,
-#         requirements: str | Path | None = None,
-#         backend: Literal[
-#             "conda", "mamba", "micromamba", "virtualenv", "venv"
-#         ] = "conda",
-#         lock_fallback: bool | None = None,
-#     ) -> None:
-#         self.envname = envname
-#         self.backend = backend
-#         self.parse_posargs = parse_posargs
-#         self.lock_fallback = lock_fallback or self.is_conda()
-
-#         self._requirements = requirements
-
-#     def set_opts(self, *posargs: str) -> None:
-#         self.opts: dict[str, Any] = self.parse_posargs(*posargs)
-
-#     @property
-#     def lock(self) -> bool:
-#         return cast(bool, self.opts.get("lock", False))
-
-#     @property
-#     def update(self) -> bool:
-#         return cast(bool, self.opts.get("update", False))
-
-#     def is_conda(self) -> bool:
-#         return self.backend in {"conda", "mamba", "micromamba"}
-
-#     def set_requirements(self, python_version: str | None) -> None:
-#         if self._requirements is not None:
-#             r = Path(self._requirements)
-#         elif self.envname is None:
-#             r = None
-#         else:
-#             if self.is_conda():
-#                 assert (
-#                     python_version is not None
-#                 ), "Must pass python version for conda env"
-
-#             r = Path(
-#                 infer_requirement_path(
-#                     name=self.envname,
-#                     python_version=python_version,
-#                     ext=".yaml" if self.is_conda() else ".txt",
-#                     lock=self.lock,
-#                     lock_fallback=self.lock_fallback,
-#                 )
-#             )
-
-#         self.requirements = r
-
-#     def set_tmp_path(self, location: str) -> None:
-#         self.tmp_path = Path(location) / "tmp"
-
-#     def set_params_from_runner(self, runner: SessionRunner) -> None:
-#         self.set_opts(*runner.posargs)
-#         self.set_requirements(python_version=runner.func.python)
-#         self.set_tmp_path(location=runner.envdir)
-
-#     @property
-#     def hash_path(self) -> Path:
-#         if self.requirements is None:
-#             raise ValueError("trying to use hash_path with no requirements")
-#         return self.tmp_path / (self.requirements.name + ".hash.json")
-
-#     @property
-#     def config_path(self) -> Path:
-#         return self.tmp_path / "env.json"
-
-#     def create_conda_env(self, runner: SessionRunner, reuse_existing: bool) -> CondaEnv:
-#         venv = CondaEnv(
-#             location=runner.envdir,
-#             interpreter=runner.func.python,
-#             reuse_existing=reuse_existing,
-#             venv_params=runner.func.venv_params,
-#             conda_cmd=self.backend.replace("micro", ""),
-#         )
-#         if not self.requirements:
-#             venv.create()
-#             return venv
-
-#         create = venv._clean_location()
-
-#         with check_for_change_manager(
-#             self.requirements,
-#             hash_path=self.hash_path,
-#             force_write=create or self.update,
-#         ) as changed:
-#             if create:
-#                 cmds = ["create"]
-#             elif changed or self.update:
-#                 # recreate
-#                 self.config_path.unlink(missing_ok=True)
-#                 cmds = ["update", "--prune"]
-#             else:
-#                 # reuse
-#                 cmds = ["reuse"]
-#                 venv._reused = True
-
-#             # create environment
-#             cmd = cmds[0]
-#             logger.info(f"{cmd.capitalize()} conda environment in {venv.location_name}")
-#             if cmd != "reuse":
-#                 cmds = (
-#                     [self.backend, "env"]
-#                     # + ([] if self.backend == "micromamba" else ["env"])
-#                     + cmds
-#                     + [
-#                         "--yes",
-#                         "--prefix",
-#                         venv.location,
-#                         "--file",
-#                         str(self.requirements),
-#                     ]
-#                 )
-#                 if venv_params := runner.func.venv_params:
-#                     cmds.extend(venv_params)
-
-#                 logger.info(" ".join(cmds))
-#                 nox.command.run(cmds, silent=False, log=nox.options.verbose or False)
-#         return venv
-
-#     def __call__(
-#         self,
-#         location: str,
-#         interpreter: str | None,
-#         reuse_existing: bool,
-#         venv_params: Any,
-#         runner: SessionRunner,
-#     ) -> CondaEnv:
-#         self.set_params_from_runner(runner)
-
-#         if self.is_conda():
-#             return self.create_conda_env(runner=runner, reuse_existing=reuse_existing)
-#         else:
-#             raise ValueError

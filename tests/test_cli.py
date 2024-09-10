@@ -5,8 +5,6 @@ import logging
 import sys
 import tempfile
 from pathlib import Path
-
-# from typer.testing import CliRunner
 from textwrap import dedent
 from typing import cast
 
@@ -21,8 +19,6 @@ ROOT = Path(__file__).resolve().parent / "data"
 def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
     if filename is None:
         raise ValueError
-    # if filename is None:
-    #     filename = str(ROOT / "test-pyproject.toml")
     filename = Path(filename)
     if must_exist and not filename.exists():
         msg = f"filename {filename} does not exist"
@@ -40,7 +36,7 @@ def filename(request) -> Path:
     return ROOT / cast(str, request.param)
 
 
-@pytest.fixture()
+@pytest.fixture
 def runner() -> CliRunner:
     return CliRunner()
 
@@ -724,16 +720,6 @@ def test_alias(filename, runner) -> None:
     result = do_run(runner, "q", filename=filename)
 
     assert isinstance(result.exception, BaseException)
-
-
-#     expected = """\
-# Usage: app [OPTIONS] COMMAND [ARGS]...
-# Try 'app --help' for help.
-
-# Error: No such command 'q'.
-#     """
-
-#     check_result(result, expected)
 
 
 def test_overwrite(filename, caplog) -> None:

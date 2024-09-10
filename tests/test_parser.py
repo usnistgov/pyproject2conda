@@ -7,7 +7,6 @@ from textwrap import dedent
 
 import pytest
 
-# from pyproject2conda import parser
 from pyproject2conda import requirements
 from pyproject2conda.utils import get_in
 
@@ -94,19 +93,6 @@ def test_parse_p2c() -> None:
     )
 
 
-# def test_value_comment_pairs():
-#     d: list[tuple[str | None, str | None]] = [(None, "# p2c: --pip")]
-
-#     with pytest.raises(ValueError):
-#         out = parser.value_comment_pairs_to_conda(d)
-
-#     d = [("hello", "# p2c: there")]
-
-#     out = parser.value_comment_pairs_to_conda(d)
-
-#     assert out["dependencies"] == ["hello", "there"]
-
-
 def test_header() -> None:
     from pyproject2conda.requirements import _create_header
 
@@ -138,29 +124,6 @@ def test_header() -> None:
     )
 
     assert out == header
-
-
-# def test_yaml_to_str():
-#     d = {"dep": ["a", "b"]}
-
-#     s = parser._yaml_to_string(d, add_final_eol=False)
-
-#     expected = """\
-#     dep:
-#       - a
-#       - b"""
-
-#     assert s == dedent(expected)
-
-#     s = parser._yaml_to_string(d, add_final_eol=True)
-
-#     expected = """\
-#     dep:
-#       - a
-#       - b
-#     """
-
-#     assert s == dedent(expected)
 
 
 def test_optional_write() -> None:

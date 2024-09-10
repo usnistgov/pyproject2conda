@@ -2,8 +2,6 @@
 import filecmp
 import logging
 import tempfile
-
-# from typer.testing import CliRunner
 from pathlib import Path
 from textwrap import dedent
 
@@ -550,7 +548,6 @@ def test_multiple(caplog) -> None:
 
     t1 = tempfile.TemporaryDirectory()
     path1 = t1.name
-    # path1 = ROOT / ".." / ".." / "tmp" / "output1"
 
     do_run(
         runner,
@@ -588,7 +585,6 @@ def test_multiple(caplog) -> None:
 
     t2 = tempfile.TemporaryDirectory()
     path2 = t2.name
-    # path2 = ROOT / ".." / ".." / "tmp" / "output2"
 
     do_run(
         runner, "yaml", "-e", "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"

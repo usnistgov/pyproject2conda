@@ -20,8 +20,6 @@ import typer
 from typer.core import TyperGroup
 
 from pyproject2conda import __version__
-
-# from pyproject2conda.parser import PyProject2Conda
 from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
     parse_pythons,
@@ -359,7 +357,6 @@ def _get_header_cmd(
         header = output is not None
 
     if header:
-        # return ""
         import sys
         from pathlib import Path
 
@@ -411,7 +408,6 @@ def add_verbose_logger(
             params = bind(*args, **kwargs)
             params.apply_defaults()
 
-            # verbosity = cast("Optional[int]", params[verbose_arg])
             verbosity = cast("Optional[int]", params.arguments[verbose_arg])
 
             if verbosity is None:
@@ -776,8 +772,8 @@ def to_json(
 # @click.version_option(version=__version__)
 # def app_click() -> None:
 #     pass
-# typer_click_object = typer.main.get_command(app_typer)
-# app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)
+# typer_click_object = typer.main.get_command(app_typer)  # noqa: ERA001
+# app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)  # noqa: ERA001
 
 # Just use the click app....
 app = typer.main.get_command(app_typer)

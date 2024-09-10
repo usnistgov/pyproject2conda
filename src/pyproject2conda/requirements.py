@@ -49,9 +49,6 @@ from pyproject2conda.utils import (
 
 from .overrides import OverrideDeps, OverrideDict
 
-# import logging
-# logger = logging.getLogger("pyproject2conda")
-
 
 # * Utilities --------------------------------------------------------------------------
 def _check_allow_empty(allow_empty: bool) -> str:
@@ -232,13 +229,9 @@ def _conda_yaml(
 
     if channels:
         out.append("channels:")
-        # for channel in _as_list(channels):
-        #     out.append(f"  - {channel}")
         out.extend(f"  - {channel}" for channel in _as_list(channels))
 
     out.append("dependencies:")
-    # for dep in _as_list(conda_deps):
-    #     out.append(f"  - {dep}")
     out.extend(f"  - {dep}" for dep in _as_list(conda_deps))
 
     if pip_deps:
@@ -246,8 +239,6 @@ def _conda_yaml(
             msg = "Must have pip in conda_deps"
             raise ValueError(msg)
         out.append("  - pip:")
-        # for dep in _as_list(pip_deps):
-        #     out.append(f"      - {dep}")
         out.extend(f"      - {dep}" for dep in _as_list(pip_deps))
 
     s = "\n".join(out)
@@ -290,7 +281,6 @@ def _create_header(cmd: str | None = None) -> str:
         else:
             lines.append("# " + line)
     return "\n".join(lines)
-    # header = "\n".join(["# " + line for line in header.split("\n")])
 
 
 def _add_header(string: str, header_cmd: str | None) -> str:
@@ -308,11 +298,6 @@ def _optional_write(
         return
 
     path = Path(output)
-    # if (not force) and path.is_file():
-    #     previous = path.read_text()
-    #     if previous == string:
-    #         logger.info(f"# Skipping {output}.  No change.")
-    #         return
 
     with path.open(mode) as f:
         f.write(string)

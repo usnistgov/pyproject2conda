@@ -276,14 +276,14 @@ requirement files are under something like
 `requirements/{env-name}.txt` (virtual environment).
 
 Additionally, requirement files for virtualenvs (e.g., `requirements.txt` like
-files) will be "locked" using `pip-compile` from [pip-tools]. These files are
-placed under `requirements/lock`. Note the the session `requirements`
-automatically calls the session `pip-compile`.
+files) will be "locked" using `uv pip compile` from [uv]. These files are placed
+under `requirements/lock`. Note the the session `requirements` automatically
+calls the session `uv-compile`.
 
 To upgrade the dependencies in the lock, you'll need to pass the option:
 
 ```bash
-nox -s requirements/pip-compile -- +L/++pip-compile-upgrade
+nox -s uv-compile -- +L/++pip-compile-upgrade
 ```
 
 ## ipykernel
@@ -421,17 +421,16 @@ nox -s typing -- +m [commands] [options]
 Use `typing-conda` to test typing in a conda environment.
 
 Note that the repo is setup to use a single install of [mypy] and [pyright]. The
-script `tools/pipxrun.py` will run check if an appropriate version of the
-typecheckers is installed. If not, they will be run (and cached) using
-`pipx run`.
+script `tools/uvxrun.py` will run check if an appropriate version of the
+typecheckers is installed. If not, they will be run (and cached) using [uvx].
 
 ## Setup development environment
 
 This project uses a host of tools to (hopefully) make development easier. We
 recommend installing some of these tools system wide. For this, we recommend
-using either [pipx] or [condax]. We mostly use conda/condax, but the choice is
-yours. For conda, we recommend actually using [mamba]. Alternatively, you can
-setup `conda` to use the faster `mamba` solver. See [here][conda-fast-setup] for
+using [uv] (or [pipx] or [condax]). We mostly use [uv], but the choice is yours.
+For conda, we recommend actually using [mamba]. Alternatively, you can setup
+`conda` to use the faster `mamba` solver. See [here][conda-fast-setup] for
 details.
 
 ### Create development environment with conda
@@ -445,7 +444,8 @@ pip install -e . --no-deps
 ```
 
 If you want to include some extra tools in the environment (instead of using
-[condax] or [pipx]), use `requirements/py{version}-dev-complete.yaml` instead.
+[uvx], [condax], or [pipx]), use `requirements/py{version}-dev-complete.yaml`
+instead.
 
 ### Create development environment with pip
 
@@ -483,23 +483,17 @@ If you go this route, you may want to use something like
 [autoenv](https://github.com/hyperupcall/autoenv) (if using bash) to auto
 activate the development environment when in the parent directory.
 
-Note that you can bootstrap the whole process with [pipx] using:
+Note that you can bootstrap the whole process with [uvx] using:
 
 ```bash
-pipx run --spec nox \
-     nox -s dev/dev-venv -- \
+uvx nox -s dev/dev-venv -- \
      ++dev-envname dev/dev-complete
 ```
 
 ### Development tools
 
-We recommend installing the following tools with [pipx] or [condax]. If you'd
-like to install them in the development environment instead, use the
-`dev-complete` version of the commands above.
-
 Additional tools are:
 
-- [pipx]
 - [pre-commit]
 - [uv] (optional, highly recommended)
 - [scriv] (optional)
@@ -509,31 +503,29 @@ Additional tools are:
 - [cog] (optional)
 - [nbqa] (optional)
 
-These are setup using the following:
+We recommend installing these tools with [uv], but feel free to use [pipx] or
+[condax]. If you'd like to install them in the development environment instead,
+use the `dev-complete` version of the commands above.
 
 ```console
-# install pipx using something like ...
-pip install --user pipx
-
-condax/pipx install pre-commit
-
+uv tool/condax/pipx install pre-commit
 # optional packages
-pipx install scriv
-condax/pipx install uv
-condax/pipx install pyright
-condax/pipx install cruft
-condax/pipx install commitizen
-condax/pipx install cogapp
-condax/pipx install nbqa
+uv tool/pipx install scriv
+uv tool/condax/pipx install uv
+uv tool/condax/pipx install pyright
+uv tool/condax/pipx install cruft
+uv tool/condax/pipx install commitizen
+uv tool/condax/pipx install cogapp
+uv tool/condax/pipx install nbqa
 ```
 
-Note that the repo is setup to automatically use pipx for many of these tools.
-Behind the scenes, the makefile and `noxfile.py` will invoke `tools/pipxrun.py`.
-This will either run the tool with `pipx run tool..`, or, if it is already
-installed (with proper version), run the tool from the install. This prevents
-having to install a bunch of tooling in the "dev" environment, and also avoid
-creating a bunch of through away [nox] environments. This is experimental, and I
-might change back to using small [nox] environments again in the future.
+Note that the repo is setup to automatically use [uvx] for many of these tools.
+Behind the scenes, the makefile and `noxfile.py` will invoke `tools/uvxrun.py`.
+This will run the tool with `uvx tool..` with proper tool version. Note that if
+the tool is already installed with the proper version, [uvx] will use it. This
+prevents having to install a bunch of tooling in the "dev" environment, and also
+avoid creating a bunch of through away [nox] environments. This is experimental,
+and I might change back to using small [nox] environments again in the future.
 
 ## Package version
 
@@ -574,13 +566,13 @@ nox -s {session} -- +P/++update-package
 [nbqa]: https://github.com/nbQA-dev/nbQA
 [nbval]: https://github.com/computationalmodelling/nbval
 [nox]: https://github.com/wntrblm/nox
-[pip-tools]: https://github.com/jazzband/pip-tools
 [pipx]: https://github.com/pypa/pipx
 [pre-commit]: https://pre-commit.com/
 [pyenv]: https://github.com/pyenv/pyenv
 [pyproject2conda]: https://github.com/wpk-nist-gov/pyproject2conda
 [pyright]: https://github.com/microsoft/pyright
 [scriv]: https://github.com/nedbat/scriv
-[uv]: https://github.com/astral-sh/uv
 [tox]: https://tox.wiki/en/latest/
+[uv]: https://github.com/astral-sh/uv
+[uvx]: https://docs.astral.sh/uv/guides/tools/
 [virtualenv]: https://virtualenv.pypa.io/en/latest/

@@ -28,7 +28,7 @@ repos:
 
   # * Pyproject-fmt
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: 2.1.4
+    rev: 2.2.3
     hooks:
       - id: pyproject-fmt
         args: [--indent=4, --keep-full-version]
@@ -46,7 +46,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.13.0
+    rev: v0.14.0
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -61,7 +61,7 @@ repos:
         additional_dependencies:
           - black==24.4.2
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.0
+    rev: v0.6.4
     hooks:
       - id: ruff
         alias: ruff-all
@@ -116,14 +116,14 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.27.0
+    rev: v3.29.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
 
   # * Manual Linting ------------------------------------------------------------
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.17.0
     hooks:
       - id: pyupgrade
         stages: [manual]
@@ -139,7 +139,7 @@ repos:
   # ** typos
   # Probably stick with codespell, but this might also be nice...
   - repo: https://github.com/crate-ci/typos
-    rev: v1.22.9
+    rev: v1.24.5
     hooks:
       - id: typos
         stages: [manual]
