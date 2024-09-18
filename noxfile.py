@@ -30,6 +30,7 @@ from tools import uvxrun
 from tools.dataclass_parser import DataclassParser, add_option, option
 from tools.noxtools import (
     Installer,
+    add_uv_pythons_to_path,
     cached_which,
     check_for_change_manager,
     combine_list_list_str,
@@ -38,7 +39,6 @@ from tools.noxtools import (
     factory_virtualenv_backend,
     infer_requirement_path,
     is_conda_session,
-    load_nox_config,
     open_webpage,
     prepend_flag,
     session_run_commands,
@@ -75,17 +75,19 @@ nox.options.default_venv_backend = "uv"
 
 # * User Config ------------------------------------------------------------------------
 
-CONFIG = load_nox_config()
+# CONFIG = load_nox_config()  # noqa: ERA001
 # if you'd like to disallow uv.
 # You'll need to import this from tools.noxtools
 # DISALLOW_WHICH.append("uv")  # noqa: ERA001
+
+add_uv_pythons_to_path()
 
 
 # * Options ---------------------------------------------------------------------------
 
 LOCK = True
 
-PYTHON_ALL_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+PYTHON_ALL_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 PYTHON_DEFAULT_VERSION = "3.11"
 
 
@@ -1199,6 +1201,7 @@ def cog(session: nox.Session, opts: SessionParams) -> None:
         session=session,
         update=opts.update,
         pip_deps="cogapp",
+        package="-e .",
     ).install_all(log_session=opts.log_session)
     session.run("cog", "-rP", "README.md", env={"COLUMNS": "100"})
 

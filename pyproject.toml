@@ -19,7 +19,7 @@ license-files = { paths = [
 authors = [
     { name = "William P. Krekelberg", email = "wpk@nist.gov" },
 ]
-requires-python = ">=3.8,<3.13"
+requires-python = ">=3.8,<3.14"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
@@ -32,6 +32,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
 dynamic = [
@@ -97,7 +98,7 @@ optional-dependencies.uvxrun-tools = [
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
     "pyproject2conda[mypy]",
-    "pyright>=1.1.370",
+    "pyright>=1.1.381",
     "twine>=5.0.0",
 ]
 urls.Documentation = "https://pages.nist.gov/pyproject2conda/"
@@ -449,6 +450,7 @@ python = [
     "3.10",
     "3.11",
     "3.12",
+    "3.13",
 ]
 
 # * pip-tools (keeping for legacy) ---------------------------------------------

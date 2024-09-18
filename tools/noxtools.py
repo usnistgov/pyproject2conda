@@ -26,7 +26,7 @@ def override_sessionrunner_create_venv(self: SessionRunner) -> None:
         # if passed a callable backend, always use just that
         logger.info("Using custom callable venv_backend")
 
-        self.venv = self.func.venv_backend(self)
+        self.venv = self.func.venv_backend(self)  # pyright: ignore[reportAttributeAccessIssue]
         return None
 
     logger.info("Using nox venv_backend")
@@ -1184,6 +1184,28 @@ def session_run_commands(
 
 
 # * User config ------------------------------------------------------------------------
+def add_uv_pythons_to_path() -> None:
+    """Add paths to uv python"""
+    import os
+    import subprocess
+    from pathlib import Path
+
+    try:
+        path_to_uv_pythons = (
+            subprocess.check_output(
+                ["uv", "python", "dir"],
+                env={"NO_COLOR": "1", **os.environ},
+            )
+            .decode()
+            .strip()
+        )
+        paths_new = ":".join(map(str, Path(path_to_uv_pythons).glob("*/bin")))
+        paths_old = os.environ["PATH"]
+        os.environ["PATH"] = f"{paths_new}:{paths_old}"
+    except subprocess.CalledProcessError:
+        pass
+
+
 def load_nox_config(path: str | Path = "./config/userconfig.toml") -> dict[str, Any]:
     """
     Load user toml config file.

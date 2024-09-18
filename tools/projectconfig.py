@@ -191,7 +191,7 @@ class ProjectConfig:
 
         paths: list[str] = []
         for p in self.python_paths:
-            paths.extend(glob(os.path.expanduser(p)))  # noqa: PTH207, PTH111
+            paths.extend(glob(os.path.expanduser(p.replace("\\", ""))))  # noqa: PTH207, PTH111
         return paths
 
     def add_paths_to_environ(

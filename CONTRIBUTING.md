@@ -199,37 +199,23 @@ If using virtualenvs across multiple python versions (e.g., `test`, `typing`,
 etc), you'll need to install python interpreters for each version. If using
 [pyenv], you should be good to go.
 
-Instead of using [pyenv], I use conda to create multiple invironments to hold
-different python version. You can use the following script to create the needed
-conda environments:
+Instead of using [pyenv], I use [uv] to manage python versions. For example:
 
 ```bash
-python tools/create_pythons.py -p 3.8 3.9 ...
+uv python install python3.12
 ```
 
-Run with `--help` for more options.
-
-To tell nox where to find python interpreters created like above, define the
-environment variable:
-
-```bash
-NOX_PYTHON_PATH="~/.conda/python-3.*/bin"
-```
-
-or the user config file `config/userconfig.toml` with:
+I also set the global [uv] config file (`~/.config/uv/uv.toml` on mac and linux)
+to use only managed python:
 
 ```toml
-# config/userconfig.toml
-[nox.python]
-paths = ["~/.conda/envs/python-3.*/bin"]
+python-preference = "only-managed"
 
 ```
 
-The variable `nox.python.paths` is a list of paths (with optional wildcards)
-added to the environment variable `PATH` to search for python interpreters. If
-using the environment variable `NOX_PYTHON_PATH`, paths should be separated with
-the colons (`:`). Either of the above will add the paths
-`~/.conda/envs/python-3.*/bin` to the search path.
+The `noxfile.py` is setup to automatically add the python interpreters installed
+by [uv] to the path. Note that the python version needs to be installed before
+it can be used with [nox]
 
 ### Nox session options
 
@@ -459,6 +445,16 @@ python -m pip install -r requirements/dev.txt
 # locked:
 pip-sync --python-path .venv/bin/python requirements/lock/py{version}-dev.txt
 python -m pip install -e . --no-deps
+```
+
+Or if using [uv]:
+
+```bash
+uv venv --python 3.11 .venv
+uv pip install -r requirements/dev.txt
+# or locked
+uv pip sync requirements/lock/py311-dev.txt
+
 ```
 
 If you want to include the extra tools, replace `dev.txt` with
