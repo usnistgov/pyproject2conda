@@ -53,6 +53,7 @@ optional-dependencies.dev-complete = [
     "pyproject2conda[dev,tools]",
 ]
 optional-dependencies.dev-extras = [
+    "ipykernel",
     "nox>=2024.4.15",
     "pytest-accept",
 ]
