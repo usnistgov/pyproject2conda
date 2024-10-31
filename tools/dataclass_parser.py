@@ -28,6 +28,7 @@ class Example(DataclassParser):
     no_cov: bool = False
 
 """
+
 from __future__ import annotations
 
 import sys
@@ -40,16 +41,15 @@ from dataclasses import (
     replace,
 )
 
-assert sys.version_info >= (3, 10)
+if sys.version_info < (3, 10):
+    msg = "Require python >= 3.10"
+    raise RuntimeError(msg)
 
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
-    Container,
     Literal,
-    Sequence,
     Union,
     cast,
     get_args,
@@ -58,6 +58,8 @@ from typing import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Container, Sequence
+
     if sys.version_info < (3, 11):
         from typing_extensions import Self
     else:
@@ -100,6 +102,7 @@ class Option:
                     raise ValueError(msg)
 
     def asdict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
         return {
             k: v
             for k, v in
@@ -120,6 +123,7 @@ class Option:
         parser: ArgumentParser,
         prefix_char: str = "-",
     ) -> None:
+        """Add argument to parser."""
         kwargs = self.asdict()
 
         flags = kwargs.pop("flags")
@@ -155,8 +159,9 @@ class Option:
         metavar: str = UNDEFINED,
         nargs: str | int | None = UNDEFINED,
         required: bool = UNDEFINED,
-        type: int | float | Callable[[Any], Any] = UNDEFINED,
+        type: Callable[[Any], Any] = UNDEFINED,
     ) -> Self:
+        """Factory method."""
         return cls(
             flags=flags or UNDEFINED,
             action=action,
@@ -186,9 +191,10 @@ def add_option(
     metavar: str = UNDEFINED,
     nargs: str | int | None = UNDEFINED,
     required: bool = UNDEFINED,
-    type: int | float | Callable[[Any], Any] = UNDEFINED,
+    type: Callable[[Any], Any] = UNDEFINED,
     **field_kws: Any,  # noqa: ARG001
 ) -> Any:
+    """Add option."""
     return field(
         metadata={
             "option": Option.factory(
@@ -214,6 +220,7 @@ class DataclassParser:
 
     @classmethod
     def parser(cls, prefix_char: str = "-", **kwargs: Any) -> ArgumentParser:
+        """Get parser."""
         parser = ArgumentParser(prefix_chars=prefix_char, **kwargs)
 
         for opt in get_dataclass_options(cls).values():
@@ -229,6 +236,7 @@ class DataclassParser:
         parser: ArgumentParser | None = None,
         known: bool = False,
     ) -> Self:
+        """Create object from posargs."""
         if parser is None:
             parser = cls.parser(prefix_char=prefix_char)
 
@@ -246,6 +254,7 @@ class DataclassParser:
 
 
 def get_dataclass_options(cls: Any) -> dict[str, Option]:
+    """Get dictionary of options."""
     return {
         name: _create_option(name=name, opt=opt, annotation=annotation)
         for name, (annotation, opt) in _get_dataclass_annotations_and_options(
@@ -285,21 +294,10 @@ def _create_option(
     opt: Option,
     annotation: Any,
 ) -> Option:
-    # Can also pass via annotations
-    # if this is the case, explicitly options from add_option
-    # will take precedence.
-    # if get_origin(annotation) is Annotated:
-    #     opt_type, opt_anno, *_ = get_args(annotation)
-
-    #     if isinstance(opt_anno, Option):
-    #         opt = Option(**{**opt_anno.asdict(), **opt.asdict()})
-
-    # else:
-    #     opt_type = annotation
-
     depth, underlying_type = _get_underlying_type(annotation)
+    max_depth = 2
 
-    if depth <= 2 and get_origin(underlying_type) is Literal:
+    if depth <= max_depth and get_origin(underlying_type) is Literal:
         choices = get_args(underlying_type)
         if opt.choices is UNDEFINED:
             opt = replace(opt, choices=choices)
@@ -313,9 +311,9 @@ def _create_option(
         opt = replace(opt, action="append")
 
     if opt.type is UNDEFINED:
-        opt_type = type(choices[0]) if choices else underlying_type
+        opt_type = type(choices[0]) if choices else underlying_type  # pyright: ignore[reportUnknownVariableType]
 
-        if not callable(opt_type):
+        if not callable(opt_type):  # pyright: ignore[reportUnknownArgumentType]
             msg = (
                 f"Annotation {annotation} for parameter {name!r} is not callable."
                 f"Declare arg type with Annotated[..., Option(type=...)] instead."
@@ -381,7 +379,7 @@ def _get_underlying_type(
 def _get_underlying_if_optional(t: Any, pass_through: bool = False) -> Any:
     if _is_union_type(t):
         args = get_args(t)
-        if len(args) == 2 and _NoneType in args:
+        if len(args) == 2 and _NoneType in args:  # noqa: PLR2004
             for arg in args:
                 if arg != _NoneType:
                     return arg
@@ -394,10 +392,7 @@ def _get_underlying_if_optional(t: Any, pass_through: bool = False) -> Any:
 def _is_union_type(t: Any) -> bool:
     # types.UnionType only exists in Python 3.10+.
     # https://docs.python.org/3/library/stdtypes.html#types-union
-    if sys.version_info >= (3, 10):
-        import types
+    import types
 
-        origin = get_origin(t)
-        return origin is types.UnionType or origin is Union
-
-    return False
+    origin = get_origin(t)
+    return origin is types.UnionType or origin is Union

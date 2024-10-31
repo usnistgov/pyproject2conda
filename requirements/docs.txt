@@ -8,9 +8,7 @@
 # Instead edit the corresponding pyproject.toml file.
 #
 autodocsumm
-ghp-import
-ipython
-myst-nb
+myst-parser
 packaging
 pyenchant
 sphinx-autobuild
@@ -19,7 +17,7 @@ sphinx-click
 sphinx-copybutton
 sphinx>=5.3.0
 sphinxcontrib-spelling
-tomli
+tomli;python_version<"3.11"
 tomlkit
 typer
-typing-extensions;python_version<"3.9"
+typing-extensions;python_version<"3.11"

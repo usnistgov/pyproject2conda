@@ -19,4 +19,5 @@ dependencies:
   - tomli
   - tomlkit
   - typer
+  - typing-extensions
   - pip

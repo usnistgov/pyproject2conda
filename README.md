@@ -616,7 +616,7 @@ or
 >>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(extras='dist-pypi', include_base=False).strip())
+>>> print(p.to_conda_yaml(extras="dist-pypi", include_base=False).strip())
 channels:
   - conda-forge
 dependencies:
@@ -766,7 +766,7 @@ To specify a conda environment (`yaml`) file, pass `style = "yaml"` (the
 default). To specify a requirements file, pass `style = "requirements"`. You can
 specify both to make both.
 
-Options in a given `tool.pyproject2conda.envs."environemnt-name"` section
+Options in a given `tool.pyproject2conda.envs."environment-name"` section
 override those at the `tool.pyproject2conda` level. So, for example:
 
 <!-- prettier-ignore-start -->

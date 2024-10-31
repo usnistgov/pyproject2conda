@@ -100,8 +100,18 @@ ENV/
 # mkdocs documentation
 /site
 
+# NOTE: use `/.mypy_cache/`, etc because want to flag those in other
 # mypy
 .mypy_cache/
+
+# pytpe
+.pytype/
+
+# ruff
+.ruff_cache
+
+# PDF output
+README.pdf
 
 # IDE settings
 .vscode/

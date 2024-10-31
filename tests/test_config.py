@@ -1,8 +1,7 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 import filecmp
+import logging
 import tempfile
-
-# from typer.testing import CliRunner
 from pathlib import Path
 from textwrap import dedent
 
@@ -278,6 +277,37 @@ def test_config_only_default() -> None:
         assert list(c.iter_envs()) == expected
 
 
+def test_config_errors() -> None:
+    s = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+
+    [tool.pyproject2conda.envs.test]
+    extras = true
+    """
+
+    # raise error for bad env
+    c = Config.from_string(s)
+    with pytest.raises(ValueError):
+        c.channels(env_name="hello")
+
+    s1 = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+
+    [tool.pyproject2conda.envs.test]
+    style = "thing"
+    """
+
+    # raise error for bad env
+    c = Config.from_string(s1)
+    with pytest.raises(ValueError):
+        c.style(env_name="test")
+
+    with pytest.raises(ValueError):
+        list(c.iter_envs())
+
+
 def test_config_overrides() -> None:
     # test overrides env
     s = """
@@ -460,12 +490,39 @@ def test_config_user_config() -> None:
 
     assert list(c.iter_envs()) == expected
 
+    # bad user
+    s_user2 = """
+    [[tool.pyproject2conda.envs]]
+    extras = ["a", "b"]
+    python = "3.9"
+
+    [[tool.pyproject2conda.overrides]]
+    envs = ["test"]
+    base = false
+    """
+
+    with pytest.raises(TypeError):
+        c = Config.from_string(s, s_user2)
+
+    s_user2 = """
+    [tool.pyproject2conda.envs]
+    extras = ["a", "b"]
+    python = "3.9"
+
+    [tool.pyproject2conda.overrides]
+    envs = ["test"]
+    base = false
+    """
+
+    with pytest.raises(TypeError):
+        c = Config.from_string(s, s_user2)
+
     # blank config, only user
-    s = """
+    s2 = """
     [tool.pyproject2conda]
     """
 
-    c = Config.from_string(s, s_user)
+    c = Config.from_string(s2, s_user)
 
     assert c.data == {
         "envs": {"user": {"extras": ["a", "b"], "python": "3.9"}},
@@ -484,12 +541,13 @@ def test_version() -> None:
     )
 
 
-def test_multiple() -> None:
+def test_multiple(caplog) -> None:
     runner = CliRunner()
+
+    caplog.set_level(logging.INFO)
 
     t1 = tempfile.TemporaryDirectory()
     path1 = t1.name
-    # path1 = ROOT / ".." / ".." / "tmp" / "output1"
 
     do_run(
         runner,
@@ -499,6 +557,8 @@ def test_multiple() -> None:
         "--template",
         f"{path1}/" + "{env}",
     )
+
+    assert "Creating" in caplog.text
 
     # running this again?
     do_run(
@@ -511,9 +571,20 @@ def test_multiple() -> None:
         f"{path1}/" + "{env}",
     )
 
+    assert "Skipping requirements" in caplog.text
+
+    # run again no verbose:
+    do_run(
+        runner,
+        "project",
+        "--template-python",
+        f"{path1}/" + "py{py}-{env}",
+        "--template",
+        f"{path1}/" + "{env}",
+    )
+
     t2 = tempfile.TemporaryDirectory()
     path2 = t2.name
-    # path2 = ROOT / ".." / ".." / "tmp" / "output2"
 
     do_run(
         runner, "yaml", "-e", "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"

@@ -1,12 +1,12 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call, assignment"
 import json
 import locale
+import logging
 import sys
 import tempfile
 from pathlib import Path
-
-# from typer.testing import CliRunner
 from textwrap import dedent
+from typing import cast
 
 import pytest
 from click.testing import CliRunner
@@ -19,8 +19,6 @@ ROOT = Path(__file__).resolve().parent / "data"
 def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
     if filename is None:
         raise ValueError
-    # if filename is None:
-    #     filename = str(ROOT / "test-pyproject.toml")
     filename = Path(filename)
     if must_exist and not filename.exists():
         msg = f"filename {filename} does not exist"
@@ -34,13 +32,16 @@ def check_result(result, expected) -> None:
 
 
 @pytest.fixture(params=["test-pyproject.toml", "test-pyproject-alt.toml"])
-def filename(request):
-    return ROOT / request.param
+def filename(request) -> Path:
+    return ROOT / cast(str, request.param)
 
 
-def test_list(filename) -> None:
-    runner = CliRunner()
+@pytest.fixture
+def runner() -> CliRunner:
+    return CliRunner()
 
+
+def test_list(filename: Path, runner: CliRunner) -> None:
     for cmd in ["l", "list"]:
         result = do_run(runner, cmd, filename=filename)
         expected = """\
@@ -58,9 +59,7 @@ def test_list(filename) -> None:
     check_result(result, expected)
 
 
-def test_create(filename) -> None:  # noqa: C901, PLR0915
-    runner = CliRunner()
-
+def test_create(filename, runner) -> None:  # noqa: C901
     # test unknown file
 
     result = do_run(runner, "yaml", filename="hello/there.toml")
@@ -356,9 +355,7 @@ dependencies:
         check_result(result, expected)
 
 
-def test_requirements(filename) -> None:
-    runner = CliRunner()
-
+def test_requirements(filename, runner) -> None:
     expected = """\
 athing
 bthing
@@ -522,9 +519,7 @@ def check_results_conda_req(path, expected) -> None:
     assert result == dedent(expected)
 
 
-def test_conda_requirements(filename) -> None:
-    runner = CliRunner()
-
+def test_conda_requirements(filename, runner) -> None:
     result = do_run(runner, "c", "hello.txt", filename=filename)
 
     assert isinstance(result.exception, ValueError)
@@ -607,9 +602,14 @@ achannel::pip
         check_results_conda_req(d / "hello-pip.txt", expected_pip)
 
 
-def test_json(filename) -> None:
-    runner = CliRunner()
+def check_results_json(path, expected) -> None:
+    with Path(path).open(encoding=locale.getpreferredencoding(False)) as f:
+        result = json.load(f)
 
+    assert result == expected
+
+
+def test_json(filename, runner) -> None:
     # stdout
     result = do_run(runner, "j", filename=filename)
 
@@ -618,12 +618,6 @@ def test_json(filename) -> None:
     """
 
     assert result.output == dedent(expected)
-
-    def check_results(path, expected) -> None:
-        with Path(path).open(encoding=locale.getpreferredencoding(False)) as f:
-            result = json.load(f)
-
-        assert result == expected
 
     with tempfile.TemporaryDirectory() as d_tmp:
         d = Path(d_tmp)
@@ -638,11 +632,11 @@ def test_json(filename) -> None:
 
         do_run(runner, "json", "-o", str(path), filename=filename)
 
-        check_results(d / "hello.json", expected)
+        check_results_json(d / "hello.json", expected)
 
         orig_time = path.stat().st_mtime
         do_run(runner, "json", "-o", str(path), filename=filename)
-        check_results(d / "hello.json", expected)
+        check_results_json(d / "hello.json", expected)
 
         assert path.stat().st_mtime == orig_time
 
@@ -671,7 +665,7 @@ def test_json(filename) -> None:
             filename=filename,
         )
 
-        check_results(d / "there.json", expected)
+        check_results_json(d / "there.json", expected)
 
         expected = {
             "dependencies": [
@@ -699,29 +693,39 @@ def test_json(filename) -> None:
             filename=filename,
         )
 
-        check_results(d / "there.json", expected)
+        check_results_json(d / "there.json", expected)
 
 
-def test_alias(filename) -> None:
-    runner = CliRunner()
+def test_json_no_channel(runner) -> None:
+    filename = ROOT / "simple-pyproject.toml"
+    expected = {
+        "dependencies": ["bthing-conda", "conda-forge::cthing", "pip"],
+        "pip": ["athing"],
+    }
 
+    with tempfile.TemporaryDirectory() as d_tmp:
+        d = Path(d_tmp)
+        do_run(
+            runner,
+            "json",
+            "-o",
+            str(d / "there.json"),
+            filename=filename,
+        )
+
+        check_results_json(d / "there.json", expected)
+
+
+def test_alias(filename, runner) -> None:
     result = do_run(runner, "q", filename=filename)
 
     assert isinstance(result.exception, BaseException)
 
 
-#     expected = """\
-# Usage: app [OPTIONS] COMMAND [ARGS]...
-# Try 'app --help' for help.
-
-# Error: No such command 'q'.
-#     """
-
-#     check_result(result, expected)
-
-
-def test_overwrite(filename) -> None:
+def test_overwrite(filename, caplog) -> None:
     runner = CliRunner(mix_stderr=True)
+
+    caplog.set_level(logging.INFO)
 
     with tempfile.TemporaryDirectory() as d_tmp:
         d = Path(d_tmp)
@@ -741,7 +745,7 @@ def test_overwrite(filename) -> None:
             catch_exceptions=False,
             filename=filename,
         )
-        # assert result.output.strip() == f"# Creating yaml {d_tmp}/out.yaml"
+        assert f"Creating yaml {d_tmp}/out.yaml" in caplog.text
 
         orig_time = path.stat().st_mtime
 
@@ -763,10 +767,10 @@ def test_overwrite(filename) -> None:
             else:
                 assert path.stat().st_mtime == orig_time
 
-            # assert (
-            #     result.output.strip()
-            #     == f"# Skipping yaml {d_tmp}/out.yaml. Pass `-w force` to force recreate output"
-            # )
+            assert (
+                f"Skipping yaml {d_tmp}/out.yaml. Pass `-w force` to force recreate output"
+                in caplog.text
+            )
 
         path = d / "out.txt"
         assert not path.exists()
@@ -784,7 +788,7 @@ def test_overwrite(filename) -> None:
         )
         orig_time = path.stat().st_mtime
 
-        # assert result.output.strip() == f"# Creating requirements {d_tmp}/out.txt"
+        assert f"Creating requirements {d_tmp}/out.txt" in caplog.text
 
         for cmd in ["check", "skip", "force"]:
             do_run(
@@ -803,7 +807,41 @@ def test_overwrite(filename) -> None:
                 assert path.stat().st_mtime > orig_time
             else:
                 assert path.stat().st_mtime == orig_time
-            # assert (
-            #     result.output.strip()
-            #     == f"# Skipping requirements {d_tmp}/out.txt. Pass `-w force` to force recreate output"
-            # )
+            assert (
+                f"Skipping requirements {d_tmp}/out.txt. Pass `-w force` to force recreate output"
+                in caplog.text
+            )
+
+
+def test_userconfig(filename, runner) -> None:
+    expected = """\
+# --------------------
+# Creating yaml py310-user-dev.yaml
+name: hello-there
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - bthing-conda
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
+  - setuptools
+  - pip
+  - pip:
+      - athing
+      - build
+    """
+
+    results = do_run(
+        runner,
+        "p",
+        "--dry",
+        "--envs",
+        "user-dev",
+        "--user-config",
+        str(ROOT / "config" / "userconfig2.toml"),
+        filename=filename,
+    )
+
+    check_result(results, expected)

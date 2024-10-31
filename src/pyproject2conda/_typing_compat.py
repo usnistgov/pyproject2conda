@@ -19,7 +19,7 @@ else:
 
 
 __all__ = [
-    "TypeAlias",
     "Annotated",
     "Self",
+    "TypeAlias",
 ]

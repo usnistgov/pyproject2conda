@@ -123,13 +123,6 @@ Ready to contribute? Here's how to make a contribution.
   nox -s test
   ```
 
-  Additionally, you should run the following:
-
-  ```bash
-  make pre-commit-lint-markdown
-  make pre-commit-codespell
-  ```
-
 - Create changelog fragment. See [scriv] for more info.
 
   ```bash
@@ -206,37 +199,23 @@ If using virtualenvs across multiple python versions (e.g., `test`, `typing`,
 etc), you'll need to install python interpreters for each version. If using
 [pyenv], you should be good to go.
 
-Instead of using [pyenv], I use conda to create multiple invironments to hold
-different python version. You can use the following script to create the needed
-conda environments:
+Instead of using [pyenv], I use [uv] to manage python versions. For example:
 
 ```bash
-python tools/create_pythons.py -p 3.8 3.9 ...
+uv python install python3.12
 ```
 
-Run with `--help` for more options.
-
-To tell nox where to find python interpreters created like above, define the
-environment variable:
-
-```bash
-NOX_PYTHON_PATH="~/.conda/python-3.*/bin"
-```
-
-or the user config file `config/userconfig.toml` with:
+I also set the global [uv] config file (`~/.config/uv/uv.toml` on mac and linux)
+to use only managed python:
 
 ```toml
-# config/userconfig.toml
-[nox.python]
-paths = ["~/.conda/envs/python-3.*/bin"]
+python-preference = "only-managed"
 
 ```
 
-The variable `nox.python.paths` is a list of paths (with optional wildcards)
-added to the environment variable `PATH` to search for python interpreters. If
-using the environment variable `NOX_PYTHON_PATH`, paths should be separated with
-the colons (`:`). Either of the above will add the paths
-`~/.conda/envs/python-3.*/bin` to the search path.
+The `noxfile.py` is setup to automatically add the python interpreters installed
+by [uv] to the path. Note that the python version needs to be installed before
+it can be used with [nox]
 
 ### Nox session options
 
@@ -283,14 +262,14 @@ requirement files are under something like
 `requirements/{env-name}.txt` (virtual environment).
 
 Additionally, requirement files for virtualenvs (e.g., `requirements.txt` like
-files) will be "locked" using `pip-compile` from [pip-tools]. These files are
-placed under `requirements/lock`. Note the the session `requirements`
-automatically calls the session `pip-compile`.
+files) will be "locked" using `uv pip compile` from [uv]. These files are placed
+under `requirements/lock`. Note the the session `requirements` automatically
+calls the session `uv-compile`.
 
 To upgrade the dependencies in the lock, you'll need to pass the option:
 
 ```bash
-nox -s requirements/pip-compile -- +L/++pip-compile-upgrade
+nox -s uv-compile -- +L/++pip-compile-upgrade
 ```
 
 ## ipykernel
@@ -298,12 +277,10 @@ nox -s requirements/pip-compile -- +L/++pip-compile-upgrade
 The environments created by nox `dev` and `docs-conda` will try to add
 meaningful display names for ipykernel. These are installed at the user level.
 To cleanup the kernels (meaning, removing installed kernels that point to a
-removed environment), You can use the script `tools/clean_kernelspec.py`. This
-script should be run from the environment of the jupyter server. For example, if
-you run jupyter from a conda environment named `notebook`, run
+removed environment), You can use the script `tools/clean_kernelspec.py`:
 
 ```bash
-conda run -n notebook python tools/clean_kernelspec.py
+python tools/clean_kernelspec.py
 ```
 
 ## Building the docs
@@ -429,13 +406,17 @@ nox -s typing -- +m [commands] [options]
 
 Use `typing-conda` to test typing in a conda environment.
 
+Note that the repo is setup to use a single install of [mypy] and [pyright]. The
+script `tools/uvxrun.py` will run check if an appropriate version of the
+typecheckers is installed. If not, they will be run (and cached) using [uvx].
+
 ## Setup development environment
 
 This project uses a host of tools to (hopefully) make development easier. We
 recommend installing some of these tools system wide. For this, we recommend
-using either [pipx] or [condax]. We mostly use conda/condax, but the choice is
-yours. For conda, we recommend actually using [mamba]. Alternatively, you can
-setup `conda` to use the faster `mamba` solver. See [here][conda-fast-setup] for
+using [uv] (or [pipx] or [condax]). We mostly use [uv], but the choice is yours.
+For conda, we recommend actually using [mamba]. Alternatively, you can setup
+`conda` to use the faster `mamba` solver. See [here][conda-fast-setup] for
 details.
 
 ### Create development environment with conda
@@ -449,7 +430,8 @@ pip install -e . --no-deps
 ```
 
 If you want to include some extra tools in the environment (instead of using
-[condax] or [pipx]), use `requirements/py{version}-dev-complete.yaml` instead.
+[uvx], [condax], or [pipx]), use `requirements/py{version}-dev-complete.yaml`
+instead.
 
 ### Create development environment with pip
 
@@ -463,6 +445,16 @@ python -m pip install -r requirements/dev.txt
 # locked:
 pip-sync --python-path .venv/bin/python requirements/lock/py{version}-dev.txt
 python -m pip install -e . --no-deps
+```
+
+Or if using [uv]:
+
+```bash
+uv venv --python 3.11 .venv
+uv pip install -r requirements/dev.txt
+# or locked
+uv pip sync requirements/lock/py311-dev.txt
+
 ```
 
 If you want to include the extra tools, replace `dev.txt` with
@@ -487,60 +479,67 @@ If you go this route, you may want to use something like
 [autoenv](https://github.com/hyperupcall/autoenv) (if using bash) to auto
 activate the development environment when in the parent directory.
 
-Note that you can bootstrap the whole process with [pipx] using:
+Note that you can bootstrap the whole process with [uvx] using:
 
 ```bash
-pipx run --spec nox \
-     nox -s dev -- \
+uvx nox -s dev/dev-venv -- \
      ++dev-envname dev/dev-complete
 ```
 
 ### Development tools
 
-We recommend installing the following tools with [pipx] or [condax]. If you'd
-like to install them in the development environment instead, use the
-`dev-complete` version of the commands above.
-
 Additional tools are:
 
-- [pip-tools]
 - [pre-commit]
-- [scriv]
-- [nbqa]
-- [pyright]
+- [uv] (optional, highly recommended)
+- [scriv] (optional)
+- [pyright] (optional)
 - [cruft] (optional)
 - [commitizen] (optional)
 - [cog] (optional)
+- [nbqa] (optional)
 
-These are setup using the following:
+We recommend installing these tools with [uv], but feel free to use [pipx] or
+[condax]. If you'd like to install them in the development environment instead,
+use the `dev-complete` version of the commands above.
 
 ```console
-condax/pipx install pip-tools
-condax/pipx install pre-commit
-pipx install scriv
-condax/pipx install nbqa
-condax/pipx install pyright
-
+uv tool/condax/pipx install pre-commit
 # optional packages
-condax/pipx install cruft
-condax/pipx install commitizen
-condax/pipx install cogapp
+uv tool/pipx install scriv
+uv tool/condax/pipx install uv
+uv tool/condax/pipx install pyright
+uv tool/condax/pipx install cruft
+uv tool/condax/pipx install commitizen
+uv tool/condax/pipx install cogapp
+uv tool/condax/pipx install nbqa
 ```
+
+Note that the repo is setup to automatically use [uvx] for many of these tools.
+Behind the scenes, the makefile and `noxfile.py` will invoke `tools/uvxrun.py`.
+This will run the tool with `uvx tool..` with proper tool version. Note that if
+the tool is already installed with the proper version, [uvx] will use it. This
+prevents having to install a bunch of tooling in the "dev" environment, and also
+avoid creating a bunch of through away [nox] environments. This is experimental,
+and I might change back to using small [nox] environments again in the future.
 
 ## Package version
 
-[setuptools_scm]: https://github.com/pypa/setuptools_scm
+[hatch-vcs]: https://github.com/ofek/hatch-vcs
 
-Versioning is handled with [setuptools_scm]. The package version is set by the
-git tag. For convenience, you can override the version with nox setting
-`--version ...`. This is useful for updating the docs, etc.
+Versioning is handled with [hatch-vcs]. The package version is set by the git
+tag. For convenience, you can override the version with nox setting
+`++version ...`. This is useful for updating the docs, etc.
 
 Note that the version in a given environment/session can become stale. The
 easiest way to update the installed package version version is to reinstall the
 package. This can be done using the following:
 
 ```bash
+# using pip
 pip install -e . --no-deps
+# using uv
+uv pip install -e . --no-deps
 ```
 
 To do this in a given session, use:
@@ -559,15 +558,17 @@ nox -s {session} -- +P/++update-package
 [cruft]: https://github.com/cruft/cruft
 [git-flow]: https://github.com/nvie/gitflow
 [mamba]: https://github.com/mamba-org/mamba
+[mypy]: https://github.com/python/mypy
 [nbqa]: https://github.com/nbQA-dev/nbQA
 [nbval]: https://github.com/computationalmodelling/nbval
 [nox]: https://github.com/wntrblm/nox
-[pip-tools]: https://github.com/jazzband/pip-tools
 [pipx]: https://github.com/pypa/pipx
 [pre-commit]: https://pre-commit.com/
 [pyenv]: https://github.com/pyenv/pyenv
 [pyproject2conda]: https://github.com/wpk-nist-gov/pyproject2conda
 [pyright]: https://github.com/microsoft/pyright
-[scriv]: https://github.com/nedbat/scrivl
+[scriv]: https://github.com/nedbat/scriv
 [tox]: https://tox.wiki/en/latest/
+[uv]: https://github.com/astral-sh/uv
+[uvx]: https://docs.astral.sh/uv/guides/tools/
 [virtualenv]: https://virtualenv.pypa.io/en/latest/

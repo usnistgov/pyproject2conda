@@ -55,11 +55,6 @@ class Config:
             del out["envs"]
         return out
 
-    # def _get_env(self, env_name: str) -> dict[str, Any]:
-    #     env = self.get_in("envs", env_name)
-    #     env.update(**self._get_override(env_name))
-    #     return env  # type: ignore[no-any-return]
-
     def _get_value(
         self,
         key: str,
@@ -69,13 +64,14 @@ class Config:
         default: Any = None,
     ) -> Any:
         """Get a value from thing"""
-
         if env_name is None:
             value = self.get_in(key, default=None)
 
         else:
             # try to get from env definition
-            assert env_name in self.data["envs"], f"env {env_name} not in config"
+            if env_name not in self.data["envs"]:
+                msg = f"env {env_name} not in config"
+                raise ValueError(msg)
 
             value = self.get_in("envs", env_name, key, default=None)
 
@@ -108,10 +104,6 @@ class Config:
         self, env_name: str | None = None, inherit: bool = True, default: Any = list
     ) -> list[str]:
         """Python getter"""
-
-        # if callable(default):
-        #     default = default()
-
         return self._get_value(  # type: ignore[no-any-return]
             key="python",
             env_name=env_name,
@@ -128,12 +120,10 @@ class Config:
         * If value is `False`, return []
         * else return list of extras
         """
-
         val = self._get_value(
             key="extras",
             env_name=env_name,
             inherit=False,
-            # as_list=True,
             default=env_name,
         )
 
@@ -159,16 +149,12 @@ class Config:
             key="sort", env_name=env_name, inherit=inherit, default=default
         )
 
-    # def inherit(self, env_name: str, default: bool = True) -> bool:
-    #     return self._get_value(  # type: ignore[no-any-return]
-    #         key="inherit", env_name=env_name, inherit=True, default=default
-    #     )
-
     def base(self, env_name: str, default: bool = True) -> bool:
         """Base getter."""
         return self._get_value(key="base", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
     def name(self, env_name: str) -> bool:
+        """Name option."""
         return self._get_value(key="name", env_name=env_name)  # type: ignore[no-any-return]
 
     def header(self, env_name: str) -> bool:
@@ -181,7 +167,9 @@ class Config:
             key="style", env_name=env_name, default=default, as_list=True
         )
         for k in out:
-            assert k in {"yaml", "requirements", "conda-requirements", "json"}
+            if k not in {"yaml", "requirements", "conda-requirements", "json"}:
+                msg = f"unknown style {k}"
+                raise ValueError(msg)
         return out  # type: ignore[no-any-return]
 
     def python_include(self, env_name: str | None = None) -> str | None:
@@ -213,6 +201,7 @@ class Config:
         )
 
     def deps(self, env_name: str, default: Any = None) -> list[str]:
+        """Conda dependencies option."""
         return self._get_value(  # type: ignore[no-any-return]
             key="deps",
             env_name=env_name,
@@ -220,6 +209,7 @@ class Config:
         )
 
     def reqs(self, env_name: str, default: Any = None) -> list[str]:
+        """Pip dependencies option."""
         return self._get_value(  # type: ignore[no-any-return]
             key="reqs",
             env_name=env_name,
@@ -231,6 +221,7 @@ class Config:
         return self._get_value(key="user_config", default=None)  # type: ignore[no-any-return]
 
     def allow_empty(self, env_name: str | None = None, default: bool = False) -> bool:
+        """Allow empty option."""
         return self._get_value(  # type: ignore[no-any-return]
             key="allow_empty", env_name=env_name, default=default
         )
@@ -238,6 +229,7 @@ class Config:
     def remove_whitespace(
         self, env_name: str | None = None, default: bool = True
     ) -> bool:
+        """Remove whitespace option."""
         return self._get_value(  # type: ignore[no-any-return]
             key="remove_whitespace",
             env_name=env_name,
@@ -263,10 +255,14 @@ class Config:
             if u is not None:
                 d = data[key]
                 if isinstance(d, list):
-                    assert isinstance(u, list)
+                    if not isinstance(u, list):
+                        msg = f"expected list, got {type(u)}"
+                        raise TypeError(msg)
                     d.extend(u)  # pyright: ignore[reportUnknownMemberType]
-                elif isinstance(d, dict):
-                    assert isinstance(u, dict)
+                elif isinstance(d, dict):  # pragma: no cover
+                    if not isinstance(u, dict):
+                        msg = f"expected dict, got {type(u)}"
+                        raise TypeError(msg)
                     d.update(**u)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
 
         return type(self)(data)
@@ -350,7 +346,7 @@ class Config:
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
 
         output = self.output(env_name)
-        if not output:
+        if not output:  # pragma: no cover
             output = filename_from_template(
                 template=template, env_name=env_name, ext="txt"
             )
@@ -362,7 +358,6 @@ class Config:
         self, envs: Sequence[str] | None = None, **defaults: Any
     ) -> Iterator[tuple[str, dict[str, Any]]]:
         """Iterate over configs"""
-
         # filter defaults.  Only include values of not None:
         defaults = {k: v for k, v in defaults.items() if v is not None}
 
@@ -375,9 +370,9 @@ class Config:
                     yield from self._iter_yaml(env, **defaults)
                 elif style == "requirements":
                     yield from self._iter_reqs(env, **defaults)
-                else:
+                else:  # pragma: no cover
                     msg = f"unknown style {style}"
-                    raise ValueError(msg)  # pragma: no cover
+                    raise ValueError(msg)
 
     @classmethod
     def from_toml_dict(
@@ -408,9 +403,9 @@ class Config:
     @classmethod
     def from_string(cls, s: str, user_config: str | None = None) -> Self:
         """Create from string representation of toml file."""
-        import tomli
+        from ._compat import tomllib
 
-        c = cls.from_toml_dict(tomli.loads(s))
+        c = cls.from_toml_dict(tomllib.loads(s))
 
         if user_config:
             u = cls.from_string(user_config)
@@ -422,10 +417,10 @@ class Config:
         cls, path: str | Path, user_config: str | Path | None = "infer"
     ) -> Self:
         """Create from toml file(s)."""
-        import tomli
+        from ._compat import tomllib
 
         with Path(path).open("rb") as f:
-            data = tomli.load(f)
+            data = tomllib.load(f)
 
         c = cls.from_toml_dict(data)
 

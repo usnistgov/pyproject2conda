@@ -7,6 +7,7 @@ jupyter server, run the following:
 
 $ conda run -n notebook python path/to/clean_kernelspec.py
 """
+
 from __future__ import annotations
 
 import json
@@ -32,14 +33,14 @@ def get_kernelspec_data() -> None:
         p = Path(data["spec"]["argv"][0])
 
         if not p.exists():
-            logger.debug(f"{name} does not exist.")
+            logger.debug("%s does not exist.", name)
             to_remove.append(name)
 
         else:
-            logger.debug(f"{name} exists")
+            logger.debug("%s exists.", name)
 
     if to_remove:
-        logger.info(f"removing kernels {to_remove}")
+        logger.info("removing kernels %s", to_remove)
         check_output(["jupyter", "kernelspec", "remove", "-f", *to_remove])
     else:
         logger.info("nothing to do")
@@ -48,7 +49,6 @@ def get_kernelspec_data() -> None:
 if __name__ == "__main__":
     try:
         get_kernelspec_data()
-    except CalledProcessError as e:
-        logger.error(e)
-        logger.error("Most likely you didn't run from notebook server environment")
+    except CalledProcessError:
+        logger.exception("Most likely you didn't run from notebook server environment")
         raise

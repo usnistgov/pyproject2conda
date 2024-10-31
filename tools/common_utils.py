@@ -1,4 +1,5 @@
 """Utilities for tools."""
+
 from __future__ import annotations
 
 
@@ -13,7 +14,7 @@ def get_conda_environment_map(simplify: bool = True) -> dict[str, str]:
     for line in result.decode().split("\n"):
         if not line.startswith("#"):
             x = line.replace("*", "").split()
-            if len(x) == 2:
+            if len(x) == 2:  # noqa: PLR2004
                 env_map[x[0]] = x[1]
     if simplify:
         home = str(Path.home())

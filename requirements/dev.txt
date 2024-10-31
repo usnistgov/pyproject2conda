@@ -8,18 +8,16 @@
 # Instead edit the corresponding pyproject.toml file.
 #
 ipykernel
-ipython
-mypy>=1.4.1
-nox
+mypy>=1.10.1
+nox>=2024.4.15
 packaging
 pytest
 pytest-accept
 pytest-cov
 pytest-sugar
 pytest-xdist
-pytype;python_version<"3.11"
-tomli
+tomli;python_version<"3.11"
 tomlkit
 typer
 types-click
-typing-extensions;python_version<"3.9"
+typing-extensions;python_version<"3.11"

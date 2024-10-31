@@ -12,7 +12,7 @@ from enum import Enum
 from functools import lru_cache, wraps
 from inspect import signature
 from pathlib import Path
-from typing import Any, Callable, Iterable, List, Optional, Union, cast
+from typing import Any, Callable, List, Optional, Union, cast
 
 # from click import click.Context
 import click
@@ -20,8 +20,6 @@ import typer
 from typer.core import TyperGroup
 
 from pyproject2conda import __version__
-
-# from pyproject2conda.parser import PyProject2Conda
 from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
     parse_pythons,
@@ -61,11 +59,11 @@ class AliasedGroup(TyperGroup):
         if len(matches) == 1:
             return super().get_command(ctx, matches[0])
         ctx.fail(
-            "Too many matches: %s" % ", ".join(sorted(matches))
+            "Too many matches: {}".format(", ".join(sorted(matches)))
         )  # pragma: no cover
-        return None
+        return None  # pragma: no cover
 
-    def list_commands(self, ctx: click.Context) -> Iterable[str]:  # noqa: ARG002
+    def list_commands(self, ctx: click.Context) -> List[str]:  # noqa: ARG002
         return list(self.commands)
 
 
@@ -76,7 +74,7 @@ def version_callback(value: bool) -> None:
     """Versioning call back."""
     if value:
         typer.echo(f"pyproject2conda, version {__version__}")
-        raise typer.Exit()
+        raise typer.Exit
 
 
 @app_typer.callback()
@@ -223,7 +221,7 @@ PYTHON_VERSION_CLI = Annotated[
     typer.Option(
         "--python-version",
         help="""
-         Python version to check `python_verion <=> {python_version}` lines against. That is,
+         Python version to check `python_version <=> {python_version}` lines against. That is,
          this version is used to limit packages in resulting output. For example, if have a
          line like `a-package; python_version < '3.9'`, Using `--python-version 3.10` will
          not include `a-package`, while `--python-version 3.8` will include `a-package`.
@@ -359,7 +357,6 @@ def _get_header_cmd(
         header = output is not None
 
     if header:
-        # return ""
         import sys
         from pathlib import Path
 
@@ -376,7 +373,9 @@ def _get_requirement_parser(filename: Union[str, Path]) -> ParseDepends:
 def _log_skipping(
     logger: logging.Logger, style: str, output: Union[str, Path, None]
 ) -> None:
-    logger.info(f"Skipping {style} {output}. Pass `-w force` to force recreate output")
+    logger.info(
+        "Skipping %s %s. Pass `-w force` to force recreate output", style, output
+    )
 
 
 def _log_creating(
@@ -385,7 +384,7 @@ def _log_creating(
     output: Union[str, Path, None],
     prefix: Optional[str] = None,
 ) -> None:
-    if prefix is None:
+    if prefix is None:  # pragma: no cover
         prefix = "# " if prefix is None and output is None else ""
 
     s = f"{prefix}Creating {style}"
@@ -409,7 +408,6 @@ def add_verbose_logger(
             params = bind(*args, **kwargs)
             params.apply_defaults()
 
-            # verbosity = cast("Optional[int]", params[verbose_arg])
             verbosity = cast("Optional[int]", params.arguments[verbose_arg])
 
             if verbosity is None:
@@ -430,9 +428,8 @@ def add_verbose_logger(
             # add error logger to function call
             try:
                 return func(*args, **kwargs)
-            except Exception as error:
-                # logger.exception(str(error))
-                logger.error(str(error))
+            except Exception:
+                logger.exception("found error")
                 raise
 
         return wrapped
@@ -450,8 +447,7 @@ def create_list(
     verbose: VERBOSE_CLI = None,
 ) -> None:
     """List available extras."""
-
-    logger.info(f"filename: {filename}")
+    logger.info("filename: %s", filename)
 
     d = _get_requirement_parser(filename)
 
@@ -486,7 +482,6 @@ def yaml(
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
-
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return
@@ -541,7 +536,6 @@ def requirements(
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create requirements.txt for pip dependencies."""
-
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "requirements", output)
         return
@@ -663,7 +657,6 @@ def conda_requirements(
     conda install --file {path_conda}
     pip install -r {path_pip}
     """
-
     python_include, python_version = parse_pythons(
         python_include=python_include,
         python_version=python_version,
@@ -733,7 +726,6 @@ def to_json(
     "pip": pip dependencies.
     "channels": conda channels.
     """
-
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return
@@ -780,8 +772,8 @@ def to_json(
 # @click.version_option(version=__version__)
 # def app_click() -> None:
 #     pass
-# typer_click_object = typer.main.get_command(app_typer)
-# app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)
+# typer_click_object = typer.main.get_command(app_typer)  # noqa: ERA001
+# app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)  # noqa: ERA001
 
 # Just use the click app....
 app = typer.main.get_command(app_typer)

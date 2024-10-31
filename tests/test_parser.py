@@ -7,7 +7,6 @@ from textwrap import dedent
 
 import pytest
 
-# from pyproject2conda import parser
 from pyproject2conda import requirements
 from pyproject2conda.utils import get_in
 
@@ -94,19 +93,6 @@ def test_parse_p2c() -> None:
     )
 
 
-# def test_value_comment_pairs():
-#     d: list[tuple[str | None, str | None]] = [(None, "# p2c: --pip")]
-
-#     with pytest.raises(ValueError):
-#         out = parser.value_comment_pairs_to_conda(d)
-
-#     d = [("hello", "# p2c: there")]
-
-#     out = parser.value_comment_pairs_to_conda(d)
-
-#     assert out["dependencies"] == ["hello", "there"]
-
-
 def test_header() -> None:
     from pyproject2conda.requirements import _create_header
 
@@ -138,29 +124,6 @@ def test_header() -> None:
     )
 
     assert out == header
-
-
-# def test_yaml_to_str():
-#     d = {"dep": ["a", "b"]}
-
-#     s = parser._yaml_to_string(d, add_final_eol=False)
-
-#     expected = """\
-#     dep:
-#       - a
-#       - b"""
-
-#     assert s == dedent(expected)
-
-#     s = parser._yaml_to_string(d, add_final_eol=True)
-
-#     expected = """\
-#     dep:
-#       - a
-#       - b
-#     """
-
-#     assert s == dedent(expected)
 
 
 def test_optional_write() -> None:
@@ -301,6 +264,62 @@ def test_pip_requirements() -> None:
     assert d.to_requirements(pip_deps="hello") == expected
 
 
+def test_bad_comment_pip() -> None:
+    toml = dedent(
+        """\
+    [project]
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    # p2c: -p # a comment
+    "bthing", # p2c: -s bthing-conda
+    "cthing; python_version<'3.10'", # p2c: -c conda-forge
+    ]
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    with pytest.raises(TypeError):
+        assert d.to_conda_yaml()
+
+
+def test_bad_comment_conda() -> None:
+    toml = dedent(
+        """\
+    [project]
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    "athing",
+    # p2c: -c hello
+    ]
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    with pytest.raises(TypeError):
+        assert d.to_conda_yaml()
+
+
+def test_to_conda_requirements_error() -> None:
+    toml = dedent(
+        """\
+    [project]
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    "athing", # p2c: -p # a comment
+    "bthing", # p2c: -s bthing-conda
+    "cthing; python_version<'3.10'", # p2c: -c conda-forge
+    ]
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    with pytest.raises(ValueError):
+        d.to_conda_requirements(channels=["hello", "there"], prepend_channel=True)
+
+
 def test_package_name() -> None:
     toml = dedent(
         """\
@@ -338,6 +357,28 @@ def test_package_name() -> None:
     d = requirements.ParseDepends.from_string(toml)
     with pytest.raises(ValueError):
         d.conda_and_pip_requirements("dev")
+
+
+def test_conda_and_pip_simple() -> None:
+    toml = dedent(
+        """\
+    [project]
+    name = "hello"
+    dependencies = [
+    "a",
+    # thing
+    "b",
+    ]
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+
+    conda_deps, pip_deps = d.conda_and_pip_requirements()
+
+    assert conda_deps == ["a", "b"]
+
+    assert pip_deps == []
 
 
 @pytest.mark.parametrize(
