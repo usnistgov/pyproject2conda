@@ -42,7 +42,6 @@ dynamic = [
 dependencies = [
     "packaging",
     "tomli; python_version<'3.11'",
-    "tomlkit",
     "typer",
     "typing-extensions; python_version<'3.11'",
 ]

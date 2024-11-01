@@ -13,26 +13,18 @@ if TYPE_CHECKING:
     from typing import (
         Any,
         Callable,
-        Generator,
         Iterable,
         Sequence,
     )
 
-    import tomlkit.container
-    import tomlkit.items
-    import tomlkit.toml_document
-
     from ._typing import (
         MISSING_TYPE,
         OptStr,
-        RequirementCommentPair,
-        RequirementOverridePair,
     )
     from ._typing_compat import Self
 
 from copy import copy
 
-import tomlkit
 from packaging.markers import Marker
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
@@ -47,7 +39,7 @@ from pyproject2conda.utils import (
     remove_whitespace_list as _remove_whitespace_list,
 )
 
-from .overrides import OverrideDeps, OverrideDict
+from .overrides import OverrideDeps
 
 
 # * Utilities --------------------------------------------------------------------------
@@ -144,66 +136,29 @@ def _update_requirement(  # noqa: C901, PLR0912
 
 
 # ** Dependencices
-def _iter_value_comment_pairs(
-    array: tomlkit.items.Array,
-) -> Generator[tuple[OptStr, OptStr], None, None]:
-    """Extract value and comments from array"""
-    for v in array._value:  # pyright: ignore[reportPrivateUsage]  # noqa: SLF001
-        if v.value is not None and not isinstance(v.value, tomlkit.items.Null):
-            value = str(v.value)
-        else:
-            value = None
-        comment = v.comment.as_string() if v.comment else None
-        if value is None and comment is None:
-            continue
-        yield (value, comment)
-
-
-def _requirement_comment_pairs(
-    array: tomlkit.items.Array,
-) -> list[RequirementCommentPair]:
-    out: list[RequirementCommentPair] = []
-    for value, comment in _iter_value_comment_pairs(array):
-        r = None if value is None else Requirement(value)
-        out.append((r, comment))
-    return out
-
-
-def _resolve_extras(
+def resolve_extras(
     extras: str | Iterable[str],
     package_name: str,
-    mapping_requirement_comment_pairs: dict[str, list[RequirementCommentPair]],
-) -> list[RequirementCommentPair]:
+    unresolved: dict[str, list[Requirement]],
+) -> list[Requirement]:
+    """Resolve extras"""
     if isinstance(extras, str):
         extras = [extras]
 
-    out: list[RequirementCommentPair] = []
+    out: list[Requirement] = []
     for extra in extras:
-        for requirement, comment in mapping_requirement_comment_pairs[extra]:
-            if requirement is not None and requirement.name == package_name:
+        for requirement in unresolved[extra]:
+            if requirement.name == package_name:
                 out.extend(
-                    _resolve_extras(
+                    resolve_extras(
                         extras=requirement.extras,
                         package_name=package_name,
-                        mapping_requirement_comment_pairs=mapping_requirement_comment_pairs,
+                        unresolved=unresolved,
                     )
                 )
             else:
-                out.append((requirement, comment))
+                out.append(requirement)
     return out
-
-
-# ** factories
-def _factory_empty_tomlkit_array() -> tomlkit.items.Array:
-    return tomlkit.items.Array([], tomlkit.items.Trivia())
-
-
-def _factory_empty_tomlkit_table() -> tomlkit.items.Table:
-    return tomlkit.items.Table(
-        value=tomlkit.container.Container(),
-        trivia=tomlkit.items.Trivia(),
-        is_aot_element=False,
-    )
 
 
 # ** output ----------------------------------------------------------------------------
@@ -313,7 +268,7 @@ class ParseDepends:
     data : tomlkit
     """
 
-    def __init__(self, data: tomlkit.toml_document.TOMLDocument) -> None:
+    def __init__(self, data: dict[str, Any]) -> None:
         self.data = data
 
     def get_in(
@@ -333,51 +288,61 @@ class ParseDepends:
         return cast(str, out)
 
     @cached_property
-    def dependencies(self) -> tomlkit.items.Array:
+    def dependencies(self) -> list[str]:
         """project.dependencies"""
         return cast(
-            "tomlkit.items.Array",
+            "list[str]",
             self.get_in(
-                "project", "dependencies", factory=_factory_empty_tomlkit_array
+                "project",
+                "dependencies",
+                factory=list,
             ),
         )
 
     @cached_property
-    def build_system_requires(self) -> tomlkit.items.Array:
+    def build_system_requires(self) -> list[str]:
         """build-system.requires"""
         return cast(
-            "tomlkit.items.Array",
+            "list[str]",
             self.get_in(
-                "build-system", "requires", factory=_factory_empty_tomlkit_array
+                "build-system",
+                "requires",
+                factory=list,
             ),
         )
 
     @cached_property
-    def optional_dependencies(self) -> tomlkit.items.Table:
+    def optional_dependencies(self) -> dict[str, Any]:
         """project.optional-dependencies"""
         return cast(
-            "tomlkit.items.Table",
+            "dict[str, Any]",
             self.get_in(
-                "project", "optional-dependencies", factory=_factory_empty_tomlkit_table
+                "project",
+                "optional-dependencies",
+                factory=dict,
             ),
         )
 
     @cached_property
-    def override_table(self) -> dict[str, OverrideDict]:
-        """tool.pyproject2conda.dependencies"""
-        out = self.get_in("tool", "pyproject2conda", "dependencies", default=MISSING)
-        return cast("dict[str, OverrideDict]", {} if out is MISSING else out.unwrap())
+    def override_table(self) -> dict[str, OverrideDeps]:
+        """
+        tool.pyproject2conda.dependencies
+
+        Mapping from requirement name to OverrideDeps instance
+
+        """
+        out = self.get_in("tool", "pyproject2conda", "dependencies", factory=dict)
+        if out:
+            out = {k: OverrideDeps(**v) for k, v in out.items()}
+        return cast("dict[str, OverrideDeps]", out)
 
     @cached_property
     def channels(self) -> list[str]:
         """tool.pyproject2conda.channels"""
-        channels_doc = self.get_in("tool", "pyproject2conda", "channels")
-        if channels_doc:
-            channels = channels_doc.unwrap()
-            channels = [channels] if isinstance(channels, str) else list(channels)
-        else:
-            channels = []
+        channels = self.get_in("tool", "pyproject2conda", "channels", factory=list)
 
+        if isinstance(channels, str):
+            channels = [channels]
         return channels  # type: ignore[no-any-return]
 
     @property
@@ -386,57 +351,31 @@ class ParseDepends:
         return [*self.optional_dependencies.keys(), "build-system.requires"]
 
     @cached_property
-    def _requirement_override_pairs_base(
-        self,
-    ) -> list[RequirementOverridePair]:
-        return OverrideDeps.requirement_comment_to_override_pairs(
-            requirement_comment_pairs=_requirement_comment_pairs(self.dependencies),
-            override_table=self.override_table,
-        )
+    def requirements_base(self) -> list[Requirement]:
+        """Base requirements"""
+        return [Requirement(x) for x in self.dependencies]
 
     @cached_property
-    def _requirement_override_pairs_extras(
-        self,
-    ) -> dict[str, list[RequirementOverridePair]]:
-        """
-        Mapping[extra_name] -> [(requirement, comment)]
-
-        Note that this also resolves self references of the form
-        "package_name[extra,..]" to the actual dependencies.
-        """
-        unresolved: dict[str, list[RequirementCommentPair]] = {
-            k: _requirement_comment_pairs(v)  # pyright: ignore[reportUnknownArgumentType]
-            for k, v in self.optional_dependencies.items()  # pyright: ignore[reportUnknownVariableType]
+    def requirements_extras(self) -> dict[str, list[Requirement]]:
+        """Base requirements"""
+        unresolved: dict[str, list[Requirement]] = {
+            k: [Requirement(x) for x in v]
+            for k, v in self.optional_dependencies.items()
         }
 
         resolved = {
-            k: _resolve_extras(
-                extras=k,
-                package_name=self.package_name,
-                mapping_requirement_comment_pairs=unresolved,
+            extra: resolve_extras(
+                extra, package_name=self.package_name, unresolved=unresolved
             )
-            for k in unresolved
-        }
-
-        # comments -> overrides
-        out = {
-            k: OverrideDeps.requirement_comment_to_override_pairs(
-                requirement_comment_pairs=v, override_table=self.override_table
-            )
-            for k, v in resolved.items()
+            for extra in unresolved
         }
 
         # add in build-system.requires
-        out["build-system.requires"] = (
-            OverrideDeps.requirement_comment_to_override_pairs(
-                requirement_comment_pairs=_requirement_comment_pairs(
-                    self.build_system_requires
-                ),
-                override_table=self.override_table,
-            )
-        )
+        resolved["build-system.requires"] = [
+            Requirement(x) for x in self.build_system_requires
+        ]
 
-        return out
+        return resolved
 
     @staticmethod
     def _cleanup(
@@ -456,22 +395,6 @@ class ParseDepends:
 
         return values
 
-    def _get_requirement_override_pairs(
-        self, extras: str | Iterable[str] | None = None, include_base: bool = True
-    ) -> list[RequirementOverridePair]:
-        out: list[RequirementOverridePair] = []
-
-        if include_base:
-            out.extend(self._requirement_override_pairs_base)
-
-        if extras is not None:
-            if isinstance(extras, str):
-                extras = [extras]
-            for extra in extras:
-                out.extend(self._requirement_override_pairs_extras[extra])
-
-        return out
-
     def _check_extras(self, extras: str | Iterable[str] | None) -> None:
         if extras is None:
             return
@@ -483,6 +406,21 @@ class ParseDepends:
             if extra not in self.extras:
                 msg = f"{extras} not in {self.extras}"
                 raise ValueError(msg)
+
+    def _get_requirements(
+        self, extras: str | Iterable[str] | None, include_base: bool = True
+    ) -> list[Requirement]:
+        out: list[Requirement] = []
+
+        if include_base:
+            out.extend(self.requirements_base)
+
+        if extras is not None:
+            if isinstance(extras, str):
+                extras = [extras]
+            for extra in extras:
+                out.extend(self.requirements_extras[extra])
+        return out
 
     def pip_requirements(
         self,
@@ -498,10 +436,9 @@ class ParseDepends:
 
         out: list[str] = [
             str(requirement)
-            for requirement, _ in self._get_requirement_override_pairs(
+            for requirement in self._get_requirements(
                 extras=extras, include_base=include_base
             )
-            if requirement is not None
         ]
 
         if pip_deps:
@@ -512,7 +449,7 @@ class ParseDepends:
             out, remove_whitespace=remove_whitespace, unique=unique, sort=sort
         )
 
-    def conda_and_pip_requirements(  # noqa: C901, PLR0912
+    def conda_and_pip_requirements(  # noqa: C901
         self,
         extras: str | Iterable[str] | None = None,
         include_base: bool = True,
@@ -547,21 +484,16 @@ class ParseDepends:
             _init_deps(conda_deps), python_version=python_version
         )
 
-        for requirement, override in self._get_requirement_override_pairs(
+        override_table = self.override_table
+        for requirement in self._get_requirements(
             extras=extras, include_base=include_base
         ):
+            override = override_table.get(requirement.name)
             if override is not None:
                 if override.pip:
-                    if requirement is None:
-                        msg = "requirement is None"
-                        raise TypeError(msg)
                     pip_deps.append(str(requirement))
 
                 elif not override.skip:
-                    if requirement is None:
-                        msg = "requirement is None"
-                        raise TypeError(msg)
-
                     r = _clean_conda_requirement(
                         requirement,
                         python_version=python_version,
@@ -576,10 +508,8 @@ class ParseDepends:
                         override.packages, python_version=python_version
                     )
                 )
-
-            elif requirement:  # pragma: no cover
+            else:
                 r = _clean_conda_requirement(requirement, python_version=python_version)
-
                 if r is not None:  # pragma: no cover
                     conda_deps.append(str(r))
 
@@ -746,14 +676,16 @@ class ParseDepends:
         toml_string: str,
     ) -> Self:
         """Create object from string."""
-        data = tomlkit.parse(toml_string)
+        from ._compat import tomllib
+
+        data = tomllib.loads(toml_string)
         return cls(data=data)
 
     @classmethod
     def from_path(cls, path: str | Path) -> Self:
         """Create object from path."""
-        with Path(path).open("rb") as f:
-            data = tomlkit.load(f)
-        return cls(data=data)
+        from ._compat import tomllib
 
-    # Output
+        with Path(path).open("rb") as f:
+            data = tomllib.load(f)
+        return cls(data=data)

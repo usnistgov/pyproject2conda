@@ -31,7 +31,7 @@ def check_result(result, expected) -> None:
     assert result.output == dedent(expected)
 
 
-@pytest.fixture(params=["test-pyproject.toml", "test-pyproject-alt.toml"])
+@pytest.fixture(params=["test-pyproject.toml"])
 def filename(request) -> Path:
     return ROOT / cast(str, request.param)
 

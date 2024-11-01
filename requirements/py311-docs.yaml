@@ -21,6 +21,5 @@ dependencies:
   - sphinx-copybutton
   - sphinx>=5.3.0
   - sphinxcontrib-spelling
-  - tomlkit
   - typer
   - pip

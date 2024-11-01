@@ -17,7 +17,6 @@ dependencies:
   - pytest-sugar
   - pytest-xdist
   - tomli
-  - tomlkit
   - typer
   - typing-extensions
   - pip

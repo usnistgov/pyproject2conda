@@ -1,9 +1,9 @@
 [project]
 name = "hello"
 requires-python = ">=3.8,<3.11"
-dependencies = [
-    "athing", # p2c: -p # a comment
-    "bthing", # p2c: -s "bthing-conda"
-    "cthing; python_version < '3.10'", # p2c: -c conda-forge
+dependencies = ["athing", "bthing", "cthing; python_version < '3.10'"]
 
-]
+[tool.pyproject2conda.dependencies]
+athing = { pip = true }
+bthing = { skip = true, packages = "bthing-conda" }
+cthing = { channel = "conda-forge" }

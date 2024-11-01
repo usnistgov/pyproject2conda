@@ -10,7 +10,6 @@ pygments==2.18.0          # via rich
 pytest==8.3.3             # via -r requirements/typing.txt
 rich==13.8.1              # via typer
 shellingham==1.5.4        # via typer
-tomlkit==0.13.2           # via -r requirements/typing.txt
 typer==0.12.5             # via -r requirements/typing.txt
 types-click==7.1.8        # via -r requirements/typing.txt
 typing-extensions==4.12.2  # via typer

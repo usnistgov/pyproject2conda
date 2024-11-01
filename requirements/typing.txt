@@ -10,7 +10,6 @@
 packaging
 pytest
 tomli;python_version<"3.11"
-tomlkit
 typer
 types-click
 typing-extensions;python_version<"3.11"

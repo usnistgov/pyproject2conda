@@ -17,6 +17,5 @@ rich==13.8.1              # via typer
 shellingham==1.5.4        # via typer
 termcolor==2.4.0          # via pytest-sugar
 tomli==2.0.1              # via coverage
-tomlkit==0.13.2           # via -r requirements/test.txt
 typer==0.12.5             # via -r requirements/test.txt
 typing-extensions==4.12.2  # via typer

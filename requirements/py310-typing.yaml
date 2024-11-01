@@ -14,7 +14,6 @@ dependencies:
   - packaging
   - pytest
   - tomli
-  - tomlkit
   - typer
   - types-click
   - typing-extensions

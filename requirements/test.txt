@@ -13,6 +13,5 @@ pytest-cov
 pytest-sugar
 pytest-xdist
 tomli;python_version<"3.11"
-tomlkit
 typer
 typing-extensions;python_version<"3.11"

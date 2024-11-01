@@ -13,6 +13,5 @@ dependencies:
   - python=3.12
   - packaging
   - pytest
-  - tomlkit
   - typer
   - types-click

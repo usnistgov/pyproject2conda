@@ -19,7 +19,6 @@ dependencies:
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - tomlkit
   - typer
   - types-click
   - pip

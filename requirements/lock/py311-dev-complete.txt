@@ -63,7 +63,6 @@ six==1.16.0               # via asttokens, python-dateutil
 stack-data==0.6.3         # via ipython
 termcolor==2.4.0          # via pytest-sugar
 tomli==2.0.1              # via coverage
-tomlkit==0.13.2           # via -r requirements/dev-complete.txt
 tornado==6.4.1            # via ipykernel, jupyter-client
 traitlets==5.14.3         # via comm, ipykernel, ipython, jupyter-client, jupyter-core, matplotlib-inline
 typer==0.12.5             # via -r requirements/dev-complete.txt

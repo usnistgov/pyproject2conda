@@ -44,7 +44,6 @@ sphinxcontrib-qthelp==2.0.0  # via sphinx
 sphinxcontrib-serializinghtml==2.0.0  # via sphinx
 sphinxcontrib-spelling==8.0.0  # via -r requirements/docs.txt
 starlette==0.38.5         # via sphinx-autobuild
-tomlkit==0.13.2           # via -r requirements/docs.txt
 typer==0.12.5             # via -r requirements/docs.txt
 typing-extensions==4.12.2  # via pydata-sphinx-theme, typer
 urllib3==2.2.3            # via requests
