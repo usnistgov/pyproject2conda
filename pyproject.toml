@@ -130,6 +130,7 @@ extend-include = [
     "*.ipynb",
 ]
 extend-exclude = [
+    "**/vendored",
     ".numba_cache",
     ".venv",
     "dist-conda",
@@ -343,6 +344,7 @@ exclude = [
     ".venv/**",
     "**/.mypy_cache",
     "**/.numba_cache/",
+    "**/vendored/**",
 ]
 # strict = ["src", "tests", "noxfile.py", "tools/*.py"]
 strict = [

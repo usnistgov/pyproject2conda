@@ -47,11 +47,17 @@ def test_list(filename: Path, runner: CliRunner) -> None:
         expected = """\
         Extras:
         =======
-        * test
-        * dev-extras
-        * dev
-        * dist-pypi
         * build-system.requires
+        * dev
+        * dev-extras
+        * dist-pypi
+        * test
+        Groups:
+        =======
+        * build-system.requires
+        * dev-extras2
+        * dev2
+        * test2
         """
         check_result(result, expected)
 

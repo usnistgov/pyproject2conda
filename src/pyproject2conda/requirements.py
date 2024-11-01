@@ -324,6 +324,17 @@ class ParseDepends:
         )
 
     @cached_property
+    def dependency_groups(self) -> dict[str, Any]:
+        """dependency-groups"""
+        return cast(
+            "dict[str, Any]",
+            self.get_in(
+                "dependency-groups",
+                factory=dict,
+            ),
+        )
+
+    @cached_property
     def override_table(self) -> dict[str, OverrideDeps]:
         """
         tool.pyproject2conda.dependencies
@@ -347,8 +358,13 @@ class ParseDepends:
 
     @property
     def extras(self) -> list[str]:
-        """build-system.requires"""
-        return [*self.optional_dependencies.keys(), "build-system.requires"]
+        """Available extras"""
+        return [*self.optional_dependencies, "build-system.requires"]
+
+    @property
+    def groups(self) -> list[str]:
+        """Available groups"""
+        return [*self.dependency_groups, "build-system.requires"]
 
     @cached_property
     def requirements_base(self) -> list[Requirement]:
@@ -357,7 +373,7 @@ class ParseDepends:
 
     @cached_property
     def requirements_extras(self) -> dict[str, list[Requirement]]:
-        """Base requirements"""
+        """Extras requirements"""
         unresolved: dict[str, list[Requirement]] = {
             k: [Requirement(x) for x in v]
             for k, v in self.optional_dependencies.items()
@@ -377,6 +393,65 @@ class ParseDepends:
 
         return resolved
 
+    @cached_property
+    def requirements_groups(self) -> dict[str, list[Requirement]]:
+        """Groups requirements"""
+        from .vendored.dependency_groups._implementation import resolve
+
+        resolved: dict[str, list[Requirement]] = {
+            group: [Requirement(x) for x in resolve(self.dependency_groups, group)]
+            for group in self.dependency_groups
+        }
+
+        # add in build-system.requires
+        resolved["build-system.requires"] = [
+            Requirement(x) for x in self.build_system_requires
+        ]
+
+        return resolved
+
+    @staticmethod
+    def _check_prop(vals: str | Iterable[str] | None, keys: list[str]) -> list[str]:
+        if vals is None:
+            return []
+
+        if isinstance(vals, str):
+            vals = [vals]
+
+        out: list[str] = []
+        for val in vals:
+            if val not in keys:
+                msg = f"{vals} not in {keys}"
+                raise ValueError(msg)
+            out.append(val)
+
+        return out
+
+    def _resolve_extras_and_groups(
+        self,
+        extras: str | Iterable[str] | None,
+        groups: str | Iterable[str] | None,
+        extras_or_groups: str | Iterable[str] | None,
+    ) -> tuple[list[str], list[str]]:
+        """Update extras and groups from extras_or_groups."""
+        extras = self._check_prop(extras, self.extras)
+        groups = self._check_prop(groups, self.groups)
+
+        if extras_or_groups:
+            if isinstance(extras_or_groups, str):
+                extras_or_groups = [extras_or_groups]
+
+            for extra_or_group in extras_or_groups:
+                if extra_or_group in self.extras:
+                    extras.append(extra_or_group)
+                elif extra_or_group in self.groups:
+                    groups.append(extra_or_group)
+                else:
+                    msg = f"extra-or-group {extra_or_group} not in extras or groups"
+                    raise ValueError(msg)
+
+        return extras, groups
+
     @staticmethod
     def _cleanup(
         values: list[str],
@@ -395,36 +470,39 @@ class ParseDepends:
 
         return values
 
-    def _check_extras(self, extras: str | Iterable[str] | None) -> None:
-        if extras is None:
-            return
-
-        if isinstance(extras, str):
-            extras = [extras]
-
-        for extra in extras:
-            if extra not in self.extras:
-                msg = f"{extras} not in {self.extras}"
-                raise ValueError(msg)
-
     def _get_requirements(
-        self, extras: str | Iterable[str] | None, include_base: bool = True
+        self,
+        extras: str | Iterable[str] | None,
+        groups: str | Iterable[str] | None,
+        include_base: bool = True,
     ) -> list[Requirement]:
         out: list[Requirement] = []
 
         if include_base:
             out.extend(self.requirements_base)
 
-        if extras is not None:
+        def _extend_extra_or_group(
+            extras: str | Iterable[str] | None,
+            requirements_mapping: dict[str, list[Requirement]],
+        ) -> None:
+            if extras is None:
+                return
             if isinstance(extras, str):
                 extras = [extras]
+
             for extra in extras:
-                out.extend(self.requirements_extras[extra])
+                out.extend(requirements_mapping[extra])
+
+        _extend_extra_or_group(extras, self.requirements_extras)
+        _extend_extra_or_group(groups, self.requirements_groups)
+
         return out
 
     def pip_requirements(
         self,
         extras: str | Iterable[str] | None = None,
+        groups: str | Iterable[str] | None = None,
+        extras_or_groups: str | Iterable[str] | None = None,
         include_base: bool = True,
         pip_deps: str | Iterable[str] | None = None,
         unique: bool = True,
@@ -432,12 +510,14 @@ class ParseDepends:
         sort: bool = True,
     ) -> list[str]:
         """Pip dependencies."""
-        self._check_extras(extras)
+        extras, groups = self._resolve_extras_and_groups(
+            extras, groups, extras_or_groups
+        )
 
         out: list[str] = [
             str(requirement)
             for requirement in self._get_requirements(
-                extras=extras, include_base=include_base
+                extras=extras, groups=groups, include_base=include_base
             )
         ]
 
@@ -452,6 +532,8 @@ class ParseDepends:
     def conda_and_pip_requirements(  # noqa: C901
         self,
         extras: str | Iterable[str] | None = None,
+        groups: str | Iterable[str] | None = None,
+        extras_or_groups: str | Iterable[str] | None = None,
         include_base: bool = True,
         pip_deps: str | Iterable[str] | None = None,
         conda_deps: str | Iterable[str] | None = None,
@@ -470,7 +552,9 @@ class ParseDepends:
                 return [deps]
             return list(deps)
 
-        self._check_extras(extras)
+        extras, groups = self._resolve_extras_and_groups(
+            extras, groups, extras_or_groups
+        )
 
         if python_include == "infer":
             # safer get
@@ -486,7 +570,7 @@ class ParseDepends:
 
         override_table = self.override_table
         for requirement in self._get_requirements(
-            extras=extras, include_base=include_base
+            extras=extras, groups=groups, include_base=include_base
         ):
             override = override_table.get(requirement.name)
             if override is not None:
@@ -536,9 +620,11 @@ class ParseDepends:
 
         return conda_deps, pip_deps
 
-    def to_conda_yaml(
+    def to_conda_yaml(  # noqa: PLR0913, PLR0917
         self,
         extras: OptStr | Iterable[str] = None,
+        groups: OptStr | Iterable[str] = None,
+        extras_or_groups: OptStr | Iterable[str] = None,
         pip_deps: str | Iterable[str] | None = None,
         conda_deps: str | Iterable[str] | None = None,
         name: OptStr = None,
@@ -554,10 +640,10 @@ class ParseDepends:
         allow_empty: bool = False,
     ) -> str:
         """Create yaml string."""
-        self._check_extras(extras)
-
         conda_deps, pip_deps = self.conda_and_pip_requirements(
             extras=extras,
+            groups=groups,
+            extras_or_groups=extras_or_groups,
             include_base=include_base,
             pip_deps=pip_deps,
             conda_deps=conda_deps,
@@ -587,6 +673,8 @@ class ParseDepends:
     def to_requirements(
         self,
         extras: OptStr | Iterable[str] = None,
+        groups: OptStr | Iterable[str] = None,
+        extras_or_groups: OptStr | Iterable[str] = None,
         include_base: bool = True,
         header_cmd: str | None = None,
         output: str | Path | None = None,
@@ -598,6 +686,8 @@ class ParseDepends:
         """Create requirements string."""
         pip_deps = self.pip_requirements(
             extras=extras,
+            groups=groups,
+            extras_or_groups=extras_or_groups,
             include_base=include_base,
             pip_deps=pip_deps,
             remove_whitespace=remove_whitespace,
@@ -612,9 +702,11 @@ class ParseDepends:
         _optional_write(out, output)
         return out
 
-    def to_conda_requirements(
+    def to_conda_requirements(  # noqa: PLR0913, PLR0917
         self,
         extras: str | Iterable[str] | None = None,
+        groups: OptStr | Iterable[str] = None,
+        extras_or_groups: OptStr | Iterable[str] = None,
         channels: str | Iterable[str] | None = None,
         python_include: str | None = None,
         python_version: str | None = None,
@@ -632,6 +724,8 @@ class ParseDepends:
         """Create conda and pip requirements files."""
         conda_deps, pip_deps = self.conda_and_pip_requirements(
             extras=extras,
+            groups=groups,
+            extras_or_groups=extras_or_groups,
             include_base=include_base,
             pip_deps=pip_deps,
             conda_deps=conda_deps,

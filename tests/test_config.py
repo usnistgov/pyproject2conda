@@ -89,6 +89,8 @@ def test_option_override() -> None:
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
             "base": True,
             "header": None,
@@ -110,6 +112,8 @@ def test_option_override() -> None:
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
             "base": True,
             "header": None,
@@ -132,6 +136,8 @@ def test_option_override() -> None:
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
             "base": True,
             "header": None,
@@ -153,6 +159,8 @@ def test_option_override() -> None:
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
             "base": True,
             "header": None,
@@ -181,6 +189,8 @@ def test_option_override() -> None:
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
             "base": True,
             "header": None,
@@ -229,27 +239,27 @@ pytest
 
 
 def test_config_only_default() -> None:
-    expected = [
-        (
-            "yaml",
-            {
-                "extras": ["test"],
-                "sort": True,
-                "base": True,
-                "header": None,
-                "overwrite": "check",
-                "verbose": None,
-                "name": None,
-                "channels": None,
-                "python": "3.8",
-                "output": "py38-test.yaml",
-                "deps": None,
-                "reqs": None,
-                "allow_empty": False,
-                "remove_whitespace": True,
-            },
-        )
-    ]
+    d0 = {
+        "extras": [],
+        "groups": [],
+        "extras_or_groups": ["test"],
+        "sort": True,
+        "base": True,
+        "header": None,
+        "overwrite": "check",
+        "verbose": None,
+        "name": None,
+        "channels": None,
+        "python": "3.8",
+        "output": "py38-test.yaml",
+        "deps": None,
+        "reqs": None,
+        "allow_empty": False,
+        "remove_whitespace": True,
+    }
+
+    d1 = d0.copy()
+    d1.update(extras=["test"], extras_or_groups=[])
 
     s0 = """
     [tool.pyproject2conda]
@@ -257,24 +267,14 @@ def test_config_only_default() -> None:
     default_envs = ["test"]
     """
     s1 = """
-    [tool.pyproject2conda]
-    python = ["3.8"]
-
     [tool.pyproject2conda.envs.test]
+    python = ["3.8"]
     extras = true
     """
 
-    s2 = """
-    [tool.pyproject2conda.envs.test]
-    python = "3.8"
-
-
-    """
-
-    for s in [s0, s1, s2]:
+    for s, d in zip([s0, s1], (d0, d1)):
         c = Config.from_string(s)
-
-        assert list(c.iter_envs()) == expected
+        assert list(c.iter_envs()) == [("yaml", d)]
 
 
 def test_config_errors() -> None:
@@ -325,7 +325,9 @@ def test_config_overrides() -> None:
     expected = (
         "yaml",
         {
-            "extras": ["test"],
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": ["test"],
             "sort": True,
             "base": False,
             "header": None,
@@ -383,6 +385,8 @@ def test_config_python_include_version() -> None:
             "yaml",
             {
                 "extras": ["test"],
+                "groups": [],
+                "extras_or_groups": [],
                 "sort": True,
                 "base": True,
                 "header": None,
@@ -403,6 +407,8 @@ def test_config_python_include_version() -> None:
             "yaml",
             {
                 "extras": ["test"],
+                "groups": [],
+                "extras_or_groups": [],
                 "sort": True,
                 "base": True,
                 "header": None,
@@ -431,6 +437,7 @@ def test_config_user_config() -> None:
     s = """
     [tool.pyproject2conda.envs.test]
     python = "3.8"
+    extras = "test"
 
 
     """
@@ -452,6 +459,8 @@ def test_config_user_config() -> None:
             "yaml",
             {
                 "extras": ["test"],
+                "groups": [],
+                "extras_or_groups": [],
                 "sort": True,
                 "base": False,
                 "header": None,
@@ -471,6 +480,8 @@ def test_config_user_config() -> None:
             "yaml",
             {
                 "extras": ["a", "b"],
+                "groups": [],
+                "extras_or_groups": [],
                 "sort": True,
                 "base": True,
                 "header": None,

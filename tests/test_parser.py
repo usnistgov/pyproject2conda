@@ -185,6 +185,7 @@ def test_pip_requirements() -> None:
     toml = dedent(
         """\
     [project]
+    name="hello"
     requires-python = ">=3.8,<3.11"
     dependencies = [
     "athing",
@@ -192,10 +193,13 @@ def test_pip_requirements() -> None:
     "cthing; python_version<'3.10'",
     ]
 
-    [tool.pyproject2conda.dependencies]
-    athing = { pip = true }
-    bthing = { skip = true, packages = "bthing-conda" }
-    cthing = { channel = "conda-forge" }
+    [project.optional-dependencies]
+    test = ["pytest", "test-optional"]
+    dev = ["hello[test]", "dev-package"]
+
+    [dependency-groups]
+    test = ["pytest", "test-optional-group"]
+    dev = [{include-group= "test"}, "dev-package-group"]
         """
     )
 
@@ -211,6 +215,37 @@ def test_pip_requirements() -> None:
     d = requirements.ParseDepends.from_string(toml)
 
     assert d.to_requirements(pip_deps="hello") == expected
+
+    expected = dedent(
+        """\
+        athing
+        bthing
+        cthing;python_version<"3.10"
+        dev-package
+        hello
+        pytest
+        test-optional
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+    assert d.to_requirements(pip_deps="hello", extras="dev") == expected
+    assert d.to_requirements(pip_deps="hello", extras_or_groups="dev") == expected
+
+    expected = dedent(
+        """\
+        athing
+        bthing
+        cthing;python_version<"3.10"
+        dev-package-group
+        hello
+        pytest
+        test-optional-group
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+    assert d.to_requirements(pip_deps="hello", groups="dev") == expected
 
 
 def test_to_conda_requirements_error() -> None:

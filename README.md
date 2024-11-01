@@ -133,6 +133,11 @@ dist-pypi = [
 "build",
 ]
 
+[dependency-groups]
+test2 = ["pandas", "pytest"]
+dev-extras2 = ["matplotlib"]
+dev2 = [{include-group = "test2"}, {include-group = "dev-extras2"}]
+
 # overrides of dependencies
 [tool.pyproject2conda.dependencies]
 athing = { pip = true }
@@ -362,6 +367,11 @@ dist-pypi = [
 "build",
 ]
 
+[dependency-groups]
+test2 = ["pandas", "pytest"]
+dev-extras2 = ["matplotlib"]
+dev2 = [{include-group = "test2"}, {include-group = "dev-extras2"}]
+
 # overrides of dependencies
 # ...
 ```
@@ -502,16 +512,20 @@ style = "yaml"
 python = ["3.10"]
 # Note that this is relative to the location of pyproject.toml
 user_config = "config/userconfig.toml"
+# These environments will be created with the package, package dependencies, and
+# dependencies from groups or extras with environment name so the below is the
+# same as
+#
+# [tool.pyproject2conda.envs.test]
+# extras_or_groups = "test"
+# base = true
+#
 default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-# Note that the default value for `extras` is the name of the environment.
-# To have no extras, either pass
-# extras = []
-# or
-#
-extras = false
+# This will have no extras or groups
+
 
 #
 # A value of `extras = true` also implies using the environment name
@@ -551,6 +565,11 @@ dist-pypi = [
 "setuptools",
 "build",
 ]
+
+[dependency-groups]
+test2 = ["pandas", "pytest"]
+dev-extras2 = ["matplotlib"]
+dev2 = [{include-group = "test2"}, {include-group = "dev-extras2"}]
 
 # overrides of dependencies
 [tool.pyproject2conda.dependencies]
@@ -628,16 +647,20 @@ style = "yaml"
 python = ["3.10"]
 # Note that this is relative to the location of pyproject.toml
 user_config = "config/userconfig.toml"
+# These environments will be created with the package, package dependencies, and
+# dependencies from groups or extras with environment name so the below is the
+# same as
+#
+# [tool.pyproject2conda.envs.test]
+# extras_or_groups = "test"
+# base = true
+#
 default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-# Note that the default value for `extras` is the name of the environment.
-# To have no extras, either pass
-# extras = []
-# or
-#
-extras = false
+# This will have no extras or groups
+
 
 #
 # A value of `extras = true` also implies using the environment name

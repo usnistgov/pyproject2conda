@@ -118,14 +118,38 @@ EXTRAS_CLI = Annotated[
         "--extra",
         "-e",
         help="""
-        Extra dependencies. Can specify multiple times for multiple extras.
+        Include dependencies from extra <extra> from `project.optional-dependencies` table of `pyproject.toml`.
+        Can specify multiple times for multiple extras.
         Use name `extras` for specifying in `pyproject.toml`
-        Note thate for `project` application, this parameter defaults to the
-        name of the environment.  If you want no extras, you must pass
-        `extras = false`.
         """,
     ),
 ]
+GROUPS_CLI = Annotated[
+    Optional[List[str]],
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+        "--group",
+        "-g",
+        help="""
+        Include dependencies from group <group> from `dependency-groups` table of `pyproject.toml`.
+        Can specify multiple times for multiple groups.
+        Use name `groups` for specifying in `pyproject.toml`
+        """,
+    ),
+]
+EXTRAS_OR_GROUPS_CLI = Annotated[
+    Optional[List[str]],
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+        "--extra-or-group",
+        help="""
+        Include dependencies from extra or group of `pyproject.toml`.
+        Extras are checked first, followed by groups.  The first instance of `extra-or-group` found is used.
+        That is, if both `extras` and `groups` contain `extra-or-group`, the extra will be used.
+        Use name `extras-or-groups` for specifying in `pyproject.toml`
+        """,
+    ),
+]
+
+
 CHANNEL_CLI = Annotated[
     Optional[List[str]],
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
@@ -451,11 +475,19 @@ def create_list(
 
     d = _get_requirement_parser(filename)
 
-    print("Extras:")
-    print("=======")
+    extras = d.extras
+    if extras:
+        print("Extras:")
+        print("=======")
+        for extra in sorted(d.extras):
+            print("*", extra)
 
-    for extra in d.extras:
-        print("*", extra)
+    groups = d.groups
+    if groups:
+        print("Groups:")
+        print("=======")
+        for g in sorted(groups):
+            print("*", g)
 
 
 # ** Yaml
@@ -465,6 +497,8 @@ def create_list(
 def yaml(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     extras: EXTRAS_CLI = None,
+    groups: GROUPS_CLI = None,
+    extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     channels: CHANNEL_CLI = None,
     output: OUTPUT_CLI = None,
     name: NAME_CLI = None,
@@ -501,6 +535,8 @@ def yaml(
 
     s = d.to_conda_yaml(
         extras=extras,
+        groups=groups,
+        extras_or_groups=extras_or_groups,
         channels=channels,
         name=name,
         output=output,
@@ -525,6 +561,8 @@ def yaml(
 def requirements(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     extras: EXTRAS_CLI = None,
+    groups: GROUPS_CLI = None,
+    extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     output: OUTPUT_CLI = None,
     base: BASE_DEPENDENCIES_CLI = True,
     sort: SORT_DEPENDENCIES_CLI = True,
@@ -546,6 +584,8 @@ def requirements(
 
     s = d.to_requirements(
         extras=extras,
+        groups=groups,
+        extras_or_groups=extras_or_groups,
         output=output,
         include_base=base,
         header_cmd=_get_header_cmd(header, output),
@@ -634,6 +674,8 @@ def conda_requirements(
     path_conda: Annotated[Optional[str], typer.Argument()] = None,
     path_pip: Annotated[Optional[str], typer.Argument()] = None,
     extras: EXTRAS_CLI = None,
+    groups: GROUPS_CLI = None,
+    extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     python_include: PYTHON_INCLUDE_CLI = None,
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
@@ -681,6 +723,8 @@ def conda_requirements(
 
     deps_str, reqs_str = d.to_conda_requirements(
         extras=extras,
+        groups=groups,
+        extras_or_groups=extras_or_groups,
         python_include=python_include,
         python_version=python_version,
         channels=channels,
@@ -705,6 +749,8 @@ def conda_requirements(
 @add_verbose_logger(logger)
 def to_json(
     extras: EXTRAS_CLI = None,
+    groups: GROUPS_CLI = None,
+    extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     python_include: PYTHON_INCLUDE_CLI = None,
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
@@ -742,6 +788,8 @@ def to_json(
 
     conda_deps, pip_deps = d.conda_and_pip_requirements(
         extras=extras,
+        groups=groups,
+        extras_or_groups=extras_or_groups,
         python_include=python_include,
         python_version=python_version,
         include_base=base,
