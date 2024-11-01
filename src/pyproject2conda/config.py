@@ -165,9 +165,9 @@ class Config:  # noqa: PLR0904
             key="sort", env_name=env_name, inherit=inherit, default=default
         )
 
-    def base(self, env_name: str, default: bool = True) -> bool:
-        """Base getter."""
-        return self._get_value(key="base", env_name=env_name, default=default)  # type: ignore[no-any-return]
+    def skip_package(self, env_name: str, default: bool = False) -> bool:
+        """skip_package getter."""
+        return self._get_value(key="skip_package", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
     def name(self, env_name: str) -> bool:
         """Name option."""
@@ -304,7 +304,7 @@ class Config:  # noqa: PLR0904
             "groups",
             "extras_or_groups",
             "sort",
-            "base",
+            "skip_package",
             "header",
             "overwrite",
             "verbose",
@@ -352,7 +352,7 @@ class Config:  # noqa: PLR0904
             "groups",
             "extras_or_groups",
             "sort",
-            "base",
+            "skip_package",
             "header",
             "overwrite",
             "verbose",

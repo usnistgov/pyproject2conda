@@ -356,7 +356,7 @@ dependencies:
     """
     for opt in ["-e", "--extra"]:
         result = do_run(
-            runner, "yaml", opt, "dist-pypi", "--no-base", filename=filename
+            runner, "yaml", opt, "dist-pypi", "--skip-package", filename=filename
         )
         check_result(result, expected)
 
@@ -501,7 +501,7 @@ build
         "requirements",
         "-e",
         "dist-pypi",
-        "--no-base",
+        "--skip-package",
         "--no-sort",
         filename=filename,
     )
@@ -513,7 +513,7 @@ setuptools
     """
 
     result = do_run(
-        runner, "requirements", "-e", "dist-pypi", "--no-base", filename=filename
+        runner, "requirements", "-e", "dist-pypi", "--skip-package", filename=filename
     )
     check_result(result, expected)
 

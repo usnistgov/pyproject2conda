@@ -415,7 +415,8 @@ def test_complete(toml) -> None:
     setuptools_scm[toml]>=8.0
     """
     assert dedent(expected) == d.to_requirements(
-        extras="build-system.requires", include_base=False
+        extras="build-system.requires",
+        skip_package=True,
     )
 
     expected = """\
@@ -538,7 +539,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(extras="dist-pypi", include_base=False)
+    out = d.to_conda_yaml(extras="dist-pypi", skip_package=True)
 
     expected = """\
 channels:
@@ -674,7 +675,7 @@ dependencies:
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="test",
-        include_base=False,
+        skip_package=True,
     )
 
     toml = dedent(
@@ -715,12 +716,12 @@ dependencies:
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="test",
-        include_base=False,
+        skip_package=True,
     )
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="test",
-        include_base=True,
+        skip_package=False,
     )
 
     # check output has no dependencies:
@@ -780,7 +781,7 @@ dependencies:
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="dev-extras",
-        include_base=False,
+        skip_package=True,
     )
 
 

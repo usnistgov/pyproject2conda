@@ -474,11 +474,11 @@ class ParseDepends:
         self,
         extras: str | Iterable[str] | None,
         groups: str | Iterable[str] | None,
-        include_base: bool = True,
+        skip_package: bool = False,
     ) -> list[Requirement]:
         out: list[Requirement] = []
 
-        if include_base:
+        if not skip_package:
             out.extend(self.requirements_base)
 
         def _extend_extra_or_group(
@@ -503,7 +503,7 @@ class ParseDepends:
         extras: str | Iterable[str] | None = None,
         groups: str | Iterable[str] | None = None,
         extras_or_groups: str | Iterable[str] | None = None,
-        include_base: bool = True,
+        skip_package: bool = False,
         pip_deps: str | Iterable[str] | None = None,
         unique: bool = True,
         remove_whitespace: bool = True,
@@ -517,7 +517,9 @@ class ParseDepends:
         out: list[str] = [
             str(requirement)
             for requirement in self._get_requirements(
-                extras=extras, groups=groups, include_base=include_base
+                extras=extras,
+                groups=groups,
+                skip_package=skip_package,
             )
         ]
 
@@ -534,7 +536,7 @@ class ParseDepends:
         extras: str | Iterable[str] | None = None,
         groups: str | Iterable[str] | None = None,
         extras_or_groups: str | Iterable[str] | None = None,
-        include_base: bool = True,
+        skip_package: bool = False,
         pip_deps: str | Iterable[str] | None = None,
         conda_deps: str | Iterable[str] | None = None,
         unique: bool = True,
@@ -570,7 +572,9 @@ class ParseDepends:
 
         override_table = self.override_table
         for requirement in self._get_requirements(
-            extras=extras, groups=groups, include_base=include_base
+            extras=extras,
+            groups=groups,
+            skip_package=skip_package,
         ):
             override = override_table.get(requirement.name)
             if override is not None:
@@ -631,7 +635,7 @@ class ParseDepends:
         channels: OptStr | Iterable[str] = None,
         python_include: OptStr = None,
         python_version: OptStr = None,
-        include_base: bool = True,
+        skip_package: bool = False,
         header_cmd: str | None = None,
         output: str | Path | None = None,
         sort: bool = True,
@@ -644,7 +648,7 @@ class ParseDepends:
             extras=extras,
             groups=groups,
             extras_or_groups=extras_or_groups,
-            include_base=include_base,
+            skip_package=skip_package,
             pip_deps=pip_deps,
             conda_deps=conda_deps,
             unique=unique,
@@ -675,7 +679,7 @@ class ParseDepends:
         extras: OptStr | Iterable[str] = None,
         groups: OptStr | Iterable[str] = None,
         extras_or_groups: OptStr | Iterable[str] = None,
-        include_base: bool = True,
+        skip_package: bool = False,
         header_cmd: str | None = None,
         output: str | Path | None = None,
         sort: bool = True,
@@ -688,7 +692,7 @@ class ParseDepends:
             extras=extras,
             groups=groups,
             extras_or_groups=extras_or_groups,
-            include_base=include_base,
+            skip_package=skip_package,
             pip_deps=pip_deps,
             remove_whitespace=remove_whitespace,
             sort=sort,
@@ -713,7 +717,7 @@ class ParseDepends:
         prepend_channel: bool = False,
         output_conda: str | Path | None = None,
         output_pip: str | Path | None = None,
-        include_base: bool = True,
+        skip_package: bool = False,
         header_cmd: str | None = None,
         sort: bool = True,
         unique: bool = True,
@@ -726,7 +730,7 @@ class ParseDepends:
             extras=extras,
             groups=groups,
             extras_or_groups=extras_or_groups,
-            include_base=include_base,
+            skip_package=skip_package,
             pip_deps=pip_deps,
             conda_deps=conda_deps,
             unique=unique,

@@ -92,7 +92,7 @@ def test_option_override() -> None:
             "groups": [],
             "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -115,7 +115,7 @@ def test_option_override() -> None:
             "groups": [],
             "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -139,7 +139,7 @@ def test_option_override() -> None:
             "groups": [],
             "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -162,7 +162,7 @@ def test_option_override() -> None:
             "groups": [],
             "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -192,7 +192,7 @@ def test_option_override() -> None:
             "groups": [],
             "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -244,7 +244,7 @@ def test_config_only_default() -> None:
         "groups": [],
         "extras_or_groups": ["test"],
         "sort": True,
-        "base": True,
+        "skip_package": False,
         "header": None,
         "overwrite": "check",
         "verbose": None,
@@ -317,7 +317,7 @@ def test_config_overrides() -> None:
 
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
-    base = false
+    skip_package = true
     """
 
     c = Config.from_string(s)
@@ -329,7 +329,7 @@ def test_config_overrides() -> None:
             "groups": [],
             "extras_or_groups": ["test"],
             "sort": True,
-            "base": False,
+            "skip_package": True,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -355,7 +355,7 @@ def test_conifg_overrides_no_envs() -> None:
     default_envs = ["test"]
 
     [[tool.pyproject2conda.overrides]]
-    base = false
+    skip_package = true
     """
 
     c = Config.from_string(s)
@@ -388,7 +388,7 @@ def test_config_python_include_version() -> None:
                 "groups": [],
                 "extras_or_groups": [],
                 "sort": True,
-                "base": True,
+                "skip_package": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -410,7 +410,7 @@ def test_config_python_include_version() -> None:
                 "groups": [],
                 "extras_or_groups": [],
                 "sort": True,
-                "base": True,
+                "skip_package": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -449,7 +449,7 @@ def test_config_user_config() -> None:
 
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
-    base = false
+    skip_package = true
     """
 
     c = Config.from_string(s, s_user)
@@ -462,7 +462,7 @@ def test_config_user_config() -> None:
                 "groups": [],
                 "extras_or_groups": [],
                 "sort": True,
-                "base": False,
+                "skip_package": True,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -483,7 +483,7 @@ def test_config_user_config() -> None:
                 "groups": [],
                 "extras_or_groups": [],
                 "sort": True,
-                "base": True,
+                "skip_package": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -509,7 +509,7 @@ def test_config_user_config() -> None:
 
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
-    base = false
+    skip_package = true
     """
 
     with pytest.raises(TypeError):
@@ -522,7 +522,7 @@ def test_config_user_config() -> None:
 
     [tool.pyproject2conda.overrides]
     envs = ["test"]
-    base = false
+    skip_package = true
     """
 
     with pytest.raises(TypeError):
@@ -537,7 +537,7 @@ def test_config_user_config() -> None:
 
     assert c.data == {
         "envs": {"user": {"extras": ["a", "b"], "python": "3.9"}},
-        "overrides": [{"envs": ["test"], "base": False}],
+        "overrides": [{"envs": ["test"], "skip_package": True}],
     }
 
 
@@ -606,7 +606,7 @@ def test_multiple(caplog) -> None:
         "yaml",
         "-e",
         "dist-pypi",
-        "--no-base",
+        "--skip-package",
         "-p",
         "3.10",
         "-o",
@@ -621,7 +621,7 @@ def test_multiple(caplog) -> None:
         "yaml",
         "-e",
         "test",
-        "--no-base",
+        "--skip-package",
         "-p",
         "3.10",
         "-o",
@@ -632,14 +632,16 @@ def test_multiple(caplog) -> None:
         "yaml",
         "-e",
         "test",
-        "--no-base",
+        "--skip-package",
         "-p",
         "3.11",
         "-o",
         f"{path2}/py311-test-extras.yaml",
     )
 
-    do_run(runner, "r", "-e", "test", "--no-base", "-o", f"{path2}/test-extras.txt")
+    do_run(
+        runner, "r", "-e", "test", "--skip-package", "-o", f"{path2}/test-extras.txt"
+    )
 
     do_run(
         runner,

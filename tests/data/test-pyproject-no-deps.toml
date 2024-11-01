@@ -6,11 +6,7 @@ requires-python = ">=3.8,<3.11"
 test = ["pandas", "pytest"]
 dev-extras = ["matplotlib"]
 dev = ["hello[test]", "hello[dev-extras]"]
-dist-pypi = [
-    # this is intended to be parsed with --no-base option
-    "setuptools",
-    "build",
-]
+dist-pypi = ["setuptools", "build"]
 
 [tool.pyproject2conda]
 channels = ['conda-forge']
@@ -43,7 +39,7 @@ style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-base = false
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]

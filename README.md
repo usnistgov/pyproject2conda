@@ -128,7 +128,7 @@ test = [
 dev-extras = ["matplotlib"]
 dev = ["hello[test]", "hello[dev-extras]"]
 dist-pypi = [
-# this is intended to be parsed with --no-base option
+# this is intended to be parsed with --skip-package option
 "setuptools",
 "build",
 ]
@@ -136,7 +136,7 @@ dist-pypi = [
 [dependency-groups]
 test2 = ["pandas", "pytest"]
 dev-extras2 = ["matplotlib"]
-dev2 = [{include-group = "test2"}, {include-group = "dev-extras2"}]
+dev2 = [{ include-group = "test2" }, { include-group = "dev-extras2" }]
 
 # overrides of dependencies
 [tool.pyproject2conda.dependencies]
@@ -362,7 +362,7 @@ test = [
 dev-extras = ["matplotlib"]
 dev = ["hello[test]", "hello[dev-extras]"]
 dist-pypi = [
-# this is intended to be parsed with --no-base option
+# this is intended to be parsed with --skip-package option
 "setuptools",
 "build",
 ]
@@ -370,7 +370,7 @@ dist-pypi = [
 [dependency-groups]
 test2 = ["pandas", "pytest"]
 dev-extras2 = ["matplotlib"]
-dev2 = [{include-group = "test2"}, {include-group = "dev-extras2"}]
+dev2 = [{ include-group = "test2" }, { include-group = "dev-extras2" }]
 
 # overrides of dependencies
 # ...
@@ -518,15 +518,13 @@ user_config = "config/userconfig.toml"
 #
 # [tool.pyproject2conda.envs.test]
 # extras_or_groups = "test"
-# base = true
 #
 default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
+
 # This will have no extras or groups
-
-
 #
 # A value of `extras = true` also implies using the environment name
 # as the extras.
@@ -536,7 +534,7 @@ style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-base = false
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]
@@ -549,8 +547,8 @@ python = ["3.10", "3.11"]
 Note that specifying channels at the command line overrides
 `tool.pyproject2conda.channels`.
 
-You can also specify environments without the base dependencies (those under
-`project.dependencies`) by passing the `--no-base` flag. This is useful for
+You can also specify environments without the package dependences (those under
+`project.dependencies`) by passing the `--skip-package` flag. This is useful for
 defining environments for build, etc, that do not require the package be
 installed. For example:
 
@@ -561,7 +559,7 @@ installed. For example:
 ```toml
 # ...
 dist-pypi = [
-# this is intended to be parsed with --no-base option
+# this is intended to be parsed with --skip-package option
 "setuptools",
 "build",
 ]
@@ -569,7 +567,7 @@ dist-pypi = [
 [dependency-groups]
 test2 = ["pandas", "pytest"]
 dev-extras2 = ["matplotlib"]
-dev2 = [{include-group = "test2"}, {include-group = "dev-extras2"}]
+dev2 = [{ include-group = "test2" }, { include-group = "dev-extras2" }]
 
 # overrides of dependencies
 [tool.pyproject2conda.dependencies]
@@ -592,10 +590,11 @@ build = { channel = "pip" }
 These can be accessed using either of the following:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --no-base")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --skip-package")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --no-base
+$ pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --skip- \
+    package
 channels:
   - conda-forge
 dependencies:
@@ -614,7 +613,7 @@ or
 >>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(extras="dist-pypi", include_base=False).strip())
+>>> print(p.to_conda_yaml(extras="dist-pypi", skip_package=True).strip())
 channels:
   - conda-forge
 dependencies:
@@ -653,15 +652,13 @@ user_config = "config/userconfig.toml"
 #
 # [tool.pyproject2conda.envs.test]
 # extras_or_groups = "test"
-# base = true
 #
 default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
+
 # This will have no extras or groups
-
-
 #
 # A value of `extras = true` also implies using the environment name
 # as the extras.
@@ -671,7 +668,7 @@ style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-base = false
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]
