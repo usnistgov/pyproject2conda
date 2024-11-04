@@ -76,9 +76,10 @@ class Config:  # noqa: PLR0904
             value = self.get_in("envs", env_name, key, default=None)
 
             if inherit:
-                # try to get from override
-                if value is None:
-                    value = self._get_override(env_name).get(key, None)
+                # If have override, use it.
+                _value = self._get_override(env_name).get(key, None)
+                if _value is not None:
+                    value = _value
 
                 # finally, try to get from top level
                 if value is None:
@@ -112,11 +113,13 @@ class Config:  # noqa: PLR0904
             default=default,
         )
 
-    def _get_extras(self, key: str, env_name: str, default: Any) -> list[str]:
+    def _get_extras(
+        self, key: str, env_name: str, default: Any, inherit: bool = True
+    ) -> list[str]:
         val = self._get_value(
             key=key,
             env_name=env_name,
-            inherit=False,
+            inherit=inherit,
             default=default,
         )
 
@@ -127,7 +130,7 @@ class Config:  # noqa: PLR0904
             val = [val]
         return val  # type: ignore[no-any-return]
 
-    def extras(self, env_name: str) -> list[str]:
+    def extras(self, env_name: str, inherit: bool = True) -> list[str]:
         """
         Extras getter
 
@@ -135,23 +138,29 @@ class Config:  # noqa: PLR0904
         * If value is `False`, return []
         * else return list of extras
         """
-        return self._get_extras(key="extras", env_name=env_name, default=list)
+        return self._get_extras(
+            key="extras", env_name=env_name, default=list, inherit=inherit
+        )
 
-    def groups(self, env_name: str) -> list[str]:
+    def groups(self, env_name: str, inherit: bool = True) -> list[str]:
         """
         Groups getter.
 
         Same style as `self.extras`
         """
-        return self._get_extras(key="groups", env_name=env_name, default=list)
+        return self._get_extras(
+            key="groups", env_name=env_name, default=list, inherit=inherit
+        )
 
-    def extras_or_groups(self, env_name: str) -> list[str]:
+    def extras_or_groups(self, env_name: str, inherit: bool = True) -> list[str]:
         """
         Extras_or_Groups getter.
 
         These will need to be resolved after the fact.
         """
-        return self._get_extras(key="extras_or_groups", env_name=env_name, default=list)
+        return self._get_extras(
+            key="extras_or_groups", env_name=env_name, default=list, inherit=inherit
+        )
 
     def output(self, env_name: str | None = None) -> str | None:
         """Output getter"""

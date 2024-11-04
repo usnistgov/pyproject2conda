@@ -59,6 +59,9 @@ def test_option_override() -> None:
 
     ]
 
+    [dependency-groups]
+    thing = ["a-thing"]
+
     [tool.pyproject2conda]
     channels = ['conda-forge']
     # these are the same as the default values of `p2c project`
@@ -79,6 +82,15 @@ def test_option_override() -> None:
     [tool.pyproject2conda.envs.base2]
     style = "yaml"
     extras = []
+
+    [tool.pyproject2conda.envs.both]
+    groups = "thing"
+
+
+    [[tool.pyproject2conda.overrides]]
+    envs = ["both"]
+    extras = ["test"]
+
     """
 
     d = Config.from_string(dedent(toml))
@@ -126,6 +138,30 @@ def test_option_override() -> None:
             "allow_empty": False,
             "remove_whitespace": True,
             "output": "py310-base2.yaml",
+            "python": "3.10",
+        },
+    )
+
+    output = list(d.iter_envs(envs=["both"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": ["test"],
+            "groups": ["thing"],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py310-both.yaml",
             "python": "3.10",
         },
     )

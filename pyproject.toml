@@ -410,6 +410,7 @@ default_envs = [
     "docs",
     "dev",
     "dev-complete",
+    "uvxrun-tools",
 ]
 
 [tool.pyproject2conda.dependencies]
@@ -421,19 +422,19 @@ groups = "build-system.requires"
 reqs = [
     "build",
 ]
-skip_package = true
-style = "requirements"
 
 [tool.pyproject2conda.envs.uvxrun-tools]
 groups = "uvxrun-tools"
-skip_package = true
-style = "requirements"
 
 [tool.pyproject2conda.envs.test-extras]
 groups = [
     "test",
 ]
+
+[[tool.pyproject2conda.overrides]]
+envs = [ "build", "uvxrun-tools", "test-extras" ]
 skip_package = true
+style = "requirements"
 
 [[tool.pyproject2conda.overrides]]
 # Ensure these have pip in yaml file
