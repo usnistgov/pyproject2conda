@@ -50,6 +50,69 @@ urls.Homepage = "https://github.com/usnistgov/pyproject2conda"
 scripts.p2c = "pyproject2conda.cli:app"
 scripts.pyproject2conda = "pyproject2conda.cli:app"
 
+[dependency-groups]
+dev = [
+    { include-group = "dev-extras" },
+    { include-group = "mypy" },
+    { include-group = "test" },
+    { include-group = "typing" },
+    { include-group = "uvxrun" },
+]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-sugar",
+    "pytest-xdist",
+]
+docs = [
+    "autodocsumm",
+    "myst-parser",
+    "pyenchant",
+    "sphinx>=5.3.0",
+    "sphinx-autobuild",
+    "sphinx-book-theme",
+    "sphinx-click",
+    "sphinx-copybutton",
+    "sphinxcontrib-spelling",
+]
+dev-complete = [
+    { include-group = "dev" },
+    { include-group = "tools" },
+]
+dev-extras = [
+    "ipykernel",
+    "nox>=2024.4.15",
+    "pytest-accept",
+]
+mypy = [
+    "mypy>=1.10.1",
+]
+nbval = [
+    "nbval",
+]
+tools = [
+    "pre-commit",
+    "scriv",
+]
+typing = [
+    "pytest",
+    "types-click",
+    { include-group = "uvxrun" },
+]
+uvxrun = [
+    # Anything needed to run tools/uvxrun.py
+    "packaging",
+]
+uvxrun-tools = [
+    "conda-lock>=2.5.5",
+    "grayskull>=2.5.3",
+    "nbqa>=1.8.4",
+    "pyright>=1.1.381",
+    "twine>=5.0.0",
+    # these used solely for specking tools to be used with tools/uvxrun.py
+    { include-group = "mypy" },
+]
+
 [tool.hatch.version]
 source = "vcs"
 
@@ -326,69 +389,6 @@ inputs = [
 ]
 
 # * Dependency creation --------------------------------------------------------
-
-[dependency-groups]
-dev = [
-    { include-group = "dev-extras" },
-    { include-group = "test" },
-    { include-group = "typing" },
-    { include-group = "uvxrun" },
-    { include-group = "mypy" },
-]
-dev-complete = [
-    { include-group = "dev" },
-    { include-group = "tools" },
-]
-dev-extras = [
-    "ipykernel",
-    "nox>=2024.4.15",
-    "pytest-accept",
-]
-docs = [
-    "autodocsumm",
-    "myst-parser",
-    "pyenchant",
-    "sphinx>=5.3.0",
-    "sphinx-autobuild",
-    "sphinx-book-theme",
-    "sphinx-click",
-    "sphinx-copybutton",
-    "sphinxcontrib-spelling",
-]
-mypy = [
-    "mypy>=1.10.1",
-]
-nbval = [
-    "nbval",
-]
-test = [
-    "pytest",
-    "pytest-cov",
-    "pytest-sugar",
-    "pytest-xdist",
-]
-tools = [
-    "pre-commit",
-    "scriv",
-]
-typing = [
-    { include-group = "uvxrun" },
-    "pytest",
-    "types-click",
-]
-uvxrun = [
-    # Anything needed to run tools/uvxrun.py
-    "packaging",
-]
-uvxrun-tools = [
-    # these used solely for specking tools to be used with tools/uvxrun.py
-    { include-group = "mypy" },
-    "conda-lock>=2.5.5",
-    "grayskull>=2.5.3",
-    "nbqa>=1.8.4",
-    "pyright>=1.1.381",
-    "twine>=5.0.0",
-]
 
 [tool.pyproject2conda]
 user_config = "config/userconfig.toml"
