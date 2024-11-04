@@ -107,7 +107,7 @@ tomli==2.0.1
     # via -r ./requirements/dev-base.txt
 tomlkit==0.12.3
     # via -r ./requirements/dev-base.txt
-tornado==6.4
+tornado==6.4.1
     # via
     #   ipykernel
     #   jupyter-client
