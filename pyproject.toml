@@ -45,62 +45,6 @@ dependencies = [
     "typer",
     "typing-extensions; python_version<'3.11'",
 ]
-optional-dependencies.dev = [
-    "pyproject2conda[dev-extras,test,typing,uvxrun,mypy]",
-]
-optional-dependencies.dev-complete = [
-    "pyproject2conda[dev,tools]",
-]
-optional-dependencies.dev-extras = [
-    "ipykernel",
-    "nox>=2024.4.15",
-    "pytest-accept",
-]
-optional-dependencies.docs = [
-    "autodocsumm",
-    "myst-parser",
-    "pyenchant",
-    "sphinx>=5.3.0",
-    "sphinx-autobuild",
-    "sphinx-book-theme",
-    "sphinx-click",
-    "sphinx-copybutton",
-    "sphinxcontrib-spelling",
-]
-optional-dependencies.mypy = [
-    "mypy>=1.10.1",
-]
-optional-dependencies.nbval = [
-    "nbval",
-]
-optional-dependencies.test = [
-    "pytest",
-    "pytest-cov",
-    "pytest-sugar",
-    "pytest-xdist",
-]
-optional-dependencies.tools = [
-    "pre-commit",
-    "scriv",
-]
-optional-dependencies.typing = [
-    "pyproject2conda[uvxrun]",
-    "pytest",
-    "types-click",
-]
-optional-dependencies.uvxrun = [
-    # Anything needed to run tools/uvxrun.py
-    "packaging",
-]
-optional-dependencies.uvxrun-tools = [
-    # these used solely for specking tools to be used with tools/uvxrun.py
-    "conda-lock>=2.5.5",
-    "grayskull>=2.5.3",
-    "nbqa>=1.8.4",
-    "pyproject2conda[mypy]",
-    "pyright>=1.1.381",
-    "twine>=5.0.0",
-]
 urls.Documentation = "https://pages.nist.gov/pyproject2conda/"
 urls.Homepage = "https://github.com/usnistgov/pyproject2conda"
 scripts.p2c = "pyproject2conda.cli:app"
@@ -428,7 +372,7 @@ tools = [
     "scriv",
 ]
 typing = [
-    "pyproject2conda[uvxrun]",
+    { include-group = "uvxrun" },
     "pytest",
     "types-click",
 ]
@@ -438,10 +382,10 @@ uvxrun = [
 ]
 uvxrun-tools = [
     # these used solely for specking tools to be used with tools/uvxrun.py
+    { include-group = "mypy" },
     "conda-lock>=2.5.5",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
-    "pyproject2conda[mypy]",
     "pyright>=1.1.381",
     "twine>=5.0.0",
 ]
@@ -473,23 +417,23 @@ pytest-accept = { pip = true }
 scriv = { pip = true }
 
 [tool.pyproject2conda.envs.build]
-extras = "build-system.requires"
+groups = "build-system.requires"
 reqs = [
     "build",
 ]
-base = false
+skip_package = true
 style = "requirements"
 
 [tool.pyproject2conda.envs.uvxrun-tools]
-extras = "uvxrun-tools"
-base = false
+groups = "uvxrun-tools"
+skip_package = true
 style = "requirements"
 
 [tool.pyproject2conda.envs.test-extras]
-extras = [
+groups = [
     "test",
 ]
-base = false
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
 # Ensure these have pip in yaml file
