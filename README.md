@@ -566,13 +566,11 @@ default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
+
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
 # passing extras_or_groups = <env-name>
-
-
-
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
@@ -696,13 +694,11 @@ default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
+
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
 # passing extras_or_groups = <env-name>
-
-
-
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
