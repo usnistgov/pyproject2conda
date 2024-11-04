@@ -1065,7 +1065,7 @@ def check_for_change_manager(
 
         yield changed
 
-    except Exception:  # noqa: TRY302
+    except Exception:  # noqa: TRY203
         raise
 
     else:

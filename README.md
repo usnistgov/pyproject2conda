@@ -566,13 +566,11 @@ default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
+
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
 # passing extras_or_groups = <env-name>
-
-
-
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
@@ -696,13 +694,11 @@ default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
+
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
 # passing extras_or_groups = <env-name>
-
-
-
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
@@ -784,8 +780,8 @@ production, you'd omit this flag, and files according to `--template` and
 The options under `[tool.pyproject2conda]` follow the command line options
 (replace `-` with `_`). To specify an environment, you can either use the
 `[tool.pyproject.envs."environment-name"]` method, or, if the environment is the
-same as the "extras" name, you can just specify it under
-`tool.pyproject2conda.default_envs`:
+same as an `project.optional-dependencies` or `dependency-grroups`, you can just
+specify it under `tool.pyproject2conda.default_envs`:
 
 ```toml
 [tool.pyproject2conda]
@@ -832,9 +828,12 @@ You can also override options for multiple environments using the
 and the environments to apply them to. For example, above we specify that the
 base option is `False` for envs `test-extras` and `dist-pypi`, and that the
 python version should be `3.10` and `3.11` for envs `test` and `test-extras`.
+Note that each "overrides" table must specify the options to be overridden, and
+the environments that these overrides apply to. Also, note that subsequenct
+overrides override previous overrides/options (last option wins).
 
-So in all, options are picked up, in order, from the environment definition,
-then the overrides list, and finally, from the default options.
+So in all, options are picked up, in order, from the overrides list, then the
+environment definition, and finally, from the default options.
 
 You can also define "user defined" configurations. This can be done through the
 option `--user-config`. This allows you to define your own environments outside

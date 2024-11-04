@@ -18,6 +18,13 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.13.0 — 2024-11-04
+
+### Changed
+
+- Allow `overrides` for all options.
+- `overrides` override environment options.
+
 ## v0.12.0 — 2024-11-04
 
 ### Removed
