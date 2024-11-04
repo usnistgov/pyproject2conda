@@ -36,41 +36,67 @@ def filename(request) -> Path:
     return ROOT / cast(str, request.param)
 
 
-@pytest.fixture
-def runner() -> CliRunner:
-    return CliRunner()
-
-
-def test_list(filename: Path, runner: CliRunner) -> None:
+@pytest.mark.parametrize(
+    ("fname", "expected"),
+    [
+        (
+            "test-pyproject.toml",
+            """\
+            Extras
+            ======
+            * build-system.requires
+            * dev
+            * dev-extras
+            * dist-pypi
+            * test
+            Groups
+            ======
+            * build-system.requires
+            """,
+        ),
+        (
+            "test-pyproject-groups.toml",
+            """\
+            Extras
+            ======
+            * build-system.requires
+            Groups
+            ======
+            * build-system.requires
+            * dev
+            * dev-extras
+            * dist-pypi
+            * test
+            """,
+        ),
+    ],
+)
+def test_list(fname: str, expected: str, runner: CliRunner) -> None:
+    filename = ROOT / fname
     for cmd in ["l", "list"]:
         result = do_run(runner, cmd, filename=filename)
-        expected = """\
-        Extras:
-        =======
-        * build-system.requires
-        * dev
-        * dev-extras
-        * dist-pypi
-        * test
-        Groups:
-        =======
-        * build-system.requires
-        * dev-extras2
-        * dev2
-        * test2
-        """
         check_result(result, expected)
 
     result = do_run(runner, "list", "-v", filename=filename)
     check_result(result, expected)
 
 
-def test_create(filename, runner) -> None:  # noqa: C901
-    # test unknown file
-
+def test_no_file(runner) -> None:
     result = do_run(runner, "yaml", filename="hello/there.toml")
-
     assert isinstance(result.exception, FileNotFoundError)
+
+
+@pytest.mark.parametrize(
+    ("fname", "style"),
+    [
+        ("test-pyproject.toml", "extras"),
+        ("test-pyproject-groups.toml", "groups"),
+    ],
+)
+def test_create(fname, style, runner) -> None:
+    # test unknown file
+    filename = ROOT / fname
+    extra_or_group_opts = ["-e", "--extra"] if style == "extras" else ["-g", "--group"]
 
     expected = """\
 channels:
@@ -108,7 +134,6 @@ dependencies:
   - pip:
       - athing
     """
-
     result = do_run(runner, "yaml", "--header", filename=filename)
 
     check_result(result, expected)
@@ -167,13 +192,14 @@ dependencies:
       - athing
     """
 
-    for opt in ["-e", "--extra"]:
+    for opt in extra_or_group_opts:
         result = do_run(runner, "yaml", opt, "dev", "--no-sort", filename=filename)
         check_result(result, expected)
 
     # test if add in "test" gives same answer
+    opts = extra_or_group_opts[0]
     result = do_run(
-        runner, "yaml", "-e", "dev", "-e", "test", "--no-sort", filename=filename
+        runner, "yaml", opt, "dev", opt, "test", "--no-sort", filename=filename
     )
     check_result(result, expected)
 
@@ -192,93 +218,13 @@ dependencies:
       - athing
     """
 
-    for opt in ["-e", "--extra"]:
+    for opt in extra_or_group_opts:
         result = do_run(runner, "yaml", opt, "dev", filename=filename)
         check_result(result, expected)
 
     # test if add in "test" gives same answer
-    result = do_run(runner, "yaml", "-e", "dev", "-e", "test", filename=filename)
-    check_result(result, expected)
-
-    # different ordering
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - conda-forge::cthing
-  - bthing-conda
-  - conda-forge::pytest
-  - pandas
-  - conda-matplotlib
-  - additional-thing
-  - pip
-  - pip:
-      - athing
-    """
-
-    for opt in ["-e", "--extra"]:
-        result = do_run(
-            runner,
-            "yaml",
-            opt,
-            "dev",
-            "--no-sort",
-            filename=ROOT / "test-pyproject-reorder.toml",
-            must_exist=True,
-        )
-        check_result(result, expected)
-
-    # test if add in "test" gives same answer
-    result = do_run(
-        runner,
-        "yaml",
-        "-e",
-        "dev",
-        "-e",
-        "test",
-        "--no-sort",
-        filename=ROOT / "test-pyproject-reorder.toml",
-        must_exist=True,
-    )
-    check_result(result, expected)
-
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - additional-thing
-  - bthing-conda
-  - conda-forge::cthing
-  - conda-forge::pytest
-  - conda-matplotlib
-  - pandas
-  - pip
-  - pip:
-      - athing
-    """
-
-    for opt in ["-e", "--extra"]:
-        result = do_run(
-            runner,
-            "yaml",
-            opt,
-            "dev",
-            filename=ROOT / "test-pyproject-reorder.toml",
-            must_exist=True,
-        )
-        check_result(result, expected)
-
-    # test if add in "test" gives same answer
-    result = do_run(
-        runner,
-        "yaml",
-        "-e",
-        "dev",
-        "-e",
-        "test",
-        filename=ROOT / "test-pyproject-reorder.toml",
-        must_exist=True,
-    )
+    opt = extra_or_group_opts[0]
+    result = do_run(runner, "yaml", opt, "dev", opt, "test", filename=filename)
     check_result(result, expected)
 
     # override channel
@@ -326,7 +272,9 @@ dependencies:
   - pip:
       - athing
     """
-    result = do_run(runner, "yaml", "-e", "test", "--no-sort", filename=filename)
+
+    opt = extra_or_group_opts[0]
+    result = do_run(runner, "yaml", opt, "test", "--no-sort", filename=filename)
     check_result(result, expected)
 
     expected = """\
@@ -341,7 +289,7 @@ dependencies:
   - pip:
       - athing
     """
-    result = do_run(runner, "yaml", "-e", "test", filename=filename)
+    result = do_run(runner, "yaml", opt, "test", filename=filename)
     check_result(result, expected)
 
     # isolated
@@ -354,14 +302,118 @@ dependencies:
   - pip:
       - build
     """
-    for opt in ["-e", "--extra"]:
+    for opt in extra_or_group_opts:
         result = do_run(
             runner, "yaml", opt, "dist-pypi", "--skip-package", filename=filename
         )
         check_result(result, expected)
 
 
-def test_requirements(filename, runner) -> None:
+@pytest.mark.parametrize(
+    ("fname", "style"),
+    [
+        ("test-pyproject-reorder.toml", "extras"),
+        ("test-pyproject-reorder.toml", "groups"),
+    ],
+)
+def test_create_reorder(fname, style, runner) -> None:
+    filename = ROOT / fname
+    extra_or_group_opts = ["-e", "--extra"] if style == "extras" else ["-g", "--group"]
+
+    # different ordering
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::cthing
+  - bthing-conda
+  - conda-forge::pytest
+  - pandas
+  - conda-matplotlib
+  - additional-thing
+  - pip
+  - pip:
+      - athing
+    """
+
+    for opt in extra_or_group_opts:
+        result = do_run(
+            runner,
+            "yaml",
+            opt,
+            "dev",
+            "--no-sort",
+            filename=filename,
+            must_exist=True,
+        )
+        check_result(result, expected)
+
+    # test if add in "test" gives same answer
+    opt = extra_or_group_opts[0]
+    result = do_run(
+        runner,
+        "yaml",
+        opt,
+        "dev",
+        opt,
+        "test",
+        "--no-sort",
+        filename=filename,
+        must_exist=True,
+    )
+    check_result(result, expected)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - additional-thing
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
+  - pip
+  - pip:
+      - athing
+    """
+
+    for opt in extra_or_group_opts:
+        result = do_run(
+            runner,
+            "yaml",
+            opt,
+            "dev",
+            filename=filename,
+            must_exist=True,
+        )
+        check_result(result, expected)
+
+    # test if add in "test" gives same answer
+    opt = extra_or_group_opts[0]
+    result = do_run(
+        runner,
+        "yaml",
+        opt,
+        "dev",
+        opt,
+        "test",
+        filename=filename,
+        must_exist=True,
+    )
+    check_result(result, expected)
+
+
+@pytest.mark.parametrize(
+    ("fname", "opt"),
+    [
+        ("test-pyproject.toml", "-e"),
+        ("test-pyproject-groups.toml", "-g"),
+    ],
+)
+def test_requirements(fname, opt, runner) -> None:
+    filename = ROOT / fname
+
     expected = """\
 athing
 bthing
@@ -381,15 +433,15 @@ pytest
 matplotlib
     """
 
-    result = do_run(runner, "requirements", "-e", "dev", "--no-sort", filename=filename)
+    result = do_run(runner, "requirements", opt, "dev", "--no-sort", filename=filename)
     check_result(result, expected)
 
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dev",
-        "-e",
+        opt,
         "test",
         "--no-sort",
         filename=filename,
@@ -410,7 +462,7 @@ other
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dev",
         "--no-sort",
         "-r",
@@ -431,12 +483,10 @@ pandas
 pytest
     """
 
-    result = do_run(runner, "requirements", "-e", "dev", filename=filename)
+    result = do_run(runner, "requirements", opt, "dev", filename=filename)
     check_result(result, expected)
 
-    result = do_run(
-        runner, "requirements", "-e", "dev", "-e", "test", filename=filename
-    )
+    result = do_run(runner, "requirements", opt, "dev", opt, "test", filename=filename)
     check_result(result, expected)
 
     expected = """\
@@ -453,7 +503,7 @@ thing;python_version<"3.10"
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dev",
         "-r",
         "thing;python_version<'3.10'",
@@ -479,7 +529,7 @@ thing; python_version < "3.10"
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dev",
         "-r",
         "thing; python_version < '3.10'",
@@ -499,7 +549,7 @@ build
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dist-pypi",
         "--skip-package",
         "--no-sort",
@@ -513,7 +563,7 @@ setuptools
     """
 
     result = do_run(
-        runner, "requirements", "-e", "dist-pypi", "--skip-package", filename=filename
+        runner, "requirements", opt, "dist-pypi", "--skip-package", filename=filename
     )
     check_result(result, expected)
 
@@ -615,7 +665,15 @@ def check_results_json(path, expected) -> None:
     assert result == expected
 
 
-def test_json(filename, runner) -> None:
+@pytest.mark.parametrize(
+    ("fname", "opt"),
+    [
+        ("test-pyproject.toml", "-e"),
+        ("test-pyproject-groups.toml", "-g"),
+    ],
+)
+def test_json(fname, opt, runner) -> None:
+    filename = ROOT / fname
     # stdout
     result = do_run(runner, "j", filename=filename)
 
@@ -665,7 +723,7 @@ def test_json(filename, runner) -> None:
             "json",
             "-o",
             str(d / "there.json"),
-            "-e",
+            opt,
             "dev",
             "--no-sort",
             filename=filename,
@@ -692,7 +750,7 @@ def test_json(filename, runner) -> None:
             "json",
             "-o",
             str(d / "there.json"),
-            "-e",
+            opt,
             "dev",
             "-w",
             "force",
@@ -819,7 +877,9 @@ def test_overwrite(filename, caplog) -> None:
             )
 
 
-def test_userconfig(filename, runner) -> None:
+@pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
+def test_userconfig(fname, runner) -> None:
+    filename = ROOT / fname
     expected = """\
 # --------------------
 # Creating yaml py310-user-dev.yaml

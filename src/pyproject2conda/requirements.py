@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
     from ._typing import (
         MISSING_TYPE,
-        OptStr,
     )
     from ._typing_compat import Self
 
@@ -446,7 +445,7 @@ class ParseDepends:
                     extras.append(extra_or_group)
                 elif extra_or_group in self.groups:
                     groups.append(extra_or_group)
-                else:
+                else:  # pragma: no cover
                     msg = f"extra-or-group {extra_or_group} not in extras or groups"
                     raise ValueError(msg)
 
@@ -472,8 +471,8 @@ class ParseDepends:
 
     def _get_requirements(
         self,
-        extras: str | Iterable[str] | None,
-        groups: str | Iterable[str] | None,
+        extras: Iterable[str],
+        groups: Iterable[str],
         skip_package: bool = False,
     ) -> list[Requirement]:
         out: list[Requirement] = []
@@ -482,14 +481,9 @@ class ParseDepends:
             out.extend(self.requirements_base)
 
         def _extend_extra_or_group(
-            extras: str | Iterable[str] | None,
+            extras: Iterable[str],
             requirements_mapping: dict[str, list[Requirement]],
         ) -> None:
-            if extras is None:
-                return
-            if isinstance(extras, str):
-                extras = [extras]
-
             for extra in extras:
                 out.extend(requirements_mapping[extra])
 
@@ -500,6 +494,7 @@ class ParseDepends:
 
     def pip_requirements(
         self,
+        *,
         extras: str | Iterable[str] | None = None,
         groups: str | Iterable[str] | None = None,
         extras_or_groups: str | Iterable[str] | None = None,
@@ -533,6 +528,7 @@ class ParseDepends:
 
     def conda_and_pip_requirements(  # noqa: C901
         self,
+        *,
         extras: str | Iterable[str] | None = None,
         groups: str | Iterable[str] | None = None,
         extras_or_groups: str | Iterable[str] | None = None,
@@ -624,17 +620,18 @@ class ParseDepends:
 
         return conda_deps, pip_deps
 
-    def to_conda_yaml(  # noqa: PLR0913, PLR0917
+    def to_conda_yaml(  # noqa: PLR0913
         self,
-        extras: OptStr | Iterable[str] = None,
-        groups: OptStr | Iterable[str] = None,
-        extras_or_groups: OptStr | Iterable[str] = None,
+        *,
+        extras: str | Iterable[str] | None = None,
+        groups: str | Iterable[str] | None = None,
+        extras_or_groups: str | Iterable[str] | None = None,
         pip_deps: str | Iterable[str] | None = None,
         conda_deps: str | Iterable[str] | None = None,
-        name: OptStr = None,
-        channels: OptStr | Iterable[str] = None,
-        python_include: OptStr = None,
-        python_version: OptStr = None,
+        name: str | None = None,
+        channels: str | Iterable[str] | None = None,
+        python_include: str | None = None,
+        python_version: str | None = None,
         skip_package: bool = False,
         header_cmd: str | None = None,
         output: str | Path | None = None,
@@ -676,9 +673,10 @@ class ParseDepends:
 
     def to_requirements(
         self,
-        extras: OptStr | Iterable[str] = None,
-        groups: OptStr | Iterable[str] = None,
-        extras_or_groups: OptStr | Iterable[str] = None,
+        *,
+        extras: str | Iterable[str] | None = None,
+        groups: str | Iterable[str] | None = None,
+        extras_or_groups: str | Iterable[str] | None = None,
         skip_package: bool = False,
         header_cmd: str | None = None,
         output: str | Path | None = None,
@@ -706,11 +704,12 @@ class ParseDepends:
         _optional_write(out, output)
         return out
 
-    def to_conda_requirements(  # noqa: PLR0913, PLR0917
+    def to_conda_requirements(  # noqa: PLR0913
         self,
+        *,
         extras: str | Iterable[str] | None = None,
-        groups: OptStr | Iterable[str] = None,
-        extras_or_groups: OptStr | Iterable[str] = None,
+        groups: str | Iterable[str] | None = None,
+        extras_or_groups: str | Iterable[str] | None = None,
         channels: str | Iterable[str] | None = None,
         python_include: str | None = None,
         python_version: str | None = None,

@@ -2,11 +2,11 @@
 import filecmp
 import logging
 import tempfile
+from functools import partial
 from pathlib import Path
 from textwrap import dedent
 
 import pytest
-from click.testing import CliRunner
 
 import pyproject2conda
 from pyproject2conda import utils
@@ -207,8 +207,9 @@ def test_option_override() -> None:
     )
 
 
-def test_dry() -> None:
-    runner = CliRunner()
+@pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
+def test_dry(fname, runner) -> None:
+    filename = ROOT / fname
 
     expected = """\
 # --------------------
@@ -233,7 +234,9 @@ pandas
 pytest
     """
 
-    result = do_run(runner, "project", "--dry", "--envs", "test-extras")
+    result = do_run(
+        runner, "project", "--dry", "--envs", "test-extras", filename=filename
+    )
 
     assert result.output == dedent(expected)
 
@@ -541,9 +544,7 @@ def test_config_user_config() -> None:
     }
 
 
-def test_version() -> None:
-    runner = CliRunner()
-
+def test_version(runner) -> None:
     result = runner.invoke(app, ["--version"])
 
     assert (
@@ -552,15 +553,23 @@ def test_version() -> None:
     )
 
 
-def test_multiple(caplog) -> None:
-    runner = CliRunner()
+@pytest.mark.parametrize(
+    ("fname", "opt"),
+    [
+        ("test-pyproject.toml", "-e"),
+        ("test-pyproject-groups.toml", "-g"),
+    ],
+)
+def test_multiple(fname, opt, runner, caplog) -> None:
+    filename = ROOT / fname
+    _do_run = partial(do_run, filename=filename)
 
     caplog.set_level(logging.INFO)
 
     t1 = tempfile.TemporaryDirectory()
     path1 = t1.name
 
-    do_run(
+    _do_run(
         runner,
         "project",
         "--template-python",
@@ -572,7 +581,7 @@ def test_multiple(caplog) -> None:
     assert "Creating" in caplog.text
 
     # running this again?
-    do_run(
+    _do_run(
         runner,
         "project",
         "-v",
@@ -585,7 +594,7 @@ def test_multiple(caplog) -> None:
     assert "Skipping requirements" in caplog.text
 
     # run again no verbose:
-    do_run(
+    _do_run(
         runner,
         "project",
         "--template-python",
@@ -597,14 +606,14 @@ def test_multiple(caplog) -> None:
     t2 = tempfile.TemporaryDirectory()
     path2 = t2.name
 
-    do_run(
-        runner, "yaml", "-e", "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"
+    _do_run(
+        runner, "yaml", opt, "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"
     )
 
-    do_run(
+    _do_run(
         runner,
         "yaml",
-        "-e",
+        opt,
         "dist-pypi",
         "--skip-package",
         "-p",
@@ -613,13 +622,13 @@ def test_multiple(caplog) -> None:
         f"{path2}/py310-dist-pypi.yaml",
     )
 
-    do_run(runner, "yaml", "-e", "test", "-p", "3.10", "-o", f"{path2}/py310-test.yaml")
-    do_run(runner, "yaml", "-e", "test", "-p", "3.11", "-o", f"{path2}/py311-test.yaml")
+    _do_run(runner, "yaml", opt, "test", "-p", "3.10", "-o", f"{path2}/py310-test.yaml")
+    _do_run(runner, "yaml", opt, "test", "-p", "3.11", "-o", f"{path2}/py311-test.yaml")
 
-    do_run(
+    _do_run(
         runner,
         "yaml",
-        "-e",
+        opt,
         "test",
         "--skip-package",
         "-p",
@@ -627,10 +636,10 @@ def test_multiple(caplog) -> None:
         "-o",
         f"{path2}/py310-test-extras.yaml",
     )
-    do_run(
+    _do_run(
         runner,
         "yaml",
-        "-e",
+        opt,
         "test",
         "--skip-package",
         "-p",
@@ -639,16 +648,16 @@ def test_multiple(caplog) -> None:
         f"{path2}/py311-test-extras.yaml",
     )
 
-    do_run(
-        runner, "r", "-e", "test", "--skip-package", "-o", f"{path2}/test-extras.txt"
+    _do_run(
+        runner, "r", opt, "test", "--skip-package", "-o", f"{path2}/test-extras.txt"
     )
 
-    do_run(
+    _do_run(
         runner,
         "yaml",
-        "-e",
+        opt,
         "dev",
-        "-e",
+        opt,
         "dist-pypi",
         "--name",
         "hello",
@@ -662,7 +671,7 @@ def test_multiple(caplog) -> None:
         f"{path2}/py310-user-dev.yaml",
     )
 
-    do_run(runner, "req", "-o", f"{path2}/base.txt")
+    _do_run(runner, "req", "-o", f"{path2}/base.txt")
 
     paths1 = Path(path1).glob("*")
     names1 = {x.name for x in paths1}

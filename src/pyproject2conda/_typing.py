@@ -6,8 +6,6 @@ R = TypeVar("R")
 T = TypeVar("T")
 
 
-OptStr = Optional[str]
-
 if TYPE_CHECKING:
     from typing import Literal, Tuple
 

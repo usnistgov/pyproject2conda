@@ -14,9 +14,9 @@ pytest==8.3.3             # via pytest-cov, pytest-sugar, pytest-xdist, -r requi
 pytest-cov==5.0.0         # via -r requirements/test.txt
 pytest-sugar==1.0.0       # via -r requirements/test.txt
 pytest-xdist==3.6.1       # via -r requirements/test.txt
-rich==13.8.1              # via typer
+rich==13.9.4              # via typer
 shellingham==1.5.4        # via typer
 termcolor==2.4.0          # via pytest-sugar
-tomli==2.0.1              # via coverage, pytest, -r requirements/test.txt
+tomli==2.0.2              # via coverage, pytest, -r requirements/test.txt
 typer==0.12.5             # via -r requirements/test.txt
 typing-extensions==4.12.2  # via rich, typer, -r requirements/test.txt

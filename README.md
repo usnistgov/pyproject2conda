@@ -133,12 +133,6 @@ dist-pypi = [
 "build",
 ]
 
-[dependency-groups]
-test2 = ["pandas", "pytest"]
-dev-extras2 = ["matplotlib"]
-dev2 = [{ include-group = "test2" }, { include-group = "dev-extras2" }]
-
-# overrides of dependencies
 [tool.pyproject2conda.dependencies]
 athing = { pip = true }
 bthing = { skip = true, packages = "bthing-conda" }
@@ -367,12 +361,6 @@ dist-pypi = [
 "build",
 ]
 
-[dependency-groups]
-test2 = ["pandas", "pytest"]
-dev-extras2 = ["matplotlib"]
-dev2 = [{ include-group = "test2" }, { include-group = "dev-extras2" }]
-
-# overrides of dependencies
 # ...
 ```
 
@@ -423,6 +411,61 @@ dependencies:
 ```
 
 <!-- [[[end]]] -->
+
+### Installing from `dependency-groups`
+
+`pyproject2conda` also support the [PEP 735](https://peps.python.org/pep-0735/)
+`dependency-groups` table. For example, if we have the follinging
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog cat_lines(begin="[dependency-groups]", end="[tool.pyproject2conda.dependencies]", path="tests/data/test-pyproject-groups.toml")]]] -->
+
+```toml
+# ...
+[dependency-groups]
+test = ["pandas", "pytest"]
+dev-extras = ["matplotlib"]
+dev = [{ include-group = "test" }, { include-group = "dev-extras" }]
+dist-pypi = [
+# this is intended to be parsed with --skip-package option
+"setuptools",
+"build",
+]
+
+# ...
+```
+
+<!-- [[[end]]] -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+Then, we can build a requirement file, specifying groups with `-g/--group` flag.
+
+<!-- markdownlint-disable-next-line MD013 -->
+  <!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev")]]] -->
+
+```bash
+$ pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev
+channels:
+  - conda-forge
+dependencies:
+  - additional-thing
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
+  - pip
+  - pip:
+      - athing
+```
+
+<!-- [[[end]]] -->
+
+The advantage of using `dependency-groups` as opposed to
+`package.optional-dependencies` is that they work for non-package projects, and
+are not included in the metadata of distributed packages.
 
 ### Header in output
 
@@ -523,11 +566,13 @@ default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-
 # This will have no extras or groups
 #
-# A value of `extras = true` also implies using the environment name
-# as the extras.
+# A value of `extras = true` will would be equivalent to
+# passing extras_or_groups = <env-name>
+
+
+
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
@@ -564,12 +609,6 @@ dist-pypi = [
 "build",
 ]
 
-[dependency-groups]
-test2 = ["pandas", "pytest"]
-dev-extras2 = ["matplotlib"]
-dev2 = [{ include-group = "test2" }, { include-group = "dev-extras2" }]
-
-# overrides of dependencies
 [tool.pyproject2conda.dependencies]
 athing = { pip = true }
 bthing = { skip = true, packages = "bthing-conda" }
@@ -657,11 +696,13 @@ default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-
 # This will have no extras or groups
 #
-# A value of `extras = true` also implies using the environment name
-# as the extras.
+# A value of `extras = true` will would be equivalent to
+# passing extras_or_groups = <env-name>
+
+
+
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
@@ -806,7 +847,7 @@ have the option `user_config=config/userconfig.toml`.
 
 ```toml
 [tool.pyproject2conda.envs."user-dev"]
-extras = ["dev", "dist-pypi"]
+extras_or_groups = ["dev", "dist-pypi"]
 deps = ["extra-dep"]
 reqs = ["extra-req"]
 name = "hello"

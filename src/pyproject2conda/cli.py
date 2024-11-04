@@ -476,19 +476,11 @@ def create_list(
 
     d = _get_requirement_parser(filename)
 
-    extras = d.extras
-    if extras:
-        print("Extras:")
-        print("=======")
-        for extra in sorted(d.extras):
-            print("*", extra)
-
-    groups = d.groups
-    if groups:
-        print("Groups:")
-        print("=======")
-        for g in sorted(groups):
-            print("*", g)
+    for name, vals in [("Extras", d.extras), ("Groups", d.groups)]:
+        print(name)
+        print("======")
+        for val in sorted(vals):
+            print("*", val)
 
 
 # ** Yaml

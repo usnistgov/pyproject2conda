@@ -103,6 +103,7 @@ ENV/
 # NOTE: use `/.mypy_cache/`, etc because want to flag those in other
 # mypy
 .mypy_cache/
+.dmypy.json
 
 # pytpe
 .pytype/
