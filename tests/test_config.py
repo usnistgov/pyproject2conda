@@ -1,20 +1,17 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
+import filecmp
+import logging
+import tempfile
+from functools import partial
+from pathlib import Path
+from textwrap import dedent
+
 import pytest
+
 import pyproject2conda
+from pyproject2conda import utils
 from pyproject2conda.cli import app
 from pyproject2conda.config import Config
-from pyproject2conda import utils
-
-from click.testing import CliRunner
-
-# from typer.testing import CliRunner
-
-
-from pathlib import Path
-import tempfile
-
-import filecmp
-from textwrap import dedent
 
 ROOT = Path(__file__).resolve().parent / "data"
 
@@ -24,13 +21,13 @@ def do_run(runner, command, *opts, filename=None, must_exist=False):
         filename = str(ROOT / "test-pyproject.toml")
     filename = Path(filename)
     if must_exist and not filename.exists():
-        raise ValueError(f"filename {filename} does not exist")
+        msg = f"filename {filename} does not exist"
+        raise ValueError(msg)
 
-    result = runner.invoke(app, [command, "-f", str(filename), *opts])
-    return result
+    return runner.invoke(app, [command, "-f", str(filename), *opts])
 
 
-def test_template():
+def test_template() -> None:
     assert utils.filename_from_template(None) is None
 
     expected = "py38-test.yaml"
@@ -48,7 +45,7 @@ def test_template():
     assert t == expected
 
 
-def test_option_override():
+def test_option_override() -> None:
     toml = """\
     [project]
     name = "hello"
@@ -86,14 +83,16 @@ def test_option_override():
 
     d = Config.from_string(dedent(toml))
 
-    output = list(d.iter(envs=["base"]))
+    output = list(d.iter_envs(envs=["base"]))
 
     assert output[0] == (
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -107,14 +106,16 @@ def test_option_override():
         },
     )
 
-    output = list(d.iter(envs=["base2"]))
+    output = list(d.iter_envs(envs=["base2"]))
 
     assert output[0] == (
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -129,14 +130,16 @@ def test_option_override():
         },
     )
 
-    output = list(d.iter(envs=["base"], template="there-{env}"))
+    output = list(d.iter_envs(envs=["base"], template="there-{env}"))
 
     assert output[0] == (
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -150,14 +153,16 @@ def test_option_override():
         },
     )
 
-    output = list(d.iter(envs=["base"], allow_empty=True, template="there-{env}"))
+    output = list(d.iter_envs(envs=["base"], allow_empty=True, template="there-{env}"))
 
     assert output[0] == (
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -172,7 +177,7 @@ def test_option_override():
     )
 
     output = list(
-        d.iter(
+        d.iter_envs(
             envs=["base"],
             allow_empty=True,
             remove_whitespace=False,
@@ -184,8 +189,10 @@ def test_option_override():
         "yaml",
         {
             "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
             "sort": True,
-            "base": True,
+            "skip_package": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -200,8 +207,9 @@ def test_option_override():
     )
 
 
-def test_dry():
-    runner = CliRunner()
+@pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
+def test_dry(fname, runner) -> None:
+    filename = ROOT / fname
 
     expected = """\
 # --------------------
@@ -226,33 +234,35 @@ pandas
 pytest
     """
 
-    result = do_run(runner, "project", "--dry", "--envs", "test-extras")
+    result = do_run(
+        runner, "project", "--dry", "--envs", "test-extras", filename=filename
+    )
 
     assert result.output == dedent(expected)
 
 
-def test_config_only_default():
-    expected = [
-        (
-            "yaml",
-            {
-                "extras": ["test"],
-                "sort": True,
-                "base": True,
-                "header": None,
-                "overwrite": "check",
-                "verbose": None,
-                "name": None,
-                "channels": None,
-                "python": "3.8",
-                "output": "py38-test.yaml",
-                "deps": None,
-                "reqs": None,
-                "allow_empty": False,
-                "remove_whitespace": True,
-            },
-        )
-    ]
+def test_config_only_default() -> None:
+    d0 = {
+        "extras": [],
+        "groups": [],
+        "extras_or_groups": ["test"],
+        "sort": True,
+        "skip_package": False,
+        "header": None,
+        "overwrite": "check",
+        "verbose": None,
+        "name": None,
+        "channels": None,
+        "python": "3.8",
+        "output": "py38-test.yaml",
+        "deps": None,
+        "reqs": None,
+        "allow_empty": False,
+        "remove_whitespace": True,
+    }
+
+    d1 = d0.copy()
+    d1.update(extras=["test"], extras_or_groups=[])
 
     s0 = """
     [tool.pyproject2conda]
@@ -260,6 +270,18 @@ def test_config_only_default():
     default_envs = ["test"]
     """
     s1 = """
+    [tool.pyproject2conda.envs.test]
+    python = ["3.8"]
+    extras = true
+    """
+
+    for s, d in zip([s0, s1], (d0, d1)):
+        c = Config.from_string(s)
+        assert list(c.iter_envs()) == [("yaml", d)]
+
+
+def test_config_errors() -> None:
+    s = """
     [tool.pyproject2conda]
     python = ["3.8"]
 
@@ -267,20 +289,29 @@ def test_config_only_default():
     extras = true
     """
 
-    s2 = """
+    # raise error for bad env
+    c = Config.from_string(s)
+    with pytest.raises(ValueError):
+        c.channels(env_name="hello")
+
+    s1 = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+
     [tool.pyproject2conda.envs.test]
-    python = "3.8"
-
-
+    style = "thing"
     """
 
-    for s in [s0, s1, s2]:
-        c = Config.from_string(s)
+    # raise error for bad env
+    c = Config.from_string(s1)
+    with pytest.raises(ValueError):
+        c.style(env_name="test")
 
-        assert list(c.iter()) == expected
+    with pytest.raises(ValueError):
+        list(c.iter_envs())
 
 
-def test_config_overrides():
+def test_config_overrides() -> None:
     # test overrides env
     s = """
     [tool.pyproject2conda]
@@ -289,7 +320,7 @@ def test_config_overrides():
 
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
-    base = false
+    skip_package = true
     """
 
     c = Config.from_string(s)
@@ -297,9 +328,11 @@ def test_config_overrides():
     expected = (
         "yaml",
         {
-            "extras": ["test"],
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": ["test"],
             "sort": True,
-            "base": False,
+            "skip_package": True,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -314,10 +347,10 @@ def test_config_overrides():
         },
     )
 
-    assert list(c.iter())[0] == expected
+    assert next(iter(c.iter_envs())) == expected
 
 
-def test_conifg_overrides_no_envs():
+def test_conifg_overrides_no_envs() -> None:
     # test overrides env
     s = """
     [tool.pyproject2conda]
@@ -325,16 +358,16 @@ def test_conifg_overrides_no_envs():
     default_envs = ["test"]
 
     [[tool.pyproject2conda.overrides]]
-    base = false
+    skip_package = true
     """
 
     c = Config.from_string(s)
 
     with pytest.raises(ValueError):
-        c.overrides
+        c.overrides  # noqa: B018
 
 
-def test_config_python_include_version():
+def test_config_python_include_version() -> None:
     s = """
     [tool.pyproject2conda.envs.test-1]
     extras = ["test"]
@@ -355,8 +388,10 @@ def test_config_python_include_version():
             "yaml",
             {
                 "extras": ["test"],
+                "groups": [],
+                "extras_or_groups": [],
                 "sort": True,
-                "base": True,
+                "skip_package": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -375,8 +410,10 @@ def test_config_python_include_version():
             "yaml",
             {
                 "extras": ["test"],
+                "groups": [],
+                "extras_or_groups": [],
                 "sort": True,
-                "base": True,
+                "skip_package": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -393,16 +430,17 @@ def test_config_python_include_version():
         ),
     ]
 
-    assert list(c.iter()) == expected
+    assert list(c.iter_envs()) == expected
 
     # no output:
 
 
-def test_config_user_config():
+def test_config_user_config() -> None:
     # test overrides env
     s = """
     [tool.pyproject2conda.envs.test]
     python = "3.8"
+    extras = "test"
 
 
     """
@@ -414,7 +452,7 @@ def test_config_user_config():
 
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
-    base = false
+    skip_package = true
     """
 
     c = Config.from_string(s, s_user)
@@ -424,8 +462,10 @@ def test_config_user_config():
             "yaml",
             {
                 "extras": ["test"],
+                "groups": [],
+                "extras_or_groups": [],
                 "sort": True,
-                "base": False,
+                "skip_package": True,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -443,8 +483,10 @@ def test_config_user_config():
             "yaml",
             {
                 "extras": ["a", "b"],
+                "groups": [],
+                "extras_or_groups": [],
                 "sort": True,
-                "base": True,
+                "skip_package": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -460,24 +502,49 @@ def test_config_user_config():
         ),
     ]
 
-    assert list(c.iter()) == expected
+    assert list(c.iter_envs()) == expected
+
+    # bad user
+    s_user2 = """
+    [[tool.pyproject2conda.envs]]
+    extras = ["a", "b"]
+    python = "3.9"
+
+    [[tool.pyproject2conda.overrides]]
+    envs = ["test"]
+    skip_package = true
+    """
+
+    with pytest.raises(TypeError):
+        c = Config.from_string(s, s_user2)
+
+    s_user2 = """
+    [tool.pyproject2conda.envs]
+    extras = ["a", "b"]
+    python = "3.9"
+
+    [tool.pyproject2conda.overrides]
+    envs = ["test"]
+    skip_package = true
+    """
+
+    with pytest.raises(TypeError):
+        c = Config.from_string(s, s_user2)
 
     # blank config, only user
-    s = """
+    s2 = """
     [tool.pyproject2conda]
     """
 
-    c = Config.from_string(s, s_user)
+    c = Config.from_string(s2, s_user)
 
     assert c.data == {
         "envs": {"user": {"extras": ["a", "b"], "python": "3.9"}},
-        "overrides": [{"envs": ["test"], "base": False}],
+        "overrides": [{"envs": ["test"], "skip_package": True}],
     }
 
 
-def test_version():
-    runner = CliRunner()
-
+def test_version(runner) -> None:
     result = runner.invoke(app, ["--version"])
 
     assert (
@@ -486,14 +553,23 @@ def test_version():
     )
 
 
-def test_multiple():
-    runner = CliRunner()
+@pytest.mark.parametrize(
+    ("fname", "opt"),
+    [
+        ("test-pyproject.toml", "-e"),
+        ("test-pyproject-groups.toml", "-g"),
+    ],
+)
+def test_multiple(fname, opt, runner, caplog) -> None:
+    filename = ROOT / fname
+    _do_run = partial(do_run, filename=filename)
+
+    caplog.set_level(logging.INFO)
 
     t1 = tempfile.TemporaryDirectory()
     path1 = t1.name
-    # path1 = ROOT / ".." / ".." / "tmp" / "output1"
 
-    do_run(
+    _do_run(
         runner,
         "project",
         "--template-python",
@@ -502,8 +578,10 @@ def test_multiple():
         f"{path1}/" + "{env}",
     )
 
+    assert "Creating" in caplog.text
+
     # running this again?
-    result = do_run(
+    _do_run(
         runner,
         "project",
         "-v",
@@ -513,60 +591,73 @@ def test_multiple():
         f"{path1}/" + "{env}",
     )
 
-    t2 = tempfile.TemporaryDirectory()
-    path2 = t2.name
-    # path2 = ROOT / ".." / ".." / "tmp" / "output2"
+    assert "Skipping requirements" in caplog.text
 
-    do_run(
-        runner, "yaml", "-e", "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"
+    # run again no verbose:
+    _do_run(
+        runner,
+        "project",
+        "--template-python",
+        f"{path1}/" + "py{py}-{env}",
+        "--template",
+        f"{path1}/" + "{env}",
     )
 
-    do_run(
+    t2 = tempfile.TemporaryDirectory()
+    path2 = t2.name
+
+    _do_run(
+        runner, "yaml", opt, "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"
+    )
+
+    _do_run(
         runner,
         "yaml",
-        "-e",
+        opt,
         "dist-pypi",
-        "--no-base",
+        "--skip-package",
         "-p",
         "3.10",
         "-o",
         f"{path2}/py310-dist-pypi.yaml",
     )
 
-    do_run(runner, "yaml", "-e", "test", "-p", "3.10", "-o", f"{path2}/py310-test.yaml")
-    do_run(runner, "yaml", "-e", "test", "-p", "3.11", "-o", f"{path2}/py311-test.yaml")
+    _do_run(runner, "yaml", opt, "test", "-p", "3.10", "-o", f"{path2}/py310-test.yaml")
+    _do_run(runner, "yaml", opt, "test", "-p", "3.11", "-o", f"{path2}/py311-test.yaml")
 
-    do_run(
+    _do_run(
         runner,
         "yaml",
-        "-e",
+        opt,
         "test",
-        "--no-base",
+        "--skip-package",
         "-p",
         "3.10",
         "-o",
         f"{path2}/py310-test-extras.yaml",
     )
-    do_run(
+    _do_run(
         runner,
         "yaml",
-        "-e",
+        opt,
         "test",
-        "--no-base",
+        "--skip-package",
         "-p",
         "3.11",
         "-o",
         f"{path2}/py311-test-extras.yaml",
     )
 
-    do_run(runner, "r", "-e", "test", "--no-base", "-o", f"{path2}/test-extras.txt")
+    _do_run(
+        runner, "r", opt, "test", "--skip-package", "-o", f"{path2}/test-extras.txt"
+    )
 
-    do_run(
+    _do_run(
         runner,
         "yaml",
-        "-e",
+        opt,
         "dev",
-        "-e",
+        opt,
         "dist-pypi",
         "--name",
         "hello",
@@ -580,10 +671,10 @@ def test_multiple():
         f"{path2}/py310-user-dev.yaml",
     )
 
-    do_run(runner, "req", "-o", f"{path2}/base.txt")
+    _do_run(runner, "req", "-o", f"{path2}/base.txt")
 
     paths1 = Path(path1).glob("*")
-    names1 = set(x.name for x in paths1)
+    names1 = {x.name for x in paths1}
 
     expected = set(
         "base.txt py310-dev.yaml py310-dist-pypi.yaml py310-test-extras.yaml py310-test.yaml py310-user-dev.yaml py311-test-extras.yaml py311-test.yaml test-extras.txt".split()
@@ -592,7 +683,7 @@ def test_multiple():
     assert names1 == expected
 
     paths2 = Path(path2).glob("*")
-    names2 = set(x.name for x in paths2)
+    names2 = {x.name for x in paths2}
 
     assert expected == names2
 

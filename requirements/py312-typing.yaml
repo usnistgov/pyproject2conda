@@ -11,13 +11,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.12
-  - mypy>=1.4.1
   - packaging
   - pytest
-  - pytest-cov
-  - pytest-sugar
-  - pytest-xdist
-  - tomli
-  - tomlkit
   - typer
   - types-click

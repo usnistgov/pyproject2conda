@@ -51,8 +51,8 @@ def get_in(
     factory: Callable[[], Any] | None = None,
 ) -> Any:
     """
-    >>> foo = {'a': {'b': {'c': 1}}}
-    >>> get_in(['a', 'b'], foo)
+    >>> foo = {"a": {"b": {"c": 1}}}
+    >>> get_in(["a", "b"], foo)
     {'c': 1}
 
     """
@@ -64,8 +64,7 @@ def get_in(
     except (KeyError, IndexError, TypeError):
         if factory is not None:
             return factory()
-        else:
-            return default
+        return default
 
 
 def parse_pythons(
@@ -73,10 +72,10 @@ def parse_pythons(
     python_version: str | None,
     python: str | None,
 ) -> tuple[str | None, str | None]:
+    """Create python_include/python_version."""
     if python:
         return f"python={python}", python
-    else:
-        return python_include, python_version
+    return python_include, python_version
 
 
 def update_target(
@@ -85,7 +84,6 @@ def update_target(
     overwrite: str = "check",
 ) -> bool:
     """Check if target is older than deps:"""
-
     if target is None:
         # No output file. always run.
         return True
@@ -102,17 +100,14 @@ def update_target(
         if not target.exists():
             update = True
         else:
-            # check times
-            deps_filtered: list[Path] = []
-            for d in map(Path, deps):
-                if d.exists():
-                    deps_filtered.append(d)
+            deps_filtered: list[Path] = [d for d in map(Path, deps) if d.exists()]
 
             target_time = target.stat().st_mtime
 
             update = any(target_time < dep.stat().st_mtime for dep in deps_filtered)
-    else:
-        raise ValueError(f"unknown option overwrite={overwrite}")  # pragma: no cover
+    else:  # pragma: no cover
+        msg = f"unknown option overwrite={overwrite}"
+        raise ValueError(msg)
 
     return update
 
@@ -134,7 +129,6 @@ def filename_from_template(
 
     env : name of environment
     """
-
     if template is None:
         return None
 
@@ -143,11 +137,6 @@ def filename_from_template(
         py_version = python
     elif python_version:
         py_version = python_version
-    # elif python_include is not None:
-    #     import re
-
-    #     m = re.match(".*?([0-9.]+)", python_include)
-    #     py_version = m.group(1)  # type: ignore
     else:
         py_version = None
 
@@ -155,11 +144,11 @@ def filename_from_template(
         kws["py_version"] = py_version
         kws["py"] = py_version.replace(".", "")
 
-    if env_name:
+    if env_name:  # pragma: no cover
         kws["env"] = env_name
 
-    if ext:
-        template = template + f".{ext}"
+    if ext:  # pragma: no cover
+        template += f".{ext}"
 
     return template.format(**kws)
 
@@ -168,10 +157,12 @@ _WHITE_SPACE_REGEX = re.compile(r"\s+")
 
 
 def remove_whitespace(s: str) -> str:
+    """Cleanup whitespace from string."""
     return re.sub(_WHITE_SPACE_REGEX, "", s)
 
 
 def remove_whitespace_list(s: Iterable[str]) -> list[str]:
+    """Cleanup whitespace from list of strings."""
     return [remove_whitespace(x) for x in s]
 
 
@@ -188,6 +179,7 @@ def unique_list(values: Iterable[T]) -> list[T]:
 
 
 def list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
+    """Join list of strings with newlines to single string."""
     if values:
         output = "\n".join(values)
         if eol:

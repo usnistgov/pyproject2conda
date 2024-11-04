@@ -4,17 +4,25 @@ Methods to work with config file (for personal setup) of nox and other project t
 Right now, this is only for user specific nox config.  But leaving open it could be used
 for other things in the future.
 """
+
 from __future__ import annotations
 
 import configparser
 import json
+import locale
 import os
 from copy import deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    import sys
+    from collections.abc import Mapping
+
+    if sys.version_info < (3, 11):
+        from typing_extensions import Self
+    else:
+        from typing import Self
 
 
 class ProjectConfig:
@@ -57,6 +65,7 @@ class ProjectConfig:
         env_extras: Mapping[str, Mapping[str, Any]] | None = None,
         copy: bool = True,
     ) -> Self:
+        """Create new object like current object."""
         return type(self)(
             python_paths=python_paths or self.python_paths,
             env_extras=env_extras or self.env_extras,
@@ -88,17 +97,38 @@ class ProjectConfig:
 
     @classmethod
     def from_path(cls, path: str | Path = "./config/userconfig.toml") -> Self:
+        """Create object from path."""
         path = Path(path)
 
         if path.exists():
             python_paths, env_extras = cls._path_to_params(path)
             return cls(python_paths=python_paths, env_extras=env_extras)
-        else:
-            return cls()
+
+        return cls()
+
+    @classmethod
+    def from_path_and_environ(
+        cls,
+        path: str | Path = "./config/userconfig.toml",
+    ) -> Self:
+        """Create object from path and environment variable."""
+
+        def _get_python_paths_from_environ() -> list[str]:
+            if python_paths_environ := os.environ.get("NOX_PYTHON_PATH"):
+                return python_paths_environ.split(":")
+            return []
+
+        python_paths, env_extras = cls._path_to_params(path)
+
+        return cls(
+            python_paths=(python_paths or _get_python_paths_from_environ()),
+            env_extras=env_extras,
+        )
 
     @staticmethod
     def _params_to_string(
-        python_paths: list[str], env_extras: dict[str, Mapping[str, Any]]
+        python_paths: list[str],
+        env_extras: dict[str, Mapping[str, Any]],
     ) -> str:
         import configparser
         import json
@@ -133,20 +163,22 @@ class ProjectConfig:
         # [nox.python]
         # paths = ["~/.conda/envs/python-3.*/bin"]
         #
-        # [tool.pyproject2conda.envs.dev]
+        # [tool.pyproject2conda.envs.dev-user]
         # extras = ["dev-complete"]
-        """
+        """,
         )
 
         return header + s
 
     def to_path(self, path: str | Path | None = None) -> str:
+        """Create output file."""
         s = self._params_to_string(
-            python_paths=self.python_paths, env_extras=self.env_extras
+            python_paths=self.python_paths,
+            env_extras=self.env_extras,
         )
 
         if path is not None:
-            with open(path, "w") as f:
+            with Path(path).open("w", encoding=locale.getpreferredencoding(False)) as f:
                 f.write(s)
         return s
 
@@ -154,28 +186,32 @@ class ProjectConfig:
         return f"<ProjectConfig(python_paths={self.python_paths}, env_extras={self.env_extras})>"
 
     def expand_python_paths(self) -> list[str]:
+        """Expand wildcards in path"""
         from glob import glob
 
-        paths = []
+        paths: list[str] = []
         for p in self.python_paths:
-            paths.extend(glob(os.path.expanduser(p)))
+            paths.extend(glob(os.path.expanduser(p.replace("\\", ""))))  # noqa: PTH207, PTH111
         return paths
 
     def add_paths_to_environ(
-        self, paths: list[str] | None, prepend: bool = True
+        self,
+        paths: list[str] | None,
+        prepend: bool = True,
     ) -> None:
+        """Add path(s) to environment variable `PATH`"""
         if paths is None:
             paths = self.expand_python_paths()
         paths_str = ":".join(map(str, paths))
-        if prepend:
-            fmt = "{path_new}:{path_old}"
-        else:
-            fmt = "{path_old}:{path_new}"
+        fmt = "{path_new}:{path_old}" if prepend else "{path_old}:{path_new}"
         os.environ["PATH"] = fmt.format(path_new=paths_str, path_old=os.environ["PATH"])
 
     def to_nox_config(
-        self, add_paths_to_environ: bool = True, prepend: bool = True
+        self,
+        add_paths_to_environ: bool = True,
+        prepend: bool = True,
     ) -> dict[str, Any]:
+        """Create nox configuration."""
         config: dict[str, Any] = {}
 
         if self.python_paths:
@@ -187,19 +223,20 @@ class ProjectConfig:
         if self.env_extras:
             config["environment-extras"] = self.env_extras
         else:
-            config["environment-extras"] = {"dev": ["nox", "dev"]}
+            config["environment-extras"] = {"dev-user": ["nox", "dev"]}
 
         return config
 
 
 def glob_envs_to_paths(globs: list[str]) -> list[str]:
+    """Convert globbed environments to paths."""
     import fnmatch
 
     from .common_utils import get_conda_environment_map
 
     env_map = get_conda_environment_map()
 
-    out = []
+    out: list[str] = []
     for glob in globs:
         found_envs = fnmatch.filter(env_map.keys(), glob)
         out.extend([f"{env_map[k]}/bin" for k in found_envs])
@@ -208,6 +245,7 @@ def glob_envs_to_paths(globs: list[str]) -> list[str]:
 
 
 def main() -> None:
+    """Main runner."""
     import argparse
 
     p = argparse.ArgumentParser(description="Create the file config/userconfig.toml")
@@ -233,7 +271,7 @@ def main() -> None:
         "-d",
         "--dev-extras",
         nargs="+",
-        help="extras (from pyproject.toml) to include in development environment",
+        help="extras (from pyproject.toml) to include in `dev-user` environment",
     )
 
     p.add_argument(
@@ -259,13 +297,13 @@ def main() -> None:
         n.python_paths = python_paths
 
     if args.dev_extras:
-        n.env_extras["tool.pyproject2conda.envs.dev"] = {"extras": args.dev_extras}
+        n.env_extras["tool.pyproject2conda.envs.dev-user"] = {"extras": args.dev_extras}
 
     n.to_path(args.file)
 
 
 if __name__ == "__main__":
-    if __package__ is None:
+    if __package__ is None:  # pyright: ignore[reportUnnecessaryComparison]
         # Magic to be able to run script as either
         #   $ python -m tools.create_python
         # or

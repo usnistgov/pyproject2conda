@@ -1,20 +1,17 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call, assignment"
-from pyproject2conda.cli import app
-
-from click.testing import CliRunner
-
-# from typer.testing import CliRunner
-
-from textwrap import dedent
-
-from pathlib import Path
-import tempfile
 import json
-
+import locale
+import logging
 import sys
+import tempfile
+from pathlib import Path
+from textwrap import dedent
+from typing import cast
 
 import pytest
+from click.testing import CliRunner
 
+from pyproject2conda.cli import app
 
 ROOT = Path(__file__).resolve().parent / "data"
 
@@ -22,56 +19,84 @@ ROOT = Path(__file__).resolve().parent / "data"
 def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
     if filename is None:
         raise ValueError
-    # if filename is None:
-    #     filename = str(ROOT / "test-pyproject.toml")
     filename = Path(filename)
     if must_exist and not filename.exists():
-        raise ValueError(f"filename {filename} does not exist")
+        msg = f"filename {filename} does not exist"
+        raise ValueError(msg)
 
-    result = runner.invoke(app, [command, "-f", str(filename), *opts], **kwargs)
-
-    return result
+    return runner.invoke(app, [command, "-f", str(filename), *opts], **kwargs)
 
 
-def check_result(result, expected):
+def check_result(result, expected) -> None:
     assert result.output == dedent(expected)
 
 
-@pytest.fixture(params=["test-pyproject.toml", "test-pyproject-alt.toml"])
-def filename(request):
-    return ROOT / request.param
+@pytest.fixture(params=["test-pyproject.toml"])
+def filename(request) -> Path:
+    return ROOT / cast(str, request.param)
 
 
-def test_list(filename):
-    runner = CliRunner()
-
+@pytest.mark.parametrize(
+    ("fname", "expected"),
+    [
+        (
+            "test-pyproject.toml",
+            """\
+            Extras
+            ======
+            * build-system.requires
+            * dev
+            * dev-extras
+            * dist-pypi
+            * test
+            Groups
+            ======
+            * build-system.requires
+            """,
+        ),
+        (
+            "test-pyproject-groups.toml",
+            """\
+            Extras
+            ======
+            * build-system.requires
+            Groups
+            ======
+            * build-system.requires
+            * dev
+            * dev-extras
+            * dist-pypi
+            * test
+            """,
+        ),
+    ],
+)
+def test_list(fname: str, expected: str, runner: CliRunner) -> None:
+    filename = ROOT / fname
     for cmd in ["l", "list"]:
         result = do_run(runner, cmd, filename=filename)
-        expected = """\
-        Extras:
-        =======
-        * test
-        * dev-extras
-        * dev
-        * dist-pypi
-        * build-system.requires
-        """
         check_result(result, expected)
 
     result = do_run(runner, "list", "-v", filename=filename)
-    # TODO: the logger writes to output
-    # assert result.output == f"filename: {ROOT / 'test-pyproject.toml'} [pyproject2conda - INFO]"
     check_result(result, expected)
 
 
-def test_create(filename):
-    runner = CliRunner()
-
-    # test unknown file
-
+def test_no_file(runner) -> None:
     result = do_run(runner, "yaml", filename="hello/there.toml")
-
     assert isinstance(result.exception, FileNotFoundError)
+
+
+@pytest.mark.parametrize(
+    ("fname", "style"),
+    [
+        ("test-pyproject.toml", "extras"),
+        ("test-pyproject-groups.toml", "groups"),
+    ],
+)
+def test_create(fname, style, runner) -> None:
+    # test unknown file
+    filename = ROOT / fname
+    extra_or_group_opts = ["-e", "--extra"] if style == "extras" else ["-g", "--group"]
 
     expected = """\
 channels:
@@ -109,7 +134,6 @@ dependencies:
   - pip:
       - athing
     """
-
     result = do_run(runner, "yaml", "--header", filename=filename)
 
     check_result(result, expected)
@@ -168,13 +192,14 @@ dependencies:
       - athing
     """
 
-    for opt in ["-e", "--extra"]:
+    for opt in extra_or_group_opts:
         result = do_run(runner, "yaml", opt, "dev", "--no-sort", filename=filename)
         check_result(result, expected)
 
     # test if add in "test" gives same answer
+    opts = extra_or_group_opts[0]
     result = do_run(
-        runner, "yaml", "-e", "dev", "-e", "test", "--no-sort", filename=filename
+        runner, "yaml", opt, "dev", opt, "test", "--no-sort", filename=filename
     )
     check_result(result, expected)
 
@@ -193,93 +218,13 @@ dependencies:
       - athing
     """
 
-    for opt in ["-e", "--extra"]:
+    for opt in extra_or_group_opts:
         result = do_run(runner, "yaml", opt, "dev", filename=filename)
         check_result(result, expected)
 
     # test if add in "test" gives same answer
-    result = do_run(runner, "yaml", "-e", "dev", "-e", "test", filename=filename)
-    check_result(result, expected)
-
-    # different ordering
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - conda-forge::cthing
-  - bthing-conda
-  - conda-forge::pytest
-  - pandas
-  - conda-matplotlib
-  - additional-thing
-  - pip
-  - pip:
-      - athing
-    """
-
-    for opt in ["-e", "--extra"]:
-        result = do_run(
-            runner,
-            "yaml",
-            opt,
-            "dev",
-            "--no-sort",
-            filename=ROOT / "test-pyproject-reorder.toml",
-            must_exist=True,
-        )
-        check_result(result, expected)
-
-    # test if add in "test" gives same answer
-    result = do_run(
-        runner,
-        "yaml",
-        "-e",
-        "dev",
-        "-e",
-        "test",
-        "--no-sort",
-        filename=ROOT / "test-pyproject-reorder.toml",
-        must_exist=True,
-    )
-    check_result(result, expected)
-
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - additional-thing
-  - bthing-conda
-  - conda-forge::cthing
-  - conda-forge::pytest
-  - conda-matplotlib
-  - pandas
-  - pip
-  - pip:
-      - athing
-    """
-
-    for opt in ["-e", "--extra"]:
-        result = do_run(
-            runner,
-            "yaml",
-            opt,
-            "dev",
-            filename=ROOT / "test-pyproject-reorder.toml",
-            must_exist=True,
-        )
-        check_result(result, expected)
-
-    # test if add in "test" gives same answer
-    result = do_run(
-        runner,
-        "yaml",
-        "-e",
-        "dev",
-        "-e",
-        "test",
-        filename=ROOT / "test-pyproject-reorder.toml",
-        must_exist=True,
-    )
+    opt = extra_or_group_opts[0]
+    result = do_run(runner, "yaml", opt, "dev", opt, "test", filename=filename)
     check_result(result, expected)
 
     # override channel
@@ -327,7 +272,9 @@ dependencies:
   - pip:
       - athing
     """
-    result = do_run(runner, "yaml", "-e", "test", "--no-sort", filename=filename)
+
+    opt = extra_or_group_opts[0]
+    result = do_run(runner, "yaml", opt, "test", "--no-sort", filename=filename)
     check_result(result, expected)
 
     expected = """\
@@ -342,7 +289,7 @@ dependencies:
   - pip:
       - athing
     """
-    result = do_run(runner, "yaml", "-e", "test", filename=filename)
+    result = do_run(runner, "yaml", opt, "test", filename=filename)
     check_result(result, expected)
 
     # isolated
@@ -355,15 +302,117 @@ dependencies:
   - pip:
       - build
     """
-    for opt in ["-e", "--extra"]:
+    for opt in extra_or_group_opts:
         result = do_run(
-            runner, "yaml", opt, "dist-pypi", "--no-base", filename=filename
+            runner, "yaml", opt, "dist-pypi", "--skip-package", filename=filename
         )
         check_result(result, expected)
 
 
-def test_requirements(filename):
-    runner = CliRunner()
+@pytest.mark.parametrize(
+    ("fname", "style"),
+    [
+        ("test-pyproject-reorder.toml", "extras"),
+        ("test-pyproject-reorder.toml", "groups"),
+    ],
+)
+def test_create_reorder(fname, style, runner) -> None:
+    filename = ROOT / fname
+    extra_or_group_opts = ["-e", "--extra"] if style == "extras" else ["-g", "--group"]
+
+    # different ordering
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::cthing
+  - bthing-conda
+  - conda-forge::pytest
+  - pandas
+  - conda-matplotlib
+  - additional-thing
+  - pip
+  - pip:
+      - athing
+    """
+
+    for opt in extra_or_group_opts:
+        result = do_run(
+            runner,
+            "yaml",
+            opt,
+            "dev",
+            "--no-sort",
+            filename=filename,
+            must_exist=True,
+        )
+        check_result(result, expected)
+
+    # test if add in "test" gives same answer
+    opt = extra_or_group_opts[0]
+    result = do_run(
+        runner,
+        "yaml",
+        opt,
+        "dev",
+        opt,
+        "test",
+        "--no-sort",
+        filename=filename,
+        must_exist=True,
+    )
+    check_result(result, expected)
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - additional-thing
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
+  - pip
+  - pip:
+      - athing
+    """
+
+    for opt in extra_or_group_opts:
+        result = do_run(
+            runner,
+            "yaml",
+            opt,
+            "dev",
+            filename=filename,
+            must_exist=True,
+        )
+        check_result(result, expected)
+
+    # test if add in "test" gives same answer
+    opt = extra_or_group_opts[0]
+    result = do_run(
+        runner,
+        "yaml",
+        opt,
+        "dev",
+        opt,
+        "test",
+        filename=filename,
+        must_exist=True,
+    )
+    check_result(result, expected)
+
+
+@pytest.mark.parametrize(
+    ("fname", "opt"),
+    [
+        ("test-pyproject.toml", "-e"),
+        ("test-pyproject-groups.toml", "-g"),
+    ],
+)
+def test_requirements(fname, opt, runner) -> None:
+    filename = ROOT / fname
 
     expected = """\
 athing
@@ -384,15 +433,15 @@ pytest
 matplotlib
     """
 
-    result = do_run(runner, "requirements", "-e", "dev", "--no-sort", filename=filename)
+    result = do_run(runner, "requirements", opt, "dev", "--no-sort", filename=filename)
     check_result(result, expected)
 
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dev",
-        "-e",
+        opt,
         "test",
         "--no-sort",
         filename=filename,
@@ -413,7 +462,7 @@ other
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dev",
         "--no-sort",
         "-r",
@@ -434,12 +483,10 @@ pandas
 pytest
     """
 
-    result = do_run(runner, "requirements", "-e", "dev", filename=filename)
+    result = do_run(runner, "requirements", opt, "dev", filename=filename)
     check_result(result, expected)
 
-    result = do_run(
-        runner, "requirements", "-e", "dev", "-e", "test", filename=filename
-    )
+    result = do_run(runner, "requirements", opt, "dev", opt, "test", filename=filename)
     check_result(result, expected)
 
     expected = """\
@@ -456,7 +503,7 @@ thing;python_version<"3.10"
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dev",
         "-r",
         "thing;python_version<'3.10'",
@@ -482,7 +529,7 @@ thing; python_version < "3.10"
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dev",
         "-r",
         "thing; python_version < '3.10'",
@@ -502,9 +549,9 @@ build
     result = do_run(
         runner,
         "requirements",
-        "-e",
+        opt,
         "dist-pypi",
-        "--no-base",
+        "--skip-package",
         "--no-sort",
         filename=filename,
     )
@@ -516,21 +563,19 @@ setuptools
     """
 
     result = do_run(
-        runner, "requirements", "-e", "dist-pypi", "--no-base", filename=filename
+        runner, "requirements", opt, "dist-pypi", "--skip-package", filename=filename
     )
     check_result(result, expected)
 
 
-def check_results_conda_req(path, expected):
-    with open(path, "r") as f:
+def check_results_conda_req(path, expected) -> None:
+    with Path(path).open(encoding=locale.getpreferredencoding(False)) as f:
         result = f.read()
 
     assert result == dedent(expected)
 
 
-def test_conda_requirements(filename):
-    runner = CliRunner()
-
+def test_conda_requirements(filename, runner) -> None:
     result = do_run(runner, "c", "hello.txt", filename=filename)
 
     assert isinstance(result.exception, ValueError)
@@ -613,9 +658,22 @@ achannel::pip
         check_results_conda_req(d / "hello-pip.txt", expected_pip)
 
 
-def test_json(filename):
-    runner = CliRunner()
+def check_results_json(path, expected) -> None:
+    with Path(path).open(encoding=locale.getpreferredencoding(False)) as f:
+        result = json.load(f)
 
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("fname", "opt"),
+    [
+        ("test-pyproject.toml", "-e"),
+        ("test-pyproject-groups.toml", "-g"),
+    ],
+)
+def test_json(fname, opt, runner) -> None:
+    filename = ROOT / fname
     # stdout
     result = do_run(runner, "j", filename=filename)
 
@@ -625,26 +683,28 @@ def test_json(filename):
 
     assert result.output == dedent(expected)
 
-    def check_results(path, expected):
-        with open(path, "r") as f:
-            result = json.load(f)
-
-        assert result == expected
-
     with tempfile.TemporaryDirectory() as d_tmp:
         d = Path(d_tmp)
 
-        expected = {  # type: ignore
+        expected = {
             "dependencies": ["bthing-conda", "conda-forge::cthing", "pip"],
             "pip": ["athing"],
             "channels": ["conda-forge"],
         }
 
-        do_run(runner, "json", "-o", str(d / "hello.json"), filename=filename)
+        path = d / "hello.json"
 
-        check_results(d / "hello.json", expected)
+        do_run(runner, "json", "-o", str(path), filename=filename)
 
-        expected = {  # type: ignore
+        check_results_json(d / "hello.json", expected)
+
+        orig_time = path.stat().st_mtime
+        do_run(runner, "json", "-o", str(path), filename=filename)
+        check_results_json(d / "hello.json", expected)
+
+        assert path.stat().st_mtime == orig_time
+
+        expected = {
             "dependencies": [
                 "bthing-conda",
                 "conda-forge::cthing",
@@ -663,15 +723,15 @@ def test_json(filename):
             "json",
             "-o",
             str(d / "there.json"),
-            "-e",
+            opt,
             "dev",
             "--no-sort",
             filename=filename,
         )
 
-        check_results(d / "there.json", expected)
+        check_results_json(d / "there.json", expected)
 
-        expected = {  # type: ignore
+        expected = {
             "dependencies": [
                 "additional-thing",
                 "bthing-conda",
@@ -686,32 +746,50 @@ def test_json(filename):
         }
 
         do_run(
-            runner, "json", "-o", str(d / "there.json"), "-e", "dev", filename=filename
+            runner,
+            "json",
+            "-o",
+            str(d / "there.json"),
+            opt,
+            "dev",
+            "-w",
+            "force",
+            filename=filename,
         )
 
-        check_results(d / "there.json", expected)
+        check_results_json(d / "there.json", expected)
 
 
-def test_alias(filename):
-    runner = CliRunner()
+def test_json_no_channel(runner) -> None:
+    filename = ROOT / "simple-pyproject.toml"
+    expected = {
+        "dependencies": ["bthing-conda", "conda-forge::cthing", "pip"],
+        "pip": ["athing"],
+    }
 
+    with tempfile.TemporaryDirectory() as d_tmp:
+        d = Path(d_tmp)
+        do_run(
+            runner,
+            "json",
+            "-o",
+            str(d / "there.json"),
+            filename=filename,
+        )
+
+        check_results_json(d / "there.json", expected)
+
+
+def test_alias(filename, runner) -> None:
     result = do_run(runner, "q", filename=filename)
 
     assert isinstance(result.exception, BaseException)
 
 
-#     expected = """\
-# Usage: app [OPTIONS] COMMAND [ARGS]...
-# Try 'app --help' for help.
-
-# Error: No such command 'q'.
-#     """
-
-#     check_result(result, expected)
-
-
-def test_overwrite(filename):
+def test_overwrite(filename, caplog) -> None:
     runner = CliRunner(mix_stderr=True)
+
+    caplog.set_level(logging.INFO)
 
     with tempfile.TemporaryDirectory() as d_tmp:
         d = Path(d_tmp)
@@ -720,7 +798,7 @@ def test_overwrite(filename):
 
         assert not path.exists()
 
-        result = do_run(
+        do_run(
             runner,
             "yaml",
             "-o",
@@ -731,12 +809,12 @@ def test_overwrite(filename):
             catch_exceptions=False,
             filename=filename,
         )
-        # assert result.output.strip() == f"# Creating yaml {d_tmp}/out.yaml"
+        assert f"Creating yaml {d_tmp}/out.yaml" in caplog.text
 
         orig_time = path.stat().st_mtime
 
         for cmd in ["check", "skip", "force"]:
-            result = do_run(
+            do_run(
                 runner,
                 "yaml",
                 "-o",
@@ -753,15 +831,15 @@ def test_overwrite(filename):
             else:
                 assert path.stat().st_mtime == orig_time
 
-            # assert (
-            #     result.output.strip()
-            #     == f"# Skipping yaml {d_tmp}/out.yaml. Pass `-w force` to force recreate output"
-            # )
+            assert (
+                f"Skipping yaml {d_tmp}/out.yaml. Pass `-w force` to force recreate output"
+                in caplog.text
+            )
 
         path = d / "out.txt"
         assert not path.exists()
 
-        result = do_run(
+        do_run(
             runner,
             "r",
             "-o",
@@ -774,10 +852,10 @@ def test_overwrite(filename):
         )
         orig_time = path.stat().st_mtime
 
-        # assert result.output.strip() == f"# Creating requirements {d_tmp}/out.txt"
+        assert f"Creating requirements {d_tmp}/out.txt" in caplog.text
 
         for cmd in ["check", "skip", "force"]:
-            result = do_run(
+            do_run(
                 runner,
                 "r",
                 "-o",
@@ -793,7 +871,43 @@ def test_overwrite(filename):
                 assert path.stat().st_mtime > orig_time
             else:
                 assert path.stat().st_mtime == orig_time
-            # assert (
-            #     result.output.strip()
-            #     == f"# Skipping requirements {d_tmp}/out.txt. Pass `-w force` to force recreate output"
-            # )
+            assert (
+                f"Skipping requirements {d_tmp}/out.txt. Pass `-w force` to force recreate output"
+                in caplog.text
+            )
+
+
+@pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
+def test_userconfig(fname, runner) -> None:
+    filename = ROOT / fname
+    expected = """\
+# --------------------
+# Creating yaml py310-user-dev.yaml
+name: hello-there
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - bthing-conda
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
+  - setuptools
+  - pip
+  - pip:
+      - athing
+      - build
+    """
+
+    results = do_run(
+        runner,
+        "p",
+        "--dry",
+        "--envs",
+        "user-dev",
+        "--user-config",
+        str(ROOT / "config" / "userconfig2.toml"),
+        filename=filename,
+    )
+
+    check_result(results, expected)

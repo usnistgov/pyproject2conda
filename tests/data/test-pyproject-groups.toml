@@ -7,32 +7,16 @@ dependencies = [
     "cthing; python_version < '3.10'",
 ]
 
-[project.optional-dependencies]
-test = [
-    "pandas", #
-    "pytest",
-]
+[dependency-groups]
+test = ["pandas", "pytest"]
 dev-extras = ["matplotlib"]
-dev = ["hello[test]", "hello[dev-extras]"]
+dev = [{ include-group = "test" }, { include-group = "dev-extras" }]
 dist-pypi = [
-    # this is intended to be parsed with --no-base option
+    # this is intended to be parsed with --skip-package option
     "setuptools",
     "build",
 ]
 
-[tool.pyproject2conda]
-channels = ['conda-forge']
-# these are the same as the default values of `p2c project`
-template_python = "py{py}-{env}"
-template = "{env}"
-style = "yaml"
-# options
-python = ["3.10"]
-# Note that this is relative to the location of pyproject.toml
-user_config = "config/userconfig.toml"
-default_envs = ["test", "dev", "dist-pypi"]
-
-# overrides of dependencies
 [tool.pyproject2conda.dependencies]
 athing = { pip = true }
 bthing = { skip = true, packages = "bthing-conda" }
@@ -44,25 +28,39 @@ matplotlib = { skip = true, packages = [
 ] }
 build = { channel = "pip" }
 
+[tool.pyproject2conda]
+channels = ['conda-forge']
+# these are the same as the default values of `p2c project`
+template_python = "py{py}-{env}"
+template = "{env}"
+style = "yaml"
+# options
+python = ["3.10"]
+# Note that this is relative to the location of pyproject.toml
+user_config = "config/userconfig.toml"
+# These environments will be created with the package, package dependencies, and
+# dependencies from groups or extras with environment name so the below is the
+# same as
+#
+# [tool.pyproject2conda.envs.test]
+# extras_or_groups = "test"
+#
+default_envs = ["test", "dev", "dist-pypi"]
+
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-# Note that the default value for `extras` is the name of the environment.
-# To have no extras, either pass
-# extras = []
-# or
-#
-extras = false
 
+# This will have no extras or groups
 #
 # A value of `extras = true` also implies using the environment name
 # as the extras.
 [tool.pyproject2conda.envs."test-extras"]
-extras = ["test"]
+groups = ["test"]
 style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-base = false
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]

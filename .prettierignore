@@ -1,0 +1,11 @@
+# Ignore file for prettier
+# Similar to .gitignore
+
+# Use pyproject-fmt for pyproject.toml
+pyproject.toml
+
+# Don't fix yaml files under requirements/lock.  These are created by conda-lock.
+/requirements/lock/*.y*ml
+
+# Don't fix copier answers
+.copier-answers.y*ml

@@ -10,9 +10,17 @@
 channels:
   - conda-forge
 dependencies:
-  - python=3.10
-  - anaconda-client
-  - boa
-  - conda-build
-  - conda-verify
-  - grayskull
+  - python=3.11
+  - ipykernel
+  - mypy>=1.10.1
+  - nox>=2024.4.15
+  - packaging
+  - pytest
+  - pytest-cov
+  - pytest-sugar
+  - pytest-xdist
+  - typer
+  - types-click
+  - pip
+  - pip:
+      - pytest-accept

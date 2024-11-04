@@ -18,6 +18,36 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.12.0 — 2024-11-04
+
+### Removed
+
+- Removed comments based (`# p2c: ...`) support. Specify changes with
+  `tool.pyproject2conda.dependencies` table only. This greatly simplifies the
+  code, and has become the primary way to use the `pyproject2conda`.
+
+### Added
+
+- Added [PEP 735](https://peps.python.org/pep-0735/) support. This includes
+  adding option `--group` to the cli, and `groups` key to
+  `tools.pyproject2conda.envs....` tables. There is also an option
+  `--extra-or-group` (or `extras_or_groups` in pyproject.toml) that will first
+  try to find dependencies from "extras" and then from "groups".
+
+### Changed
+
+- Passing no extras to an environment now defaults to no added extras or groups.
+  Old behavior (to default to the extra with the same name as the environment)
+  was lead to complications with support of `dependency-groups`. Explicitly pass
+  the extra or group if to get the old behavior.
+- `default_envs` now passed the environment name as `extras_or_groups`.
+  Therefore, if the name of the environment is an extra, it will be used.
+  Otherwise, it will be from a group of that name.
+
+- Removed option `--base/--no-base`. Replaced with `--skip-package`. Default is
+  to include package dependencies. Pass `--skip-package` (or
+  `skip_package = true` in `pyproject.toml`) to skip package dependencies.
+
 ## v0.11.0 — 2023-11-28
 
 ### Added

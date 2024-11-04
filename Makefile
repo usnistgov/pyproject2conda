@@ -24,10 +24,10 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+BROWSER := uv run python -c "$$BROWSER_PYSCRIPT"
 
 help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+	@uv run python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
@@ -35,9 +35,8 @@ clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr docs/_build/
 	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+	rm -fr dist-conda/
+
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -45,8 +44,10 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
+clean-nox: ## remove all nox artifacts
+	rm -fr .nox
+
 clean-test: ## remove test and coverage artifacts
-	rm -fr .nox/
 	rm -f .coverage
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
@@ -60,57 +61,29 @@ clean-test: ## remove test and coverage artifacts
 pre-commit-init: ## install pre-commit
 	pre-commit install
 
-pre-commit: ## run pre-commit
-	pre-commit run
-
 pre-commit-all: ## run pre-commit on all files
 	pre-commit run --all-files
 
-.PHONY: pre-commit-lint pre-commit-lint-notebooks pre-commit-prettier pre-commit-lint-markdown
-pre-commit-lint: ## run ruff and black on on all files
-	pre-commit run --all-files ruff
-	pre-commit run --all-files black
-	pre-commit run --all-files blacken-docs
-
-pre-commit-lint-notebooks: ## Run nbqa linting
-	pre-commit run --all-files nbqa-ruff
-	pre-commit run --all-files nbqa-black
-
-pre-commit-prettier: ## run prettier on all files.
-	pre-commit run --all-files prettier
-
-pre-commit-lint-markdown: ## run markdown linter.
-	pre-commit run --all-files --hook-stage manual markdownlint-cli2
-
-.PHONY: pre-commit-lint-extra pre-commit-mypy pre-commit-codespell
-pre-commit-lint-extra: ## run all extra linting (isort, flake8, pyupgrade, nbqa isort and pyupgrade)
-	pre-commit run --all-files --hook-stage manual isort
-	pre-commit run --all-files --hook-stage manual flake8
-	pre-commit run --all-files --hook-stage manual pyupgrade
-	pre-commit run --all-files --hook-stage manual nbqa-pyupgrade
-	pre-commit run --all-files --hook-stage manual nbqa-isort
-
-pre-commit-mypy: ## run mypy
-	pre-commit run --all-files --hook-stage manual mypy
-
-pre-commit-pyright: ## run pyright
-	pre-commit run --all-files --hook-stage manual pyright
-
 pre-commit-codespell: ## run codespell. Note that this imports allowed words from docs/spelling_wordlist.txt
-	pre-commit run --all-files --hook-stage manual codespell
+	pre-commit run --all-files codespell
+	pre-commit run --all-files nbqa-codespell
+
+pre-commit-typos:  ## run typos.
+	pre-commit run --all-files --hook-stage manual typos
+	pre-commit run --all-files --hook-stage manual nbqa-typos
+
+pre-commit-ruff-all: ## run ruff lint and format
+	pre-commit run ruff-all --all-files
 
 ################################################################################
 # * User setup
 ################################################################################
-.PHONY: user-venv user-autoenv-zsh user-all
-user-venv: ## create .venv file with name of conda env
-	echo $${PWD}/.nox/pyproject2conda/envs/dev > .venv
-
+.PHONY: user-autoenv-zsh user-all
 user-autoenv-zsh: ## create .autoenv.zsh files
-	echo conda activate $$(cat .venv) > .autoenv.zsh
+	echo conda activate ./.venv > .autoenv.zsh
 	echo conda deactivate > .autoenv_leave.zsh
 
-user-all: user-venv user-autoenv-zsh ## runs user scripts
+user-all: user-autoenv-zsh ## runs user scripts
 
 
 ################################################################################
@@ -135,14 +108,11 @@ coverage: ## check code coverage quickly with the default Python
 ################################################################################
 .PHONY: version-scm version-import version
 
-version-scm: ## check/update version of package with setuptools-scm
-	python -m setuptools_scm
+version-scm: ## check/update version of package from scm
+	nox -s build -- ++build version
 
 version-import: ## check version from python import
-	-python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
-
-version-update: ## update version using nox
-	nox -s update-version-scm
+	-uv run python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
 
 version: version-scm version-import
 
@@ -158,136 +128,139 @@ requirements/%.txt: pyproject.toml
 	nox -s requirements
 
 ################################################################################
+# * Typing
+################################################################################
+UVXRUN = uv run tools/uvxrun.py
+UVXRUN_OPTS = -r requirements/lock/py311-uvxrun-tools.txt -v
+.PHONY: mypy pyright
+mypy: ## Run mypy
+	$(UVXRUN) $(UVXRUN_OPTS) -c mypy
+pyright: ## Run pyright
+	$(UVXRUN) $(UVXRUN_OPTS) -c pyright
+pyright-watch: ## Run pyright in watch mode
+	$(UVXRUN) $(UVXRUN_OPTS) -c "pyright -w"
+typecheck: ## Run mypy and pyright
+	$(UVXRUN) $(UVXRUN_OPTS) -c mypy -c pyright
+
+.PHONY: typecheck-tools
+typecheck-tools:
+	$(UVXRUN) $(UVXRUN_OPTS) -c "mypy --strict" -c pyright -- noxfile.py tools/*.py
+
+################################################################################
 # * NOX
 ###############################################################################
-# NOTE: Below, we use requirement of the form "requirements/dev.txt"
-# Since any of these files will trigger a rebuild of all requirements,
-# the actual "txt" or "yaml" file doesn't matter
-# ** dev
 NOX=nox
-.PHONY: dev-env
-dev-env: requirements/dev.txt ## create development environment using nox
-	$(NOX) -e dev
-
-# ** testing
-.PHONY: test-all
-test-all: requirements/test.txt ## run tests on every Python version with nox.
-	$(NOX) -s test
-
 # ** docs
-.PHONY: docs-build docs-release docs-clean docs-command
+.PHONY: docs-build docs-clean docs-clean-build docs-release
 docs-build: ## build docs in isolation
-	$(NOX) -s docs -- -d build
+	$(NOX) -s docs -- +d build
 docs-clean: ## clean docs
 	rm -rf docs/_build/*
 	rm -rf docs/generated/*
 	rm -rf docs/reference/generated/*
 docs-clean-build: docs-clean docs-build ## clean and build
 docs-release: ## release docs.
-	$(NOX) -s docs -- -d release
-docs-command: ## run arbitrary command with command=...
-	$(NOX) -s docs -- --docs-run $(command)
+	$(UVXRUN) $(UVXRUN_OPTS) -c "ghp-import -o -n -m \"update docs\" -b nist-pages" docs/_build/html
 
-.PHONY: .docs-spelling docs-nist-pages docs-open docs-livehtml docs-clean-build docs-linkcheck
-docs-spelling: ## run spell check with sphinx
-	$(NOX) -s docs -- -d spelling
-docs-livehtml: ## use autobuild for docs
-	$(NOX) -s docs -- -d livehtml
+.PHONY: docs-open docs-spelling docs-livehtml docs-linkcheck
 docs-open: ## open the build
-	$(NOX) -s docs -- -d open
+	$(NOX) -s docs -- +d open
+docs-spelling: ## run spell check with sphinx
+	$(NOX) -s docs -- +d spelling
+docs-livehtml: ## use autobuild for docs
+	$(NOX) -s docs -- +d livehtml
 docs-linkcheck: ## check links
-	$(NOX) -s docs -- -d linkcheck
-
-docs-build docs-release docs-command docs-clean docs-livehtml docs-linkcheck: requirements/docs.txt
+	$(NOX) -s docs -- +d linkcheck
 
 # ** typing
-.PHONY: typing-mypy typing-pyright typing-pytype typing-all typing-command
+.PHONY: typing-mypy typing-pyright typing-typecheck
 typing-mypy: ## run mypy mypy_args=...
-	$(NOX) -s typing -- -m mypy
+	$(NOX) -s typing -- +m mypy
 typing-pyright: ## run pyright pyright_args=...
-	$(NOX) -s typing -- -m pyright
-typing-pytype: ## run pytype pytype_args=...
-	$(NOX) -s typing -- -m pytype
-typing-all:
-	$(NOX) -s typing -- -m mypy pyright pytype
-typing-command:
-	$(NOX) -s typing -- --typing-run $(command)
-typing-mypy typing-pyright typing-pytype typing-all typing-command: requirements/typing.txt
+	$(NOX) -s typing -- +m pyright
+typing-typecheck:
+	$(NOX) -s typing -- +m mypy pyright
 
 # ** dist pypi
-.PHONY: dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command
-
-dist-pypi-build: ## build dist
-	$(NOX) -s dist-pypi -- -p build
-dist-pypi-testrelease: ## test release on testpypi
-	$(NOX) -s dist-pypi -- -p testrelease
-dist-pypi-release: ## release to pypi, can pass posargs=...
-	$(NOX) -s dist-pypi -- -p release
-dist-pypi-command: ## run command with command=...
-	$(NOX) -s dist-pypi -- --dist-pypi-run $(command)
-dist-pypi-build dist-pypi-testrelease dist-pypi-release dist-pypi-command: requirements/dist-pypi.txt
+.PHONY: build testrelease release
+build: ## build dist
+	$(NOX) -s build
+testrelease: ## test release on testpypi
+	$(NOX) -s publish -- +p test
+release: ## release to pypi, can pass posargs=...
+	$(NOX) -s publish -- +p release
 
 # ** dist conda
-.PHONY: dist-conda-recipe dist-conda-build dist-conda-command
-dist-conda-recipe: ## build conda recipe can pass posargs=...
-	$(NOX) -s dist-conda -- -c recipe
-dist-conda-build: ## build conda recipe can pass posargs=...
-	$(NOX) -s dist-conda -- -c build
-dist-conda-command: ## run command with command=...
-	$(NOX) -s dist-conda -- -dist-conda-run $(command)
-dist-conda-build dist-conda-recipe dist-conda-command: requirements/dist-pypi.txt
+.PHONY: conda-recipe conda-build
+conda-recipe: ## build conda recipe can pass posargs=...
+	$(NOX) -s conda-recipe
+conda-build: ## build conda recipe can pass posargs=...
+	$(NOX) -s conda-build
 
 # ** list all options
 .PHONY: nox-list
 nox-list:
 	$(NOX) --list
 
+################################################################################
+# ** sdist/wheel check
+################################################################################
+.PHONY: check-release check-wheel check-dist
+check-release: ## run twine check on dist
+	$(NOX) -s publish -- +p check
+check-wheel: ## Run check-wheel-contents (requires check-wheel-contents to be installed)
+	$(UVXRUN) -c check-wheel-contents dist/*.whl
+check-dist: check-release check-wheel ## Run check-release and check-wheel
+.PHONY:  list-wheel list-sdist list-dist
+list-wheel: ## Cat out contents of wheel
+	unzip -vl dist/*.whl
+list-sdist: ## Cat out contents of sdist
+	tar -tzvf dist/*.tar.gz
+list-dist: list-wheel list-sdist ## Cat out sdist and wheel contents
 
 ################################################################################
-# * Installation
+# * NOTEBOOK typing/testing
 ################################################################################
-.PHONY: install install-dev
-install: ## install the package to the active Python's site-packages (run clean?)
-	pip install . --no-deps
+NOTEBOOKS ?= examples/usage
+NBQA = $(UVXRUN) $(UVXRUN_OPTS) -c "nbqa --nbqa-shell \"$(UVXRUN)\" $(NOTEBOOKS) $(UVXRUN_OPTS) $(_NBQA)"
+.PHONY: mypy-notebook pyright-notebook typecheck-notebook test-notebook
+mypy-notebook: _NBQA = -c mypy
+mypy-notebook: ## run nbqa mypy
+	$(NBQA)
+pyright-notebook: _NBQA = -c pyright
+pyright-notebook: ## run nbqa pyright
+	$(NBQA)
+typecheck-notebook: _NBQA = -c mypy -c pyright
+typecheck-notebook: ## run nbqa mypy/pyright
+	$(NBQA)
+test-notebook:  ## run pytest --nbval
+	pytest --nbval --nbval-current-env --nbval-sanitize-with=config/nbval.ini --dist loadscope -x $(NOTEBOOKS)
 
-install-dev: ## install development version (run clean?)
-	pip install -e . --no-deps
-
+.PHONY: clean-kernelspec
+clean-kernelspec: ## cleanup unused kernels (assuming notebooks handled by conda environment notebook)
+	python tools/clean_kernelspec.py
 
 ################################################################################
 # * Other tools
 ################################################################################
-
 # Note that this requires `auto-changelog`, which can be installed with pip(x)
+.PHONY: auto-changelog
 auto-changelog: ## autogenerate changelog and print to stdout
 	auto-changelog -u -r usnistgov -v unreleased --tag-prefix v --stdout --template changelog.d/templates/auto-changelog/template.jinja2
 
+.PHONY:
 commitizen-changelog:
 	cz changelog --unreleased-version unreleased --dry-run --incremental
 
 # tuna analyze load time:
 .PHONY: tuna-analyze
 tuna-import: ## Analyze load time for module
-	python -X importtime -c 'import pyproject2conda' 2> tuna-loadtime.log
-	tuna tuna-loadtime.log
+	uv run python -X importtime -c 'import pyproject2conda' 2> tuna-loadtime.log
+	$(UVXRUN) -c tuna tuna-loadtime.log
 	rm tuna-loadtime.log
-
-# nbqa-mypy
-NOTEBOOKS ?= examples/usage
-.PHONY: nbqa-mypy nbqa-pyright nbqa-typing
-nbqa-mypy: ## run nbqa mypy
-	nbqa --nbqa-shell mypy $(NOTEBOOKS)
-nbqa-pyright: ## run nbqa pyright
-	nbqa --nbqa-shell pyright $(NOTEBOOKS)
-nbqa-typing: nbqa-mypy nbqa-pyright ## run nbqa mypy/pyright
-
-.PHONY: pytest-nbval
-pytest-nbval:  ## run pytest --nbval
-	pytest --nbval --current-env --sanitize-with=config/nbval.ini $(NOTEBOOKS) -x
 
 .PHONY: cog-readme
 cog-readme: ## apply cog to README.md
-	# P2C_COLUMNS=100 cog -rP README.md
 	nox -s cog
 	pre-commit run markdownlint --files README.md
 

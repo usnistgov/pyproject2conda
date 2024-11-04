@@ -10,21 +10,19 @@
 channels:
   - conda-forge
 dependencies:
-  - python=3.10
+  - python=3.11
   - ipykernel
-  - ipython
-  - mypy>=1.4.1
+  - mypy>=1.10.1
+  - nox>=2024.4.15
   - packaging
+  - pre-commit
   - pytest
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - pytype
-  - setuptools-scm>=8.0
-  - tomli
-  - tomlkit
   - typer
   - types-click
   - pip
   - pip:
       - pytest-accept
+      - scriv

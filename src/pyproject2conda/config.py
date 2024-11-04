@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 # * Utilities
 
 
-class Config:
+class Config:  # noqa: PLR0904
     """Class to parse toml file with [tool.pyproject2conda] section"""
 
     def __init__(self, data: dict[str, Any]) -> None:
@@ -28,7 +28,6 @@ class Config:
 
     def get_in(self, *keys: str, default: Any = None) -> Any:
         """Utility to extract from nested dict."""
-        keys = keys
         return get_in(keys=keys, nested_dict=self.data, default=default)
 
     @cached_property
@@ -37,14 +36,15 @@ class Config:
         out: list[dict[str, Any]] = []
         for x in self.get_in("overrides", default=[]):
             if "envs" not in x:
-                raise ValueError("must specify env in overrides")
+                msg = "must specify env in overrides"
+                raise ValueError(msg)
             out.append(x)
         return out
 
     @property
     def envs(self) -> dict[str, Any]:
         """All environments"""
-        return self.get_in("envs", default={})  # type: ignore
+        return self.get_in("envs", default={})  # type: ignore[no-any-return]
 
     def _get_override(self, env: str) -> dict[str, Any]:
         out: dict[str, Any] = {}
@@ -55,11 +55,6 @@ class Config:
             del out["envs"]
         return out
 
-    # def _get_env(self, env_name: str) -> dict[str, Any]:
-    #     env = self.get_in("envs", env_name)
-    #     env.update(**self._get_override(env_name))
-    #     return env  # type: ignore
-
     def _get_value(
         self,
         key: str,
@@ -69,13 +64,14 @@ class Config:
         default: Any = None,
     ) -> Any:
         """Get a value from thing"""
-
         if env_name is None:
             value = self.get_in(key, default=None)
 
         else:
             # try to get from env definition
-            assert env_name in self.data["envs"], f"env {env_name} not in config"
+            if env_name not in self.data["envs"]:
+                msg = f"env {env_name} not in config"
+                raise ValueError(msg)
 
             value = self.get_in("envs", env_name, key, default=None)
 
@@ -89,22 +85,18 @@ class Config:
                     value = self.get_in(key, default=None)
 
         if value is None:
-            if callable(default):
-                value = default()
-            else:
-                value = default
+            value = default() if callable(default) else default
 
-        if value is not None and as_list:
-            if not isinstance(value, list):
-                value = [value]
+        if value is not None and as_list and not isinstance(value, list):
+            value = [value]
 
-        return value  # pyright: ignore
+        return value  # pyright: ignore[reportUnknownVariableType]
 
     def channels(
         self, env_name: str | None = None, inherit: bool = True
     ) -> list[str] | None:
         """Channels getter"""
-        return self._get_value(  # type: ignore
+        return self._get_value(  # type: ignore[no-any-return]
             key="channels", env_name=env_name, inherit=inherit, as_list=True
         )
 
@@ -112,17 +104,28 @@ class Config:
         self, env_name: str | None = None, inherit: bool = True, default: Any = list
     ) -> list[str]:
         """Python getter"""
-
-        # if callable(default):
-        #     default = default()
-
-        return self._get_value(  # type: ignore
+        return self._get_value(  # type: ignore[no-any-return]
             key="python",
             env_name=env_name,
             inherit=inherit,
             as_list=True,
             default=default,
         )
+
+    def _get_extras(self, key: str, env_name: str, default: Any) -> list[str]:
+        val = self._get_value(
+            key=key,
+            env_name=env_name,
+            inherit=False,
+            default=default,
+        )
+
+        if isinstance(val, bool):
+            return [env_name] if val else []
+
+        if not isinstance(val, list):
+            val = [val]
+        return val  # type: ignore[no-any-return]
 
     def extras(self, env_name: str) -> list[str]:
         """
@@ -132,53 +135,47 @@ class Config:
         * If value is `False`, return []
         * else return list of extras
         """
+        return self._get_extras(key="extras", env_name=env_name, default=list)
 
-        val = self._get_value(
-            key="extras",
-            env_name=env_name,
-            inherit=False,
-            # as_list=True,
-            default=env_name,
-        )
+    def groups(self, env_name: str) -> list[str]:
+        """
+        Groups getter.
 
-        if isinstance(val, bool):
-            if val:
-                return [env_name]
-            else:
-                return []
+        Same style as `self.extras`
+        """
+        return self._get_extras(key="groups", env_name=env_name, default=list)
 
-        elif not isinstance(val, list):
-            val = [val]
+    def extras_or_groups(self, env_name: str) -> list[str]:
+        """
+        Extras_or_Groups getter.
 
-        return val  # type: ignore
+        These will need to be resolved after the fact.
+        """
+        return self._get_extras(key="extras_or_groups", env_name=env_name, default=list)
 
     def output(self, env_name: str | None = None) -> str | None:
         """Output getter"""
-        return self._get_value(key="output", env_name=env_name, inherit=False)  # type: ignore
+        return self._get_value(key="output", env_name=env_name, inherit=False)  # type: ignore[no-any-return]
 
     def sort(
         self, env_name: str | None = None, inherit: bool = True, default: bool = True
     ) -> bool:
         """Sort getter"""
-        return self._get_value(  # type: ignore
+        return self._get_value(  # type: ignore[no-any-return]
             key="sort", env_name=env_name, inherit=inherit, default=default
         )
 
-    # def inherit(self, env_name: str, default: bool = True) -> bool:
-    #     return self._get_value(  # type: ignore
-    #         key="inherit", env_name=env_name, inherit=True, default=default
-    #     )
-
-    def base(self, env_name: str, default: bool = True) -> bool:
-        """Base getter."""
-        return self._get_value(key="base", env_name=env_name, default=default)  # type: ignore
+    def skip_package(self, env_name: str, default: bool = False) -> bool:
+        """skip_package getter."""
+        return self._get_value(key="skip_package", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
     def name(self, env_name: str) -> bool:
-        return self._get_value(key="name", env_name=env_name)  # type: ignore
+        """Name option."""
+        return self._get_value(key="name", env_name=env_name)  # type: ignore[no-any-return]
 
     def header(self, env_name: str) -> bool:
         """Header getter"""
-        return self._get_value(key="header", env_name=env_name)  # type: ignore
+        return self._get_value(key="header", env_name=env_name)  # type: ignore[no-any-return]
 
     def style(self, env_name: str | None = None, default: str = "yaml") -> str:
         """Style getter.  One of `yaml`, `requirements`"""
@@ -186,64 +183,70 @@ class Config:
             key="style", env_name=env_name, default=default, as_list=True
         )
         for k in out:
-            assert k in ["yaml", "requirements", "conda-requirements", "json"]
-        return out  # type: ignore
+            if k not in {"yaml", "requirements", "conda-requirements", "json"}:
+                msg = f"unknown style {k}"
+                raise ValueError(msg)
+        return out  # type: ignore[no-any-return]
 
     def python_include(self, env_name: str | None = None) -> str | None:
         """Flag python_include"""
-        return self._get_value(key="python_include", env_name=env_name)  # type: ignore
+        return self._get_value(key="python_include", env_name=env_name)  # type: ignore[no-any-return]
 
     def python_version(self, env_name: str | None = None) -> str | None:
         """Flag python_version"""
-        return self._get_value(key="python_version", env_name=env_name)  # type: ignore
+        return self._get_value(key="python_version", env_name=env_name)  # type: ignore[no-any-return]
 
     def overwrite(self, env_name: str | None = None, default: str = "check") -> str:
         """Flag overwrite"""
-        return self._get_value(key="overwrite", env_name=env_name, default=default)  # type: ignore
+        return self._get_value(key="overwrite", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
     def verbose(
         self, env_name: str | None = None, default: int | None = None
     ) -> int | None:
         """Flag verbose"""
-        return self._get_value(key="verbose", env_name=env_name, default=default)  # type: ignore
+        return self._get_value(key="verbose", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
     def template(self, env_name: str, default: str = "{env}") -> str:
         """Flag for template"""
-        return self._get_value(key="template", env_name=env_name, default=default)  # type: ignore
+        return self._get_value(key="template", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
     def template_python(self, env_name: str, default: str = "py{py}-{env}") -> str:
         """Flag for template_python."""
-        return self._get_value(  # type: ignore
+        return self._get_value(  # type: ignore[no-any-return]
             key="template_python", env_name=env_name, default=default
         )
 
     def deps(self, env_name: str, default: Any = None) -> list[str]:
-        return self._get_value(  # type: ignore
+        """Conda dependencies option."""
+        return self._get_value(  # type: ignore[no-any-return]
             key="deps",
             env_name=env_name,
             default=default,
         )
 
     def reqs(self, env_name: str, default: Any = None) -> list[str]:
-        return self._get_value(  # type: ignore
+        """Pip dependencies option."""
+        return self._get_value(  # type: ignore[no-any-return]
             key="reqs",
             env_name=env_name,
             default=default,
         )
 
-    def user_config(self, env_name: str | None = None) -> str | None:  # pyright: ignore
+    def user_config(self, env_name: str | None = None) -> str | None:  # noqa: ARG002
         """Flag user_config"""
-        return self._get_value(key="user_config", default=None)  # type: ignore
+        return self._get_value(key="user_config", default=None)  # type: ignore[no-any-return]
 
     def allow_empty(self, env_name: str | None = None, default: bool = False) -> bool:
-        return self._get_value(  # type: ignore
+        """Allow empty option."""
+        return self._get_value(  # type: ignore[no-any-return]
             key="allow_empty", env_name=env_name, default=default
         )
 
     def remove_whitespace(
         self, env_name: str | None = None, default: bool = True
     ) -> bool:
-        return self._get_value(  # type: ignore
+        """Remove whitespace option."""
+        return self._get_value(  # type: ignore[no-any-return]
             key="remove_whitespace",
             env_name=env_name,
             default=default,
@@ -268,11 +271,15 @@ class Config:
             if u is not None:
                 d = data[key]
                 if isinstance(d, list):
-                    assert isinstance(u, list)
-                    d.extend(u)  # pyright: ignore
-                elif isinstance(d, dict):
-                    assert isinstance(u, dict)
-                    d.update(**u)  # pyright: ignore
+                    if not isinstance(u, list):
+                        msg = f"expected list, got {type(u)}"
+                        raise TypeError(msg)
+                    d.extend(u)  # pyright: ignore[reportUnknownMemberType]
+                elif isinstance(d, dict):  # pragma: no cover
+                    if not isinstance(u, dict):
+                        msg = f"expected dict, got {type(u)}"
+                        raise TypeError(msg)
+                    d.update(**u)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
 
         return type(self)(data)
 
@@ -294,8 +301,10 @@ class Config:
 
         keys = [
             "extras",
+            "groups",
+            "extras_or_groups",
             "sort",
-            "base",
+            "skip_package",
             "header",
             "overwrite",
             "verbose",
@@ -340,8 +349,10 @@ class Config:
     ) -> Iterator[tuple[str, dict[str, Any]]]:
         keys = [
             "extras",
+            "groups",
+            "extras_or_groups",
             "sort",
-            "base",
+            "skip_package",
             "header",
             "overwrite",
             "verbose",
@@ -355,7 +366,7 @@ class Config:
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
 
         output = self.output(env_name)
-        if not output:
+        if not output:  # pragma: no cover
             output = filename_from_template(
                 template=template, env_name=env_name, ext="txt"
             )
@@ -363,11 +374,10 @@ class Config:
 
         yield ("requirements", data)
 
-    def iter(
+    def iter_envs(
         self, envs: Sequence[str] | None = None, **defaults: Any
     ) -> Iterator[tuple[str, dict[str, Any]]]:
         """Iterate over configs"""
-
         # filter defaults.  Only include values of not None:
         defaults = {k: v for k, v in defaults.items() if v is not None}
 
@@ -380,8 +390,9 @@ class Config:
                     yield from self._iter_yaml(env, **defaults)
                 elif style == "requirements":
                     yield from self._iter_reqs(env, **defaults)
-                else:
-                    raise ValueError(f"unknown style {style}")  # pragma: no cover
+                else:  # pragma: no cover
+                    msg = f"unknown style {style}"
+                    raise ValueError(msg)
 
     @classmethod
     def from_toml_dict(
@@ -397,7 +408,7 @@ class Config:
                 data["envs"] = {}
 
             for env in default_envs:
-                data["envs"][env] = {}
+                data["envs"][env] = {"extras_or_groups": True}
 
         c = cls(data)
 
@@ -412,9 +423,9 @@ class Config:
     @classmethod
     def from_string(cls, s: str, user_config: str | None = None) -> Self:
         """Create from string representation of toml file."""
-        import tomli
+        from ._compat import tomllib
 
-        c = cls.from_toml_dict(tomli.loads(s))
+        c = cls.from_toml_dict(tomllib.loads(s))
 
         if user_config:
             u = cls.from_string(user_config)
@@ -426,21 +437,19 @@ class Config:
         cls, path: str | Path, user_config: str | Path | None = "infer"
     ) -> Self:
         """Create from toml file(s)."""
-        import tomli
+        from ._compat import tomllib
 
-        with open(path, "rb") as f:
-            data = tomli.load(f)
+        with Path(path).open("rb") as f:
+            data = tomllib.load(f)
 
         c = cls.from_toml_dict(data)
 
-        if user_config == "infer":
-            if (user_config := c.user_config()) is not None:
-                # relative path
-                user_config = Path(path).parent / Path(user_config)
+        if user_config == "infer" and (user_config := c.user_config()) is not None:
+            # relative path
+            user_config = Path(path).parent / Path(user_config)
 
-        if user_config:
-            if Path(user_config).exists():
-                u = cls.from_file(user_config)
-                c = c.assign_user_config(u)
+        if user_config and Path(user_config).exists():
+            u = cls.from_file(user_config)
+            c = c.assign_user_config(u)
 
         return c

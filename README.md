@@ -32,7 +32,7 @@
 
 # `pyproject2conda`
 
-A script to convert `pyproject.toml` dependencies to `environemnt.yaml` files.
+A script to convert `pyproject.toml` dependencies to `environment.yaml` files.
 
 ## Overview
 
@@ -108,18 +108,41 @@ Consider the `toml` file
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(begin=None, end="[project.optional-dependencies]", begin_dot=False)]]] -->
+<!-- [[[cog cat_lines(begin=None, end="[tool.pyproject2conda]", begin_dot=False)]]] -->
 
 ```toml
 [project]
 name = "hello"
 requires-python = ">=3.8,<3.11"
 dependencies = [
-"athing", # p2c: -p # a comment
-"bthing", # p2c: -s "bthing-conda"
-"cthing; python_version < '3.10'", # p2c: -c conda-forge
-
+"athing", #
+"bthing",
+"cthing; python_version < '3.10'",
 ]
+
+[project.optional-dependencies]
+test = [
+"pandas", #
+"pytest",
+]
+dev-extras = ["matplotlib"]
+dev = ["hello[test]", "hello[dev-extras]"]
+dist-pypi = [
+# this is intended to be parsed with --skip-package option
+"setuptools",
+"build",
+]
+
+[tool.pyproject2conda.dependencies]
+athing = { pip = true }
+bthing = { skip = true, packages = "bthing-conda" }
+cthing = { channel = "conda-forge" }
+pytest = { channel = "conda-forge" }
+matplotlib = { skip = true, packages = [
+"additional-thing; python_version < '3.9'",
+"conda-matplotlib"
+] }
+build = { channel = "pip" }
 
 # ...
 ```
@@ -127,30 +150,14 @@ dependencies = [
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
 
-Note the comment lines `# p2c:...`. These are special tokens that
-`pyproject2conda` will analyze. The basic options are:
+Note the table `[tool.pyproject2conda.dependencies]`. This table takes as keys
+the dependency names from `project.dependencies` or
+`project.optional-dependencies`, and as values a mapping with keys:
 
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("""python -c "from pyproject2conda.overrides import p2c_argparser; p2c_argparser().parse_args(['--help'])" """, include_cmd=False, wrapper="bash")]]] -->
-```bash
-usage: -c [-h] [-c CHANNEL] [-p] [-s] [packages ...]
-
-Parser searches for comments '# p2c: [OPTIONS] CONDA-PACKAGES
-
-positional arguments:
-  packages
-
-options:
-  -h, --help            show this help message and exit
-  -c CHANNEL, --channel CHANNEL
-                        Channel to add to the pyproject requirement
-  -p, --pip             If specified, install pyproject dependency with pip
-  -s, --skip            If specified skip pyproject dependency on this line
-```
-
-<!-- [[[end]]] -->
-<!-- prettier-ignore-end -->
+- `pip`: if `true`, specify install via pip in `environment.yaml` file
+- `skip`: if `true`, skip the dependency
+- `channel`: conda-channel to use for this dependency
+- `packages`: Additional packages to include in `environment.yaml` file
 
 So, if we run the following, we get:
 
@@ -171,8 +178,6 @@ dependencies:
 
 <!-- [[[end]]] -->
 
-Note that other comments can be mixed in.
-
 By default, the python version is not included in the resulting conda output. To
 include the specification from `pyproject.toml`, use `--python-include infer`
 option:
@@ -191,35 +196,6 @@ dependencies:
   - pip
   - pip:
       - athing
-```
-
-<!-- [[[end]]] -->
-
-### Alternate syntax: using table instead of comments
-
-While using comments to mark options has the convenience of placing the changes
-right next to the dependency, it can becore a bit cumbersome. If you feel this
-way, then you can use an alternative method to map `pip` dependencies to `conda`
-dependencies. For this, use the `tool.pyproject2.conda.dependencies` table. For
-example, we can do the same thing as above with:
-
-<!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(path="tests/data/test-pyproject-alt.toml", begin="[tool.pyproject2conda.dependencies]", end="[tool.pyproject2conda.envs.base]")]]] -->
-
-```toml
-# ...
-[tool.pyproject2conda.dependencies]
-athing = { pip = true }
-bthing = { skip = true, packages = "bthing-conda" }
-cthing = { channel = "conda-forge" }
-pytest = { channel = "conda-forge" }
-matplotlib = { skip = true, packages = [
-  "additional-thing; python_version < '3.9'",
-  "conda-matplotlib"
-] }
-build = { channel = "pip" }
-# ...
-
 ```
 
 <!-- [[[end]]] -->
@@ -368,28 +344,21 @@ Given the extra dependency:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog cat_lines(begin="[project.optional-dependencies]", end="[tool.pyproject2conda]")]]] -->
+<!-- [[[cog cat_lines(begin="[project.optional-dependencies]", end="[tool.pyproject2conda.dependencies]")]]] -->
 
 ```toml
 # ...
 [project.optional-dependencies]
 test = [
-"pandas",
-"pytest", # p2c: -c conda-forge
-
+"pandas", #
+"pytest",
 ]
-dev-extras = [
-# p2c: -s "additional-thing; python_version < '3.9'" # additional pkg
-## p2c: -s "another-thing" # skipped because of ## before p2c.
-"matplotlib", # p2c: -s conda-matplotlib
-
-]
+dev-extras = ["matplotlib"]
 dev = ["hello[test]", "hello[dev-extras]"]
 dist-pypi = [
-# this is intended to be parsed with --no-base option
+# this is intended to be parsed with --skip-package option
 "setuptools",
-"build", # p2c: -p
-
+"build",
 ]
 
 # ...
@@ -443,8 +412,60 @@ dependencies:
 
 <!-- [[[end]]] -->
 
-This also shows that `p2c` comments without dependencies are also parsed. To
-comment out such lines, make sure `p2c` is preceded by `##`.
+### Installing from `dependency-groups`
+
+`pyproject2conda` also support the [PEP 735](https://peps.python.org/pep-0735/)
+`dependency-groups` table. For example, if we have the follinging
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog cat_lines(begin="[dependency-groups]", end="[tool.pyproject2conda.dependencies]", path="tests/data/test-pyproject-groups.toml")]]] -->
+
+```toml
+# ...
+[dependency-groups]
+test = ["pandas", "pytest"]
+dev-extras = ["matplotlib"]
+dev = [{ include-group = "test" }, { include-group = "dev-extras" }]
+dist-pypi = [
+# this is intended to be parsed with --skip-package option
+"setuptools",
+"build",
+]
+
+# ...
+```
+
+<!-- [[[end]]] -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+Then, we can build a requirement file, specifying groups with `-g/--group` flag.
+
+<!-- markdownlint-disable-next-line MD013 -->
+  <!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev")]]] -->
+
+```bash
+$ pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev
+channels:
+  - conda-forge
+dependencies:
+  - additional-thing
+  - bthing-conda
+  - conda-forge::cthing
+  - conda-forge::pytest
+  - conda-matplotlib
+  - pandas
+  - pip
+  - pip:
+      - athing
+```
+
+<!-- [[[end]]] -->
+
+The advantage of using `dependency-groups` as opposed to
+`package.optional-dependencies` is that they work for non-package projects, and
+are not included in the metadata of distributed packages.
 
 ### Header in output
 
@@ -534,27 +555,31 @@ style = "yaml"
 python = ["3.10"]
 # Note that this is relative to the location of pyproject.toml
 user_config = "config/userconfig.toml"
+# These environments will be created with the package, package dependencies, and
+# dependencies from groups or extras with environment name so the below is the
+# same as
+#
+# [tool.pyproject2conda.envs.test]
+# extras_or_groups = "test"
+#
 default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-# Note that the default value for `extras` is the name of the environment.
-# To have no extras, either pass
-# extras = []
-# or
+# This will have no extras or groups
 #
-extras = false
+# A value of `extras = true` will would be equivalent to
+# passing extras_or_groups = <env-name>
 
-#
-# A value of `extras = true` also implies using the environment name
-# as the extras.
+
+
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-base = false
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]
@@ -567,8 +592,8 @@ python = ["3.10", "3.11"]
 Note that specifying channels at the command line overrides
 `tool.pyproject2conda.channels`.
 
-You can also specify environments without the base dependencies (those under
-`project.dependencies`) by passing the `--no-base` flag. This is useful for
+You can also specify environments without the package dependences (those under
+`project.dependencies`) by passing the `--skip-package` flag. This is useful for
 defining environments for build, etc, that do not require the package be
 installed. For example:
 
@@ -579,11 +604,21 @@ installed. For example:
 ```toml
 # ...
 dist-pypi = [
-# this is intended to be parsed with --no-base option
+# this is intended to be parsed with --skip-package option
 "setuptools",
-"build", # p2c: -p
-
+"build",
 ]
+
+[tool.pyproject2conda.dependencies]
+athing = { pip = true }
+bthing = { skip = true, packages = "bthing-conda" }
+cthing = { channel = "conda-forge" }
+pytest = { channel = "conda-forge" }
+matplotlib = { skip = true, packages = [
+"additional-thing; python_version < '3.9'",
+"conda-matplotlib"
+] }
+build = { channel = "pip" }
 
 # ...
 ```
@@ -594,10 +629,11 @@ dist-pypi = [
 These can be accessed using either of the following:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --no-base")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --skip-package")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --no-base
+$ pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --skip- \
+    package
 channels:
   - conda-forge
 dependencies:
@@ -616,7 +652,7 @@ or
 >>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
->>> print(p.to_conda_yaml(extras='dist-pypi', include_base=False).strip())
+>>> print(p.to_conda_yaml(extras="dist-pypi", skip_package=True).strip())
 channels:
   - conda-forge
 dependencies:
@@ -649,27 +685,31 @@ style = "yaml"
 python = ["3.10"]
 # Note that this is relative to the location of pyproject.toml
 user_config = "config/userconfig.toml"
+# These environments will be created with the package, package dependencies, and
+# dependencies from groups or extras with environment name so the below is the
+# same as
+#
+# [tool.pyproject2conda.envs.test]
+# extras_or_groups = "test"
+#
 default_envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
-# Note that the default value for `extras` is the name of the environment.
-# To have no extras, either pass
-# extras = []
-# or
+# This will have no extras or groups
 #
-extras = false
+# A value of `extras = true` will would be equivalent to
+# passing extras_or_groups = <env-name>
 
-#
-# A value of `extras = true` also implies using the environment name
-# as the extras.
+
+
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-base = false
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]
@@ -766,7 +806,7 @@ To specify a conda environment (`yaml`) file, pass `style = "yaml"` (the
 default). To specify a requirements file, pass `style = "requirements"`. You can
 specify both to make both.
 
-Options in a given `tool.pyproject2conda.envs."environemnt-name"` section
+Options in a given `tool.pyproject2conda.envs."environment-name"` section
 override those at the `tool.pyproject2conda` level. So, for example:
 
 <!-- prettier-ignore-start -->
@@ -807,7 +847,7 @@ have the option `user_config=config/userconfig.toml`.
 
 ```toml
 [tool.pyproject2conda.envs."user-dev"]
-extras = ["dev", "dist-pypi"]
+extras_or_groups = ["dev", "dist-pypi"]
 deps = ["extra-dep"]
 reqs = ["extra-req"]
 name = "hello"

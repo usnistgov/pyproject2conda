@@ -10,28 +10,11 @@
 channels:
   - conda-forge
 dependencies:
-  - python=3.10
-  - ipykernel
-  - ipython
-  - mypy>=1.4.1
-  - nbqa
-  - nox
+  - python=3.13
   - packaging
-  - pre-commit
-  - pyright
   - pytest
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - pytype
-  - ruamel.yaml
-  - setuptools-scm>=8.0
-  - tomli
-  - tomlkit
   - typer
-  - types-click
   - pip
-  - pip:
-      - noxopt
-      - pytest-accept
-      - scriv

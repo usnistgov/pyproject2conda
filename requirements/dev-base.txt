@@ -17,7 +17,6 @@ pytest-cov
 pytest-sugar
 pytest-xdist
 pytype;python_version<"3.11"
-setuptools-scm>=8.0
 tomli
 tomlkit
 typer
