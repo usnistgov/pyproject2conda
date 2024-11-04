@@ -417,22 +417,13 @@ default_envs = [
 pytest-accept = { pip = true }
 scriv = { pip = true }
 
-[tool.pyproject2conda.envs.build]
-groups = "build-system.requires"
-reqs = [
-    "build",
-]
-
-[tool.pyproject2conda.envs.uvxrun-tools]
-groups = "uvxrun-tools"
-
 [tool.pyproject2conda.envs.test-extras]
 groups = [
     "test",
 ]
 
 [[tool.pyproject2conda.overrides]]
-envs = [ "build", "uvxrun-tools", "test-extras" ]
+envs = [ "uvxrun-tools", "test-extras" ]
 skip_package = true
 style = "requirements"
 
