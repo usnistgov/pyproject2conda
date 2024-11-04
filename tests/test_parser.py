@@ -185,6 +185,7 @@ def test_pip_requirements() -> None:
     toml = dedent(
         """\
     [project]
+    name="hello"
     requires-python = ">=3.8,<3.11"
     dependencies = [
     "athing",
@@ -192,10 +193,13 @@ def test_pip_requirements() -> None:
     "cthing; python_version<'3.10'",
     ]
 
-    [tool.pyproject2conda.dependencies]
-    athing = { pip = true }
-    bthing = { skip = true, packages = "bthing-conda" }
-    cthing = { channel = "conda-forge" }
+    [project.optional-dependencies]
+    test = ["pytest", "test-optional"]
+    dev = ["hello[test]", "dev-package"]
+
+    [dependency-groups]
+    test = ["pytest", "test-optional-group"]
+    dev = [{include-group= "test"}, "dev-package-group"]
         """
     )
 
@@ -211,6 +215,39 @@ def test_pip_requirements() -> None:
     d = requirements.ParseDepends.from_string(toml)
 
     assert d.to_requirements(pip_deps="hello") == expected
+
+    expected = dedent(
+        """\
+        athing
+        bthing
+        cthing;python_version<"3.10"
+        dev-package
+        hello
+        pytest
+        test-optional
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+    assert d.to_requirements(pip_deps="hello", extras="dev") == expected
+    assert d.to_requirements(pip_deps="hello", extras_or_groups="dev") == expected
+
+    expected = dedent(
+        """\
+        athing
+        bthing
+        cthing;python_version<"3.10"
+        dev-package-group
+        hello
+        pytest
+        test-optional-group
+        """
+    )
+
+    d = requirements.ParseDepends.from_string(toml)
+    assert d.to_requirements(pip_deps="hello", groups="dev") == expected
+
+    # build-system.requires
 
 
 def test_to_conda_requirements_error() -> None:
@@ -282,7 +319,7 @@ def test_package_name() -> None:
     )
     d = requirements.ParseDepends.from_string(toml)
     with pytest.raises(ValueError):
-        d.conda_and_pip_requirements("dev")
+        d.conda_and_pip_requirements(extras="dev")
 
 
 def test_conda_and_pip_simple() -> None:
@@ -308,57 +345,109 @@ def test_conda_and_pip_simple() -> None:
 
 
 @pytest.mark.parametrize(
-    "toml",
+    ("style", "toml"),
     [
-        # Table syntax
-        dedent(
-            """\
-            [build-system]
-            requires = ["setuptools>=61.2", "setuptools_scm[toml]>=8.0"]
-            build-backend = "setuptools.build_meta"
+        # Extras
+        (
+            "extras",
+            dedent(
+                """\
+                [build-system]
+                requires = ["setuptools>=61.2", "setuptools_scm[toml]>=8.0"]
+                build-backend = "setuptools.build_meta"
 
-            [project]
-            name = "hello"
-            requires-python = ">=3.8, <3.11"
-            dependencies = [
-            "athing",
-            "bthing",
-            "cthing; python_version<'3.10'",
-            ]
+                [project]
+                name = "hello"
+                requires-python = ">=3.8, <3.11"
+                dependencies = [
+                "athing",
+                "bthing",
+                "cthing; python_version<'3.10'",
+                ]
 
-            [project.optional-dependencies]
-            test = [
-            "pandas",
-            "pytest",
-            ]
-            dev-extras = [
-            "matplotlib",
-            ]
-            dev = [
-            "hello[test]",
-            "hello[dev-extras]",
-            ]
-            dist-pypi = [
-            "setuptools",
-            "build",
-            ]
+                [project.optional-dependencies]
+                test = [
+                "pandas",
+                "pytest",
+                ]
+                dev-extras = [
+                "matplotlib",
+                ]
+                dev = [
+                "hello[test]",
+                "hello[dev-extras]",
+                ]
+                dist-pypi = [
+                "setuptools",
+                "build",
+                ]
 
 
-            [tool.pyproject2conda]
-            channels = ['conda-forge']
+                [tool.pyproject2conda]
+                channels = ['conda-forge']
 
-            [tool.pyproject2conda.dependencies]
-            athing = {pip = true}
-            bthing = {skip = true, packages = "bthing-conda"}
-            cthing = {channel = "conda-forge"}
-            pytest = {channel = "conda-forge"}
-            matplotlib = {skip = true, packages = ["additional-thing", "conda-matplotlib"]}
-            build = { channel = "pip" }
-            """
+                [tool.pyproject2conda.dependencies]
+                athing = {pip = true}
+                bthing = {skip = true, packages = "bthing-conda"}
+                cthing = {channel = "conda-forge"}
+                pytest = {channel = "conda-forge"}
+                matplotlib = {skip = true, packages = ["additional-thing", "conda-matplotlib"]}
+                build = { channel = "pip" }
+                """
+            ),
+        ),
+        # Groups
+        (
+            "groups",
+            dedent(
+                """\
+                [build-system]
+                requires = ["setuptools>=61.2", "setuptools_scm[toml]>=8.0"]
+                build-backend = "setuptools.build_meta"
+
+                [project]
+                name = "hello"
+                requires-python = ">=3.8, <3.11"
+                dependencies = [
+                "athing",
+                "bthing",
+                "cthing; python_version<'3.10'",
+                ]
+
+                [dependency-groups]
+                test = [
+                "pandas",
+                "pytest",
+                ]
+                dev-extras = [
+                "matplotlib",
+                ]
+                dev = [
+                {include-group = "test"},
+                {include-group = "dev-extras"},
+                ]
+                dist-pypi = [
+                "setuptools",
+                "build",
+                ]
+
+
+                [tool.pyproject2conda]
+                channels = ['conda-forge']
+
+                [tool.pyproject2conda.dependencies]
+                athing = {pip = true}
+                bthing = {skip = true, packages = "bthing-conda"}
+                cthing = {channel = "conda-forge"}
+                pytest = {channel = "conda-forge"}
+                matplotlib = {skip = true, packages = ["additional-thing", "conda-matplotlib"]}
+                build = { channel = "pip" }
+                """
+            ),
         ),
     ],
 )
-def test_complete(toml) -> None:
+def test_complete(style, toml) -> None:
     d = requirements.ParseDepends.from_string(toml)
 
     # test unknown extra
@@ -366,7 +455,7 @@ def test_complete(toml) -> None:
         d.to_conda_yaml(extras="a-thing")
 
     # test list:
-    assert d.extras == [
+    assert getattr(d, style) == [
         "test",
         "dev-extras",
         "dev",
@@ -380,7 +469,8 @@ def test_complete(toml) -> None:
     setuptools_scm[toml]>=8.0
     """
     assert dedent(expected) == d.to_requirements(
-        extras="build-system.requires", include_base=False
+        skip_package=True,
+        **{style: "build-system.requires"},  # type: ignore[arg-type]
     )
 
     expected = """\
@@ -469,7 +559,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(extras="test", sort=False)
+    out = d.to_conda_yaml(**{style: "test"}, sort=False)  # type: ignore[arg-type]
 
     expected = """\
 channels:
@@ -486,7 +576,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(extras="test", sort=True)
+    out = d.to_conda_yaml(**{style: "test"}, sort=True)  # type: ignore[arg-type]
 
     expected = """\
 channels:
@@ -503,7 +593,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(extras="dist-pypi", include_base=False)
+    out = d.to_conda_yaml(**{style: "dist-pypi"}, skip_package=True)  # type: ignore[arg-type]
 
     expected = """\
 channels:
@@ -532,7 +622,7 @@ dependencies:
       - athing
     """
 
-    assert dedent(expected) == d.to_conda_yaml("dev", sort=False)
+    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"}, sort=False)  # type: ignore[arg-type]
 
     expected = """\
 channels:
@@ -549,7 +639,7 @@ dependencies:
       - athing
     """
 
-    assert dedent(expected) == d.to_conda_yaml("dev")
+    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"})  # type: ignore[arg-type]
 
     # Test deps/reqs
     expected = """\
@@ -639,7 +729,7 @@ dependencies:
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="test",
-        include_base=False,
+        skip_package=True,
     )
 
     toml = dedent(
@@ -680,12 +770,12 @@ dependencies:
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="test",
-        include_base=False,
+        skip_package=True,
     )
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="test",
-        include_base=True,
+        skip_package=False,
     )
 
     # check output has no dependencies:
@@ -745,7 +835,7 @@ dependencies:
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="dev-extras",
-        include_base=False,
+        skip_package=True,
     )
 
 

@@ -118,14 +118,38 @@ EXTRAS_CLI = Annotated[
         "--extra",
         "-e",
         help="""
-        Extra dependencies. Can specify multiple times for multiple extras.
+        Include dependencies from extra <extra> from `project.optional-dependencies` table of `pyproject.toml`.
+        Can specify multiple times for multiple extras.
         Use name `extras` for specifying in `pyproject.toml`
-        Note thate for `project` application, this parameter defaults to the
-        name of the environment.  If you want no extras, you must pass
-        `extras = false`.
         """,
     ),
 ]
+GROUPS_CLI = Annotated[
+    Optional[List[str]],
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+        "--group",
+        "-g",
+        help="""
+        Include dependencies from group <group> from `dependency-groups` table of `pyproject.toml`.
+        Can specify multiple times for multiple groups.
+        Use name `groups` for specifying in `pyproject.toml`
+        """,
+    ),
+]
+EXTRAS_OR_GROUPS_CLI = Annotated[
+    Optional[List[str]],
+    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+        "--extra-or-group",
+        help="""
+        Include dependencies from extra or group of `pyproject.toml`.
+        Extras are checked first, followed by groups.  The first instance of `extra-or-group` found is used.
+        That is, if both `extras` and `groups` contain `extra-or-group`, the extra will be used.
+        Use name `extras-or-groups` for specifying in `pyproject.toml`
+        """,
+    ),
+]
+
+
 CHANNEL_CLI = Annotated[
     Optional[List[str]],
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
@@ -184,13 +208,14 @@ VERBOSE_CLI = Annotated[
         count=True,
     ),
 ]
-BASE_DEPENDENCIES_CLI = Annotated[
+SKIP_PACKAGE_CLI = Annotated[
     bool,
     typer.Option(
-        "--base/--no-base",
+        "--skip-package",
         help="""
-        Default is to include base (project.dependencies) with extras. However, passing
-        `--no-base` will exclude base dependencies. This is useful to define environments
+        Default is to include package dependencies from `project.dependencies` table of `pyproject.toml`.
+        Passing `--skip-package` (or `skip_package = true` in `tool.pyproject2conda.envs...` table of `pyproject.toml`)
+        will exclude the package dependencies.  This is useful to define environments
         that should exclude base dependencies (like build, etc) in pyproject.toml.
         """,
     ),
@@ -451,11 +476,11 @@ def create_list(
 
     d = _get_requirement_parser(filename)
 
-    print("Extras:")
-    print("=======")
-
-    for extra in d.extras:
-        print("*", extra)
+    for name, vals in [("Extras", d.extras), ("Groups", d.groups)]:
+        print(name)
+        print("======")
+        for val in sorted(vals):
+            print("*", val)
 
 
 # ** Yaml
@@ -465,13 +490,15 @@ def create_list(
 def yaml(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     extras: EXTRAS_CLI = None,
+    groups: GROUPS_CLI = None,
+    extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     channels: CHANNEL_CLI = None,
     output: OUTPUT_CLI = None,
     name: NAME_CLI = None,
     python_include: PYTHON_INCLUDE_CLI = None,
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
-    base: BASE_DEPENDENCIES_CLI = True,
+    skip_package: SKIP_PACKAGE_CLI = False,
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
@@ -501,12 +528,14 @@ def yaml(
 
     s = d.to_conda_yaml(
         extras=extras,
+        groups=groups,
+        extras_or_groups=extras_or_groups,
         channels=channels,
         name=name,
         output=output,
         python_include=python_include,
         python_version=python_version,
-        include_base=base,
+        skip_package=skip_package,
         header_cmd=_get_header_cmd(header, output),
         sort=sort,
         conda_deps=deps,
@@ -525,8 +554,10 @@ def yaml(
 def requirements(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     extras: EXTRAS_CLI = None,
+    groups: GROUPS_CLI = None,
+    extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     output: OUTPUT_CLI = None,
-    base: BASE_DEPENDENCIES_CLI = True,
+    skip_package: SKIP_PACKAGE_CLI = False,
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
@@ -546,8 +577,10 @@ def requirements(
 
     s = d.to_requirements(
         extras=extras,
+        groups=groups,
+        extras_or_groups=extras_or_groups,
         output=output,
-        include_base=base,
+        skip_package=skip_package,
         header_cmd=_get_header_cmd(header, output),
         sort=sort,
         pip_deps=reqs,
@@ -634,12 +667,14 @@ def conda_requirements(
     path_conda: Annotated[Optional[str], typer.Argument()] = None,
     path_pip: Annotated[Optional[str], typer.Argument()] = None,
     extras: EXTRAS_CLI = None,
+    groups: GROUPS_CLI = None,
+    extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     python_include: PYTHON_INCLUDE_CLI = None,
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
     channels: CHANNEL_CLI = None,
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
-    base: BASE_DEPENDENCIES_CLI = True,
+    skip_package: SKIP_PACKAGE_CLI = False,
     prefix: PREFIX_CLI = None,
     prepend_channel: PREPEND_CHANNEL_CLI = False,
     sort: SORT_DEPENDENCIES_CLI = True,
@@ -681,13 +716,15 @@ def conda_requirements(
 
     deps_str, reqs_str = d.to_conda_requirements(
         extras=extras,
+        groups=groups,
+        extras_or_groups=extras_or_groups,
         python_include=python_include,
         python_version=python_version,
         channels=channels,
         prepend_channel=prepend_channel,
         output_conda=path_conda,
         output_pip=path_pip,
-        include_base=base,
+        skip_package=skip_package,
         header_cmd=_get_header_cmd(header, path_conda),
         sort=sort,
         conda_deps=deps,
@@ -705,6 +742,8 @@ def conda_requirements(
 @add_verbose_logger(logger)
 def to_json(
     extras: EXTRAS_CLI = None,
+    groups: GROUPS_CLI = None,
+    extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     python_include: PYTHON_INCLUDE_CLI = None,
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
@@ -712,7 +751,7 @@ def to_json(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     sort: SORT_DEPENDENCIES_CLI = True,
     output: OUTPUT_CLI = None,
-    base: BASE_DEPENDENCIES_CLI = True,
+    skip_package: SKIP_PACKAGE_CLI = False,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     verbose: VERBOSE_CLI = None,
@@ -742,9 +781,11 @@ def to_json(
 
     conda_deps, pip_deps = d.conda_and_pip_requirements(
         extras=extras,
+        groups=groups,
+        extras_or_groups=extras_or_groups,
         python_include=python_include,
         python_version=python_version,
-        include_base=base,
+        skip_package=skip_package,
         sort=sort,
         conda_deps=deps,
         pip_deps=reqs,

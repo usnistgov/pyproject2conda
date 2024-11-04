@@ -7,11 +7,13 @@ dependencies = ["cthing; python_version < '3.10'", "bthing", "athing"]
 test = ["pytest", "pandas"]
 dev-extras = ["matplotlib"]
 dev = ["hello[test]", "hello[dev-extras]"]
-dist-pypi = [
-    "setuptools",
-    # this is intended to be parsed with --no-base option
-    "build",
-]
+dist-pypi = ["setuptools", "build"]
+
+[dependency-groups]
+test = ["pytest", "pandas"]
+dev-extras = ["matplotlib"]
+dev = [{ include-group = "test" }, { include-group = "dev-extras" }]
+dist-pypi = ["setuptools", "build"]
 
 [tool.pyproject2conda]
 channels = ['conda-forge']

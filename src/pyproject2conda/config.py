@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 # * Utilities
 
 
-class Config:
+class Config:  # noqa: PLR0904
     """Class to parse toml file with [tool.pyproject2conda] section"""
 
     def __init__(self, data: dict[str, Any]) -> None:
@@ -112,6 +112,21 @@ class Config:
             default=default,
         )
 
+    def _get_extras(self, key: str, env_name: str, default: Any) -> list[str]:
+        val = self._get_value(
+            key=key,
+            env_name=env_name,
+            inherit=False,
+            default=default,
+        )
+
+        if isinstance(val, bool):
+            return [env_name] if val else []
+
+        if not isinstance(val, list):
+            val = [val]
+        return val  # type: ignore[no-any-return]
+
     def extras(self, env_name: str) -> list[str]:
         """
         Extras getter
@@ -120,22 +135,23 @@ class Config:
         * If value is `False`, return []
         * else return list of extras
         """
-        val = self._get_value(
-            key="extras",
-            env_name=env_name,
-            inherit=False,
-            default=env_name,
-        )
+        return self._get_extras(key="extras", env_name=env_name, default=list)
 
-        if isinstance(val, bool):
-            if val:
-                return [env_name]
-            return []
+    def groups(self, env_name: str) -> list[str]:
+        """
+        Groups getter.
 
-        if not isinstance(val, list):
-            val = [val]
+        Same style as `self.extras`
+        """
+        return self._get_extras(key="groups", env_name=env_name, default=list)
 
-        return val  # type: ignore[no-any-return]
+    def extras_or_groups(self, env_name: str) -> list[str]:
+        """
+        Extras_or_Groups getter.
+
+        These will need to be resolved after the fact.
+        """
+        return self._get_extras(key="extras_or_groups", env_name=env_name, default=list)
 
     def output(self, env_name: str | None = None) -> str | None:
         """Output getter"""
@@ -149,9 +165,9 @@ class Config:
             key="sort", env_name=env_name, inherit=inherit, default=default
         )
 
-    def base(self, env_name: str, default: bool = True) -> bool:
-        """Base getter."""
-        return self._get_value(key="base", env_name=env_name, default=default)  # type: ignore[no-any-return]
+    def skip_package(self, env_name: str, default: bool = False) -> bool:
+        """skip_package getter."""
+        return self._get_value(key="skip_package", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
     def name(self, env_name: str) -> bool:
         """Name option."""
@@ -285,8 +301,10 @@ class Config:
 
         keys = [
             "extras",
+            "groups",
+            "extras_or_groups",
             "sort",
-            "base",
+            "skip_package",
             "header",
             "overwrite",
             "verbose",
@@ -331,8 +349,10 @@ class Config:
     ) -> Iterator[tuple[str, dict[str, Any]]]:
         keys = [
             "extras",
+            "groups",
+            "extras_or_groups",
             "sort",
-            "base",
+            "skip_package",
             "header",
             "overwrite",
             "verbose",
@@ -388,7 +408,7 @@ class Config:
                 data["envs"] = {}
 
             for env in default_envs:
-                data["envs"][env] = {}
+                data["envs"][env] = {"extras_or_groups": True}
 
         c = cls(data)
 

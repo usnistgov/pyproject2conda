@@ -7,13 +7,10 @@ dependencies = [
     "cthing; python_version < '3.10'",
 ]
 
-[project.optional-dependencies]
-test = [
-    "pandas", #
-    "pytest",
-]
+[dependency-groups]
+test = ["pandas", "pytest"]
 dev-extras = ["matplotlib"]
-dev = ["hello[test]", "hello[dev-extras]"]
+dev = [{ include-group = "test" }, { include-group = "dev-extras" }]
 dist-pypi = [
     # this is intended to be parsed with --skip-package option
     "setuptools",
@@ -55,10 +52,10 @@ style = ["requirements"]
 
 # This will have no extras or groups
 #
-# A value of `extras = true` will would be equivalent to
-# passing extras_or_groups = <env-name>
+# A value of `extras = true` also implies using the environment name
+# as the extras.
 [tool.pyproject2conda.envs."test-extras"]
-extras = ["test"]
+groups = ["test"]
 style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
