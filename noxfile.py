@@ -332,12 +332,12 @@ def dev(
 
 
 nox.session(
-    name="dev-venv",
+    name="dev",
     python=PYTHON_DEFAULT_VERSION,
     venv_backend=factory_virtualenv_backend(location="./.venv"),
 )(dev)
 nox.session(
-    name="dev",
+    name="dev-conda",
     python=PYTHON_DEFAULT_VERSION,
     venv_backend=factory_conda_backend(backend=CONDA_BACKEND, location="./.venv"),
 )(dev)
