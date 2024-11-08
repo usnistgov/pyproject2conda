@@ -232,7 +232,7 @@ lint.extend-per-file-ignores."**/cli.py" = [
     "FA100",
     "PLR0913",
     "PLR0917",
-    "T201",
+    "T201",    # NOTE: remove this option when ready to go to new annotation style (needs python >= 3.10)
 ]
 # Project specific ignores (avoid changing per-file-ignores directly)
 lint.extend-per-file-ignores."tests/*.py" = [
@@ -248,7 +248,7 @@ lint.extend-per-file-ignores."tools/cog_utils.py" = [
 lint.unfixable = [
     "ERA",
     "PLR6104",
-    "T",
+    "T",       # NOTE: remove this option when ready to go to new annotation style (needs python >= 3.10)
 ]
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
