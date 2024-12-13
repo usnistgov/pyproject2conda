@@ -107,7 +107,8 @@ uvxrun-tools = [
     "conda-lock>=2.5.5",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
-    "pyright>=1.1.381",
+    "pyproject2conda>=0.13.0",
+    "pyright>=1.1.388",
     "twine>=5.0.0",
     # these used solely for specking tools to be used with tools/uvxrun.py
     { include-group = "mypy" },
@@ -261,12 +262,8 @@ lint.pylint.max-public-methods = 30
 lint.preview = true
 
 [tool.check-wheel-contents]
-toplevel = [
-    "pyproject2conda",
-]
-src_dir = [
-    "src",
-]
+toplevel = [ "pyproject2conda" ]
+src_dir = [ "src" ]
 
 # * Testing --------------------------------------------------------------------
 
@@ -331,13 +328,11 @@ strict = true
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
-module = [
-]
+module = [  ]
 
 [[tool.mypy.overrides]]
 ignore_errors = true
-module = [
-]
+module = [  ]
 
 [tool.pyright]
 include = [
@@ -418,12 +413,13 @@ pytest-accept = { pip = true }
 scriv = { pip = true }
 
 [tool.pyproject2conda.envs.test-extras]
-groups = [
-    "test",
-]
+groups = [ "test" ]
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
-envs = [ "uvxrun-tools", "test-extras" ]
+envs = [
+    "uvxrun-tools",
+]
 skip_package = true
 style = "requirements"
 
