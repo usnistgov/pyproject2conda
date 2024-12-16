@@ -238,6 +238,22 @@ class Config:  # noqa: PLR0904
             key="template_python", env_name=env_name, default=default
         )
 
+    def reqs_ext(self, env_name: str, default: str = ".txt") -> str:
+        """Requirements extension"""
+        return self._get_value(  # type: ignore[no-any-return]
+            key="reqs_ext",
+            env_name=env_name,
+            default=default,
+        )
+
+    def yaml_ext(self, env_name: str, default: str = ".yaml") -> str:
+        """Conda yaml extension"""
+        return self._get_value(  # type: ignore[no-any-return]
+            key="yaml_ext",
+            env_name=env_name,
+            default=default,
+        )
+
     def deps(self, env_name: str, default: Any = None) -> list[str]:
         """Conda dependencies option."""
         return self._get_value(  # type: ignore[no-any-return]
@@ -339,11 +355,12 @@ class Config:  # noqa: PLR0904
         ]
 
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
-
         if not pythons:
             if output is None:
                 output = filename_from_template(
-                    template=template, env_name=env_name, ext="yaml"
+                    template=template,
+                    env_name=env_name,
+                    ext=defaults.get("yaml_ext", self.yaml_ext(env_name)),
                 )
 
             if python_include := self.python_include(env_name):
@@ -361,7 +378,7 @@ class Config:  # noqa: PLR0904
                     template=template_python,
                     python=python,
                     env_name=env_name,
-                    ext="yaml",
+                    ext=defaults.get("yaml_ext", self.yaml_ext(env_name)),
                 )
                 yield ("yaml", dict(data, python=python, output=output))
 
@@ -389,7 +406,9 @@ class Config:  # noqa: PLR0904
         output = self.output(env_name)
         if not output:  # pragma: no cover
             output = filename_from_template(
-                template=template, env_name=env_name, ext="txt"
+                template=template,
+                env_name=env_name,
+                ext=defaults.get("reqs_ext", self.reqs_ext(env_name)),
             )
         data.update(output=output)
 

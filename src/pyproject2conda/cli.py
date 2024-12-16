@@ -330,6 +330,24 @@ TEMPLATE_PYTHON_CLI = Annotated[
         """,
     ),
 ]
+REQS_EXT_CLI = Annotated[
+    Optional[str],
+    typer.Option(
+        "--reqs-ext",
+        help="""
+        Extension to use with requirements file output created from template.  Defaults to `".txt"`.
+        """,
+    ),
+]
+YAML_EXT_CLI = Annotated[
+    Optional[str],
+    typer.Option(
+        "--yaml-ext",
+        help="""
+        Extension to use with conda environment.yaml file output created from template.  Defaults to `".yaml"`
+        """,
+    ),
+]
 DRY_CLI = Annotated[
     bool,
     typer.Option(
@@ -617,6 +635,8 @@ def project(
     envs: ENVS_CLI = None,
     template: TEMPLATE_CLI = None,
     template_python: TEMPLATE_PYTHON_CLI = None,
+    reqs_ext: REQS_EXT_CLI = ".txt",
+    yaml_ext: YAML_EXT_CLI = ".yaml",
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
@@ -636,6 +656,8 @@ def project(
 
     for style, d in c.iter_envs(
         envs=envs,
+        reqs_ext=reqs_ext,
+        yaml_ext=yaml_ext,
         template=template,
         template_python=template_python,
         sort=sort,

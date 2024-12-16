@@ -197,7 +197,7 @@ def filename_from_template(
     python: str | None = None,
     python_version: str | None = None,
     env_name: str | None = None,
-    ext: str | None = "yaml",
+    ext: str | None = ".yaml",
 ) -> str | None:
     """
     Create a filename from
@@ -227,7 +227,7 @@ def filename_from_template(
         kws["env"] = env_name
 
     if ext:  # pragma: no cover
-        template += f".{ext}"
+        template += f"{ext}"
 
     return template.format(**kws)
 

@@ -33,13 +33,13 @@ def test_template() -> None:
     expected = "py38-test.yaml"
 
     t = utils.filename_from_template(
-        "py{py}-{env}", env_name="test", python="3.8", ext="yaml"
+        "py{py}-{env}", env_name="test", python="3.8", ext=".yaml"
     )
 
     assert t == expected
 
     t = utils.filename_from_template(
-        "py{py}-{env}", env_name="test", python_version="3.8", ext="yaml"
+        "py{py}-{env}", env_name="test", python_version="3.8", ext=".yaml"
     )
 
     assert t == expected
@@ -104,6 +104,14 @@ def simple_toml() -> str:
     python = "highest"
     template_python = "py{py}-hello"
 
+
+    [tool.pyproject2conda.envs.extension_yaml]
+    style = "yaml"
+    yaml_ext = ".yml"
+
+    [tool.pyproject2conda.envs.extension_txt]
+    style = "requirements"
+    reqs_ext = ".in"
 
     [tool.pyproject2conda.envs.both]
     groups = "thing"
@@ -435,6 +443,54 @@ def test_option_override_lowest_highest(simple_toml: str, classifiers: str) -> N
             "remove_whitespace": True,
             "output": "py313-hello.yaml",
             "python": "3.13",
+        },
+    )
+
+
+def test_option_override_extension_yaml(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["extension_yaml"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py310-extension_yaml.yml",
+            "python": "3.10",
+        },
+    )
+
+
+def test_option_override_extension_txt(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["extension_txt"]))
+
+    assert output[0] == (
+        "requirements",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "hello-extension_txt.in",
         },
     )
 
