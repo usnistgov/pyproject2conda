@@ -389,9 +389,7 @@ inputs = [
 user_config = "config/userconfig.toml"
 template_python = "requirements/py{py}-{env}"
 template = "requirements/{env}"
-python = [
-    "3.11",
-]
+python = "default"
 channels = [
     "conda-forge",
 ]
@@ -441,14 +439,7 @@ envs = [
     "typing",
     "test-extras",
 ]
-python = [
-    "3.8",
-    "3.9",
-    "3.10",
-    "3.11",
-    "3.12",
-    "3.13",
-]
+python = "all"
 
 # * pip-tools (keeping for legacy) ---------------------------------------------
 

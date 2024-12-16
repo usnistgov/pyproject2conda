@@ -213,10 +213,12 @@ SKIP_PACKAGE_CLI = Annotated[
     typer.Option(
         "--skip-package",
         help="""
-        Default is to include package dependencies from `project.dependencies` table of `pyproject.toml`.
-        Passing `--skip-package` (or `skip_package = true` in `tool.pyproject2conda.envs...` table of `pyproject.toml`)
-        will exclude the package dependencies.  This is useful to define environments
-        that should exclude base dependencies (like build, etc) in pyproject.toml.
+        Default is to include package dependencies from `project.dependencies`
+        table of `pyproject.toml`. Passing `--skip-package` (or `skip_package =
+        true` in `tool.pyproject2conda.envs...` table of `pyproject.toml`) will
+        exclude the package dependencies. This is useful to define environments
+        that should exclude base dependencies (like build, etc) in
+        pyproject.toml.
         """,
     ),
 ]
@@ -225,8 +227,9 @@ SORT_DEPENDENCIES_CLI = Annotated[
     typer.Option(
         "--sort/--no-sort",
         help="""
-        Default is to sort the dependencies (excluding `--python-include`). Pass `--no-sort`
-        to instead place dependencies in order they are gathered.
+        Default is to sort the dependencies (excluding `--python-include`).
+        Pass `--no-sort` to instead place dependencies in order they are
+        gathered.
         """,
     ),
 ]
@@ -235,9 +238,9 @@ PYTHON_INCLUDE_CLI = Annotated[
     typer.Option(
         "--python-include",
         help="""
-        If value passed, use this value (exactly) in the output. So, for example,
-        pass `--python-include "python=3.8"`. Special case is the value `"infer"`.  This
-        infers the value of python from `pyproject.toml`
+        If value passed, use this value (exactly) in the output. So, for
+        example, pass `--python-include "python=3.8"`. Special case is the
+        value `"infer"`. This infers the value of python from `pyproject.toml`
         """,
     ),
 ]
@@ -246,10 +249,11 @@ PYTHON_VERSION_CLI = Annotated[
     typer.Option(
         "--python-version",
         help="""
-         Python version to check `python_version <=> {python_version}` lines against. That is,
-         this version is used to limit packages in resulting output. For example, if have a
-         line like `a-package; python_version < '3.9'`, Using `--python-version 3.10` will
-         not include `a-package`, while `--python-version 3.8` will include `a-package`.
+         Python version to check `python_version <=> {python_version}` lines
+         against. That is, this version is used to limit packages in resulting
+         output. For example, if have a line like `a-package; python_version <
+         '3.9'`, Using `--python-version 3.10` will not include `a-package`,
+         while `--python-version 3.8` will include `a-package`.
          """,
     ),
 ]
@@ -259,9 +263,17 @@ PYTHON_CLI = Annotated[
         "--python",
         "-p",
         help="""
-        Python version. Passing `--python {version}` is equivalent to passing
-        `--python-version={version} --python-include=python{version}`. If passed, this
-        overrides values of passed via `--python-version` and `--python-include`.
+        python version. passing `--python {version}` is equivalent to passing
+        `--python-version={version} --python-include=python{version}`. if
+        passed, this overrides values of passed via `--python-version` and
+        `--python-include`. pass `--python="default"` to include the python
+        version (major.minor only) from `.python-version` file in the current
+        directory. pass `"lowest"` or `"highest"` to include the lowest or
+        highest python version, respectively, from
+        `pyproject.toml:project.classifiers` table. in project mode, you can
+        pass multiple python version in `pyproject.toml` with, e.g., `python =
+        ["3.8", "3.9", ....]`, or using `python = "all"`, to include all python
+        versions extracted from `pyproject.toml:project.classifiers` table.
         """,
     ),
 ]
@@ -270,8 +282,9 @@ HEADER_CLI = Annotated[
     typer.Option(
         "--header/--no-header",
         help="""
-        If True (--header) include header line in output. Default is to include the header
-        for output to a file, and not to include header when writing to stdout.
+        If True (--header) include header line in output. Default is to include
+        the header for output to a file, and not to include header when writing
+        to stdout.
         """,
     ),
 ]
@@ -366,10 +379,11 @@ ALLOW_EMPTY_OPTION = typer.Option(
 REMOVE_WHITESPACE_OPTION = typer.Option(
     "--remove-whitespace/--no-remove-whitespace",
     help="""
-    What to do with whitespace in a dependency. The default (`--remove-whitespace`) is
-    to remove whitespace in a given dependency. For example, the dependency
-    `package >= 1.0` will be converted to `package>=1.0`. Pass `--no-remove-whitespace`
-    to keep the the whitespace in the output.
+    What to do with whitespace in a dependency. The default
+    (`--remove-whitespace`) is to remove whitespace in a given dependency. For
+    example, the dependency `package >= 1.0` will be converted to
+    `package>=1.0`. Pass `--no-remove-whitespace` to keep the the whitespace in
+    the output.
     """,
 )
 
@@ -520,6 +534,7 @@ def yaml(
         python_include=python_include,
         python_version=python_version,
         python=python,
+        toml_path=filename,
     )
 
     d = _get_requirement_parser(filename)
@@ -696,6 +711,7 @@ def conda_requirements(
         python_include=python_include,
         python_version=python_version,
         python=python,
+        toml_path=filename,
     )
 
     if path_conda and not path_pip:
@@ -777,6 +793,7 @@ def to_json(
         python_include=python_include,
         python_version=python_version,
         python=python,
+        toml_path=filename,
     )
 
     conda_deps, pip_deps = d.conda_and_pip_requirements(

@@ -10,6 +10,8 @@ import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from packaging.version import Version
+
 if TYPE_CHECKING:
     from typing import Any, Callable, Iterable, Mapping, Sequence
 
@@ -67,14 +69,91 @@ def get_in(
         return default
 
 
+def get_default_pythons(path: str | Path = ".python-version") -> list[str]:
+    """Get default python value from .python-version file"""
+    path = Path(path)
+    if path.exists():
+        out = path.read_text().split()
+        # only keep major.minor
+        out[0] = ".".join(out[0].split(".")[:2])
+        return out
+    return []
+
+
+def get_all_pythons(
+    data: dict[str, Any] | None, path: str | Path | None = None
+) -> list[str]:
+    """Get python versions from pyproject:project.classifiers"""
+    if data is None:
+        assert path is not None  # noqa: S101
+
+        from ._compat import tomllib
+
+        with Path(path).open("rb") as f:
+            data = tomllib.load(f)
+
+    return [
+        c.split()[-1]
+        for c in get_in(["project", "classifiers"], data, factory=list)
+        if c.startswith("Programming Language :: Python :: 3.")
+    ]
+
+
+def get_lowest_version(versions: Iterable[str]) -> str:
+    """Get lowest version"""
+    return min(versions, key=Version)
+
+
+def get_highest_version(versions: Iterable[str]) -> str:
+    """Get highest version"""
+    return max(versions, key=Version)
+
+
+def select_pythons(
+    pythons: Sequence[str],
+    default_pythons: list[str],
+    all_pythons: list[str],
+) -> list[str]:
+    """Select pythons from string values."""
+    if len(pythons) == 1:
+        python = pythons[0]
+
+        if python == "default":
+            if not default_pythons:
+                msg = "Must include `.python-version` to use `python = 'default'`."
+                raise ValueError(msg)
+            return default_pythons
+
+        if python in {"all", "lowest", "highest"}:
+            if not all_pythons:
+                msg = "Must specify python versions in project.classifiers table to use `python` in `{'all', 'lowest', 'highest'}`"
+                raise ValueError(msg)
+            return (
+                all_pythons
+                if python == "all"
+                else [get_lowest_version(all_pythons)]
+                if python == "lowest"
+                else [get_highest_version(all_pythons)]
+            )
+
+    return list(pythons)
+
+
 def parse_pythons(
     python_include: str | None,
     python_version: str | None,
     python: str | None,
+    toml_path: str | Path,
 ) -> tuple[str | None, str | None]:
     """Create python_include/python_version."""
     if python:
+        python = select_pythons(
+            [python],
+            get_default_pythons(),
+            get_all_pythons(data=None, path=toml_path),
+        )[0]
         return f"python={python}", python
+
     return python_include, python_version
 
 

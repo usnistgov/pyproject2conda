@@ -45,13 +45,9 @@ def test_template() -> None:
     assert t == expected
 
 
-def test_option_override() -> None:
-    toml = """\
-    [project]
-    name = "hello"
-    requires-python = ">=3.8,<3.11"
-
-
+@pytest.fixture
+def simple_toml() -> str:
+    return """\
     [project.optional-dependencies]
     test = [
         "pandas",
@@ -69,7 +65,7 @@ def test_option_override() -> None:
     template = "hello-{env}"
     style = "yaml"
     # options
-    python = ["3.10"]
+    python = "3.10"
     # Note that this is relative to the location of pyproject.toml
     user_config = "config/userconfig.toml"
     default_envs = ["test", "dev", "dist-pypi"]
@@ -83,6 +79,32 @@ def test_option_override() -> None:
     style = "yaml"
     extras = []
 
+
+    [tool.pyproject2conda.envs.base3]
+    style = "yaml"
+    python = "default"
+
+    [tool.pyproject2conda.envs.base4]
+    style = "yaml"
+    python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    template_python = "py{py}-hello"
+
+    [tool.pyproject2conda.envs.base5]
+    style = "yaml"
+    python = "all"
+    template_python = "py{py}-hello"
+
+    [tool.pyproject2conda.envs.base_lowest]
+    style = "yaml"
+    python = "lowest"
+    template_python = "py{py}-hello"
+
+    [tool.pyproject2conda.envs.base_highest]
+    style = "yaml"
+    python = "highest"
+    template_python = "py{py}-hello"
+
+
     [tool.pyproject2conda.envs.both]
     groups = "thing"
 
@@ -91,11 +113,41 @@ def test_option_override() -> None:
     envs = ["both"]
     extras = ["test"]
 
+    [project]
+    name = "hello"
+    requires-python = ">=3.8,<3.11"
+
+
     """
 
-    d = Config.from_string(dedent(toml))
 
-    output = list(d.iter_envs(envs=["base"]))
+@pytest.fixture
+def classifiers() -> str:
+    return """
+    classifiers = [
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Science/Research",
+        "License :: Public Domain",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Topic :: Scientific/Engineering",
+    ]
+    """
+
+
+@pytest.fixture
+def simple_config(simple_toml: str) -> Config:
+    return Config.from_string(dedent(simple_toml))
+
+
+def test_option_override_base(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["base"]))
 
     assert output[0] == (
         "yaml",
@@ -118,7 +170,9 @@ def test_option_override() -> None:
         },
     )
 
-    output = list(d.iter_envs(envs=["base2"]))
+
+def test_option_override_base2(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["base2"]))
 
     assert output[0] == (
         "yaml",
@@ -142,7 +196,9 @@ def test_option_override() -> None:
         },
     )
 
-    output = list(d.iter_envs(envs=["both"]))
+
+def test_option_override_both(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["both"]))
 
     assert output[0] == (
         "yaml",
@@ -166,7 +222,9 @@ def test_option_override() -> None:
         },
     )
 
-    output = list(d.iter_envs(envs=["base"], template="there-{env}"))
+
+def test_option_override_base_template(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["base"], template="there-{env}"))
 
     assert output[0] == (
         "yaml",
@@ -189,7 +247,11 @@ def test_option_override() -> None:
         },
     )
 
-    output = list(d.iter_envs(envs=["base"], allow_empty=True, template="there-{env}"))
+
+def test_option_override_base_allow_empty(simple_config: Config) -> None:
+    output = list(
+        simple_config.iter_envs(envs=["base"], allow_empty=True, template="there-{env}")
+    )
 
     assert output[0] == (
         "yaml",
@@ -212,8 +274,10 @@ def test_option_override() -> None:
         },
     )
 
+
+def test_option_override_base_allow_empty_other(simple_config: Config) -> None:
     output = list(
-        d.iter_envs(
+        simple_config.iter_envs(
             envs=["base"],
             allow_empty=True,
             remove_whitespace=False,
@@ -239,6 +303,138 @@ def test_option_override() -> None:
             "allow_empty": True,
             "remove_whitespace": False,
             "output": "there-base.yaml",
+        },
+    )
+
+
+def test_option_override_base3_default_python_error(
+    example_path: Path,  # noqa: ARG001
+    simple_config: Config,
+) -> None:
+    # using default python without a version
+    with pytest.raises(ValueError, match="Must include `.python-version` .*"):
+        list(simple_config.iter_envs(envs=["base3"]))
+
+
+def test_option_override_base3_default_python(example_path, simple_toml: str) -> None:
+    with (example_path / ".python-version").open("w") as f:
+        f.write("3.10\n")
+
+    from pyproject2conda.utils import get_default_pythons
+
+    assert get_default_pythons() == ["3.10"]
+
+    config = Config.from_string(dedent(simple_toml))
+    output = list(config.iter_envs(envs=["base3"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py310-base3.yaml",
+            "python": "3.10",
+        },
+    )
+
+
+def test_option_override_all_pythons_error(simple_config: Config) -> None:
+    with pytest.raises(ValueError, match="Must specify python versions .*"):
+        list(simple_config.iter_envs(envs=["base5"]))
+
+
+def test_option_override_all_pythons(simple_toml: str, classifiers: str) -> None:
+    simple_config = Config.from_string(dedent(simple_toml + classifiers))
+
+    a = list(simple_config.iter_envs(envs=["base4"]))
+    b = list(simple_config.iter_envs(envs=["base5"]))
+
+    assert len(a) == len(b) == 5
+
+    assert a[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py39-hello.yaml",
+            "python": "3.9",
+        },
+    )
+
+    assert a == b
+
+
+def test_option_override_lowest_highest(simple_toml: str, classifiers: str) -> None:
+    simple_config = Config.from_string(dedent(simple_toml + classifiers))
+
+    a = list(simple_config.iter_envs(envs=["base_lowest"]))
+    b = list(simple_config.iter_envs(envs=["base_highest"]))
+
+    assert a[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py39-hello.yaml",
+            "python": "3.9",
+        },
+    )
+
+    assert b[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py313-hello.yaml",
+            "python": "3.13",
         },
     )
 
