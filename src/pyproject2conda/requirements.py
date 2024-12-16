@@ -264,7 +264,7 @@ class ParseDepends:
 
     Parameters
     ----------
-    data : tomlkit
+    data : dict
     """
 
     def __init__(self, data: dict[str, Any]) -> None:
