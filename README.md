@@ -286,6 +286,11 @@ dependencies:
 
 <!-- [[[end]]] -->
 
+Passing `--python="default"` will extract the python version from
+`.python-version` file. Passign `--python` value `"lowest"` or `"highest"` will
+extract the lowest or highest python version, respectively, from the
+`project.classifiers` table of the `pyproject.toml` file.
+
 ### Adding extra conda dependencies and pip requirements
 
 You can also add additional conda and pip dependencies with the flags

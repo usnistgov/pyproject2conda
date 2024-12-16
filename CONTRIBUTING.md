@@ -470,9 +470,9 @@ nox -s dev -- [++dev-envname dev/dev-complete]
 ```
 
 where the option `++dev-envname` (default `dev`) can be used to specify what
-kind of development environment you'd like. This will create a [conda]
-environment under `.venv`. To instead create a [virtualenv] based development
-environment, use `nox -s dev-venv ....`.
+kind of development environment you'd like. This will create a virtual
+environment under `.venv`. To instead create a [conda] based development
+environment, use `nox -s dev-conda ....`.
 
 If you go this route, you may want to use something like
 [zsh-autoenv](https://github.com/Tarrasch/zsh-autoenv) (if using zsh shell) or
@@ -482,7 +482,7 @@ activate the development environment when in the parent directory.
 Note that you can bootstrap the whole process with [uvx] using:
 
 ```bash
-uvx nox -s dev/dev-venv -- \
+uvx nox -s dev/dev-conda -- \
      ++dev-envname dev/dev-complete
 ```
 

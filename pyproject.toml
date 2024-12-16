@@ -107,7 +107,8 @@ uvxrun-tools = [
     "conda-lock>=2.5.5",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
-    "pyright>=1.1.381",
+    "pyproject2conda>=0.13.0",
+    "pyright>=1.1.388",
     "twine>=5.0.0",
     # these used solely for specking tools to be used with tools/uvxrun.py
     { include-group = "mypy" },
@@ -231,7 +232,7 @@ lint.extend-per-file-ignores."**/cli.py" = [
     "FA100",
     "PLR0913",
     "PLR0917",
-    "T201",
+    "T201",    # NOTE: remove this option when ready to go to new annotation style (needs python >= 3.10)
 ]
 # Project specific ignores (avoid changing per-file-ignores directly)
 lint.extend-per-file-ignores."tests/*.py" = [
@@ -247,7 +248,7 @@ lint.extend-per-file-ignores."tools/cog_utils.py" = [
 lint.unfixable = [
     "ERA",
     "PLR6104",
-    "T",
+    "T",       # NOTE: remove this option when ready to go to new annotation style (needs python >= 3.10)
 ]
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
@@ -261,12 +262,8 @@ lint.pylint.max-public-methods = 30
 lint.preview = true
 
 [tool.check-wheel-contents]
-toplevel = [
-    "pyproject2conda",
-]
-src_dir = [
-    "src",
-]
+toplevel = [ "pyproject2conda" ]
+src_dir = [ "src" ]
 
 # * Testing --------------------------------------------------------------------
 
@@ -331,13 +328,11 @@ strict = true
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
-module = [
-]
+module = [  ]
 
 [[tool.mypy.overrides]]
 ignore_errors = true
-module = [
-]
+module = [  ]
 
 [tool.pyright]
 include = [
@@ -394,9 +389,7 @@ inputs = [
 user_config = "config/userconfig.toml"
 template_python = "requirements/py{py}-{env}"
 template = "requirements/{env}"
-python = [
-    "3.11",
-]
+python = [ "3.11" ]
 channels = [
     "conda-forge",
 ]
@@ -418,12 +411,13 @@ pytest-accept = { pip = true }
 scriv = { pip = true }
 
 [tool.pyproject2conda.envs.test-extras]
-groups = [
-    "test",
-]
+groups = [ "test" ]
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
-envs = [ "uvxrun-tools", "test-extras" ]
+envs = [
+    "uvxrun-tools",
+]
 skip_package = true
 style = "requirements"
 
@@ -445,14 +439,7 @@ envs = [
     "typing",
     "test-extras",
 ]
-python = [
-    "3.8",
-    "3.9",
-    "3.10",
-    "3.11",
-    "3.12",
-    "3.13",
-]
+python = [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
 
 # * pip-tools (keeping for legacy) ---------------------------------------------
 

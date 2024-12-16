@@ -2,15 +2,15 @@
 #    uv pip compile --python-version=3.11 -o requirements/lock/py311-uvxrun-tools.txt requirements/uvxrun-tools.txt
 annotated-types==0.7.0    # via pydantic
 appdirs==1.4.4            # via ensureconda
-asttokens==2.4.1          # via stack-data
+asttokens==3.0.0          # via stack-data
 autopep8==2.3.1           # via nbqa
 backports-tarfile==1.2.0  # via jaraco-context
 beautifulsoup4==4.12.3    # via grayskull
-cachecontrol==0.14.0      # via conda-lock
+cachecontrol==0.14.1      # via conda-lock
 cachy==0.3.0              # via conda-lock
-certifi==2024.8.30        # via requests
+certifi==2024.12.14       # via requests
 charset-normalizer==3.4.0  # via requests
-click==8.1.7              # via click-default-group, conda-lock, ensureconda
+click==8.1.7              # via click-default-group, conda-lock, ensureconda, typer
 click-default-group==1.2.4  # via conda-lock
 clikit==0.6.2             # via conda-lock
 colorama==0.4.6           # via grayskull
@@ -28,12 +28,12 @@ gitpython==3.1.43         # via conda-lock
 grayskull==2.7.3          # via -r requirements/uvxrun-tools.txt
 html5lib==1.1             # via conda-lock
 idna==3.10                # via requests
-importlib-metadata==8.5.0  # via keyring, twine
-ipython==8.29.0           # via nbqa
+importlib-metadata==8.5.0  # via keyring
+ipython==8.30.0           # via nbqa
 jaraco-classes==3.4.0     # via keyring
 jaraco-context==6.0.1     # via keyring
 jaraco-functools==4.1.0   # via keyring
-jedi==0.19.1              # via ipython
+jedi==0.19.2              # via ipython
 jinja2==3.1.4             # via conda-lock
 keyring==25.5.0           # via conda-lock, twine
 markdown-it-py==3.0.0     # via rich
@@ -44,54 +44,57 @@ more-itertools==10.5.0    # via jaraco-classes, jaraco-functools
 msgpack==1.1.0            # via cachecontrol
 mypy==1.13.0              # via -r requirements/uvxrun-tools.txt
 mypy-extensions==1.0.0    # via mypy
-nbqa==1.9.0               # via -r requirements/uvxrun-tools.txt
-nh3==0.2.18               # via readme-renderer
+nbqa==1.9.1               # via -r requirements/uvxrun-tools.txt
+nh3==0.2.19               # via readme-renderer
 nodeenv==1.9.1            # via pyright
-packaging==24.1           # via conda-lock, ensureconda, grayskull
+packaging==24.2           # via conda-lock, ensureconda, grayskull, pyproject2conda, twine
 parso==0.8.4              # via jedi
 pastel==0.2.1             # via clikit
 pexpect==4.9.0            # via ipython
 pip==24.3.1               # via grayskull
-pkginfo==1.10.0           # via conda-lock, grayskull, twine
+pkginfo==1.12.0           # via conda-lock, grayskull, twine
 platformdirs==4.3.6       # via virtualenv
 progressbar2==4.5.0       # via grayskull
 prompt-toolkit==3.0.48    # via ipython
 ptyprocess==0.7.0         # via pexpect
 pure-eval==0.2.3          # via stack-data
 pycodestyle==2.12.1       # via autopep8
-pydantic==2.9.2           # via conda-lock
-pydantic-core==2.23.4     # via pydantic
+pydantic==2.10.3          # via conda-lock
+pydantic-core==2.27.1     # via pydantic
 pygments==2.18.0          # via ipython, readme-renderer, rich
 pylev==1.4.0              # via clikit
-pyright==1.1.387          # via -r requirements/uvxrun-tools.txt
-python-utils==3.9.0       # via progressbar2
+pyproject2conda==0.13.0   # via -r requirements/uvxrun-tools.txt
+pyright==1.1.390          # via -r requirements/uvxrun-tools.txt
+python-utils==3.9.1       # via progressbar2
 pyyaml==6.0.2             # via conda-lock
 rapidfuzz==3.10.1         # via grayskull
 readme-renderer==44.0     # via twine
 requests==2.32.3          # via cachecontrol, conda-lock, ensureconda, grayskull, requests-toolbelt, twine
 requests-toolbelt==1.0.0  # via twine
 rfc3986==2.0.0            # via twine
-rich==13.9.4              # via twine
+rich==13.9.4              # via twine, typer
 ruamel-yaml==0.18.6       # via conda-lock, conda-souschef, grayskull, ruamel-yaml-jinja2
 ruamel-yaml-clib==0.2.12  # via ruamel-yaml
 ruamel-yaml-jinja2==0.2.7  # via conda-souschef, grayskull
 semver==3.0.2             # via grayskull
-setuptools==75.3.0        # via conda-lock, grayskull
-six==1.16.0               # via asttokens, html5lib
+setuptools==75.6.0        # via conda-lock, grayskull
+shellingham==1.5.4        # via typer
+six==1.17.0               # via html5lib
 smmap==5.0.1              # via gitdb
 soupsieve==2.6            # via beautifulsoup4
 stack-data==0.6.3         # via ipython
 stdlib-list==0.11.0       # via grayskull
 tokenize-rt==6.1.0        # via nbqa
-tomli==2.0.2              # via grayskull, nbqa
+tomli==2.2.1              # via grayskull, nbqa
 tomli-w==1.1.0            # via grayskull
 tomlkit==0.13.2           # via conda-lock
 toolz==0.12.1             # via conda-lock
 traitlets==5.14.3         # via ipython, matplotlib-inline
-twine==5.1.1              # via -r requirements/uvxrun-tools.txt
-typing-extensions==4.12.2  # via conda-lock, ipython, mypy, pydantic, pydantic-core, pyright, python-utils
+twine==6.0.1              # via -r requirements/uvxrun-tools.txt
+typer==0.15.1             # via pyproject2conda
+typing-extensions==4.12.2  # via conda-lock, ipython, mypy, pydantic, pydantic-core, pyright, python-utils, typer
 urllib3==1.26.20          # via conda-lock, requests, twine
-virtualenv==20.27.1       # via conda-lock
+virtualenv==20.28.0       # via conda-lock
 wcwidth==0.2.13           # via prompt-toolkit
 webencodings==0.5.1       # via html5lib
-zipp==3.20.2              # via importlib-metadata
+zipp==3.21.0              # via importlib-metadata

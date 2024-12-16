@@ -18,6 +18,22 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.14.0 — 2024-12-16
+
+### Added
+
+- `--python` flag now accepts options `default`, `all`, `lowest`, and `highest`.
+  `default` sets python to value found in `.python-version` file in current
+  directory. Other options extract values entries of form
+  `"Programming Language :: Python :: 3.10"'`, etc,from
+  `pyproject.toml:project.classifiers` table.
+
+  - `all`: All specified python version
+  - `lowest`: Lowest python version
+  - `highest`: Highest python version
+
+- Added `--reqs-ext` and `--yaml-ext` options.
+
 ## v0.13.0 — 2024-11-04
 
 ### Changed

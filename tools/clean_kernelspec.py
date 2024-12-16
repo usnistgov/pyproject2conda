@@ -1,3 +1,9 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "jupyter",
+# ]
+# ///
 """
 Script to cleanup installed ipykernels that no longer exist.
 

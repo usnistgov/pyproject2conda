@@ -9,7 +9,13 @@ from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pyproject2conda.utils import filename_from_template, get_in
+from pyproject2conda.utils import (
+    filename_from_template,
+    get_all_pythons,
+    get_default_pythons,
+    get_in,
+    select_pythons,
+)
 
 if TYPE_CHECKING:
     from typing import Any, Iterator, Sequence
@@ -18,13 +24,20 @@ if TYPE_CHECKING:
 
 
 # * Utilities
-
-
 class Config:  # noqa: PLR0904
     """Class to parse toml file with [tool.pyproject2conda] section"""
 
-    def __init__(self, data: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        data: dict[str, Any],
+        default_pythons: list[str] | None = None,
+        all_pythons: list[str] | None = None,
+    ) -> None:
         self.data = data
+        self.default_pythons: list[str] = (
+            [] if default_pythons is None else default_pythons
+        )
+        self.all_pythons: list[str] = [] if all_pythons is None else all_pythons
 
     def get_in(self, *keys: str, default: Any = None) -> Any:
         """Utility to extract from nested dict."""
@@ -51,8 +64,7 @@ class Config:  # noqa: PLR0904
         for override in self.overrides:
             if env in override["envs"]:
                 out.update(**override)
-        if "envs" in out:
-            del out["envs"]
+        out.pop("envs", None)
         return out
 
     def _get_value(
@@ -105,13 +117,14 @@ class Config:  # noqa: PLR0904
         self, env_name: str | None = None, inherit: bool = True, default: Any = list
     ) -> list[str]:
         """Python getter"""
-        return self._get_value(  # type: ignore[no-any-return]
+        out: list[str] = self._get_value(
             key="python",
             env_name=env_name,
             inherit=inherit,
             as_list=True,
             default=default,
         )
+        return select_pythons(out, self.default_pythons, self.all_pythons)
 
     def _get_extras(
         self, key: str, env_name: str, default: Any, inherit: bool = True
@@ -225,6 +238,22 @@ class Config:  # noqa: PLR0904
             key="template_python", env_name=env_name, default=default
         )
 
+    def reqs_ext(self, env_name: str, default: str = ".txt") -> str:
+        """Requirements extension"""
+        return self._get_value(  # type: ignore[no-any-return]
+            key="reqs_ext",
+            env_name=env_name,
+            default=default,
+        )
+
+    def yaml_ext(self, env_name: str, default: str = ".yaml") -> str:
+        """Conda yaml extension"""
+        return self._get_value(  # type: ignore[no-any-return]
+            key="yaml_ext",
+            env_name=env_name,
+            default=default,
+        )
+
     def deps(self, env_name: str, default: Any = None) -> list[str]:
         """Conda dependencies option."""
         return self._get_value(  # type: ignore[no-any-return]
@@ -326,11 +355,12 @@ class Config:  # noqa: PLR0904
         ]
 
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
-
         if not pythons:
             if output is None:
                 output = filename_from_template(
-                    template=template, env_name=env_name, ext="yaml"
+                    template=template,
+                    env_name=env_name,
+                    ext=defaults.get("yaml_ext", self.yaml_ext(env_name)),
                 )
 
             if python_include := self.python_include(env_name):
@@ -348,10 +378,9 @@ class Config:  # noqa: PLR0904
                     template=template_python,
                     python=python,
                     env_name=env_name,
-                    ext="yaml",
+                    ext=defaults.get("yaml_ext", self.yaml_ext(env_name)),
                 )
-                data.update(python=python, output=output)
-                yield ("yaml", data)
+                yield ("yaml", dict(data, python=python, output=output))
 
     def _iter_reqs(
         self, env_name: str, **defaults: Any
@@ -377,7 +406,9 @@ class Config:  # noqa: PLR0904
         output = self.output(env_name)
         if not output:  # pragma: no cover
             output = filename_from_template(
-                template=template, env_name=env_name, ext="txt"
+                template=template,
+                env_name=env_name,
+                ext=defaults.get("reqs_ext", self.reqs_ext(env_name)),
             )
         data.update(output=output)
 
@@ -405,10 +436,10 @@ class Config:  # noqa: PLR0904
 
     @classmethod
     def from_toml_dict(
-        cls, data: dict[str, Any], user_config: dict[str, Any] | None = None
+        cls, data_toml: dict[str, Any], user_config: dict[str, Any] | None = None
     ) -> Self:
         """Create from toml dictionaries."""
-        data = get_in(["tool", "pyproject2conda"], data, default={})
+        data = get_in(["tool", "pyproject2conda"], data_toml, default={})
 
         if "default_envs" in data:
             default_envs = data.pop("default_envs")
@@ -419,12 +450,16 @@ class Config:  # noqa: PLR0904
             for env in default_envs:
                 data["envs"][env] = {"extras_or_groups": True}
 
-        c = cls(data)
+        c = cls(
+            data,
+            default_pythons=get_default_pythons(),
+            all_pythons=get_all_pythons(data_toml),
+        )
 
         # add in "default_envs"
 
         if user_config:  # pragma: no cover
-            u = cls.from_toml_dict(data=user_config)
+            u = cls.from_toml_dict(user_config)
             c = c.assign_user_config(user=u)
 
         return c

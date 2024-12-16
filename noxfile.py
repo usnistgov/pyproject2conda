@@ -101,6 +101,8 @@ UVXRUN_MIN_REQUIREMENTS = "requirements/uvxrun-tools.txt"
 def get_uvxrun_specs(requirements: str | None = None) -> uvxrun.Specifications:
     """Get specs for uvxrun."""
     requirements = requirements or UVXRUN_MIN_REQUIREMENTS
+    if not Path(requirements).exists():
+        requirements = None
     return uvxrun.Specifications.from_requirements(requirements=requirements)
 
 
@@ -330,12 +332,12 @@ def dev(
 
 
 nox.session(
-    name="dev-venv",
+    name="dev",
     python=PYTHON_DEFAULT_VERSION,
     venv_backend=factory_virtualenv_backend(location="./.venv"),
 )(dev)
 nox.session(
-    name="dev",
+    name="dev-conda",
     python=PYTHON_DEFAULT_VERSION,
     venv_backend=factory_conda_backend(backend=CONDA_BACKEND, location="./.venv"),
 )(dev)
@@ -370,12 +372,13 @@ def requirements(
     These will be placed in the directory "./requirements".
     """
     uvxrun.run(
-        "pyproject2conda>=0.11.0",
+        "pyproject2conda",
         "project",
         "--verbose",
         *(["--overwrite=force"] if opts.requirements_force else []),
         session=session,
         external=True,
+        specs=get_uvxrun_specs(),
     )
 
     if not opts.requirements_no_notify and opts.lock:
