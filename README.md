@@ -731,7 +731,7 @@ $ p2c project -f tests/data/test-pyproject.toml --dry
 # Creating requirements base.txt
 athing
 bthing
-cthing;python_version<"3.10"
+cthing; python_version < "3.10"
 # --------------------
 # Creating yaml py310-test-extras.yaml
 channels:

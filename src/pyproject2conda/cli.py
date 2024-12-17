@@ -301,7 +301,10 @@ REQS_CLI = Annotated[
     typer.Option(
         "--reqs",
         "-r",
-        help="Additional pip requirements.",
+        help="""
+        Additional pip requirements. For example, pass `-r '-e .'` to included
+        editable version of current package in requirements file.
+        """,
     ),
 ]
 ENVS_CLI = Annotated[
@@ -634,6 +637,8 @@ def project(
     envs: ENVS_CLI = None,
     template: TEMPLATE_CLI = None,
     template_python: TEMPLATE_PYTHON_CLI = None,
+    reqs: REQS_CLI = None,
+    deps: DEPS_CLI = None,
     reqs_ext: REQS_EXT_CLI = ".txt",
     yaml_ext: YAML_EXT_CLI = ".yaml",
     sort: SORT_DEPENDENCIES_CLI = True,
@@ -659,6 +664,8 @@ def project(
         yaml_ext=yaml_ext,
         template=template,
         template_python=template_python,
+        reqs=reqs,
+        deps=deps,
         sort=sort,
         header=header,
         overwrite=overwrite.value,

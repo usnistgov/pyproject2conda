@@ -179,6 +179,31 @@ def test_option_override_base(simple_config: Config) -> None:
     )
 
 
+def test_option_override_base_reqs(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["base"], reqs=["-e ."]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": ["-e ."],
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "hello-base.yaml",
+        },
+    )
+
+
 def test_option_override_base2(simple_config: Config) -> None:
     output = list(simple_config.iter_envs(envs=["base2"]))
 
@@ -489,7 +514,7 @@ def test_option_override_extension_txt(simple_config: Config) -> None:
             "verbose": None,
             "reqs": None,
             "allow_empty": False,
-            "remove_whitespace": True,
+            "remove_whitespace": False,
             "output": "hello-extension_txt.in",
         },
     )
