@@ -18,6 +18,12 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.15.0 — 2024-12-17
+
+### Added
+
+- Can now pass requirements for package with `--req/-r "-e ."` for example.
+
 ## v0.14.0 — 2024-12-16
 
 ### Added
