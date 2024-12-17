@@ -397,11 +397,10 @@ ALLOW_EMPTY_OPTION = typer.Option(
 REMOVE_WHITESPACE_OPTION = typer.Option(
     "--remove-whitespace/--no-remove-whitespace",
     help="""
-    What to do with whitespace in a dependency. The default
-    (`--remove-whitespace`) is to remove whitespace in a given dependency. For
-    example, the dependency `package >= 1.0` will be converted to
-    `package>=1.0`. Pass `--no-remove-whitespace` to keep the the whitespace in
-    the output.
+    What to do with whitespace in a dependency. Passing `--remove-whitespace`
+    will remove whitespace in a given dependency. For example, the dependency
+    `package >= 1.0` will be converted to `package>=1.0`. Pass
+    `--no-remove-whitespace` to keep the the whitespace in the output.
     """,
 )
 
@@ -597,9 +596,9 @@ def requirements(
     verbose: VERBOSE_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
-    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
+    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = False,
 ) -> None:
-    """Create requirements.txt for pip dependencies."""
+    """Create requirements.txt for pip dependencies.  Note that all requirements are normalized using `packaging.requirements.Requirement`"""
     if not update_target(output, filename, overwrite=overwrite.value):
         _log_skipping(logger, "requirements", output)
         return
