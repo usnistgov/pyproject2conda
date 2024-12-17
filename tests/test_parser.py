@@ -486,6 +486,20 @@ dependencies:
 
     assert dedent(expected) == d.to_conda_yaml()
 
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - bthing-conda
+  - conda-forge::cthing
+  - pip
+  - pip:
+      - -e.
+      - athing
+    """
+
+    assert dedent(expected) == d.to_conda_yaml(pip_deps="-e .")
+
     # test -p option
     expected = """\
 channels:

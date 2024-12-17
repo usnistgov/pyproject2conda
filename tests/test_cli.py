@@ -417,7 +417,7 @@ def test_requirements(fname, opt, runner) -> None:
     expected = """\
 athing
 bthing
-cthing;python_version<"3.10"
+cthing; python_version < "3.10"
     """
 
     for cmd in ["r", "requirements"]:
@@ -427,7 +427,7 @@ cthing;python_version<"3.10"
     expected = """\
 athing
 bthing
-cthing;python_version<"3.10"
+cthing; python_version < "3.10"
 pandas
 pytest
 matplotlib
@@ -451,11 +451,11 @@ matplotlib
     expected = """\
 athing
 bthing
-cthing;python_version<"3.10"
+cthing; python_version < "3.10"
 pandas
 pytest
 matplotlib
-thing;python_version<"3.10"
+thing; python_version < "3.10"
 other
     """
 
@@ -477,7 +477,7 @@ other
     expected = """\
 athing
 bthing
-cthing;python_version<"3.10"
+cthing; python_version < "3.10"
 matplotlib
 pandas
 pytest
@@ -492,12 +492,12 @@ pytest
     expected = """\
 athing
 bthing
-cthing;python_version<"3.10"
+cthing; python_version < "3.10"
 matplotlib
 other
 pandas
 pytest
-thing;python_version<"3.10"
+thing; python_version < "3.10"
     """
 
     result = do_run(
