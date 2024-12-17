@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 from copy import copy
 
 from packaging.markers import Marker
-from packaging.requirements import Requirement
+from packaging.requirements import InvalidRequirement, Requirement
 from packaging.specifiers import SpecifierSet
 
 from pyproject2conda.utils import (
@@ -50,7 +50,16 @@ def _check_allow_empty(allow_empty: bool) -> str:
 
 
 def _clean_pip_reqs(reqs: list[str]) -> list[str]:
-    return [str(Requirement(r)) for r in reqs]
+    out: list[str] = []
+    for req in reqs:
+        try:
+            r = str(Requirement(req))
+        except InvalidRequirement:
+            # trust that user knows what they're doing
+            r = req
+        out.append(r)
+
+    return out
 
 
 def _clean_conda_requirement(

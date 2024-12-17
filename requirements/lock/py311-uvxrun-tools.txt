@@ -45,7 +45,7 @@ msgpack==1.1.0            # via cachecontrol
 mypy==1.13.0              # via -r requirements/uvxrun-tools.txt
 mypy-extensions==1.0.0    # via mypy
 nbqa==1.9.1               # via -r requirements/uvxrun-tools.txt
-nh3==0.2.19               # via readme-renderer
+nh3==0.2.20               # via readme-renderer
 nodeenv==1.9.1            # via pyright
 packaging==24.2           # via conda-lock, ensureconda, grayskull, pyproject2conda, twine
 parso==0.8.4              # via jedi
@@ -63,7 +63,7 @@ pydantic==2.10.3          # via conda-lock
 pydantic-core==2.27.1     # via pydantic
 pygments==2.18.0          # via ipython, readme-renderer, rich
 pylev==1.4.0              # via clikit
-pyproject2conda==0.13.0   # via -r requirements/uvxrun-tools.txt
+pyproject2conda==0.14.0   # via -r requirements/uvxrun-tools.txt
 pyright==1.1.390          # via -r requirements/uvxrun-tools.txt
 python-utils==3.9.1       # via progressbar2
 pyyaml==6.0.2             # via conda-lock
