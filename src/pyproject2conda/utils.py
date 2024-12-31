@@ -80,6 +80,18 @@ def get_default_pythons(path: str | Path = ".python-version") -> list[str]:
     return []
 
 
+def get_default_pythons_with_fallback(
+    paths: Iterable[str | Path] = (".python-version-default", ".python-version"),
+) -> list[str]:
+    """Get default pythons from possibly multiple sources"""
+    for path in paths:
+        out = get_default_pythons(path)
+        if len(out) > 0:
+            return out
+
+    return []
+
+
 def get_all_pythons(
     data: dict[str, Any] | None, path: str | Path | None = None
 ) -> list[str]:
@@ -120,7 +132,7 @@ def select_pythons(
 
         if python == "default":
             if not default_pythons:
-                msg = "Must include `.python-version` to use `python = 'default'`."
+                msg = "Must include `.python-version-default` or `.python-version` to use `python = 'default'`."
                 raise ValueError(msg)
             return default_pythons
 

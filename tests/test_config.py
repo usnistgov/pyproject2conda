@@ -345,17 +345,43 @@ def test_option_override_base3_default_python_error(
     simple_config: Config,
 ) -> None:
     # using default python without a version
-    with pytest.raises(ValueError, match="Must include `.python-version` .*"):
+    with pytest.raises(
+        ValueError,
+        match="Must include `.python-version-default` or `.python-version`.*",
+    ):
         list(simple_config.iter_envs(envs=["base3"]))
 
 
+@pytest.mark.parametrize(
+    ("python_version_default", "python_version", "expected"),
+    [
+        (None, None, []),
+        (None, "3.10", ["3.10"]),
+        ("3.12", "3.11", ["3.12"]),
+        ("3.11", None, ["3.11"]),
+    ],
+)
+def test_default_pythons(
+    example_path, python_version_default, python_version, expected
+) -> None:
+    for name, version in zip(
+        [".python-version-default", ".python-version"],
+        [python_version_default, python_version],
+    ):
+        if version is not None:
+            with (example_path / name).open("w") as f:
+                f.write(f"{version}\n")
+
+    assert utils.get_default_pythons_with_fallback() == expected
+
+
 def test_option_override_base3_default_python(example_path, simple_toml: str) -> None:
-    with (example_path / ".python-version").open("w") as f:
+    with (example_path / ".python-version-default").open("w") as f:
         f.write("3.10\n")
 
-    from pyproject2conda.utils import get_default_pythons
+    from pyproject2conda.utils import get_default_pythons_with_fallback
 
-    assert get_default_pythons() == ["3.10"]
+    assert get_default_pythons_with_fallback() == ["3.10"]
 
     config = Config.from_string(dedent(simple_toml))
     output = list(config.iter_envs(envs=["base3"]))

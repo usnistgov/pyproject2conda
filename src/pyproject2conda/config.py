@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 from pyproject2conda.utils import (
     filename_from_template,
     get_all_pythons,
-    get_default_pythons,
+    get_default_pythons_with_fallback,
     get_in,
     select_pythons,
 )
@@ -459,7 +459,7 @@ class Config:  # noqa: PLR0904
 
         c = cls(
             data,
-            default_pythons=get_default_pythons(),
+            default_pythons=get_default_pythons_with_fallback(),
             all_pythons=get_all_pythons(data_toml),
         )
 
