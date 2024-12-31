@@ -18,6 +18,15 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.16.0 — 2024-12-31
+
+### Changed
+
+- Read default version from first found file, in order,
+  `.python-version-default` and `.python-version`. This allows for "default"
+  version being different from pinned version specifier, as the latter can be a
+  range of python values.
+
 ## v0.15.0 — 2024-12-17
 
 ### Added

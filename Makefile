@@ -3,7 +3,7 @@
 .DEFAULT_GOAL := help
 
 
-_PY_DEFAULT = 312
+_PY_DEFAULT = 311
 UVXRUN = uv run --no-config --frozen tools/uvxrun.py
 UVXRUN_OPTS = -r requirements/lock/py$(_PY_DEFAULT)-uvxrun-tools.txt -v
 UVXRUN_NO_PROJECT = uv run --with "packaging" --no-project tools/uvxrun.py
