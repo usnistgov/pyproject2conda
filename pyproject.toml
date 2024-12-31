@@ -111,7 +111,7 @@ uvxrun-tools = [
     "conda-lock>=2.5.5",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
-    "pyproject2conda>=0.13.0",
+    "pyproject2conda>=0.16.0",
     "pyright>=1.1.391",
     "twine>=5.0.0",
     # these used solely for specking tools to be used with tools/uvxrun.py
@@ -159,8 +159,6 @@ lint.select = [
 ]
 lint.ignore = [
     # * Annotations
-    "ANN101", # - Leads to issues with methods and self
-    "ANN102", # - Leads to issues with classmethods and cls
     "ANN401", # - Any ok sometimes
     # * These conflict with formatter
     "COM", # - flake8-commas, formatter should take care of this?

@@ -2315,7 +2315,7 @@ wheels = [
 
 [[package]]
 name = "pyproject2conda"
-version = "0.16.1.dev1"
+version = "0.16.1.dev3"
 source = { editable = "." }
 dependencies = [
     { name = "packaging" },
@@ -2508,7 +2508,7 @@ uvxrun-tools = [
     { name = "grayskull", specifier = ">=2.5.3" },
     { name = "mypy", specifier = ">=1.14.1" },
     { name = "nbqa", specifier = ">=1.8.4" },
-    { name = "pyproject2conda", specifier = ">=0.13.0" },
+    { name = "pyproject2conda", specifier = ">=0.16.0" },
     { name = "pyright", specifier = ">=1.1.391" },
     { name = "twine", specifier = ">=5.0.0" },
 ]
