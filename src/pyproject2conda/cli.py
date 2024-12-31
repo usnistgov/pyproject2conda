@@ -267,13 +267,14 @@ PYTHON_CLI = Annotated[
         `--python-version={version} --python-include=python{version}`. if
         passed, this overrides values of passed via `--python-version` and
         `--python-include`. pass `--python="default"` to include the python
-        version (major.minor only) from `.python-version` file in the current
-        directory. pass `"lowest"` or `"highest"` to include the lowest or
-        highest python version, respectively, from
-        `pyproject.toml:project.classifiers` table. in project mode, you can
-        pass multiple python version in `pyproject.toml` with, e.g., `python =
-        ["3.8", "3.9", ....]`, or using `python = "all"`, to include all python
-        versions extracted from `pyproject.toml:project.classifiers` table.
+        version (major.minor only) from, in order, `.python-version-default` or
+        `.python-version`file in the current directory. pass `"lowest"` or
+        `"highest"` to include the lowest or highest python version,
+        respectively, from `pyproject.toml:project.classifiers` table. in
+        project mode, you can pass multiple python version in `pyproject.toml`
+        with, e.g., `python = ["3.8", "3.9", ....]`, or using `python = "all"`,
+        to include all python versions extracted from
+        `pyproject.toml:project.classifiers` table.
         """,
     ),
 ]

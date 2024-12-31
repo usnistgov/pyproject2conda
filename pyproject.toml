@@ -59,10 +59,7 @@ dev = [
     { include-group = "uvxrun" },
 ]
 test = [
-    "pytest",
-    "pytest-cov",
-    "pytest-sugar",
-    "pytest-xdist",
+    { include-group = "test-extras" },
 ]
 docs = [
     "autodocsumm",
@@ -75,6 +72,7 @@ docs = [
     "sphinx-copybutton",
     "sphinxcontrib-spelling",
 ]
+cog = [ "cogapp" ]
 dev-complete = [
     { include-group = "dev" },
     { include-group = "tools" },
@@ -85,10 +83,16 @@ dev-extras = [
     "pytest-accept",
 ]
 mypy = [
-    "mypy>=1.10.1",
+    "mypy>=1.14.1",
 ]
 nbval = [
     "nbval",
+]
+test-extras = [
+    "pytest",
+    "pytest-cov",
+    "pytest-sugar",
+    "pytest-xdist",
 ]
 tools = [
     "pre-commit",
@@ -108,7 +112,7 @@ uvxrun-tools = [
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
     "pyproject2conda>=0.13.0",
-    "pyright>=1.1.388",
+    "pyright>=1.1.391",
     "twine>=5.0.0",
     # these used solely for specking tools to be used with tools/uvxrun.py
     { include-group = "mypy" },
@@ -116,6 +120,7 @@ uvxrun-tools = [
 
 [tool.hatch.version]
 source = "vcs"
+raw-options = { local_scheme = "no-local-version" }
 
 [tool.hatch.build]
 exclude = [
@@ -389,21 +394,16 @@ inputs = [
 user_config = "config/userconfig.toml"
 template_python = "requirements/py{py}-{env}"
 template = "requirements/{env}"
-python = [ "3.11" ]
+python = "default"
 channels = [
     "conda-forge",
 ]
 style = [
     "yaml",
-    "requirements",
 ]
 default_envs = [
     "test",
-    "typing",
-    "docs",
     "dev",
-    "dev-complete",
-    "uvxrun-tools",
 ]
 
 [tool.pyproject2conda.dependencies]
@@ -411,23 +411,20 @@ pytest-accept = { pip = true }
 scriv = { pip = true }
 
 [tool.pyproject2conda.envs.test-extras]
-groups = [ "test" ]
+groups = "test-extras"
 skip_package = true
+python = "all"
 
-[[tool.pyproject2conda.overrides]]
-envs = [
-    "uvxrun-tools",
-]
-skip_package = true
+[tool.pyproject2conda.envs.uvxrun-tools]
+groups = "uvxrun-tools"
 style = "requirements"
+skip_package = true
 
 [[tool.pyproject2conda.overrides]]
 # Ensure these have pip in yaml file
 envs = [
     "test",
-    "docs",
     "dev",
-    "dev-complete",
 ]
 deps = [
     "pip",
@@ -436,10 +433,8 @@ deps = [
 [[tool.pyproject2conda.overrides]]
 envs = [
     "test",
-    "typing",
-    "test-extras",
 ]
-python = [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
+python = "all"
 
 # * pip-tools (keeping for legacy) ---------------------------------------------
 
@@ -450,7 +445,9 @@ strip-extras = true
 # * uv -------------------------------------------------------------------------
 
 [tool.uv]
-managed = false
+managed = true
+default-groups = [ "dev" ]
+fork-strategy = "requires-python"
 
 [tool.uv.pip]
 annotation-style = "line"

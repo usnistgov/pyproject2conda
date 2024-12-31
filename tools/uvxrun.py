@@ -124,7 +124,7 @@ class LoggerWithSuccessAndOutput(logging.getLoggerClass()):  # type: ignore[misc
 
 
 logging.setLoggerClass(LoggerWithSuccessAndOutput)
-logger = cast(LoggerWithSuccessAndOutput, logging.getLogger("uvxrun"))
+logger = cast("LoggerWithSuccessAndOutput", logging.getLogger("uvxrun"))
 
 
 def _get_formatter(color: bool, add_timestamp: bool) -> logging.Formatter:
@@ -172,7 +172,7 @@ def setup_logging(
 # * Utilities -----------------------------------------------------------------
 @lru_cache
 def _comment_re() -> re.Pattern[str]:
-    return re.compile(r"(^|\s+)#.*$")
+    return re.compile(r"(^|\s+)(#|--hash|\\).*$")
 
 
 def _parse_requirements(requirements: Path) -> Iterator[Requirement]:

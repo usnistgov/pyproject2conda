@@ -62,13 +62,13 @@ Use one of the following to install `pyproject2conda`:
 <!-- markdownlint-disable MD014 -->
 
 ```bash
-$ pip install pyproject2conda
+$ pip/pipx/uvx install pyproject2conda
 ```
 
 or
 
 ```bash
-$ conda install -c conda-forge pyproject2conda
+$ conda/condax install -c conda-forge pyproject2conda
 ```
 
 [rich]: https://github.com/Textualize/rich
@@ -79,7 +79,7 @@ If using pip, to install with [rich] and [shellingham] support, either install
 them your self, or use:
 
 ```bash
-$ pip install pyproject2conda[all]
+$ pip/pipx/uvx install pyproject2conda[all]
 ```
 
 <!-- markdownlint-enable MD014 -->
