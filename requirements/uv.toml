@@ -1,0 +1,6 @@
+# Used to override any options in pyproject.toml
+fork-strategy = "fewest"
+
+[pip]
+annotation-style = "line"
+generate-hashes = true
