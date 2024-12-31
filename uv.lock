@@ -2315,7 +2315,7 @@ wheels = [
 
 [[package]]
 name = "pyproject2conda"
-version = "0.15.1.dev2"
+version = "0.15.1.dev4"
 source = { editable = "." }
 dependencies = [
     { name = "packaging" },
