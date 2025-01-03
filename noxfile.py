@@ -576,11 +576,14 @@ def test_notebook(session: nox.Session, opts: SessionParams) -> None:
     --nbval-current-env
     --nbval-sanitize-with=config/nbval.ini
     --dist loadscope
-     examples/usage
    """,
     )
 
-    test_opts = (opts.test_opts or []) + test_nbval_opts
+    test_opts = (
+        (opts.test_opts or [])
+        + test_nbval_opts
+        + list(map(str, Path("examples/usage").glob("*.ipynb")))
+    )
 
     session.log(f"{test_opts = }")
 

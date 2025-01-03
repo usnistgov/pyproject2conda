@@ -215,7 +215,9 @@ list-dist: list-wheel list-sdist ## Cat out sdist and wheel contents
 
 # * NOTEBOOK -------------------------------------------------------------------
 NOTEBOOKS ?= examples/usage
-NBQA = $(UVXRUN) $(UVXRUN_OPTS) -c "nbqa --nbqa-shell \"$(UVXRUN)\" $(NOTEBOOKS) $(UVXRUN_OPTS) $(_NBQA)"
+# NOTE: use this because nested call back in nox has errors with uv run...
+_NBQA_UVXRUN = $(shell which python) tools/uvxrun.py
+NBQA = $(_NBQA_UVXRUN) $(UVXRUN_OPTS) -c "nbqa --nbqa-shell \"$(_NBQA_UVXRUN)\" $(NOTEBOOKS) $(UVXRUN_OPTS) $(_NBQA)"
 .PHONY: mypy-notebook pyright-notebook typecheck-notebook test-notebook
 mypy-notebook: _NBQA = -c mypy
 mypy-notebook: ## run nbqa mypy
