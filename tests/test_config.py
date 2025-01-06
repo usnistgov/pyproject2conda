@@ -347,7 +347,7 @@ def test_option_override_base3_default_python_error(
     # using default python without a version
     with pytest.raises(
         ValueError,
-        match="Must include `.python-version-default` or `.python-version`.*",
+        match=r"Must include `.python-version-default` or `.python-version`.*",
     ):
         list(simple_config.iter_envs(envs=["base3"]))
 
@@ -410,7 +410,7 @@ def test_option_override_base3_default_python(example_path, simple_toml: str) ->
 
 
 def test_option_override_all_pythons_error(simple_config: Config) -> None:
-    with pytest.raises(ValueError, match="Must specify python versions .*"):
+    with pytest.raises(ValueError, match=r"Must specify python versions .*"):
         list(simple_config.iter_envs(envs=["base5"]))
 
 
@@ -901,14 +901,14 @@ def test_version(runner) -> None:
 )
 def test_multiple(fname, opt, runner, caplog) -> None:
     filename = ROOT / fname
-    _do_run = partial(do_run, filename=filename)
+    do_run_ = partial(do_run, filename=filename)
 
     caplog.set_level(logging.INFO)
 
     t1 = tempfile.TemporaryDirectory()
     path1 = t1.name
 
-    _do_run(
+    do_run_(
         runner,
         "project",
         "--template-python",
@@ -920,7 +920,7 @@ def test_multiple(fname, opt, runner, caplog) -> None:
     assert "Creating" in caplog.text
 
     # running this again?
-    _do_run(
+    do_run_(
         runner,
         "project",
         "-v",
@@ -933,7 +933,7 @@ def test_multiple(fname, opt, runner, caplog) -> None:
     assert "Skipping requirements" in caplog.text
 
     # run again no verbose:
-    _do_run(
+    do_run_(
         runner,
         "project",
         "--template-python",
@@ -945,11 +945,11 @@ def test_multiple(fname, opt, runner, caplog) -> None:
     t2 = tempfile.TemporaryDirectory()
     path2 = t2.name
 
-    _do_run(
+    do_run_(
         runner, "yaml", opt, "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"
     )
 
-    _do_run(
+    do_run_(
         runner,
         "yaml",
         opt,
@@ -961,10 +961,10 @@ def test_multiple(fname, opt, runner, caplog) -> None:
         f"{path2}/py310-dist-pypi.yaml",
     )
 
-    _do_run(runner, "yaml", opt, "test", "-p", "3.10", "-o", f"{path2}/py310-test.yaml")
-    _do_run(runner, "yaml", opt, "test", "-p", "3.11", "-o", f"{path2}/py311-test.yaml")
+    do_run_(runner, "yaml", opt, "test", "-p", "3.10", "-o", f"{path2}/py310-test.yaml")
+    do_run_(runner, "yaml", opt, "test", "-p", "3.11", "-o", f"{path2}/py311-test.yaml")
 
-    _do_run(
+    do_run_(
         runner,
         "yaml",
         opt,
@@ -975,7 +975,7 @@ def test_multiple(fname, opt, runner, caplog) -> None:
         "-o",
         f"{path2}/py310-test-extras.yaml",
     )
-    _do_run(
+    do_run_(
         runner,
         "yaml",
         opt,
@@ -987,11 +987,11 @@ def test_multiple(fname, opt, runner, caplog) -> None:
         f"{path2}/py311-test-extras.yaml",
     )
 
-    _do_run(
+    do_run_(
         runner, "r", opt, "test", "--skip-package", "-o", f"{path2}/test-extras.txt"
     )
 
-    _do_run(
+    do_run_(
         runner,
         "yaml",
         opt,
@@ -1010,14 +1010,22 @@ def test_multiple(fname, opt, runner, caplog) -> None:
         f"{path2}/py310-user-dev.yaml",
     )
 
-    _do_run(runner, "req", "-o", f"{path2}/base.txt")
+    do_run_(runner, "req", "-o", f"{path2}/base.txt")
 
     paths1 = Path(path1).glob("*")
     names1 = {x.name for x in paths1}
 
-    expected = set(
-        "base.txt py310-dev.yaml py310-dist-pypi.yaml py310-test-extras.yaml py310-test.yaml py310-user-dev.yaml py311-test-extras.yaml py311-test.yaml test-extras.txt".split()
-    )
+    expected = {
+        "base.txt",
+        "py310-dev.yaml",
+        "py310-dist-pypi.yaml",
+        "py310-test-extras.yaml",
+        "py310-test.yaml",
+        "py310-user-dev.yaml",
+        "py311-test-extras.yaml",
+        "py311-test.yaml",
+        "test-extras.txt",
+    }
 
     assert names1 == expected
 

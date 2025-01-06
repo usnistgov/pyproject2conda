@@ -33,7 +33,7 @@ def check_result(result, expected) -> None:
 
 @pytest.fixture(params=["test-pyproject.toml"])
 def filename(request) -> Path:
-    return ROOT / cast(str, request.param)
+    return ROOT / cast("str", request.param)
 
 
 @pytest.mark.parametrize(

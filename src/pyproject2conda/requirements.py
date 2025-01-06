@@ -102,10 +102,10 @@ def _clean_conda_strings(
 def _update_requirement(  # noqa: C901, PLR0912
     requirement: str | Requirement,
     name: str | MISSING_TYPE = MISSING,
-    url: str | None | MISSING_TYPE = MISSING,
-    extras: str | Iterable[str] | None | MISSING_TYPE = MISSING,
-    specifier: str | SpecifierSet | None | MISSING_TYPE = MISSING,
-    marker: str | Marker | None | MISSING_TYPE = MISSING,
+    url: str | MISSING_TYPE | None = MISSING,
+    extras: str | Iterable[str] | MISSING_TYPE | None = MISSING,
+    specifier: str | SpecifierSet | MISSING_TYPE | None = MISSING,
+    marker: str | Marker | MISSING_TYPE | None = MISSING,
 ) -> Requirement:  # pragma: no cover
     if isinstance(requirement, str):
         requirement = Requirement(requirement)
@@ -293,7 +293,7 @@ class ParseDepends:
         if (out := self.get_in("project", "name")) is None:
             msg = "Must specify `project.name`"
             raise ValueError(msg)
-        return cast(str, out)
+        return cast("str", out)
 
     @cached_property
     def dependencies(self) -> list[str]:

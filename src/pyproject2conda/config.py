@@ -89,9 +89,9 @@ class Config:  # noqa: PLR0904
 
             if inherit:
                 # If have override, use it.
-                _value = self._get_override(env_name).get(key, None)
-                if _value is not None:
-                    value = _value
+                value_ = self._get_override(env_name).get(key, None)
+                if value_ is not None:
+                    value = value_
 
                 # finally, try to get from top level
                 if value is None:
