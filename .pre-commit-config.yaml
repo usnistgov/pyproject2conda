@@ -63,7 +63,7 @@ repos:
         additional_dependencies:
           - black==24.4.2
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.5
+    rev: v0.8.6
     hooks:
       - id: ruff
         alias: ruff-all
@@ -100,7 +100,7 @@ repos:
   # ** typos
   # Probably stick with codespell, but this might also be nice...
   - repo: https://github.com/crate-ci/typos
-    rev: v1.28.4
+    rev: v1.29.4
     hooks:
       - id: typos
         stages: [manual]
