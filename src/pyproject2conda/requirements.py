@@ -5,24 +5,10 @@ Requirements parsing (:mod:`~pyproject2conda.requirements`)
 
 from __future__ import annotations
 
+from copy import copy
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
-
-if TYPE_CHECKING:
-    from typing import (
-        Any,
-        Callable,
-        Iterable,
-        Sequence,
-    )
-
-    from ._typing import (
-        MISSING_TYPE,
-    )
-    from ._typing_compat import Self
-
-from copy import copy
 
 from packaging.markers import Marker
 from packaging.requirements import InvalidRequirement, Requirement
@@ -39,6 +25,19 @@ from pyproject2conda.utils import (
 )
 
 from .overrides import OverrideDeps
+
+if TYPE_CHECKING:
+    from typing import (
+        Any,
+        Callable,
+        Iterable,
+        Sequence,
+    )
+
+    from ._typing import (
+        MISSING_TYPE,
+    )
+    from ._typing_compat import Self
 
 
 # * Utilities --------------------------------------------------------------------------

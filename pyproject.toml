@@ -99,6 +99,7 @@ tools = [
     "scriv",
 ]
 typing = [
+    "pylint",
     "pytest",
     "types-click",
     { include-group = "uvxrun" },

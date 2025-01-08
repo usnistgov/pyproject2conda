@@ -418,7 +418,6 @@ def _get_header_cmd(
 
     if header:
         import sys
-        from pathlib import Path
 
         return " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
 

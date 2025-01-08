@@ -1,4 +1,5 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
+# pylint: disable=duplicate-code
 import filecmp
 import logging
 import tempfile
@@ -703,7 +704,7 @@ def test_conifg_overrides_no_envs() -> None:
     c = Config.from_string(s)
 
     with pytest.raises(ValueError):
-        c.overrides  # noqa: B018
+        c.overrides  # noqa: B018 # pylint: disable=pointless-statement
 
 
 def test_config_python_include_version() -> None:
@@ -905,7 +906,7 @@ def test_multiple(fname, opt, runner, caplog) -> None:
 
     caplog.set_level(logging.INFO)
 
-    t1 = tempfile.TemporaryDirectory()
+    t1 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
     path1 = t1.name
 
     do_run_(
@@ -942,7 +943,7 @@ def test_multiple(fname, opt, runner, caplog) -> None:
         f"{path1}/" + "{env}",
     )
 
-    t2 = tempfile.TemporaryDirectory()
+    t2 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
     path2 = t2.name
 
     do_run_(

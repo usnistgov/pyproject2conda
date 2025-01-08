@@ -193,6 +193,7 @@ def check_for_change_manager(
     If exit normally, write hashes to hash_path file
 
     """
+    # pylint: disable=try-except-raise,no-else-raise
     try:
         changed, hashes, hash_path = check_hash_path_for_change(
             *deps,

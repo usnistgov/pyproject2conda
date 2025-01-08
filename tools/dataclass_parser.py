@@ -1,3 +1,4 @@
+# pylint: disable=redefined-builtin
 """
 Light weight argparser from a dataclass.
 
@@ -40,11 +41,6 @@ from dataclasses import (
     is_dataclass,
     replace,
 )
-
-if sys.version_info < (3, 10):
-    msg = "Require python >= 3.10"
-    raise RuntimeError(msg)
-
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -64,6 +60,11 @@ if TYPE_CHECKING:
         from typing import Self
     else:
         from typing_extensions import Self
+
+
+if sys.version_info < (3, 10):
+    msg = "Require python >= 3.10"
+    raise RuntimeError(msg)
 
 
 _NoneType = type(None)
@@ -195,7 +196,7 @@ def add_option(
     **field_kws: Any,  # noqa: ARG001
 ) -> Any:
     """Add option."""
-    return field(
+    return field(  # pylint: disable=invalid-field-call
         metadata={
             "option": Option.factory(
                 *flags,

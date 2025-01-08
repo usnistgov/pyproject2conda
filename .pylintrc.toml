@@ -1,0 +1,56 @@
+[tool.pylint]
+ignore = [ "_implementation.py" ]
+
+[tool.pylint.similarities]
+ignore-imports = "yes"
+
+[tool.pylint.basic]
+no-docstring-rgx = "__.*__|test[A-Z_].*|_decorator|_wrapper|_.*__.*"
+
+[tool.pylint.classes]
+defining-attr-methods = [
+    "__init__",
+    "__new__",
+    "__post_init__",
+    "setUp",
+    "reset",
+    "_reset",
+]
+
+[tool.pylint.design]
+max-args = 35
+max-attributes = 40
+max-bool-expr = 5
+max-branches = 50
+max-locals = 50
+max-parents = 12
+max-positional-arguments = 35
+max-public-methods = 500
+max-returns = 20
+max-statements = 150
+min-public-methods = 0
+
+[tool.pylint."messages control"]
+enable = [ "useless-suppression" ]
+disable = [
+    # defer to ruff
+    "line-too-long",
+    "missing-module-docstring",
+    "missing-function-docstring",
+    "redefined-outer-name",
+    "unused-argument",
+    # Questionable things, but it's ok, I don't need to be told:
+    "import-outside-toplevel",
+    "superfluous-parens",
+    "too-many-lines",
+    # Messages that are noisy for now, eventually maybe we'll turn them on:
+    "invalid-name",
+    # "protected-access",
+    "unspecified-encoding",
+    "consider-using-f-string",
+    # "duplicate-code",
+    # "cyclic-import",
+]
+
+[tool.pylint.reports]
+output-format = "colorized"
