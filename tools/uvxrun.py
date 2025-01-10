@@ -185,7 +185,7 @@ def _parse_requirements(requirements: Path) -> Iterator[Requirement]:
                 yield line_formatted
 
     with requirements.open() as f:
-        yield from map(Requirement, ignore_comments(f))
+        yield from (Requirement(r) for r in ignore_comments(f))
 
 
 @lru_cache
@@ -322,9 +322,7 @@ class Session:
 
         self.info("Running %s", full_cmd)
         r = subprocess.run(cleaned_args, check=False, env=_clean_env(env))  # pyright: ignore[reportUnknownVariableType]
-
-        returncode: int = r.returncode  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
-        if returncode != 0:
+        if returncode := r.returncode:
             logger.error("Command %s failed with exit code %s", full_cmd, returncode)  # pyright: ignore[reportUnknownArgumentType]
             msg = f"Returned code {returncode}"
             raise RuntimeError(msg)
@@ -344,7 +342,7 @@ class Command:
     @classmethod
     def from_command(cls, *commands: str | os.PathLike[str]) -> Command:
         """Create from command iterable"""
-        name, *args = map(os.fsdecode, commands)
+        name, *args = (os.fsdecode(c) for c in commands)
         spec = Requirement(name)
         return cls(
             name=spec.name,

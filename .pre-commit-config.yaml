@@ -23,7 +23,7 @@ repos:
       - id: mixed-line-ending
   # * Sync dependencies
   - repo: https://github.com/mxr/sync-pre-commit-deps
-    rev: v0.0.2
+    rev: v0.0.3
     hooks:
       - id: sync-pre-commit-deps
 
@@ -47,7 +47,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.17.1
+    rev: v0.17.2
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -63,7 +63,7 @@ repos:
         additional_dependencies:
           - black==24.4.2
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.6
+    rev: v0.9.2
     hooks:
       - id: ruff
         alias: ruff-all
@@ -90,6 +90,14 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 
+  # * uv
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.5.21
+    hooks:
+      - id: uv-lock
+        args: [--locked]
+
   # * Manual Linting ------------------------------------------------------------
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.19.1
@@ -101,7 +109,7 @@ repos:
   # ** typos
   # Probably stick with codespell, but this might also be nice...
   - repo: https://github.com/crate-ci/typos
-    rev: v1.29.4
+    rev: dictgen-v0.3.1
     hooks:
       - id: typos
         stages: [manual]

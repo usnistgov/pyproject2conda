@@ -13,11 +13,11 @@ from nox.logger import logger
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
-    from typing import Any, Union
+    from typing import Any
 
     from nox import Session
 
-    PathLike = Union[str, Path]
+    PathLike = str | Path
 
 
 # * Top level installation functions ---------------------------------------------------
@@ -193,7 +193,7 @@ def check_for_change_manager(
     If exit normally, write hashes to hash_path file
 
     """
-    # pylint: disable=try-except-raise,no-else-raise
+    # pylint: disable=try-except-raise,no-else-raise, too-many-try-statements
     try:
         changed, hashes, hash_path = check_hash_path_for_change(
             *deps,
@@ -298,9 +298,6 @@ def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
 
     md5 = hashlib.md5()
     with Path(path).open("rb") as f:
-        while True:
-            data = f.read(buff_size)
-            if not data:
-                break
+        while data := f.read(buff_size):  # pylint: disable=while-used
             md5.update(data)
     return md5.hexdigest()

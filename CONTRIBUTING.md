@@ -264,20 +264,23 @@ requirement files are under something like
 Additionally, requirement files for virtualenvs (e.g., `requirements.txt` like
 files) will be "locked" using `uv pip compile` from [uv]. These files are placed
 under `requirements/lock`. Note the the session `requirements` automatically
-calls the session `uv-compile`.
+calls the session `lock`.
 
 To upgrade the dependencies in the lock, you'll need to pass the option:
 
 ```bash
-nox -s uv-compile -- +L/++pip-compile-upgrade
+nox -s lock -- +L/++lock-upgrade
 ```
+
+This will also update `uv.lock` if it's being used.
 
 ## ipykernel
 
-The environments created by nox `dev` and `docs-conda` will try to add
-meaningful display names for ipykernel. These are installed at the user level.
-To cleanup the kernels (meaning, removing installed kernels that point to a
-removed environment), You can use the script `tools/clean_kernelspec.py`:
+The environments created by nox `dev`, or running `make install-kernel`, will
+try to add meaningful display names for ipykernel. These are installed at the
+user level. To cleanup the kernels (meaning, removing installed kernels that
+point to a removed environment), You can use the script
+`tools/clean_kernelspec.py`:
 
 ```bash
 python tools/clean_kernelspec.py
@@ -429,34 +432,48 @@ conda activate {env-name}
 pip install -e . --no-deps
 ```
 
-### Create development environment with pip
+### Create development environment with uv/pip
 
-Run something like the following:
+The easiest way to create an development environment, if using `uv.lock`
+mechanism is:
 
 ```bash
+uv sync
+```
+
+If the project does not use `uv.lock`, or you don't want to use uv to manage
+your environment, then use one of the following:
+
+```bash
+# using venv
 python -m venv .venv
 source .venv/bin/activate
-# unlocked
-python -m pip install -r requirements/dev.txt
-# locked:
-pip-sync --python-path .venv/bin/python requirements/lock/py{version}-dev.txt
+python -m pip install -r requirements/lock/py{version}-dev.txt
 python -m pip install -e . --no-deps
-```
-
-Or if using [uv]:
-
-```bash
+# using uv
 uv venv --python 3.11 .venv
-uv pip install -r requirements/dev.txt
-# or locked
 uv pip sync requirements/lock/py{version}-dev.txt
-
 ```
 
-Or you can simply use:
+Note that if the project is setup to use `uv.lock` but you'd like to use one of
+the above, you may have to run something like:
 
 ```bash
-make dev
+uv export --dev > requirements.txt
+```
+
+and use this requirement file in the commands above.
+
+If the project includes an ipython kernel, you can install it with:
+
+```bash
+make install-kernel
+```
+
+Alternatively, you can simply use:
+
+```bash
+nox -s dev
 ```
 
 which will create a virtual environment under `.venv`. If you go this route, you

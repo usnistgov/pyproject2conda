@@ -31,7 +31,10 @@ max-statements = 150
 min-public-methods = 0
 
 [tool.pylint."messages control"]
-enable = [ "useless-suppression" ]
+enable = [
+    # "useless-suppression",
+    "all",
+]
 disable = [
     # defer to ruff
     "line-too-long",
@@ -39,6 +42,14 @@ disable = [
     "missing-function-docstring",
     "redefined-outer-name",
     "unused-argument",
+    "too-complex",
+    "missing-param-doc",
+    # Silly
+    "docstring-first-line-empty",
+    "magic-value-comparison",
+    # Can be useful to see what is ignored
+    "locally-disabled",
+    "suppressed-message",
     # Questionable things, but it's ok, I don't need to be told:
     "import-outside-toplevel",
     "superfluous-parens",
