@@ -1,20 +1,22 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, TypeVar
+from typing import TYPE_CHECKING, Literal, TypeVar
 
 R = TypeVar("R")
 T = TypeVar("T")
 
 
 if TYPE_CHECKING:
-    from typing import Literal, Tuple
+    from packaging.requirements import (
+        Requirement,  # pyright: ignore[reportUnusedImport]  # noqa: F401
+    )
 
-    from packaging.requirements import Requirement
-
-    from .overrides import OverrideDeps
+    from .overrides import (
+        OverrideDeps,  # pyright: ignore[reportUnusedImport]  # noqa: F401
+    )
     from .utils import _Missing  # pyright: ignore[reportPrivateUsage]
 
     MISSING_TYPE = Literal[_Missing.MISSING]
 
-    RequirementCommentPair = Tuple[Optional[Requirement], Optional[str]]
-    RequirementOverridePair = Tuple[Optional[Requirement], Optional[OverrideDeps]]
+    RequirementCommentPair = "tuple[Requirement | None, str | None]"
+    RequirementOverridePair = "tuple[Requirement | None, OverrideDeps | None]"

@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent / "data"
 
 def do_run(runner, command, *opts, filename=None, must_exist=False):
     if filename is None:
-        filename = str(ROOT / "test-pyproject.toml")
+        filename = ROOT / "test-pyproject.toml"
     filename = Path(filename)
     if must_exist and not filename.exists():
         msg = f"filename {filename} does not exist"

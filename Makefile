@@ -183,13 +183,21 @@ typing-typecheck:
 	$(NOX) -s typing -- +m mypy pyright pylint
 
 # ** dist pypi
-.PHONY: build release-test release
+.PHONY: build publish publish-test
 build: ## build dist
 	$(NOX) -s build
-release: ## release to pypi, can pass posargs=...
+publish: ## publish to pypi
 	$(NOX) -s publish -- +p release
-release-test: ## test release on testpypi
+publish-test: ## publish to testpypi
 	$(NOX) -s publish -- +p test
+
+.PHONY: uv-publish uv-publish-test
+_UV_PUBLISH = uv publish --username __token__ --keyring-provider subprocess
+uv-publish: ## uv release
+	$(_UV_PUBLISH)
+uv-publish-test: ## uv test release on testpypi
+	$(_UV_PUBLISH) --publish-url https://test.pypi.org/legacy/
+
 
 # ** dist conda
 .PHONY: conda-recipe conda-build

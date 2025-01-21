@@ -1,5 +1,5 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
-# pylint: disable=duplicate-code
+# pylint: disable=duplicate-code,empty-comment
 from __future__ import annotations
 
 import locale
@@ -25,7 +25,7 @@ def test_list_to_string() -> None:
 
     assert list_to_str(["a", "b"], eol=True) == "a\nb\n"
     assert list_to_str(["a", "b"], eol=False) == "a\nb"
-    assert list_to_str(None) == ""  # noqa: PLC1901
+    assert list_to_str(None) == ""  # noqa: PLC1901  # pylint: disable=use-implicit-booleaness-not-comparison-to-string
 
 
 def test_header() -> None:
@@ -794,7 +794,7 @@ dependencies:
     )
 
     # check output has no dependencies:
-    for attr in ["to_conda_yaml", "to_requirements"]:
+    for attr in ("to_conda_yaml", "to_requirements"):
         f = getattr(d, attr)
         with pytest.raises(ValueError):
             f()

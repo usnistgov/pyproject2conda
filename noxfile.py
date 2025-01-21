@@ -275,11 +275,14 @@ def install_dependencies(
     no_dev: bool = True,
     only_group: bool = False,
     include_editable_package: bool = False,
+    lock: bool | None = None,
 ) -> None:
     """General dependencies installer"""
     if python_version is None:
         assert isinstance(session.python, str)  # noqa: S101
         python_version = session.python
+
+    lock = lock if lock is not None else opts.lock
 
     if isinstance(session.virtualenv, CondaEnv):
         environment_file = infer_requirement_path(
@@ -311,7 +314,7 @@ def install_dependencies(
         if include_editable_package:
             install_package(session, editable=True, update=True)
 
-    elif opts.lock:  # pylint: disable=confusing-consecutive-elif
+    elif lock:  # pylint: disable=confusing-consecutive-elif
         session.run_install(
             "uv",
             "sync",
@@ -844,7 +847,9 @@ def typing(  # noqa: C901, PLR0912
 # NOTE: you can skip having the build environment and
 # just use uv build, but faster to use environment ...
 USE_ENVIRONMENT_FOR_BUILD = False
-_build_dec = nox.session if USE_ENVIRONMENT_FOR_BUILD else nox.session(python=False)
+_build_dec = nox.session(
+    python=PYTHON_DEFAULT_VERSION if USE_ENVIRONMENT_FOR_BUILD else False
+)
 
 
 @_build_dec
@@ -857,7 +862,7 @@ def build(session: nox.Session, opts: SessionParams) -> None:  # noqa: C901
     Pass `--build-isolation` to use build isolation.
     """
     if USE_ENVIRONMENT_FOR_BUILD:
-        install_dependencies(session, name="build", opts=opts)
+        install_dependencies(session, name="build", opts=opts, lock=False)
 
     if opts.version:
         session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = opts.version

@@ -3,6 +3,7 @@
 Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 ================================================================
 """
+# pylint: disable=consider-alternative-union-syntax,deprecated-typing-alias  # change when bump minimum version
 # * Imports -------------------------------------------------------------------
 
 import locale
@@ -50,11 +51,11 @@ class AliasedGroup(TyperGroup):
     def get_command(
         self, ctx: click.Context, cmd_name: str
     ) -> Optional[click.core.Command]:
-        rv = super().get_command(ctx, cmd_name)
-        if rv is not None:
+        if (rv := super().get_command(ctx, cmd_name)) is not None:
             return rv
-        matches = [x for x in self.list_commands(ctx) if x.startswith(cmd_name)]
-        if not matches:
+        if not (
+            matches := [x for x in self.list_commands(ctx) if x.startswith(cmd_name)]
+        ):
             return None
         if len(matches) == 1:
             return super().get_command(ctx, matches[0])
@@ -467,15 +468,15 @@ def add_verbose_logger(
             params = bind(*args, **kwargs)
             params.apply_defaults()
 
-            verbosity = cast("Optional[int]", params.arguments[verbose_arg])
-
-            if verbosity is None:
+            if (
+                verbosity := cast("Optional[int]", params.arguments[verbose_arg])
+            ) is None:
                 # leave where it is:
                 pass
             else:
                 if verbosity < 0:  # pragma: no cover
                     level = logging.ERROR
-                elif verbosity == 0:  # pragma: no cover
+                elif not verbosity:  # pragma: no cover
                     level = logging.WARNING
                 elif verbosity == 1:
                     level = logging.INFO
@@ -510,7 +511,7 @@ def create_list(
 
     d = _get_requirement_parser(filename)
 
-    for name, vals in [("Extras", d.extras), ("Groups", d.groups)]:
+    for name, vals in [("Extras", d.extras), ("Groups", d.groups)]:  # pylint: disable=consider-using-tuple
         print(name)
         print("======")
         for val in sorted(vals):
@@ -841,8 +842,7 @@ def to_json(
         "pip": pip_deps,
     }
 
-    channels = channels or d.channels
-    if channels:
+    if channels := channels or d.channels:
         result["channels"] = channels
 
     if output:
