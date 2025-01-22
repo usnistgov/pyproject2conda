@@ -4,7 +4,8 @@
 
 
 _PY_DEFAULT = $(shell cat .python-version | sed "s/\.//")
-UVXRUN = uv run --no-config --frozen tools/uvxrun.py
+UVRUN = uv run --frozen
+UVXRUN = $(UVRUN) --no-config tools/uvxrun.py
 UVXRUN_OPTS = -r requirements/lock/py$(_PY_DEFAULT)-uvxrun-tools.txt -v
 UVXRUN_NO_PROJECT = uv run --with "packaging" --no-project tools/uvxrun.py
 NOX=uvx --from "nox>=2024.10.9" nox
@@ -30,10 +31,10 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
-BROWSER := uv run --no-config --frozen python -c "$$BROWSER_PYSCRIPT"
+BROWSER := $(UVRUN) --no-config python -c "$$BROWSER_PYSCRIPT"
 
 help:
-	@uv run --frozen python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+	@$(UVRUN) python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
@@ -60,26 +61,34 @@ clean-test: ## remove test and coverage artifacts
 
 
 # * Pre-commit -----------------------------------------------------------------
-.PHONY: pre-commit-init pre-commit pre-commit-all
+.PHONY: pre-commit-init lint codespell typos ruff ruff-format ruff-all checkmake
 pre-commit-init: ## install pre-commit
 	$(PRE_COMMIT) install
 
-pre-commit-all: ## run pre-commit on all files
-	$(PRE_COMMIT) run --all-files
+_PRE_COMMIT_RUN = $(PRE_COMMIT) run --all-files
+_PRE_COMMIT_RUN_MANUAL = $(_PRE_COMMIT_RUN) --hook-stage=manual
+lint: ## run pre-commit on all files
+	$(_PRE_COMMIT_RUN)
 
-pre-commit-codespell: ## run codespell. Note that this imports allowed words from docs/spelling_wordlist.txt
-	$(PRE_COMMIT) run --all-files codespell
-	$(PRE_COMMIT) run --all-files nbqa-codespell
+codespell: ## run codespell. Note that this imports allowed words from docs/spelling_wordlist.txt
+	$(_PRE_COMMIT_RUN) codespell
+	$(_PRE_COMMIT_RUN) nbqa-codespell
 
-pre-commit-typos:  ## run typos.
-	$(PRE_COMMIT) run --all-files --hook-stage manual typos
-	$(PRE_COMMIT) run --all-files --hook-stage manual nbqa-typos
+typos:  ## run typos.
+	$(_PRE_COMMIT_RUN_MANUAL) typos
+	$(_PRE_COMMIT_RUN_MANUAL) nbqa-typos
 
-pre-commit-ruff-all: ## run ruff lint and format
-	$(PRE_COMMIT) run ruff-all --all-files
+ruff: ## run ruff linters
+	$(_PRE_COMMIT_RUN) ruff
 
-pre-commit-checkmake:  ## run checkmake
-	$(PRE_COMMIT) run --all-files --hook-stage manual checkmake
+ruff-format: ## run ruff formatter
+	$(_PRE_COMMIT_RUN) ruff-format
+
+ruff-all: ## run ruff lint and format
+	$(_PRE_COMMIT_RUN) ruff-all
+
+checkmake:  ## run checkmake
+	$(_PRE_COMMIT_RUN_MANUAL) checkmake
 
 
 # * User setup -----------------------------------------------------------------
@@ -91,22 +100,13 @@ user-autoenv-zsh: ## create .autoenv.zsh files
 user-all: user-autoenv-zsh ## runs user scripts
 
 
-# * Dev environment ------------------------------------------------------------
-.PHONY: _dev
-_dev:
-	uv venv .venv
-	uv pip sync -p .venv/bin/python requirements/lock/py$(_PY_DEFAULT)-dev.txt
-	uv pip install -p .venv/bin/python -e .
-
-dev: _dev install-kernel
-
 # * Testing --------------------------------------------------------------------
 .PHONY: test coverage
 test: ## run tests quickly with the default Python
-	uv run --frozen pytest -x -v
+	$(UVRUN) pytest
 
 test-accept: ## run tests and accept doctest results. (using pytest-accept)
-	DOCFILLER_SUB=False uv run --frozen pytest -v --accept
+	DOCFILLER_SUB=False $(UVRUN) pytest -v --accept
 
 
 # * Versioning -----------------------------------------------------------------
@@ -116,7 +116,7 @@ version-scm: ## check/update version of package from scm
 	$(NOX) -s build -- ++build version
 
 version-import: ## check version from python import
-	-uv run --frozen python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
+	-$(UVRUN) python -c 'import pyproject2conda; print(pyproject2conda.__version__)'
 
 version: version-scm version-import
 
@@ -128,26 +128,31 @@ requirements: ## rebuild all requirements/environment files
 
 
 # * Typing ---------------------------------------------------------------------
-.PHONY: mypy pyright
+.PHONY: mypy pyright pyright-watch pylint _typecheck typecheck
+PYLINT_OPTS = --enable-all-extensions
 mypy: ## Run mypy
 	$(UVXRUN) $(UVXRUN_OPTS) -c mypy
 pyright: ## Run pyright
 	$(UVXRUN) $(UVXRUN_OPTS) -c pyright
 pyright-watch: ## Run pyright in watch mode
 	$(UVXRUN) $(UVXRUN_OPTS) -c "pyright -w"
-typecheck: ## Run mypy and pyright
+pylint: ## Run pylint
+	$(UVRUN) pylint $(PYLINT_OPTS) src tests
+_typecheck:
 	$(UVXRUN) $(UVXRUN_OPTS) -c mypy -c pyright
+typecheck: _typecheck pylint ## Run mypy and pyright
 
-.PHONY: typecheck-tools
-typecheck-tools:
+.PHONY: tools-typecheck
+tools-typecheck:
 	$(UVXRUN) $(UVXRUN_OPTS) -c "mypy --strict" -c pyright -- noxfile.py tools/*.py
-
+	$(UVRUN) pylint $(PYLINT_OPTS) noxfile.py tools
 
 # * NOX ------------------------------------------------------------------------
 # ** docs
-.PHONY: docs-build docs-clean docs-clean-build docs-release
-docs-build: ## build docs in isolation
-	$(NOX) -s docs -- +d build
+.PHONY: docs-html docs-clean docs-clean-build docs-release
+docs-html: ## build html docs
+	$(NOX) -s docs -- +d html
+docs-build: docs-html ## alias to docs-html
 docs-clean: ## clean docs
 	rm -rf docs/_build/*
 	rm -rf docs/generated/*
@@ -167,22 +172,32 @@ docs-linkcheck: ## check links
 	$(NOX) -s docs -- +d linkcheck
 
 # ** typing
-.PHONY: typing-mypy typing-pyright typing-typecheck
+.PHONY: typing-mypy typing-pyright typing-pylint typing-typecheck
 typing-mypy: ## run mypy mypy_args=...
 	$(NOX) -s typing -- +m mypy
 typing-pyright: ## run pyright pyright_args=...
 	$(NOX) -s typing -- +m pyright
+typing-pylint: ## run pylint
+	$(NOX) -s pylint -- +m pylint
 typing-typecheck:
-	$(NOX) -s typing -- +m mypy pyright
+	$(NOX) -s typing -- +m mypy pyright pylint
 
 # ** dist pypi
-.PHONY: build testrelease release
+.PHONY: build publish publish-test
 build: ## build dist
 	$(NOX) -s build
-testrelease: ## test release on testpypi
-	$(NOX) -s publish -- +p test
-release: ## release to pypi, can pass posargs=...
+publish: ## publish to pypi
 	$(NOX) -s publish -- +p release
+publish-test: ## publish to testpypi
+	$(NOX) -s publish -- +p test
+
+.PHONY: uv-publish uv-publish-test
+_UV_PUBLISH = uv publish --username __token__ --keyring-provider subprocess
+uv-publish: ## uv release
+	$(_UV_PUBLISH)
+uv-publish-test: ## uv test release on testpypi
+	$(_UV_PUBLISH) --publish-url https://test.pypi.org/legacy/
+
 
 # ** dist conda
 .PHONY: conda-recipe conda-build
@@ -215,27 +230,32 @@ list-dist: list-wheel list-sdist ## Cat out sdist and wheel contents
 
 # * NOTEBOOK -------------------------------------------------------------------
 NOTEBOOKS ?= examples/usage
-NBQA = $(UVXRUN) $(UVXRUN_OPTS) -c "nbqa --nbqa-shell \"$(UVXRUN)\" $(NOTEBOOKS) $(UVXRUN_OPTS) $(_NBQA)"
-.PHONY: mypy-notebook pyright-notebook typecheck-notebook test-notebook
-mypy-notebook: _NBQA = -c mypy
-mypy-notebook: ## run nbqa mypy
+# NOTE: use this because nested call back in nox has errors with uv run...
+_PYTHON = $(shell which python)
+_NBQA_UVXRUN = $(_PYTHON) tools/uvxrun.py
+NBQA = $(_NBQA_UVXRUN) $(UVXRUN_OPTS) -c "nbqa --nbqa-shell \"$(_NBQA_UVXRUN)\" $(NOTEBOOKS) $(UVXRUN_OPTS) $(_NBQA)"
+.PHONY: notebook-mypy notebook-pyright notebook-pylint notebook-typecheck notebook-test
+notebook-mypy: _NBQA = -c mypy
+notebook-mypy: ## run nbqa mypy
 	$(NBQA)
-pyright-notebook: _NBQA = -c pyright
-pyright-notebook: ## run nbqa pyright
+notebook-pyright: _NBQA = -c pyright
+notebook-pyright: ## run nbqa pyright
 	$(NBQA)
-typecheck-notebook: _NBQA = -c mypy -c pyright
-typecheck-notebook: ## run nbqa mypy/pyright
+notebook-pylint:: ## run nbqa pylint
+	$(_NBQA_UVXRUN) $(UVXRUN_OPTS) -c "nbqa --nbqa-shell \"$(_PYTHON) -m pylint $(PYLINT_OPTS)\" $(NOTEBOOKS)"
+notebook-typecheck: _NBQA = -c mypy -c pyright
+notebook-typecheck: notebook-pylint ## run nbqa mypy/pyright
 	$(NBQA)
-test-notebook:  ## run pytest --nbval
-	uv run --frozen pytest --nbval --nbval-current-env --nbval-sanitize-with=config/nbval.ini --dist loadscope -x $(NOTEBOOKS)
+notebook-test:  ## run pytest --nbval
+	$(UVRUN) pytest --nbval --nbval-current-env --nbval-sanitize-with=config/nbval.ini --dist loadscope -x $(NOTEBOOKS)
 
 .PHONY: clean-kernelspec
 clean-kernelspec: ## cleanup unused kernels (assuming notebooks handled by conda environment notebook)
-	uv run --frozen tools/clean_kernelspec.py
+	$(UVRUN) tools/clean_kernelspec.py
 
 .PHONY: install-kernel
 install-kernel:  ## install kernel
-	uv run --frozen python -m ipykernel install --user \
+	$(UVRUN) python -m ipykernel install --user \
 	--name pyproject2conda-dev \
     --display-name "Python [venv: pyproject2conda-dev]"
 
@@ -253,7 +273,7 @@ commitizen-changelog:
 # tuna analyze load time:
 .PHONY: tuna-analyze
 tuna-import	: ## Analyze load time for module
-	uv run --frozen python -X importtime -c 'import pyproject2conda' 2> tuna-loadtime.log
+	$(UVRUN) python -X importtime -c 'import pyproject2conda' 2> tuna-loadtime.log
 	uvx tuna tuna-loadtime.log
 	rm tuna-loadtime.log
 

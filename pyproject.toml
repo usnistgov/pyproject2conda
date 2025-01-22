@@ -66,7 +66,6 @@ docs = [
     "myst-parser",
     "pyenchant",
     "sphinx>=5.3.0",
-    "sphinx-autobuild",
     "sphinx-book-theme",
     "sphinx-click",
     "sphinx-copybutton",
@@ -81,6 +80,10 @@ dev-extras = [
     "ipykernel",
     "nox>=2024.4.15",
     "pytest-accept",
+]
+docs-live = [
+    "sphinx-autobuild",
+    { include-group = "docs" },
 ]
 mypy = [
     "mypy>=1.14.1",
@@ -99,24 +102,14 @@ tools = [
     "scriv",
 ]
 typing = [
+    "pylint",
     "pytest",
     "types-click",
     { include-group = "uvxrun" },
 ]
-uvxrun = [
-    # Anything needed to run tools/uvxrun.py
-    "packaging",
-]
-uvxrun-tools = [
-    "conda-lock>=2.5.5",
-    "grayskull>=2.5.3",
-    "nbqa>=1.8.4",
-    "pyproject2conda>=0.16.0",
-    "pyright>=1.1.391",
-    "twine>=5.0.0",
-    # these used solely for specking tools to be used with tools/uvxrun.py
-    { include-group = "mypy" },
-]
+# Anything needed to run tools/uvxrun.py
+# NOTE: uvxrun-tools defined explicitly in tool.pyproject2conda.envs.uvxrun-tools
+uvxrun = [ "packaging" ]
 
 [tool.hatch.version]
 source = "vcs"
@@ -393,52 +386,40 @@ user_config = "config/userconfig.toml"
 template_python = "requirements/py{py}-{env}"
 template = "requirements/{env}"
 python = "default"
-channels = [
-    "conda-forge",
-]
-style = [
-    "yaml",
-]
-default_envs = [
-    "test",
-    "dev",
-]
+channels = "conda-forge"
+style = "yaml"
+deps = "pip"
 
 [tool.pyproject2conda.dependencies]
 pytest-accept = { pip = true }
-scriv = { pip = true }
+
+[tool.pyproject2conda.envs.dev]
+groups = "dev"
+
+[tool.pyproject2conda.envs.test]
+groups = "test"
+python = "all"
 
 [tool.pyproject2conda.envs.test-extras]
 groups = "test-extras"
-skip_package = true
 python = "all"
+skip_package = true
 
 [tool.pyproject2conda.envs.uvxrun-tools]
-groups = "uvxrun-tools"
-style = "requirements"
+reqs = [
+    # these used solely for specking tools to be used with tools/uvxrun.py
+    "conda-lock>=2.5.5",
+    "grayskull>=2.5.3",
+    "nbqa>=1.8.4",
+    "pre-commit",
+    "pyproject2conda>=0.16.0",
+    "pyright>=1.1.391",
+    "scriv",
+    "twine>=5.0.0",
+]
+groups = "mypy"
 skip_package = true
-
-[[tool.pyproject2conda.overrides]]
-# Ensure these have pip in yaml file
-envs = [
-    "test",
-    "dev",
-]
-deps = [
-    "pip",
-]
-
-[[tool.pyproject2conda.overrides]]
-envs = [
-    "test",
-]
-python = "all"
-
-# * pip-tools (keeping for legacy) ---------------------------------------------
-
-[tool.pip-tools]
-allow-unsafe = true
-strip-extras = true
+style = "requirements"
 
 # * uv -------------------------------------------------------------------------
 
@@ -446,9 +427,15 @@ strip-extras = true
 managed = true
 default-groups = [ "dev" ]
 fork-strategy = "requires-python"
+required-version = ">=0.5.21"
 
 [tool.uv.pip]
 annotation-style = "line"
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/"
+publish-url = "https://test.pypi.org/legacy/"
 
 # * Other tools ----------------------------------------------------------------
 
