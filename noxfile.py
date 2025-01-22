@@ -1,3 +1,4 @@
+# pylint: disable=wrong-import-position
 """Config file for nox."""
 
 # * Imports ----------------------------------------------------------------------------
@@ -6,16 +7,8 @@ from __future__ import annotations
 import shlex
 import shutil
 import sys
-from functools import lru_cache, partial, wraps
-
-from nox.virtualenv import CondaEnv
-
-# Should only use on python version > 3.10
-if sys.version_info < (3, 10):
-    msg = "python>=3.10 required"
-    raise RuntimeError(msg)
-
 from dataclasses import dataclass
+from functools import lru_cache, partial, wraps
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -25,10 +18,16 @@ from typing import (
     TypedDict,
 )
 
-# fmt: off
+import nox
+from nox.virtualenv import CondaEnv
+
 sys.path.insert(0, ".")
 from tools import uvxrun
-from tools.dataclass_parser import DataclassParser, add_option, option
+from tools.dataclass_parser import (
+    DataclassParser,
+    add_option,
+    option,
+)
 from tools.noxtools import (
     check_for_change_manager,
     combine_list_list_str,
@@ -41,16 +40,17 @@ from tools.noxtools import (
 
 sys.path.pop(0)
 
-# make sure these after
-import nox  # type: ignore[unused-ignore,import]
-
-# fmt: on
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from nox import Session
 
+
+# Should only use on python version > 3.10
+if sys.version_info < (3, 10):
+    msg = "python>=3.10 required"
+    raise RuntimeError(msg)
 
 # * Names ------------------------------------------------------------------------------
 
@@ -135,7 +135,9 @@ class SessionParams(DataclassParser):
     # common parameters
     lock: bool = False
     update: bool = add_option("--update", "-U", help="update dependencies/package")
-    version: str | None = None
+    version: str | None = add_option(
+        "--version", "-V", help="pretend version", default=None
+    )
     prune: bool = add_option(default=False, help="Pass `--prune` to conda env update")
     no_frozen: bool = add_option(
         "--no-frozen",
@@ -202,11 +204,12 @@ class SessionParams(DataclassParser):
             "clean",
             "mypy",
             "pyright",
+            "pylint",
             "pytype",
             "all",
-            "mypy-notebook",
-            "pyright-notebook",
-            "typecheck-notebook",
+            "notebook-mypy",
+            "notebook-pyright",
+            "notebook-typecheck",
         ]
     ] = add_option("--typing", "-m")
     typing_run: RUN_ANNO = None
@@ -272,11 +275,14 @@ def install_dependencies(
     no_dev: bool = True,
     only_group: bool = False,
     include_editable_package: bool = False,
+    lock: bool | None = None,
 ) -> None:
     """General dependencies installer"""
     if python_version is None:
         assert isinstance(session.python, str)  # noqa: S101
         python_version = session.python
+
+    lock = lock if lock is not None else opts.lock
 
     if isinstance(session.virtualenv, CondaEnv):
         environment_file = infer_requirement_path(
@@ -308,7 +314,7 @@ def install_dependencies(
         if include_editable_package:
             install_package(session, editable=True, update=True)
 
-    elif opts.lock:
+    elif lock:  # pylint: disable=confusing-consecutive-elif
         session.run_install(
             "uv",
             "sync",
@@ -381,6 +387,15 @@ def install_package(
 
 
 # * Environments------------------------------------------------------------------------
+# ** test-all
+@nox.session(name="test-all", python=False)
+def test_all(session: Session) -> None:
+    """Run all tests and coverage"""
+    for py in PYTHON_ALL_VERSIONS:
+        session.notify(f"test-{py}")
+    session.notify("coverage")
+
+
 # ** dev
 @nox.session(name="dev", python=False)
 @add_opts
@@ -455,6 +470,9 @@ def lock(
     """Run uv pip compile ..."""
     options: list[str] = ["-U"] if opts.lock_upgrade else []
     force = opts.lock_force or opts.lock_upgrade
+
+    if opts.lock and opts.lock_upgrade:
+        session.run("uv", "lock", "--upgrade", env={"VIRTUAL_ENV": ".venv"})
 
     reqs_path = Path("./requirements")
     for path in reqs_path.glob("*.txt"):
@@ -564,11 +582,14 @@ def test_notebook(session: nox.Session, opts: SessionParams) -> None:
     --nbval-current-env
     --nbval-sanitize-with=config/nbval.ini
     --dist loadscope
-     examples/usage
    """,
     )
 
-    test_opts = (opts.test_opts or []) + test_nbval_opts
+    test_opts = (
+        (opts.test_opts or [])
+        + test_nbval_opts
+        + [str(p) for p in Path("examples/usage").glob("*.ipynb")]
+    )
 
     session.log(f"{test_opts = }")
 
@@ -653,7 +674,7 @@ nox.session(name="testdist-conda", **CONDA_ALL_KWS)(testdist)
 # # ** Docs
 @nox.session(name="docs", **DEFAULT_KWS)
 @add_opts
-def docs(
+def docs(  # noqa: C901
     session: nox.Session,
     opts: SessionParams,
 ) -> None:
@@ -664,14 +685,15 @@ def docs(
     calls 'make -C docs html'. With 'release' option, you can set the
     message with 'message=...' in posargs.
     """
-    install_dependencies(session, name="docs", opts=opts, include_editable_package=True)
+    cmd = opts.docs or []
+    cmd = ["html"] if not opts.docs_run and not cmd else list(cmd)
+    name = "docs-live" if "livehtml" in cmd else "docs"
+
+    install_dependencies(session, name=name, opts=opts, include_editable_package=True)
 
     if opts.version:
         session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = opts.version
     session_run_commands(session, opts.docs_run)
-
-    cmd = opts.docs or []
-    cmd = ["html"] if not opts.docs_run and not cmd else list(cmd)
 
     if "symlink" in cmd:
         cmd.remove("symlink")
@@ -685,8 +707,35 @@ def docs(
         cmd.remove("serve")
 
     if cmd:
-        args = ["make", "-C", "docs", *combine_list_str(cmd)]
-        session.run(*args, external=True)
+        common_opts = ["--doctree-dir=docs/_build/doctree"]
+        for c in combine_list_str(cmd):
+            if c == "clean":
+                for d in ("docs/_build", "generated", "reference/generated"):
+                    shutil.rmtree(Path(d), ignore_errors=True)
+                session.log("cleaned docs")
+            elif c == "livehtml":
+                session.run(
+                    "sphinx-autobuild",
+                    "-b",
+                    "html",
+                    "docs",
+                    "docs/_build/html",
+                    *common_opts,
+                    "--open-browser",
+                    *(
+                        f"--ignore='*/{d}/*'"
+                        for d in (
+                            "_build",
+                            "generated",
+                            "jupyter_execute",
+                            ".ipynb_checkpoints",
+                        )
+                    ),
+                )
+            else:
+                session.run(
+                    "sphinx-build", "-b", c, *common_opts, "docs", f"docs/_build/{c}"
+                )
 
     if open_page:
         open_webpage(path="./docs/_build/html/index.html")
@@ -728,7 +777,7 @@ def lint(
 # ** type checking
 @nox.session(name="typing", **ALL_KWS)
 @add_opts
-def typing(  # noqa: C901
+def typing(  # noqa: C901, PLR0912
     session: nox.Session,
     opts: SessionParams,
 ) -> None:
@@ -740,10 +789,10 @@ def typing(  # noqa: C901
 
     cmd = opts.typing or []
     if not opts.typing_run and not opts.typing_run_internal and not cmd:
-        cmd = ["mypy", "pyright"]
+        cmd = ["mypy", "pyright", "pylint"]
 
     if "all" in cmd:
-        cmd = ["mypy", "pyright", "pytype"]
+        cmd = ["mypy", "pyright", "pylint", "pytype"]
 
     # set the cache directory for mypy
     session.env["MYPY_CACHE_DIR"] = str(Path(session.create_tmp()) / ".mypy_cache")
@@ -752,11 +801,11 @@ def typing(  # noqa: C901
         cmd = list(cmd)
         cmd.remove("clean")
 
-        for name in [".mypy_cache", ".pytype"]:
+        for name in (".mypy_cache", ".pytype"):
             p = Path(session.create_tmp()) / name
             if p.exists():
                 session.log(f"removing cache {p}")
-                shutil.rmtree(str(p))
+                shutil.rmtree(p)
 
     if not isinstance(session.python, str):
         raise TypeError
@@ -771,12 +820,22 @@ def typing(  # noqa: C901
     )
 
     for c in cmd:
-        if c.endswith("-notebook"):
+        if c.startswith("notebook-"):
             session.run("make", c, external=True)
         elif c == "mypy":
             run("mypy", "--color-output")
         elif c == "pyright":
             run("pyright")
+        elif c == "pylint":
+            session.run(
+                "pylint",
+                # A bit dangerous, but needed to allow pylint
+                # to work across versions.
+                "--disable=unrecognized-option",
+                "--enable-all-extensions",
+                "src",
+                "tests",
+            )
         else:
             session.log(f"Skipping unknown command {c}")
 
@@ -788,7 +847,9 @@ def typing(  # noqa: C901
 # NOTE: you can skip having the build environment and
 # just use uv build, but faster to use environment ...
 USE_ENVIRONMENT_FOR_BUILD = False
-_build_dec = nox.session if USE_ENVIRONMENT_FOR_BUILD else nox.session(python=False)
+_build_dec = nox.session(
+    python=PYTHON_DEFAULT_VERSION if USE_ENVIRONMENT_FOR_BUILD else False
+)
 
 
 @_build_dec
@@ -801,7 +862,7 @@ def build(session: nox.Session, opts: SessionParams) -> None:  # noqa: C901
     Pass `--build-isolation` to use build isolation.
     """
     if USE_ENVIRONMENT_FOR_BUILD:
-        install_dependencies(session, name="build", opts=opts)
+        install_dependencies(session, name="build", opts=opts, lock=False)
 
     if opts.version:
         session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = opts.version
@@ -816,10 +877,9 @@ def build(session: nox.Session, opts: SessionParams) -> None:  # noqa: C901
                 )
         elif cmd == "build":
             outdir = opts.build_outdir
-            if Path(outdir).exists():
-                shutil.rmtree(outdir)
+            shutil.rmtree(outdir, ignore_errors=True)
 
-            args = f"uv build --out-dir {outdir}".split()
+            args = f"uv build --out-dir={outdir}".split()
             if USE_ENVIRONMENT_FOR_BUILD and not opts.build_isolation:
                 args.append("--no-build-isolation")
 
@@ -859,7 +919,7 @@ def get_package_wheel(
 
         # save that this was called:
         if reuse:
-            get_package_wheel._called = True  # type: ignore[attr-defined]  # noqa: SLF001
+            get_package_wheel._called = True  # type: ignore[attr-defined]  # noqa: SLF001  # pylint: disable=protected-access
 
     paths = list(dist_location.glob("*.whl"))
     if len(paths) != 1:
@@ -974,8 +1034,7 @@ def conda_build(session: nox.Session, opts: SessionParams) -> None:
     if "clean" in cmds:
         cmds.remove("clean")
         session.log("removing directory dist-conda/build")
-        if Path("./dist-conda/build").exists():
-            shutil.rmtree("./dist-conda/build")
+        shutil.rmtree(Path("./dist-conda/build"), ignore_errors=True)
 
     for cmd in cmds:
         if cmd == "build":
@@ -1036,8 +1095,6 @@ def _create_doc_examples_symlinks(session: nox.Session, clean: bool = True) -> N
 
     root = Path("./docs/examples/")
     if clean:
-        import shutil
-
         shutil.rmtree(root / "usage", ignore_errors=True)
 
     # get all md files

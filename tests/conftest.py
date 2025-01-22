@@ -8,7 +8,7 @@ import pytest
 from click.testing import CliRunner
 
 if TYPE_CHECKING:
-    from typing import Iterator
+    from collections.abc import Iterator
 
 
 @pytest.fixture(scope="session")

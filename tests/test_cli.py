@@ -1,4 +1,5 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call, assignment"
+# pylint: disable=duplicate-code,empty-comment
 import json
 import locale
 import logging
@@ -33,7 +34,7 @@ def check_result(result, expected) -> None:
 
 @pytest.fixture(params=["test-pyproject.toml"])
 def filename(request) -> Path:
-    return ROOT / cast(str, request.param)
+    return ROOT / cast("str", request.param)
 
 
 @pytest.mark.parametrize(
@@ -73,7 +74,7 @@ def filename(request) -> Path:
 )
 def test_list(fname: str, expected: str, runner: CliRunner) -> None:
     filename = ROOT / fname
-    for cmd in ["l", "list"]:
+    for cmd in ("l", "list"):
         result = do_run(runner, cmd, filename=filename)
         check_result(result, expected)
 
@@ -151,8 +152,8 @@ dependencies:
       - athing
     """
 
-    for opt in [("--python-include", "infer")]:
-        for cmd in ["y", "yaml"]:
+    for opt in [("--python-include", "infer")]:  # pylint: disable=consider-using-tuple
+        for cmd in ("y", "yaml"):
             result = do_run(runner, cmd, *opt, filename=filename)
             check_result(result, expected)
 
@@ -168,7 +169,7 @@ dependencies:
   - pip:
       - athing
     """
-    for opts in [
+    for opts in [  # pylint: disable=consider-using-tuple
         ("--python-include", "python=3.8"),
         ("--python", "3.8"),
         ("-p", "3.8"),
@@ -239,7 +240,7 @@ dependencies:
       - athing
     """
 
-    for opt in ["-c", "--channel"]:
+    for opt in ("-c", "--channel"):
         result = do_run(runner, "yaml", opt, "hello", filename=filename)
         check_result(result, expected)
 
@@ -255,7 +256,7 @@ dependencies:
       - athing
     """
 
-    for opt in ["-c", "--channel"]:
+    for opt in ("-c", "--channel"):
         result = do_run(runner, "yaml", opt, "hello", opt, "there", filename=filename)
         check_result(result, expected)
 
@@ -420,7 +421,7 @@ bthing
 cthing; python_version < "3.10"
     """
 
-    for cmd in ["r", "requirements"]:
+    for cmd in ("r", "requirements"):
         result = do_run(runner, cmd, filename=filename)
         check_result(result, expected)
 
@@ -611,7 +612,7 @@ pip
 athing
         """
 
-        for cmd in ["c", "conda-requirements"]:
+        for cmd in ("c", "conda-requirements"):
             do_run(
                 runner,
                 cmd,
@@ -686,7 +687,7 @@ def test_json(fname, opt, runner) -> None:
     with tempfile.TemporaryDirectory() as d_tmp:
         d = Path(d_tmp)
 
-        expected = {
+        expected = {  # pylint: disable=redefined-variable-type
             "dependencies": ["bthing-conda", "conda-forge::cthing", "pip"],
             "pip": ["athing"],
             "channels": ["conda-forge"],
@@ -813,7 +814,7 @@ def test_overwrite(filename, caplog) -> None:
 
         orig_time = path.stat().st_mtime
 
-        for cmd in ["check", "skip", "force"]:
+        for cmd in ("check", "skip", "force"):
             do_run(
                 runner,
                 "yaml",
@@ -854,7 +855,7 @@ def test_overwrite(filename, caplog) -> None:
 
         assert f"Creating requirements {d_tmp}/out.txt" in caplog.text
 
-        for cmd in ["check", "skip", "force"]:
+        for cmd in ("check", "skip", "force"):
             do_run(
                 runner,
                 "r",

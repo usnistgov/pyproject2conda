@@ -23,7 +23,7 @@ repos:
       - id: mixed-line-ending
   # * Sync dependencies
   - repo: https://github.com/mxr/sync-pre-commit-deps
-    rev: v0.0.2
+    rev: v0.0.3
     hooks:
       - id: sync-pre-commit-deps
 
@@ -33,21 +33,21 @@ repos:
     hooks:
       - id: pyproject-fmt
         args: [--indent=4, --keep-full-version]
-        files: ^pyproject.toml$
+        files: ""
+        types: [toml]
+        exclude: ^tests/data
 
   # * Prettier
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.4.2
     hooks:
       - id: prettier
         alias: markdownlint
         stages: [pre-commit]
-        additional_dependencies:
-          - prettier-plugin-toml
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.17.1
+    rev: v0.17.2
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -61,9 +61,9 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies:
-          - black==24.4.2
+          - black==24.10.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
+    rev: v0.9.2
     hooks:
       - id: ruff
         alias: ruff-all
@@ -75,12 +75,13 @@ repos:
 
   # * Spelling
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.0
     hooks:
       - id: codespell
         additional_dependencies: [tomli]
         args: [-I, docs/spelling_wordlist.txt]
         exclude_types: [jupyter]
+        exclude: ^uv[.]lock$|^requirements
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
@@ -88,6 +89,14 @@ repos:
     hooks:
       - id: commitizen
         stages: [commit-msg]
+
+  # * uv
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.5.22
+    hooks:
+      - id: uv-lock
+        args: [--locked]
 
   # * Manual Linting ------------------------------------------------------------
   - repo: https://github.com/asottile/pyupgrade
@@ -100,8 +109,8 @@ repos:
   # ** typos
   # Probably stick with codespell, but this might also be nice...
   - repo: https://github.com/crate-ci/typos
-    rev: v1.28.4
+    rev: dictgen-v0.3.1
     hooks:
       - id: typos
         stages: [manual]
-        exclude: "[.]ipynb$"
+        exclude: "[.]ipynb$|^uv[.]lock$|^requirements"

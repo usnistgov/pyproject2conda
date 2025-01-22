@@ -13,7 +13,8 @@ from typing import TYPE_CHECKING
 from packaging.version import Version
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Iterable, Mapping, Sequence
+    from collections.abc import Callable, Iterable, Mapping, Sequence
+    from typing import Any
 
     from ._typing import T
 
@@ -191,7 +192,7 @@ def update_target(
         if not target.exists():
             update = True
         else:
-            deps_filtered: list[Path] = [d for d in map(Path, deps) if d.exists()]
+            deps_filtered: list[Path] = [d for d in map(Path, deps) if d.exists()]  # pylint: disable=bad-builtin
 
             target_time = target.stat().st_mtime
 

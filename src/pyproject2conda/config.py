@@ -18,7 +18,8 @@ from pyproject2conda.utils import (
 )
 
 if TYPE_CHECKING:
-    from typing import Any, Iterator, Sequence
+    from collections.abc import Iterator, Sequence
+    from typing import Any
 
     from ._typing_compat import Self
 
@@ -89,9 +90,8 @@ class Config:  # noqa: PLR0904
 
             if inherit:
                 # If have override, use it.
-                _value = self._get_override(env_name).get(key, None)
-                if _value is not None:
-                    value = _value
+                if (value_ := self._get_override(env_name).get(key)) is not None:
+                    value = value_
 
                 # finally, try to get from top level
                 if value is None:
@@ -304,9 +304,8 @@ class Config:  # noqa: PLR0904
         if "overrides" not in data:
             data["overrides"] = []
 
-        for key in ["envs", "overrides"]:
-            u = user.get_in(key)
-            if u is not None:
+        for key in ("envs", "overrides"):
+            if (u := user.get_in(key)) is not None:
                 d = data[key]
                 if isinstance(d, list):
                     if not isinstance(u, list):
@@ -326,7 +325,7 @@ class Config:  # noqa: PLR0904
     ) -> list[str | None]:
         return [
             defaults.get(k, getattr(self, k)(env_name))
-            for k in ["output", "template", "template_python"]
+            for k in ("output", "template", "template_python")
         ]
 
     def _iter_yaml(
@@ -410,8 +409,7 @@ class Config:  # noqa: PLR0904
             else self.remove_whitespace(env_name, default=False)
         )
 
-        output = self.output(env_name)
-        if not output:  # pragma: no cover
+        if not (output := self.output(env_name)):  # pragma: no cover
             output = filename_from_template(
                 template=template,
                 env_name=env_name,

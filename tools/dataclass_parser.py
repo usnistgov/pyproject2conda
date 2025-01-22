@@ -1,3 +1,4 @@
+# pylint: disable=redefined-builtin
 """
 Light weight argparser from a dataclass.
 
@@ -40,11 +41,6 @@ from dataclasses import (
     is_dataclass,
     replace,
 )
-
-if sys.version_info < (3, 10):
-    msg = "Require python >= 3.10"
-    raise RuntimeError(msg)
-
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -64,6 +60,11 @@ if TYPE_CHECKING:
         from typing import Self
     else:
         from typing_extensions import Self
+
+
+if sys.version_info < (3, 10):
+    msg = "Require python >= 3.10"
+    raise RuntimeError(msg)
 
 
 _NoneType = type(None)
@@ -105,8 +106,7 @@ class Option:
         """Convert to dictionary."""
         return {
             k: v
-            for k, v in
-            (
+            for k, v in (
                 # Can't use asdict() since that deep copies and we need
                 # to filter using an identity check against UNDEFINED.
                 [
@@ -195,7 +195,7 @@ def add_option(
     **field_kws: Any,  # noqa: ARG001
 ) -> Any:
     """Add option."""
-    return field(
+    return field(  # pylint: disable=invalid-field-call
         metadata={
             "option": Option.factory(
                 *flags,
@@ -365,7 +365,7 @@ def _get_underlying_type(
                 max_depth=max_depth,
             )
 
-    elif allow_optional and (underlying := _get_underlying_if_optional(opt)):
+    elif allow_optional and (underlying := _get_underlying_if_optional(opt)):  # pylint: disable=confusing-consecutive-elif
         depth_out, type_ = _get_underlying_type(
             underlying,
             allow_optional=False,
@@ -383,7 +383,7 @@ def _get_underlying_if_optional(t: Any, pass_through: bool = False) -> Any:
             for arg in args:
                 if arg != _NoneType:
                     return arg
-    elif pass_through:
+    elif pass_through:  # pylint: disable=confusing-consecutive-elif
         return t
 
     return None
@@ -395,4 +395,4 @@ def _is_union_type(t: Any) -> bool:
     import types
 
     origin = get_origin(t)
-    return origin is types.UnionType or origin is Union
+    return origin is types.UnionType or origin is Union  # pylint: disable=consider-alternative-union-syntax)
