@@ -437,6 +437,9 @@ dist-pypi = [
 "setuptools",
 "build",
 ]
+optional-opt1 = [ "hello[opt1]" ]
+optional-opt2 = [ "hello[opt2]" ]
+optional-all = [ "hello[all]" ]
 
 # ...
 ```

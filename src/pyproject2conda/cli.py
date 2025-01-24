@@ -145,7 +145,7 @@ EXTRAS_OR_GROUPS_CLI = Annotated[
         Include dependencies from extra or group of `pyproject.toml`.
         Extras are checked first, followed by groups.  The first instance of `extra-or-group` found is used.
         That is, if both `extras` and `groups` contain `extra-or-group`, the extra will be used.
-        Use name `extras-or-groups` for specifying in `pyproject.toml`
+        Use name `extras_or_groups` for specifying in `pyproject.toml`
         """,
     ),
 ]
@@ -223,6 +223,13 @@ SKIP_PACKAGE_CLI = Annotated[
         """,
     ),
 ]
+PIP_ONLY_CLI = Annotated[
+    bool,
+    typer.Option(
+        "--pip-only",
+        help="""Treat all requirements as pip requirements. Use option `pip_only` in pyproject.toml""",
+    ),
+]
 SORT_DEPENDENCIES_CLI = Annotated[
     bool,
     typer.Option(
@@ -230,7 +237,7 @@ SORT_DEPENDENCIES_CLI = Annotated[
         help="""
         Default is to sort the dependencies (excluding `--python-include`).
         Pass `--no-sort` to instead place dependencies in order they are
-        gathered.
+        gathered.  Use option `sort = true/false` in pyproject.toml
         """,
     ),
 ]
@@ -534,6 +541,7 @@ def yaml(
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
+    pip_only: PIP_ONLY_CLI = False,
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
@@ -572,6 +580,7 @@ def yaml(
         python_include=python_include,
         python_version=python_version,
         skip_package=skip_package,
+        pip_only=pip_only,
         header_cmd=_get_header_cmd(header, output),
         sort=sort,
         conda_deps=deps,
@@ -647,6 +656,7 @@ def project(
     overwrite: OVERWRITE_CLI = Overwrite.check,
     verbose: VERBOSE_CLI = None,
     dry: DRY_CLI = False,
+    pip_only: PIP_ONLY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
     allow_empty: Annotated[Optional[bool], ALLOW_EMPTY_OPTION] = None,
     remove_whitespace: Annotated[Optional[bool], REMOVE_WHITESPACE_OPTION] = None,
@@ -673,6 +683,7 @@ def project(
         verbose=verbose,
         allow_empty=allow_empty,
         remove_whitespace=remove_whitespace,
+        pip_only=pip_only or None,
     ):
         if dry:
             # small header

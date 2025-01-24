@@ -60,13 +60,19 @@ def filename(request) -> Path:
             """\
             Extras
             ======
+            * all
             * build-system.requires
+            * opt1
+            * opt2
             Groups
             ======
             * build-system.requires
             * dev
             * dev-extras
             * dist-pypi
+            * optional-all
+            * optional-opt1
+            * optional-opt2
             * test
             """,
         ),
@@ -111,6 +117,22 @@ dependencies:
     """
 
     result = do_run(runner, "yaml", filename=filename)
+
+    check_result(result, expected)
+
+    # using pip-only
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - pip
+  - pip:
+      - athing
+      - bthing
+      - cthing;python_version<"3.10"
+    """
+
+    result = do_run(runner, "yaml", "--pip-only", filename=filename)
 
     check_result(result, expected)
 
@@ -307,6 +329,32 @@ dependencies:
         result = do_run(
             runner, "yaml", opt, "dist-pypi", "--skip-package", filename=filename
         )
+        check_result(result, expected)
+
+
+@pytest.mark.parametrize("fname", ["test-pyproject-groups.toml"])
+def test_groups_package_reference(fname, runner) -> None:
+    # test unknown file
+    filename = ROOT / fname
+
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - bthing-conda
+  - conda-forge::cthing
+  - opt1
+  - opt2
+  - pip
+  - pip:
+      - athing
+    """
+
+    for opts in (
+        ("-e", "all"),
+        ("-g", "optional-all"),
+    ):
+        result = do_run(runner, "yaml", *opts, filename=filename)
         check_result(result, expected)
 
 
