@@ -126,6 +126,17 @@ class Config:  # noqa: PLR0904
         )
         return select_pythons(out, self.default_pythons, self.all_pythons)
 
+    def pip_only(
+        self, env_name: str | None = None, inherit: bool = True, default: bool = False
+    ) -> bool:
+        """If True, use pip only"""
+        return self._get_value(  # type: ignore[no-any-return]
+            key="pip_only",
+            env_name=env_name,
+            inherit=inherit,
+            default=default,
+        )
+
     def _get_extras(
         self, key: str, env_name: str, default: Any, inherit: bool = True
     ) -> list[str]:
@@ -342,6 +353,7 @@ class Config:  # noqa: PLR0904
             "extras_or_groups",
             "sort",
             "skip_package",
+            "pip_only",
             "header",
             "overwrite",
             "verbose",
@@ -364,10 +376,10 @@ class Config:  # noqa: PLR0904
                 )
 
             if python_include := self.python_include(env_name):
-                data.update(python_include=python_include)
+                data = dict(data, python_include=python_include)
 
             if python_version := self.python_version(env_name):
-                data.update(python_version=python_version)
+                data = dict(data, python_version=python_version)
 
             data.update(output=output)
             yield ("yaml", data)

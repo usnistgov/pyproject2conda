@@ -552,13 +552,14 @@ class ParseDepends:
             out, remove_whitespace=remove_whitespace, unique=unique, sort=sort
         )
 
-    def conda_and_pip_requirements(  # noqa: C901
+    def conda_and_pip_requirements(  # noqa: C901, PLR0912
         self,
         *,
         extras: str | Iterable[str] | None = None,
         groups: str | Iterable[str] | None = None,
         extras_or_groups: str | Iterable[str] | None = None,
         skip_package: bool = False,
+        pip_only: bool = False,
         pip_deps: str | Iterable[str] | None = None,
         conda_deps: str | Iterable[str] | None = None,
         unique: bool = True,
@@ -598,7 +599,10 @@ class ParseDepends:
             groups=groups,
             skip_package=skip_package,
         ):
-            if (override := override_table.get(requirement.name)) is not None:
+            if pip_only and requirement.name != "python":
+                pip_deps.append(str(requirement))
+
+            elif (override := override_table.get(requirement.name)) is not None:
                 if override.pip:
                     pip_deps.append(str(requirement))
 
@@ -658,6 +662,7 @@ class ParseDepends:
         python_include: str | None = None,
         python_version: str | None = None,
         skip_package: bool = False,
+        pip_only: bool = False,
         header_cmd: str | None = None,
         output: str | Path | None = None,
         sort: bool = True,
@@ -671,6 +676,7 @@ class ParseDepends:
             groups=groups,
             extras_or_groups=extras_or_groups,
             skip_package=skip_package,
+            pip_only=pip_only,
             pip_deps=pip_deps,
             conda_deps=conda_deps,
             unique=unique,

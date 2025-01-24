@@ -120,6 +120,22 @@ dependencies:
 
     check_result(result, expected)
 
+    # using pip-only
+    expected = """\
+channels:
+  - conda-forge
+dependencies:
+  - pip
+  - pip:
+      - athing
+      - bthing
+      - cthing;python_version<"3.10"
+    """
+
+    result = do_run(runner, "yaml", "--pip-only", filename=filename)
+
+    check_result(result, expected)
+
     cmd = " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
 
     expected = f"""\
