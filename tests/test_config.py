@@ -81,6 +81,13 @@ def simple_toml() -> str:
     extras = []
 
 
+    [tool.pyproject2conda.envs.base-pip-only]
+    style = "yaml"
+    extras = []
+    pip_only = true
+
+
+
     [tool.pyproject2conda.envs.base3]
     style = "yaml"
     python = "default"
@@ -166,6 +173,7 @@ def test_option_override_base(simple_config: Config) -> None:
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -191,6 +199,7 @@ def test_option_override_base_reqs(simple_config: Config) -> None:
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -216,6 +225,7 @@ def test_option_override_base2(simple_config: Config) -> None:
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -226,6 +236,33 @@ def test_option_override_base2(simple_config: Config) -> None:
             "allow_empty": False,
             "remove_whitespace": True,
             "output": "py310-base2.yaml",
+            "python": "3.10",
+        },
+    )
+
+
+def test_option_override_base_pip_only(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["base-pip-only"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "pip_only": True,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py310-base-pip-only.yaml",
             "python": "3.10",
         },
     )
@@ -242,6 +279,7 @@ def test_option_override_both(simple_config: Config) -> None:
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -268,6 +306,7 @@ def test_option_override_base_template(simple_config: Config) -> None:
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -295,6 +334,7 @@ def test_option_override_base_allow_empty(simple_config: Config) -> None:
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -327,6 +367,7 @@ def test_option_override_base_allow_empty_other(simple_config: Config) -> None:
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -395,6 +436,7 @@ def test_option_override_base3_default_python(example_path, simple_toml: str) ->
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -431,6 +473,7 @@ def test_option_override_all_pythons(simple_toml: str, classifiers: str) -> None
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -462,6 +505,7 @@ def test_option_override_lowest_highest(simple_toml: str, classifiers: str) -> N
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -484,6 +528,7 @@ def test_option_override_lowest_highest(simple_toml: str, classifiers: str) -> N
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -510,6 +555,7 @@ def test_option_override_extension_yaml(simple_config: Config) -> None:
             "extras_or_groups": [],
             "sort": True,
             "skip_package": False,
+            "pip_only": False,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -588,6 +634,7 @@ def test_config_only_default() -> None:
         "extras_or_groups": ["test"],
         "sort": True,
         "skip_package": False,
+        "pip_only": False,
         "header": None,
         "overwrite": "check",
         "verbose": None,
@@ -661,6 +708,7 @@ def test_config_overrides() -> None:
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
     skip_package = true
+    pip_only = true
     """
 
     c = Config.from_string(s)
@@ -673,6 +721,45 @@ def test_config_overrides() -> None:
             "extras_or_groups": ["test"],
             "sort": True,
             "skip_package": True,
+            "pip_only": True,
+            "header": None,
+            "overwrite": "check",
+            "verbose": None,
+            "name": None,
+            "channels": None,
+            "python": "3.8",
+            "output": "py38-test.yaml",
+            "deps": None,
+            "reqs": None,
+            "allow_empty": False,
+            "remove_whitespace": True,
+        },
+    )
+
+    assert next(iter(c.iter_envs())) == expected
+
+
+def test_config_overrides2() -> None:
+    # test overrides env
+    s = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+    default_envs = ["test"]
+    pip_only = true
+    skip_package = true
+    """
+
+    c = Config.from_string(s)
+
+    expected = (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": ["test"],
+            "sort": True,
+            "skip_package": True,
+            "pip_only": True,
             "header": None,
             "overwrite": "check",
             "verbose": None,
@@ -732,6 +819,7 @@ def test_config_python_include_version() -> None:
                 "extras_or_groups": [],
                 "sort": True,
                 "skip_package": False,
+                "pip_only": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -754,6 +842,7 @@ def test_config_python_include_version() -> None:
                 "extras_or_groups": [],
                 "sort": True,
                 "skip_package": False,
+                "pip_only": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -806,6 +895,7 @@ def test_config_user_config() -> None:
                 "extras_or_groups": [],
                 "sort": True,
                 "skip_package": True,
+                "pip_only": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,
@@ -827,6 +917,7 @@ def test_config_user_config() -> None:
                 "extras_or_groups": [],
                 "sort": True,
                 "skip_package": False,
+                "pip_only": False,
                 "header": None,
                 "overwrite": "check",
                 "verbose": None,

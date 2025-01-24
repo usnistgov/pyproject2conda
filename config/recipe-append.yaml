@@ -7,6 +7,7 @@ test:
     - p2c --help
   requires:
     - pip
+    - python {{ python_min }}
 
 about:
   home: https://github.com/usnistgov/pyproject2conda

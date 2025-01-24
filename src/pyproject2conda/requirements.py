@@ -163,6 +163,23 @@ def resolve_extras(
     return out
 
 
+def resolve_group(
+    requirements: list[Requirement],
+    package_name: str,
+    extras: dict[str, list[Requirement]],
+) -> list[Requirement]:
+    """Resolve project.name[extra] in a group"""
+    out: list[Requirement] = []
+    for requirement in requirements:
+        if requirement.name == package_name:
+            for extra in requirement.extras:
+                out.extend(extras[extra])
+        else:
+            out.append(requirement)
+
+    return out
+
+
 # ** output ----------------------------------------------------------------------------
 def _conda_yaml(
     name: str | None = None,
@@ -399,9 +416,16 @@ class ParseDepends:
         """Groups requirements"""
         from .vendored.dependency_groups._implementation import resolve
 
-        resolved: dict[str, list[Requirement]] = {
+        unresolved: dict[str, list[Requirement]] = {
             group: [Requirement(x) for x in resolve(self.dependency_groups, group)]
             for group in self.dependency_groups
+        }
+
+        resolved = {
+            group: resolve_group(
+                requirements, self.package_name, self.requirements_extras
+            )
+            for group, requirements in unresolved.items()
         }
 
         # add in build-system.requires
@@ -528,13 +552,14 @@ class ParseDepends:
             out, remove_whitespace=remove_whitespace, unique=unique, sort=sort
         )
 
-    def conda_and_pip_requirements(  # noqa: C901
+    def conda_and_pip_requirements(  # noqa: C901, PLR0912
         self,
         *,
         extras: str | Iterable[str] | None = None,
         groups: str | Iterable[str] | None = None,
         extras_or_groups: str | Iterable[str] | None = None,
         skip_package: bool = False,
+        pip_only: bool = False,
         pip_deps: str | Iterable[str] | None = None,
         conda_deps: str | Iterable[str] | None = None,
         unique: bool = True,
@@ -574,7 +599,10 @@ class ParseDepends:
             groups=groups,
             skip_package=skip_package,
         ):
-            if (override := override_table.get(requirement.name)) is not None:
+            if pip_only and requirement.name != "python":
+                pip_deps.append(str(requirement))
+
+            elif (override := override_table.get(requirement.name)) is not None:
                 if override.pip:
                     pip_deps.append(str(requirement))
 
@@ -634,6 +662,7 @@ class ParseDepends:
         python_include: str | None = None,
         python_version: str | None = None,
         skip_package: bool = False,
+        pip_only: bool = False,
         header_cmd: str | None = None,
         output: str | Path | None = None,
         sort: bool = True,
@@ -647,6 +676,7 @@ class ParseDepends:
             groups=groups,
             extras_or_groups=extras_or_groups,
             skip_package=skip_package,
+            pip_only=pip_only,
             pip_deps=pip_deps,
             conda_deps=conda_deps,
             unique=unique,
