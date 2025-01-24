@@ -412,8 +412,8 @@ reqs = [
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
     "pre-commit",
-    "pyproject2conda>=0.16.0",
-    "pyright>=1.1.391",
+    "pyproject2conda>=0.18.0",
+    "pyright>=1.1.392",
     "scriv",
     "twine>=5.0.0",
 ]
@@ -431,11 +431,6 @@ required-version = ">=0.5.21"
 
 [tool.uv.pip]
 annotation-style = "line"
-
-[[tool.uv.index]]
-name = "testpypi"
-url = "https://test.pypi.org/"
-publish-url = "https://test.pypi.org/legacy/"
 
 # * Other tools ----------------------------------------------------------------
 

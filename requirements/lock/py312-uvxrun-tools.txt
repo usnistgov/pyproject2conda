@@ -741,9 +741,9 @@ pylev==1.4.0 \
     --hash=sha256:7b2e2aa7b00e05bb3f7650eb506fc89f474f70493271a35c242d9a92188ad3dd \
     --hash=sha256:9e77e941042ad3a4cc305dcdf2b2dec1aec2fbe3dd9015d2698ad02b173006d1
     # via clikit
-pyproject2conda==0.17.0 \
-    --hash=sha256:56706d5072c1966226103595d5604ab750b2779abf1d2c45e3a5dfa52f3c9593 \
-    --hash=sha256:e1abc3a3ac1e8df47d5226b74dea883f877cc023ee48b7cd2111f9574c91f110
+pyproject2conda==0.18.0 \
+    --hash=sha256:32bc0d806ad4046a9c7b331ba3840a249641a7165e61b0291a6000e129eb9823 \
+    --hash=sha256:f969e5b4d07b96bd419f329aa24fe601061a625f62f3622b2dcbca1138b9c4af
     # via -r requirements/uvxrun-tools.txt
 pyright==1.1.392.post0 \
     --hash=sha256:252f84458a46fa2f0fd4e2f91fc74f50b9ca52c757062e93f6c250c0d8329eb2 \
