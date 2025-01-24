@@ -18,6 +18,32 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.18.0 — 2025-01-24
+
+### Added
+
+- Can now specify current package in dependency-groups like with extras. For
+  example, with:
+
+```toml
+[project]
+name = "mypackage"
+...
+
+optional-dependencies.opt = [ "opt1" ]
+
+[dependency-groups]
+dev = [
+  "pytest",
+  "mypackage[opt]"
+]
+```
+
+Will render optional dependencies from `opt` extra when using group `dev`
+
+- Added flag `--pip-only` to treat all requirements as pip requirements in
+  `environment.yaml` files. Closes #8
+
 ## v0.16.0 — 2024-12-31
 
 ### Changed
