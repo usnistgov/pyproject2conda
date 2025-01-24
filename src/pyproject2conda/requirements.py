@@ -163,6 +163,23 @@ def resolve_extras(
     return out
 
 
+def resolve_group(
+    requirements: list[Requirement],
+    package_name: str,
+    extras: dict[str, list[Requirement]],
+) -> list[Requirement]:
+    """Resolve project.name[extra] in a group"""
+    out: list[Requirement] = []
+    for requirement in requirements:
+        if requirement.name == package_name:
+            for extra in requirement.extras:
+                out.extend(extras[extra])
+        else:
+            out.append(requirement)
+
+    return out
+
+
 # ** output ----------------------------------------------------------------------------
 def _conda_yaml(
     name: str | None = None,
@@ -399,9 +416,16 @@ class ParseDepends:
         """Groups requirements"""
         from .vendored.dependency_groups._implementation import resolve
 
-        resolved: dict[str, list[Requirement]] = {
+        unresolved: dict[str, list[Requirement]] = {
             group: [Requirement(x) for x in resolve(self.dependency_groups, group)]
             for group in self.dependency_groups
+        }
+
+        resolved = {
+            group: resolve_group(
+                requirements, self.package_name, self.requirements_extras
+            )
+            for group, requirements in unresolved.items()
         }
 
         # add in build-system.requires
