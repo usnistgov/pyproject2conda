@@ -90,13 +90,19 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 
+  # * pyproject2conda
+  - repo: .
+    rev: 19699c4492755f9b8edabde73f8be5d19d46b206
+    hooks:
+      - id: pyproject2conda-project
+        args: ["--overwrite=force", "--verbose"]
+
   # * uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
     rev: 0.5.24
     hooks:
       - id: uv-lock
-        args: [--locked]
 
   # * Manual Linting ------------------------------------------------------------
   - repo: https://github.com/asottile/pyupgrade

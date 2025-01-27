@@ -5,7 +5,7 @@
   entry: pyproject2conda project
   language: python
   files: ^pyproject\.toml$
-  args: ["--overwrite=force"]
+  args: ["--overwrite=force", "--verbose"]
   pass_filenames: false
   additional_dependencies: []
   minimum_pre_commit_version: "2.9.2"
