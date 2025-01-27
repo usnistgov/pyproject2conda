@@ -159,7 +159,12 @@ dependencies:
     """
     result = do_run(runner, "yaml", "--header", filename=filename)
 
-    check_result(result, expected)
+    check_result(result, expected.format(cmd=cmd))
+
+    # custom command
+    result = do_run(runner, "yaml", "--custom-command", "make hello", filename=filename)
+
+    check_result(result, expected.format(cmd="make hello"))
 
     # -p flag
     expected = """\

@@ -297,6 +297,15 @@ HEADER_CLI = Annotated[
         """,
     ),
 ]
+CUSTOM_COMMAND_CLI = Annotated[
+    Optional[str],
+    typer.Option(
+        "--custom-command",
+        help="""
+        Custom command to place in header.  Implies `--header`.
+        """,
+    ),
+]
 DEPS_CLI = Annotated[
     Optional[List[str]],
     typer.Option(
@@ -419,8 +428,13 @@ REMOVE_WHITESPACE_OPTION = typer.Option(
 
 # * Utils ------------------------------------------------------------------------------
 def _get_header_cmd(
-    header: Optional[bool], output: Union[str, Path, None]
+    custom_command: Optional[str],
+    header: Optional[bool],
+    output: Union[str, Path, None],
 ) -> Optional[str]:
+    if custom_command is not None:
+        return custom_command
+
     if header is None:
         header = output is not None
 
@@ -544,6 +558,7 @@ def yaml(
     pip_only: PIP_ONLY_CLI = False,
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
+    custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
     verbose: VERBOSE_CLI = None,
     deps: DEPS_CLI = None,
@@ -581,7 +596,7 @@ def yaml(
         python_version=python_version,
         skip_package=skip_package,
         pip_only=pip_only,
-        header_cmd=_get_header_cmd(header, output),
+        header_cmd=_get_header_cmd(custom_command, header, output),
         sort=sort,
         conda_deps=deps,
         pip_deps=reqs,
@@ -605,6 +620,7 @@ def requirements(
     skip_package: SKIP_PACKAGE_CLI = False,
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
+    custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
     verbose: VERBOSE_CLI = None,
     reqs: REQS_CLI = None,
@@ -626,7 +642,7 @@ def requirements(
         extras_or_groups=extras_or_groups,
         output=output,
         skip_package=skip_package,
-        header_cmd=_get_header_cmd(header, output),
+        header_cmd=_get_header_cmd(custom_command, header, output),
         sort=sort,
         pip_deps=reqs,
         allow_empty=allow_empty,
@@ -653,6 +669,7 @@ def project(
     yaml_ext: YAML_EXT_CLI = ".yaml",
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
+    custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.check,
     verbose: VERBOSE_CLI = None,
     dry: DRY_CLI = False,
@@ -679,6 +696,7 @@ def project(
         deps=deps,
         sort=sort,
         header=header,
+        custom_command=custom_command,
         overwrite=overwrite.value,
         verbose=verbose,
         allow_empty=allow_empty,
@@ -734,6 +752,7 @@ def conda_requirements(
     prepend_channel: PREPEND_CHANNEL_CLI = False,
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
+    custom_command: CUSTOM_COMMAND_CLI = None,
     # paths,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
@@ -768,8 +787,6 @@ def conda_requirements(
 
     d = _get_requirement_parser(filename)
 
-    _get_header_cmd(header, path_conda)
-
     deps_str, reqs_str = d.to_conda_requirements(
         extras=extras,
         groups=groups,
@@ -781,7 +798,7 @@ def conda_requirements(
         output_conda=path_conda,
         output_pip=path_pip,
         skip_package=skip_package,
-        header_cmd=_get_header_cmd(header, path_conda),
+        header_cmd=_get_header_cmd(custom_command, header, path_conda),
         sort=sort,
         conda_deps=deps,
         pip_deps=reqs,
