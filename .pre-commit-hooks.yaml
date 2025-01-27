@@ -1,0 +1,33 @@
+- id: pyproject2conda-project
+  name: pyproject2conda-project
+  description:
+    "Automatically run 'pyproject2conda project' on project dependencies"
+  entry: pyproject2conda project
+  language: python
+  files: ^pyproject\.toml$
+  args: ["--overwrite=force"]
+  pass_filenames: false
+  additional_dependencies: []
+  minimum_pre_commit_version: "2.9.2"
+- id: pyproject2conda-yaml
+  name: pyproject2conda-yaml
+  description:
+    "Automatically run 'pyproject2conda yaml' on project dependencies"
+  entry: pyproject2conda yaml
+  language: python
+  files: ^pyproject\.toml$
+  args: ["--group=dev", "--output=environment.yaml"]
+  pass_filenames: false
+  additional_dependencies: []
+  minimum_pre_commit_version: "2.9.2"
+- id: pyproject2conda-requirements
+  name: pyproject2conda-requirements
+  description:
+    "Automatically run 'pyproject2conda yaml' on project dependencies"
+  entry: pyproject2conda requirements
+  language: python
+  files: ^pyproject\.toml$
+  args: ["--group=dev", "--output=requirements-dev.in"]
+  pass_filenames: false
+  additional_dependencies: []
+  minimum_pre_commit_version: "2.9.2"
