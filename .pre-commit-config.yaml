@@ -92,10 +92,9 @@ repos:
 
   # * pyproject2conda
   - repo: .
-    rev: 19699c4492755f9b8edabde73f8be5d19d46b206
+    rev: d727a85ff4b30de95af3164ebb4a7b0a35657dbc
     hooks:
       - id: pyproject2conda-project
-        args: ["--overwrite=force", "--verbose"]
 
   # * uv
   - repo: https://github.com/astral-sh/uv-pre-commit
