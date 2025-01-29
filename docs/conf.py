@@ -421,12 +421,8 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "numpy": ("https://numpy.org/doc/stable", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "numba": ("https://numba.pydata.org/numba-doc/latest", None),
-    # "matplotlib": ("https://matplotlib.org", None),
+    "numba": ("https://numba.readthedocs.io/en/stable/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
-    "dask": ("https://docs.dask.org/en/latest", None),
-    "cftime": ("https://unidata.github.io/cftime", None),
-    "sparse": ("https://sparse.pydata.org/en/latest/", None),
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
 }
 
