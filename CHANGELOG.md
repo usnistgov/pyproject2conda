@@ -18,6 +18,19 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.19.0 — 2025-01-29
+
+### Added
+
+- Added pre-commit hooks `pyproject2conda-project`, `pyproject2conda-yaml`, and
+  `pyproject2conda-requirements`.
+
+### Changed
+
+- Changed default of `--overwrite` to `force`. This simplifies using with
+  `pre-commit`.
+- `--commit-command` defaults to `pre-commit` when run under pre-commit
+
 ## v0.18.0 — 2025-01-24
 
 ### Added
