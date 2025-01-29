@@ -100,7 +100,7 @@ repos:
 
   # * pyproject2conda
   - repo: .
-    rev: 34a73ece96f660ccad2b349dad4e5228afdb38cc
+    rev: 81c58172112987cdf6025ab13b9951e12cb8931e
     hooks:
       - id: pyproject2conda-project
         alias: requirements
