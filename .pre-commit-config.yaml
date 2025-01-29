@@ -90,13 +90,6 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 
-  # * pyproject2conda
-  - repo: .
-    rev: 20fa620bcb6427e160c0843104b7a20071430eec
-    hooks:
-      - id: pyproject2conda-project
-        alias: requirements
-
   # * uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
@@ -104,6 +97,13 @@ repos:
     hooks:
       - id: uv-lock
         alias: lock
+
+  # * pyproject2conda
+  - repo: .
+    rev: 20fa620bcb6427e160c0843104b7a20071430eec
+    hooks:
+      - id: pyproject2conda-project
+        alias: requirements
 
   # * all lock files
   - repo: local

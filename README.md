@@ -25,6 +25,7 @@
 [conda-link]: https://anaconda.org/conda-forge/pyproject2conda
 [license-badge]: https://img.shields.io/pypi/l/cmomy?color=informational
 [license-link]: https://github.com/usnistgov/pyproject2conda/blob/main/LICENSE
+[pre-commit]: https://pre-commit.com/
 
 <!-- other links -->
 
@@ -44,14 +45,44 @@ use poetry, I'd highly recommend [poetry2conda].
 
 ## Features
 
-- Simple comment based syntax to add information to dependencies when creating
-  `environment.yaml`
+- Automatic creation of `environment.yaml`and `requirements.txt` files from
+  `pyproject.toml`.
+- Simple remapping of `pypi` package name to `conda` package name when creating
+  `environment.yaml` files.
+- [pre-commit] hooks to automatically keep dependency files up to data.
 
 ## Status
 
 This package is actively used by the author, but is still very much a work in
 progress. Please feel free to create a pull request for wanted features and
 suggestions!
+
+## Pre-commit hooks
+
+`pyproject2conda` works with [pre-commit]. Hooks are available for the
+`project`, `yaml`, and `requirements` subcommands described below:
+
+```yaml
+- repo: https://github.com/usnistgov/pyproject2conda
+  rev: { version } # replace with current version
+  hooks:
+    - id: pyproject2conda-project
+    - id: pyproject2conda-yaml
+    - id: pyproject2conda-requirements
+```
+
+For `yaml` and `requirements`, you can override the default behavior (of
+creating environment/requirement files from the `dependency-group` `dev`) by
+passing in `args`. For example, you could use the following to create an
+environment file with the extra `dev-complete`
+
+```yaml
+- repo: https://github.com/usnistgov/pyproject2conda
+  rev: { version } # replace with current version
+  hooks:
+    - id: pyproject2conda-yaml
+      args: ["-e", "dev-complete", "-o", "environment-dev.yaml"]
+```
 
 ## Quick start
 
@@ -287,9 +318,11 @@ dependencies:
 <!-- [[[end]]] -->
 
 Passing `--python="default"` will extract the python version from
-`.python-version` file. Passign `--python` value `"lowest"` or `"highest"` will
+`.python-version` file. Passing `--python` value `"lowest"` or `"highest"` will
 extract the lowest or highest python version, respectively, from the
-`project.classifiers` table of the `pyproject.toml` file.
+`project.classifiers` table of the `pyproject.toml` file. Using the option
+`python="all"` in `pyproject.toml` will include all python versions in the
+`project.classifiers` table.
 
 ### Adding extra conda dependencies and pip requirements
 
@@ -506,6 +539,8 @@ dependencies:
 ```
 
 <!-- [[[end]]] -->
+
+You can customize the command in the header with the `--custom-command` option.
 
 ### Usage within python
 
