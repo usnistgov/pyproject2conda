@@ -111,7 +111,7 @@ repos:
       - id: requirements-lock
         name: requirements-lock
         alias: lock
-        entry: nox -s lock
+        entry: nox -s lock -- ++lock-force
         language: python
         files: ^requirements/.*\.txt$
         pass_filenames: false
