@@ -1,5 +1,7 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 # pylint: disable=duplicate-code
+from __future__ import annotations
+
 import filecmp
 import logging
 import tempfile
@@ -1036,6 +1038,12 @@ def test_version(runner) -> None:
     )
 
 
+def get_times(path: Path) -> dict[str, Path]:
+    return {
+        p: p.stat().st_mtime for ext in ("txt", "yaml") for p in path.glob(f"*.{ext}")
+    }
+
+
 @pytest.mark.parametrize(
     ("fname", "opt"),
     [
@@ -1050,7 +1058,7 @@ def test_multiple(fname, opt, runner, caplog) -> None:
     caplog.set_level(logging.INFO)
 
     t1 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
-    path1 = t1.name
+    path1 = Path(t1.name)
 
     do_run_(
         runner,
@@ -1063,11 +1071,14 @@ def test_multiple(fname, opt, runner, caplog) -> None:
 
     assert "Creating" in caplog.text
 
+    orig_times = get_times(path1)
+
     # running this again?
     do_run_(
         runner,
         "project",
         "-v",
+        "--overwrite=check",
         "--template-python",
         f"{path1}/" + "py{py}-{env}",
         "--template",
@@ -1076,15 +1087,20 @@ def test_multiple(fname, opt, runner, caplog) -> None:
 
     assert "Skipping requirements" in caplog.text
 
-    # run again no verbose:
+    assert orig_times == get_times(path1)
+
+    # and again (without verbose)
     do_run_(
         runner,
         "project",
+        "--overwrite=check",
         "--template-python",
         f"{path1}/" + "py{py}-{env}",
         "--template",
         f"{path1}/" + "{env}",
     )
+
+    assert orig_times == get_times(path1)
 
     t2 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
     path2 = t2.name

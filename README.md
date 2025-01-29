@@ -81,8 +81,12 @@ environment file with the extra `dev-complete`
   rev: { version } # replace with current version
   hooks:
     - id: pyproject2conda-yaml
-      args: ["-e", "dev-complete", "-o", "environment-dev.yaml"]
+      args: ["-e", "dev-complete", "-o", "environment-dev.yaml", "-w", "force"]
 ```
+
+Note that if called from pre-commit (detected by the presence of `PRE_COMMIT`
+environment variable), the default is to set `--custom-command="pre-commit"`.
+You can explicitly pass in `--custom-command` to override this.
 
 ## Quick start
 

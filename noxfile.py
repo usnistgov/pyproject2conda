@@ -151,7 +151,6 @@ class SessionParams(DataclassParser):
     )
 
     # requirements
-    requirements_force: bool = False
     requirements_no_notify: bool = add_option(
         default=False,
         help="Skip notification of lock-compile",

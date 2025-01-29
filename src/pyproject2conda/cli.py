@@ -182,7 +182,7 @@ class Overwrite(str, Enum):
 
     check = "check"
     skip = "skip"
-    foce = "force"
+    force = "force"
 
 
 OVERWRITE_CLI = Annotated[
@@ -435,6 +435,9 @@ def _get_header_cmd(
     if custom_command is not None:
         return custom_command
 
+    if "PRE_COMMIT" in os.environ:
+        return "pre-commit"
+
     if header is None:
         header = output is not None
 
@@ -559,7 +562,7 @@ def yaml(
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
-    overwrite: OVERWRITE_CLI = Overwrite.check,
+    overwrite: OVERWRITE_CLI = Overwrite.force,
     verbose: VERBOSE_CLI = None,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
@@ -621,7 +624,7 @@ def requirements(
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
-    overwrite: OVERWRITE_CLI = Overwrite.check,
+    overwrite: OVERWRITE_CLI = Overwrite.force,
     verbose: VERBOSE_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
@@ -670,7 +673,7 @@ def project(
     sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
-    overwrite: OVERWRITE_CLI = Overwrite.check,
+    overwrite: OVERWRITE_CLI = Overwrite.force,
     verbose: VERBOSE_CLI = None,
     dry: DRY_CLI = False,
     pip_only: PIP_ONLY_CLI = False,
@@ -828,7 +831,7 @@ def to_json(
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     verbose: VERBOSE_CLI = None,
-    overwrite: OVERWRITE_CLI = Overwrite.check,
+    overwrite: OVERWRITE_CLI = Overwrite.force,
 ) -> None:
     """
     Create json representation.

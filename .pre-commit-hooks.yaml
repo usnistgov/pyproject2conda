@@ -5,7 +5,7 @@
   entry: pyproject2conda project
   language: python
   files: ^pyproject\.toml$
-  args: ["--overwrite=force", "--verbose", "--custom-command=pre-commit"]
+  args: ["--overwrite=force", "--verbose"]
   pass_filenames: false
   additional_dependencies: []
   minimum_pre_commit_version: "2.9.2"
@@ -16,8 +16,7 @@
   entry: pyproject2conda yaml
   language: python
   files: ^pyproject\.toml$
-  args:
-    ["--group=dev", "--output=environment.yaml", "--custom-command=pre-commit"]
+  args: ["--group=dev", "--output=environment.yaml"]
   pass_filenames: false
   additional_dependencies: []
   minimum_pre_commit_version: "2.9.2"
@@ -28,12 +27,7 @@
   entry: pyproject2conda requirements
   language: python
   files: ^pyproject\.toml$
-  args:
-    [
-      "--group=dev",
-      "--output=requirements-dev.in",
-      "--custom-command=pre-commit",
-    ]
+  args: ["--group=dev", "--output=requirements-dev.in"]
   pass_filenames: false
   additional_dependencies: []
   minimum_pre_commit_version: "2.9.2"
