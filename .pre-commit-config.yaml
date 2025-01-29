@@ -92,9 +92,10 @@ repos:
 
   # * pyproject2conda
   - repo: .
-    rev: d727a85ff4b30de95af3164ebb4a7b0a35657dbc
+    rev: 20fa620bcb6427e160c0843104b7a20071430eec
     hooks:
       - id: pyproject2conda-project
+        alias: requirements
 
   # * uv
   - repo: https://github.com/astral-sh/uv-pre-commit
@@ -102,6 +103,19 @@ repos:
     rev: 0.5.24
     hooks:
       - id: uv-lock
+        alias: lock
+
+  # * all lock files
+  - repo: local
+    hooks:
+      - id: requirements-lock
+        name: requirements-lock
+        alias: lock
+        entry: nox -s lock
+        language: python
+        files: ^requirements/.*\.txt$
+        pass_filenames: false
+        additional_dependencies: ["nox==2024.10.9"]
 
   # * Manual Linting ------------------------------------------------------------
   - repo: https://github.com/asottile/pyupgrade

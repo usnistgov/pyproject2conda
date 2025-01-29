@@ -12,9 +12,9 @@ asttokens==3.0.0 \
     --hash=sha256:0dcd8baa8d62b0c1d118b399b2ddba3c4aff271d0d7a9e0d4c1681c79035bbc7 \
     --hash=sha256:e3078351a059199dd5138cb1c706e6430c05eff2ff136af5eb4790f9d28932e2
     # via stack-data
-attrs==24.3.0 \
-    --hash=sha256:8f5c07333d543103541ba7be0e2ce16eeee8130cb0b3f9238ab904ce1e85baff \
-    --hash=sha256:ac96cd038792094f438ad1f6ff80837353805ac950cd2aa0e0625ef19850c308
+attrs==25.1.0 \
+    --hash=sha256:1c97078a80c814273a76b2a298a932eb681c87415c11dee0a6921de7f1b02c3e \
+    --hash=sha256:c75a69e28a550a7e93789579c22aa26b0f5b83b75dc4e08fe092980051e1090a
     # via scriv
 autopep8==2.3.2 \
     --hash=sha256:89440a4f969197b69a995e4ce0661b031f455a9f776d2c5ba3dbd83466931758 \
@@ -587,9 +587,9 @@ pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32' \
     --hash=sha256:7236d1e080e4936be2dc3e326cec0af72acf9212a7e1d060210e70a47e253523 \
     --hash=sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f
     # via ipython
-pip==24.3.1 \
-    --hash=sha256:3790624780082365f47549d032f3770eeb2b1e8bd1f7b2e02dace1afa361b4ed \
-    --hash=sha256:ebcb60557f2aefabc2e0f918751cd24ea0d56d8ec5445fe1807f1d2109660b99
+pip==25.0 \
+    --hash=sha256:8e0a97f7b4c47ae4a494560da84775e9e2f671d415d8d828e052efefb206b30b \
+    --hash=sha256:b6eb97a803356a52b2dd4bb73ba9e65b2ba16caa6bcb25a7497350a4e5859b65
     # via grayskull
 pkginfo==1.12.0 \
     --hash=sha256:8ad91a0445a036782b9366ef8b8c2c50291f83a553478ba8580c73d3215700cf \
@@ -745,9 +745,9 @@ pyproject2conda==0.18.0 \
     --hash=sha256:32bc0d806ad4046a9c7b331ba3840a249641a7165e61b0291a6000e129eb9823 \
     --hash=sha256:f969e5b4d07b96bd419f329aa24fe601061a625f62f3622b2dcbca1138b9c4af
     # via -r requirements/uvxrun-tools.txt
-pyright==1.1.392.post0 \
-    --hash=sha256:252f84458a46fa2f0fd4e2f91fc74f50b9ca52c757062e93f6c250c0d8329eb2 \
-    --hash=sha256:3b7f88de74a28dcfa90c7d90c782b6569a48c2be5f9d4add38472bdaac247ebd
+pyright==1.1.393 \
+    --hash=sha256:8320629bb7a44ca90944ba599390162bf59307f3d9fb6e27da3b7011b8c17ae5 \
+    --hash=sha256:aeeb7ff4e0364775ef416a80111613f91a05c8e01e58ecfefc370ca0db7aed9c
     # via -r requirements/uvxrun-tools.txt
 python-utils==3.9.1 \
     --hash=sha256:0273d7363c7ad4b70999b2791d5ba6b55333d6f7a4e4c8b6b39fb82b5fab4613 \

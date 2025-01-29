@@ -212,7 +212,7 @@ class Config:  # noqa: PLR0904
 
     def custom_command(self, env_name: str) -> bool:
         """Custom command to place in the header"""
-        return self._get_value(key="custom_command", env_name=env_name, default=None)
+        return self._get_value(key="custom_command", env_name=env_name, default=None)  # type: ignore[no-any-return]
 
     def style(self, env_name: str | None = None, default: str = "yaml") -> str:
         """Style getter.  One of `yaml`, `requirements`"""
