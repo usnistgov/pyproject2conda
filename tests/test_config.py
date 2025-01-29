@@ -1,5 +1,7 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 # pylint: disable=duplicate-code
+from __future__ import annotations
+
 import filecmp
 import logging
 import tempfile
@@ -86,7 +88,10 @@ def simple_toml() -> str:
     extras = []
     pip_only = true
 
-
+    [tool.pyproject2conda.envs.base-custom-command]
+    style = "yaml"
+    extras = []
+    custom_command = "make hello"
 
     [tool.pyproject2conda.envs.base3]
     style = "yaml"
@@ -175,6 +180,7 @@ def test_option_override_base(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -201,6 +207,7 @@ def test_option_override_base_reqs(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": ["-e ."],
@@ -227,6 +234,7 @@ def test_option_override_base2(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -254,6 +262,7 @@ def test_option_override_base_pip_only(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": True,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -263,6 +272,34 @@ def test_option_override_base_pip_only(simple_config: Config) -> None:
             "allow_empty": False,
             "remove_whitespace": True,
             "output": "py310-base-pip-only.yaml",
+            "python": "3.10",
+        },
+    )
+
+
+def test_option_override_base_custom_command(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["base-custom-command"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "pip_only": False,
+            "header": None,
+            "custom_command": "make hello",
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py310-base-custom-command.yaml",
             "python": "3.10",
         },
     )
@@ -281,6 +318,7 @@ def test_option_override_both(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -308,6 +346,7 @@ def test_option_override_base_template(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -336,6 +375,7 @@ def test_option_override_base_allow_empty(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -369,6 +409,7 @@ def test_option_override_base_allow_empty_other(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -438,6 +479,7 @@ def test_option_override_base3_default_python(example_path, simple_toml: str) ->
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -475,6 +517,7 @@ def test_option_override_all_pythons(simple_toml: str, classifiers: str) -> None
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -507,6 +550,7 @@ def test_option_override_lowest_highest(simple_toml: str, classifiers: str) -> N
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -530,6 +574,7 @@ def test_option_override_lowest_highest(simple_toml: str, classifiers: str) -> N
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -557,6 +602,7 @@ def test_option_override_extension_yaml(simple_config: Config) -> None:
             "skip_package": False,
             "pip_only": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -583,6 +629,7 @@ def test_option_override_extension_txt(simple_config: Config) -> None:
             "sort": True,
             "skip_package": False,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "reqs": None,
@@ -636,6 +683,7 @@ def test_config_only_default() -> None:
         "skip_package": False,
         "pip_only": False,
         "header": None,
+        "custom_command": None,
         "overwrite": "check",
         "verbose": None,
         "name": None,
@@ -723,6 +771,7 @@ def test_config_overrides() -> None:
             "skip_package": True,
             "pip_only": True,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "name": None,
@@ -761,6 +810,7 @@ def test_config_overrides2() -> None:
             "skip_package": True,
             "pip_only": True,
             "header": None,
+            "custom_command": None,
             "overwrite": "check",
             "verbose": None,
             "name": None,
@@ -821,6 +871,7 @@ def test_config_python_include_version() -> None:
                 "skip_package": False,
                 "pip_only": False,
                 "header": None,
+                "custom_command": None,
                 "overwrite": "check",
                 "verbose": None,
                 "name": None,
@@ -844,6 +895,7 @@ def test_config_python_include_version() -> None:
                 "skip_package": False,
                 "pip_only": False,
                 "header": None,
+                "custom_command": None,
                 "overwrite": "check",
                 "verbose": None,
                 "name": None,
@@ -897,6 +949,7 @@ def test_config_user_config() -> None:
                 "skip_package": True,
                 "pip_only": False,
                 "header": None,
+                "custom_command": None,
                 "overwrite": "check",
                 "verbose": None,
                 "name": None,
@@ -919,6 +972,7 @@ def test_config_user_config() -> None:
                 "skip_package": False,
                 "pip_only": False,
                 "header": None,
+                "custom_command": None,
                 "overwrite": "check",
                 "verbose": None,
                 "name": None,
@@ -984,6 +1038,12 @@ def test_version(runner) -> None:
     )
 
 
+def get_times(path: Path) -> dict[str, Path]:
+    return {
+        p: p.stat().st_mtime for ext in ("txt", "yaml") for p in path.glob(f"*.{ext}")
+    }
+
+
 @pytest.mark.parametrize(
     ("fname", "opt"),
     [
@@ -998,7 +1058,7 @@ def test_multiple(fname, opt, runner, caplog) -> None:
     caplog.set_level(logging.INFO)
 
     t1 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
-    path1 = t1.name
+    path1 = Path(t1.name)
 
     do_run_(
         runner,
@@ -1011,11 +1071,14 @@ def test_multiple(fname, opt, runner, caplog) -> None:
 
     assert "Creating" in caplog.text
 
+    orig_times = get_times(path1)
+
     # running this again?
     do_run_(
         runner,
         "project",
         "-v",
+        "--overwrite=check",
         "--template-python",
         f"{path1}/" + "py{py}-{env}",
         "--template",
@@ -1024,15 +1087,20 @@ def test_multiple(fname, opt, runner, caplog) -> None:
 
     assert "Skipping requirements" in caplog.text
 
-    # run again no verbose:
+    assert orig_times == get_times(path1)
+
+    # and again (without verbose)
     do_run_(
         runner,
         "project",
+        "--overwrite=check",
         "--template-python",
         f"{path1}/" + "py{py}-{env}",
         "--template",
         f"{path1}/" + "{env}",
     )
+
+    assert orig_times == get_times(path1)
 
     t2 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
     path2 = t2.name

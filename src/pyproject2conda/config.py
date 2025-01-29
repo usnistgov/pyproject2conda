@@ -210,6 +210,10 @@ class Config:  # noqa: PLR0904
         """Header getter"""
         return self._get_value(key="header", env_name=env_name)  # type: ignore[no-any-return]
 
+    def custom_command(self, env_name: str) -> bool:
+        """Custom command to place in the header"""
+        return self._get_value(key="custom_command", env_name=env_name, default=None)  # type: ignore[no-any-return]
+
     def style(self, env_name: str | None = None, default: str = "yaml") -> str:
         """Style getter.  One of `yaml`, `requirements`"""
         out = self._get_value(
@@ -355,6 +359,7 @@ class Config:  # noqa: PLR0904
             "skip_package",
             "pip_only",
             "header",
+            "custom_command",
             "overwrite",
             "verbose",
             "reqs",
@@ -404,6 +409,7 @@ class Config:  # noqa: PLR0904
             "sort",
             "skip_package",
             "header",
+            "custom_command",
             "overwrite",
             "verbose",
             "reqs",

@@ -96,7 +96,26 @@ repos:
     rev: 0.5.24
     hooks:
       - id: uv-lock
-        args: [--locked]
+        alias: lock
+
+  # * pyproject2conda
+  - repo: .
+    rev: 81c58172112987cdf6025ab13b9951e12cb8931e
+    hooks:
+      - id: pyproject2conda-project
+        alias: requirements
+
+  # * all lock files
+  - repo: local
+    hooks:
+      - id: requirements-lock
+        name: requirements-lock
+        alias: lock
+        entry: nox -s lock -- ++lock-force
+        language: python
+        files: ^requirements/.*\.txt$
+        pass_filenames: false
+        additional_dependencies: ["nox==2024.10.9"]
 
   # * Manual Linting ------------------------------------------------------------
   - repo: https://github.com/asottile/pyupgrade
