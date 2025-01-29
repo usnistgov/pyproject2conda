@@ -99,8 +99,8 @@ repos:
         alias: lock
 
   # * pyproject2conda
-  - repo: .
-    rev: 81c58172112987cdf6025ab13b9951e12cb8931e
+  - repo: https://github.com/usnistgov/pyproject2conda
+    rev: v0.19.0
     hooks:
       - id: pyproject2conda-project
         alias: requirements
