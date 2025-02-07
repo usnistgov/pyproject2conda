@@ -1,5 +1,5 @@
 # * Utilities -----------------------------------------------------------------
-.PHONY: clean clean-test clean-pyc clean-build help
+.PHONY: all clean clean-test clean-pyc clean-build help
 .DEFAULT_GOAL := help
 
 
@@ -35,6 +35,8 @@ BROWSER := $(UVRUN) --no-config python -c "$$BROWSER_PYSCRIPT"
 
 help:
 	@$(UVRUN) python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+
+all: help
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 

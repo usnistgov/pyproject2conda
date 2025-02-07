@@ -827,7 +827,7 @@ def test_config_overrides2() -> None:
     assert next(iter(c.iter_envs())) == expected
 
 
-def test_conifg_overrides_no_envs() -> None:
+def test_config_overrides_no_envs() -> None:
     # test overrides env
     s = """
     [tool.pyproject2conda]
@@ -1038,7 +1038,7 @@ def test_version(runner) -> None:
     )
 
 
-def get_times(path: Path) -> dict[str, Path]:
+def get_times(path: Path) -> dict[Path, float]:
     return {
         p: p.stat().st_mtime for ext in ("txt", "yaml") for p in path.glob(f"*.{ext}")
     }

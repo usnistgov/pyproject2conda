@@ -12,10 +12,8 @@ description = "A script to convert a Python project declared on a pyproject.toml
 keywords = [
     "pyproject2conda",
 ]
-license = { text = "NIST-PD" }
-license-files = { paths = [
-    "LICENSE",
-] }
+license = "NIST-PD"
+license-files = [ "LICENSE" ]
 authors = [
     { name = "William P. Krekelberg", email = "wpk@nist.gov" },
 ]
@@ -322,13 +320,13 @@ exclude = [
 check_untyped_defs = true
 strict = true
 
-[[tool.mypy.overrides]]
-ignore_missing_imports = true
-module = [  ]
+# [[tool.mypy.overrides]]
+# ignore_missing_imports = true
+# module = [  ]
 
-[[tool.mypy.overrides]]
-ignore_errors = true
-module = [  ]
+# [[tool.mypy.overrides]]
+# ignore_errors = true
+# module = [  ]
 
 [tool.pyright]
 include = [
@@ -412,7 +410,6 @@ reqs = [
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
     "pre-commit",
-    "pyproject2conda>=0.18.0",
     "pyright>=1.1.392",
     "scriv",
     "twine>=5.0.0",

@@ -876,7 +876,7 @@ and the environments to apply them to. For example, above we specify that the
 base option is `False` for envs `test-extras` and `dist-pypi`, and that the
 python version should be `3.10` and `3.11` for envs `test` and `test-extras`.
 Note that each "overrides" table must specify the options to be overridden, and
-the environments that these overrides apply to. Also, note that subsequenct
+the environments that these overrides apply to. Also, note that subsequent
 overrides override previous overrides/options (last option wins).
 
 So in all, options are picked up, in order, from the overrides list, then the
@@ -902,7 +902,7 @@ name = "hello"
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
 
-Note that the full path of this file is note that the path of the `user_conifg`
+Note that the full path of this file is note that the path of the `user_config`
 file is relative to them`pyproject.toml` file. So, if the `pyproject.toml` file
 is at `a/path/pyproject.toml`, the path of user configuration files will be
 `a/path/config/userconfig.toml`. We then can run the following:
