@@ -48,7 +48,7 @@ if "P2C_COLUMNS" in os.environ:
 class AliasedGroup(TyperGroup):
     """Provide aliasing for commands"""
 
-    def get_command(
+    def get_command(  # noqa: D102
         self, ctx: click.Context, cmd_name: str
     ) -> Optional[click.core.Command]:
         if (rv := super().get_command(ctx, cmd_name)) is not None:
@@ -64,7 +64,7 @@ class AliasedGroup(TyperGroup):
         )  # pragma: no cover
         return None  # pragma: no cover
 
-    def list_commands(self, ctx: click.Context) -> List[str]:  # noqa: ARG002
+    def list_commands(self, ctx: click.Context) -> List[str]:  # noqa: ARG002, D102
         return list(self.commands)
 
 
@@ -80,7 +80,7 @@ def version_callback(value: bool) -> None:
 
 @app_typer.callback()
 def main(
-    version: bool = typer.Option(
+    version: bool = typer.Option(  # noqa: ARG001
         None, "--version", "-v", callback=version_callback, is_eager=True
     ),
 ) -> None:
@@ -528,7 +528,7 @@ def add_verbose_logger(
 @add_verbose_logger(logger)
 def create_list(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
-    verbose: VERBOSE_CLI = None,
+    # verbose: VERBOSE_CLI = None,  # noqa: ERA001
 ) -> None:
     """List available extras."""
     logger.info("filename: %s", filename)
@@ -563,7 +563,7 @@ def yaml(
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
-    verbose: VERBOSE_CLI = None,
+    # verbose: VERBOSE_CLI = None,  # noqa: ERA001
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
@@ -625,7 +625,7 @@ def requirements(
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
-    verbose: VERBOSE_CLI = None,
+    # verbose: VERBOSE_CLI = None,  # noqa: ERA001
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = False,
@@ -759,7 +759,7 @@ def conda_requirements(
     # paths,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-    verbose: VERBOSE_CLI = None,
+    # verbose: VERBOSE_CLI = None,  # noqa: ERA001
 ) -> None:
     """
     Create requirement files for conda and pip.
@@ -830,7 +830,7 @@ def to_json(
     skip_package: SKIP_PACKAGE_CLI = False,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-    verbose: VERBOSE_CLI = None,
+    # verbose: VERBOSE_CLI = None,  # noqa: ERA001
     overwrite: OVERWRITE_CLI = Overwrite.force,
 ) -> None:
     """

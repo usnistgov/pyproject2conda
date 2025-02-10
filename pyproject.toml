@@ -17,7 +17,7 @@ license-files = [ "LICENSE" ]
 authors = [
     { name = "William P. Krekelberg", email = "wpk@nist.gov" },
 ]
-requires-python = ">=3.8,<3.14"
+requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
@@ -126,138 +126,12 @@ fragments = [
     { path = "LICENSE" },
 ]
 
-# * Linting --------------------------------------------------------------------
-
-[tool.ruff]
-line-length = 88
-extend-include = [
-    "*.ipynb",
-]
-extend-exclude = [
-    "**/vendored",
-    ".numba_cache",
-    ".venv",
-    "dist-conda",
-    # "tests/",
-    # "src/pyproject2conda/tests",
-]
-fix = true
-unsafe-fixes = true
-
-format.docstring-code-format = true
-lint.select = [
-    "ALL",
-]
-lint.ignore = [
-    # * Annotations
-    "ANN401", # - Any ok sometimes
-    # * These conflict with formatter
-    "COM", # - flake8-commas, formatter should take care of this?
-    "CPY", # - Don't require copyright
-    # * Docstrings
-    "D105", # - Missing magic method docstring
-    # * Not a fan of these.  And lead to issues with docfiller
-    "D107", # - Missing docstring in __init__
-    "D203", # - 1 blank line required before class docstring
-    "D205", # - blank line after summary
-    "D212", # - Multi-line docstring summary should start at the first line
-    # * This leads to errors with placing titles in module
-    "D400", # - First line should end with a period
-    "D401", # - First line of docstring should be in imperative mood: "{first_line}"
-    "D415", # - First line should end with a period, question mark, or exclamation point
-    "D417", # - Missing argument description in the docstring for {definition}: {name} (bad with docfiller)
-    "E402", # - module level import not at top of file
-    # * Other
-    "E501", # - line too long - let formatter fix this
-    "E731", # - do not assign a lambda expression, use a def
-    "FBT",  # - bools are ok
-    "ISC",  # - flake8-implicit-str-concat
-    # * Allow non top level imports
-    "PLC0415", # - import should be at top level (leads to issues with imports in func?)
-    "TID252",  # - Allow relative imports
-]
-# Use extend-ignore for project specific ignores (avoid changing ignore directly)
-lint.extend-ignore = [
-    # "ERA", # - eradicate (want to keep some stuff)
-    # * Annotations
-    # "SLF001",  # - flake8-self (private access sometimes OK)
-    # "ANN",     # - Annotations (just use mypy/pyright)
-    # * pylint
-    # "PLR2004", # - numbers in comparison sometimes ok
-    # "PLR0913", # - complexity sometimes ok
-    # "PLR0917", # - complexity sometimes ok
-    # * Docstrings ymmv
-    # "D102",    # - Missing docstring in public method
-    # "D103",    # - Missing docstring in public function
-    # "D202",    # - blank line after docstring
-    "DOC201", # - Missing return from documentation
-    "DOC202", # - Missing return from documentation
-    "DOC402",
-    "DOC501", # - Missing raises from documentation
-    "NPY",    # - not using numpy?
-    "PD",     # - not using pandas?
-]
-lint.per-file-ignores."**/*.ipynb" = [
-    "B018",
-    "D100",
-    "INP001",
-]
-lint.per-file-ignores."docs/conf.py" = [
-    "ERA",
-    "INP001",
-]
-lint.per-file-ignores."noxfile.py" = [
-    "RUF009",
-]
-lint.per-file-ignores."tests/*.py" = [
-    "D",
-    "S101",
-]
-lint.per-file-ignores."tools/*.py" = [
-    "A",
-    "D102",
-    "DOC",
-    "S",
-    "SLF001",
-]
-lint.extend-per-file-ignores."**/cli.py" = [
-    "ARG001",
-    "D102",
-    "FA100",
-    "PLR0913",
-    "PLR0917",
-    "T201",    # NOTE: remove this option when ready to go to new annotation style (needs python >= 3.10)
-]
-# Project specific ignores (avoid changing per-file-ignores directly)
-lint.extend-per-file-ignores."tests/*.py" = [
-    "ANN",
-    "PLC2701",
-    "PLR2004",
-    "PT011",
-]
-lint.extend-per-file-ignores."tools/cog_utils.py" = [
-    "D",
-]
-# fixable = ["ALL"]
-lint.unfixable = [
-    "ERA",
-    "PLR6104",
-    "T",       # NOTE: remove this option when ready to go to new annotation style (needs python >= 3.10)
-]
-# Allow unused variables when underscore-prefixed.
-lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-lint.isort.known-first-party = [
-    "pyproject2conda",
-]
-lint.pydocstyle.convention = "numpy"
-lint.pylint.max-args = 15
-lint.pylint.max-positional-args = 15
-lint.pylint.max-public-methods = 30
-lint.preview = true
-
 [tool.check-wheel-contents]
 toplevel = [ "pyproject2conda" ]
 src_dir = [ "src" ]
+
+[tool.pyproject-fmt]
+# max_supported_python = "3.13"
 
 # * Testing --------------------------------------------------------------------
 

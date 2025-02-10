@@ -72,6 +72,9 @@ _PRE_COMMIT_RUN_MANUAL = $(_PRE_COMMIT_RUN) --hook-stage=manual
 lint: ## run pre-commit on all files
 	$(_PRE_COMMIT_RUN)
 
+lint-all: ## run pre-commit using manual stage
+	$(_PRE_COMMIT_RUN_MANUAL)
+
 codespell: ## run codespell. Note that this imports allowed words from docs/spelling_wordlist.txt
 	$(_PRE_COMMIT_RUN) codespell
 	$(_PRE_COMMIT_RUN) nbqa-codespell

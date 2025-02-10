@@ -440,7 +440,7 @@ class Config:  # noqa: PLR0904
     def iter_envs(
         self, envs: Sequence[str] | None = None, **defaults: Any
     ) -> Iterator[tuple[str, dict[str, Any]]]:
-        """Iterate over configs"""
+        """Iterate over configs."""  # noqa: DOC402
         # filter defaults.  Only include values of not None:
         defaults = {k: v for k, v in defaults.items() if v is not None}
 
