@@ -108,7 +108,7 @@ $ conda/condax install -c conda-forge pyproject2conda
 
 [rich]: https://github.com/Textualize/rich
 [shellingham]: https://github.com/sarugaku/shellingham
-[typer]: https://github.com/tiangolo/typer
+[typer]: https://github.com/fastapi/typer
 
 If using pip, to install with [rich] and [shellingham] support, either install
 them your self, or use:

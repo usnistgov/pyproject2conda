@@ -99,7 +99,7 @@ repos:
   # * uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.5.29
+    rev: 0.5.30
     hooks:
       - id: uv-lock
         args: [--locked]
