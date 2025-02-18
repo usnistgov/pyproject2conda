@@ -91,7 +91,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.2.1
+    rev: v4.2.2
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -99,7 +99,7 @@ repos:
   # * uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.0
+    rev: 0.6.1
     hooks:
       - id: uv-lock
         args: [--locked]
@@ -140,7 +140,7 @@ repos:
 
   # pyproject-validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2025.02.10
+    rev: 2025.02.17
     hooks:
       - id: validate-pyproject
         alias: validate-pyproject-full

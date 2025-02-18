@@ -134,6 +134,7 @@ class SessionParams(DataclassParser):
 
     # common parameters
     lock: bool = False
+    no_lock: bool = False
     update: bool = add_option("--update", "-U", help="update dependencies/package")
     version: str | None = add_option(
         "--version", "-V", help="pretend version", default=None
@@ -175,9 +176,6 @@ class SessionParams(DataclassParser):
 
     # coverage
     coverage: list[Literal["erase", "combine", "report", "html", "open"]] | None = None
-
-    # testdist
-    testdist_run: RUN_ANNO = None
 
     # docs
     docs: (
@@ -254,7 +252,12 @@ def parse_posargs(*posargs: str) -> SessionParams:
     without escaping.
     """
     opts = SessionParams.from_posargs(posargs=posargs, prefix_char="+")
-    opts.lock = opts.lock or UV_LOCK
+
+    if opts.no_lock:
+        opts.lock = False
+    else:
+        opts.lock = opts.lock or UV_LOCK
+
     return opts
 
 
@@ -435,8 +438,10 @@ def dev(
         "ipykernel",
         "install",
         "--user",
-        "--name=pyproject2conda-dev",
-        "--display-name='Python [venv: pyproject2conda-dev]'",
+        "--name",
+        "pyproject2conda-dev",
+        "--display-name",
+        "Python [venv: pyproject2conda-dev]",
     )
 
 
@@ -666,7 +671,7 @@ def testdist(
 
     _test(
         session=session,
-        run=opts.testdist_run,
+        run=opts.test_run,
         test_no_pytest=opts.test_no_pytest,
         test_options=opts.test_options,
         no_cov=opts.no_cov,
