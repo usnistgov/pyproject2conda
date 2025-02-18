@@ -49,6 +49,7 @@ extensions = [
     "sphinx_copybutton",
     "myst_parser",
     "sphinx_click",
+    "sphinx_autodoc_typehints",
 ]
 
 autosectionlabel_prefix_document = True
@@ -57,6 +58,7 @@ suppress_warnings = ["autosectionlabel.*"]
 nitpick_ignore = [
     ("py:class", "Command"),
     ("py:class", "typer.core.TyperGroup"),
+    ("py:class", "Requirement"),
 ]
 
 # -- myst stuff ---------------------------------------------------------
@@ -143,7 +145,17 @@ autodoc_default_flags = [
     "private-members",
     "show-inheritance",
 ]
+# autodoc_typehints = "signature"
 autodoc_typehints = "none"
+
+autodoc_type_aliases = {"Self": "Self"}
+
+typehints_document_rtype = False
+typehints_use_rtype = False
+typehints_defaults = "comma"
+# always_document_param_types = True
+typehints_use_signature = True
+typehints_use_signature_return = True
 
 # -- napoleon ------------------------------------------------------------------
 napoleon_google_docstring = False
@@ -408,6 +420,8 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
+    "click": ("https://click.palletsprojects.com/en/stable/", None),
+    "packaging": ("https://packaging.pypa.io/en/stable/", None),
     # "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     # "numpy": ("https://numpy.org/doc/stable", None),
     # "scipy": ("https://docs.scipy.org/doc/scipy/", None),

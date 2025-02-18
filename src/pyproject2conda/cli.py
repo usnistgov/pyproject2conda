@@ -50,7 +50,7 @@ class AliasedGroup(TyperGroup):
 
     def get_command(  # noqa: D102
         self, ctx: click.Context, cmd_name: str
-    ) -> Optional[click.core.Command]:
+    ) -> Optional[click.Command]:
         if (rv := super().get_command(ctx, cmd_name)) is not None:
             return rv
         if not (
@@ -479,7 +479,7 @@ def _log_creating(
     logger.info(s)
 
 
-def add_verbose_logger(
+def _add_verbose_logger(
     logger: logging.Logger, verbose_arg: str = "verbose"
 ) -> Callable[[Callable[..., R]], Callable[..., R]]:
     """Decorator factory to add logger and set logger level based on verbosity argument value."""
@@ -525,7 +525,7 @@ def add_verbose_logger(
 # ** List
 # @app_typer.command("l", hidden=True)
 @app_typer.command("list")
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def create_list(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
@@ -545,7 +545,7 @@ def create_list(
 # ** Yaml
 # @app_typer.command("y", hidden=True)
 @app_typer.command()
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def yaml(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     extras: EXTRAS_CLI = None,
@@ -613,7 +613,7 @@ def yaml(
 # ** Requirements
 # @app_typer.command("r", hidden=True)
 @app_typer.command()
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def requirements(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     extras: EXTRAS_CLI = None,
@@ -660,7 +660,7 @@ def requirements(
 
 # @app_typer.command("p", hidden=True)
 @app_typer.command()
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def project(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     envs: ENVS_CLI = None,
@@ -738,7 +738,7 @@ def project(
 
 # @app_typer.command("cr", hidden=True)
 @app_typer.command()
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def conda_requirements(
     path_conda: Annotated[Optional[str], typer.Argument()] = None,
     path_pip: Annotated[Optional[str], typer.Argument()] = None,
@@ -815,7 +815,7 @@ def conda_requirements(
 # ** json
 # @app_typer.command("j", hidden=True)
 @app_typer.command("json")
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def to_json(
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,

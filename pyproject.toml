@@ -64,6 +64,7 @@ docs = [
     "myst-parser",
     "pyenchant",
     "sphinx>=5.3.0",
+    "sphinx-autodoc-typehints",
     "sphinx-book-theme",
     "sphinx-click",
     "sphinx-copybutton",
