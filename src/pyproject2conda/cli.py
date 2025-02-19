@@ -435,7 +435,7 @@ def _get_header_cmd(
     if custom_command is not None:
         return custom_command
 
-    if "PRE_COMMIT" in os.environ:
+    if (header is None or header) and ("PRE_COMMIT" in os.environ):
         return "pre-commit"
 
     if header is None:
