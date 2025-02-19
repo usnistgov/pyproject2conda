@@ -18,6 +18,12 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.19.1 — 2025-02-19
+
+### Changed
+
+- Bugfix in pre-commit hooks. Now respects `header = false` in environments.
+
 ## v0.19.0 — 2025-01-29
 
 ### Added
