@@ -71,6 +71,7 @@ class UvxRunFormatter(logging.Formatter):
         self._simple_fmt = logging.Formatter("%(message)s")
 
     def format(self, record: Any) -> str:
+        """Format logger."""
         if record.levelname == "OUTPUT":
             return self._simple_fmt.format(record)
         return super().format(record)
@@ -101,6 +102,7 @@ if colorlog:
             self._simple_fmt = logging.Formatter("%(message)s")
 
         def format(self, record: Any) -> str:
+            """Format logger."""
             if record.levelname == "OUTPUT":
                 return self._simple_fmt.format(record)
             return super().format(record)  # type: ignore[no-any-return]
@@ -115,10 +117,12 @@ class LoggerWithSuccessAndOutput(logging.getLoggerClass()):  # type: ignore[misc
         logging.addLevelName(OUTPUT, "OUTPUT")
 
     def success(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        """Success logger."""
         if self.isEnabledFor(SUCCESS):  # pragma: no cover
             self._log(SUCCESS, msg, args, **kwargs)
 
     def output(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        """Output logger."""
         if self.isEnabledFor(OUTPUT):  # pragma: no cover
             self._log(OUTPUT, msg, args, **kwargs)
 
@@ -179,7 +183,7 @@ def _parse_requirements(requirements: Path) -> Iterator[Requirement]:
     comment_re = _comment_re()
 
     def ignore_comments(lines: Iterable[str]) -> Iterator[str]:
-        """Strips comments and filter empty lines."""
+        """Strips comments and filter empty lines."""  # noqa: DOC402
         for line in lines:
             if line_formatted := comment_re.sub("", line).strip():
                 yield line_formatted
@@ -220,6 +224,7 @@ class Specifications:
     def assign(
         self, specs: str | Requirement | Iterable[str | Requirement]
     ) -> Specifications:
+        """Assign value."""
         if isinstance(specs, (str, Requirement)):
             specs = [specs]
 
@@ -228,10 +233,12 @@ class Specifications:
         )
 
     def get(self, index: str, default: Requirement | None = None) -> Requirement | None:
+        """Get specification"""
         return self.specs.get(index, default)
 
     @classmethod
     def combine(cls, *specs: Specifications) -> Specifications:
+        """Combine specifications."""
         new_specs: dict[str, Requirement] = {}
         for spec in specs:
             new_specs.update(spec.specs)
@@ -243,6 +250,7 @@ class Specifications:
         *specs: Requirement,
         requirements: str | Path | Iterable[str | Path] | None = None,
     ) -> Specifications:
+        """Create from requirements."""
         if requirements is None:
             requirements = []
         elif isinstance(requirements, (str, Path)):
@@ -266,18 +274,18 @@ class Specifications:
 class SessionInterfaceTemplate(Protocol):
     """Generic session."""
 
-    def run(
+    def run(  # noqa: D102
         self,
         *args: str | os.PathLike[str],
         env: Mapping[str, str | None] | None = None,
         include_outer_env: bool = True,
     ) -> Any | None: ...
 
-    def log(self, *args: Any, **kwargs: Any) -> None: ...
+    def log(self, *args: Any, **kwargs: Any) -> None: ...  # noqa: D102
 
-    def warn(self, *args: Any, **kwargs: Any) -> None: ...
+    def warn(self, *args: Any, **kwargs: Any) -> None: ...  # noqa: D102
 
-    def debug(self, *args: Any, **kwargs: Any) -> None: ...
+    def debug(self, *args: Any, **kwargs: Any) -> None: ...  # noqa: D102
 
 
 def _clean_env(env: Mapping[str, str | None] | None = None) -> dict[str, str] | None:

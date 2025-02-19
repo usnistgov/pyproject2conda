@@ -95,7 +95,7 @@ def get_uvxrun_specs(requirements: str | None = None) -> uvxrun.Specifications:
 
 
 class SessionOptionsDict(TypedDict, total=False):
-    """Dict for options to nox.session"""
+    """Dict for options to nox.session."""
 
     python: str | list[str]
     venv_backend: str | Callable[..., CondaEnv]
@@ -130,10 +130,11 @@ OPT_ANNO = Annotated[OPT_TYPE, option(help="Options to command.")]
 
 @dataclass
 class SessionParams(DataclassParser):
-    """Holds all cli options"""
+    """Holds all cli options."""
 
     # common parameters
     lock: bool = False
+    no_lock: bool = False
     update: bool = add_option("--update", "-U", help="update dependencies/package")
     version: str | None = add_option(
         "--version", "-V", help="pretend version", default=None
@@ -167,15 +168,14 @@ class SessionParams(DataclassParser):
 
     # test
     test_no_pytest: bool = False
-    test_opts: OPT_TYPE = add_option(help="Options to pytest")
+    test_options: OPT_TYPE = add_option(
+        "--test-options", "-t", help="Options to pytest"
+    )
     test_run: RUN_ANNO = None
     no_cov: bool = False
 
     # coverage
     coverage: list[Literal["erase", "combine", "report", "html", "open"]] | None = None
-
-    # testdist
-    testdist_run: RUN_ANNO = None
 
     # docs
     docs: (
@@ -196,6 +196,11 @@ class SessionParams(DataclassParser):
         | None
     ) = add_option("--docs", "-d", help="doc commands")
     docs_run: RUN_ANNO = None
+    docs_options: OPT_TYPE = add_option(
+        "--docs-options", help="Options to sphinx-build"
+    )
+    # lint
+    lint_options: OPT_TYPE = add_option(help="Options to pre-commit")
 
     # typing
     typing: list[
@@ -220,8 +225,8 @@ class SessionParams(DataclassParser):
     build: list[Literal["build", "version"]] | None = None
     build_run: RUN_ANNO = None
     build_isolation: bool = False
-    build_outdir: str = "./dist"
-    build_opts: OPT_ANNO = None
+    build_out_dir: str = "./dist"
+    build_options: OPT_ANNO = None
     build_silent: bool = False
 
     # publish
@@ -247,7 +252,12 @@ def parse_posargs(*posargs: str) -> SessionParams:
     without escaping.
     """
     opts = SessionParams.from_posargs(posargs=posargs, prefix_char="+")
-    opts.lock = opts.lock or UV_LOCK
+
+    if opts.no_lock:
+        opts.lock = False
+    else:
+        opts.lock = opts.lock or UV_LOCK
+
     return opts
 
 
@@ -276,7 +286,7 @@ def install_dependencies(
     include_editable_package: bool = False,
     lock: bool | None = None,
 ) -> None:
-    """General dependencies installer"""
+    """General dependencies installer."""
     if python_version is None:
         assert isinstance(session.python, str)  # noqa: S101
         python_version = session.python
@@ -366,7 +376,7 @@ def install_package(
     editable: bool = False,
     update: bool = True,
 ) -> None:
-    """Install current package"""
+    """Install current package."""
     if editable:
         run = session.run if update else session.run_install
         opts = [*args, "-e", "."]
@@ -389,7 +399,7 @@ def install_package(
 # ** test-all
 @nox.session(name="test-all", python=False)
 def test_all(session: Session) -> None:
-    """Run all tests and coverage"""
+    """Run all tests and coverage."""
     for py in PYTHON_ALL_VERSIONS:
         session.notify(f"test-{py}")
     session.notify("coverage")
@@ -402,7 +412,7 @@ def dev(
     session: Session,
     opts: SessionParams,
 ) -> None:
-    """Create development environment"""
+    """Create development environment."""
     session.run("uv", "venv", ".venv", "--allow-existing")
 
     python_opt = "--python=.venv/bin/python"
@@ -428,8 +438,10 @@ def dev(
         "ipykernel",
         "install",
         "--user",
-        "--name=pyproject2conda-dev",
-        "--display-name='Python [venv: pyproject2conda-dev]'",
+        "--name",
+        "pyproject2conda-dev",
+        "--display-name",
+        "Python [venv: pyproject2conda-dev]",
     )
 
 
@@ -449,9 +461,10 @@ def requirements(
         "pre-commit",
         "run",
         "pyproject2conda-project",
-        "--all-files",  # "--show-diff-on-failure",
+        "--all-files",
         specs=get_uvxrun_specs(),
         session=session,
+        success_codes=[0, 1],
     )
 
     if not opts.requirements_no_notify:
@@ -502,7 +515,7 @@ def lock(
                         "--universal",
                         f"--config-file={PIP_COMPILE_CONFIG}",
                         "-q",
-                        "-p",
+                        "--python-version",
                         python_version,
                         *options,
                         path,
@@ -518,7 +531,7 @@ def _test(
     session: nox.Session,
     run: RUN_TYPE,
     test_no_pytest: bool,
-    test_opts: OPT_TYPE,
+    test_options: OPT_TYPE,
     no_cov: bool,
 ) -> None:
     import os
@@ -527,7 +540,7 @@ def _test(
 
     session_run_commands(session, run)
     if not test_no_pytest:
-        opts = combine_list_str(test_opts or [])
+        opts = combine_list_str(test_options or [])
         if not no_cov:
             session.env["COVERAGE_FILE"] = str(Path(session.create_tmp()) / ".coverage")
 
@@ -558,7 +571,7 @@ def test(
         session=session,
         run=opts.test_run,
         test_no_pytest=opts.test_no_pytest,
-        test_opts=opts.test_opts,
+        test_options=opts.test_options,
         no_cov=opts.no_cov,
     )
 
@@ -583,19 +596,19 @@ def test_notebook(session: nox.Session, opts: SessionParams) -> None:
    """,
     )
 
-    test_opts = (
-        (opts.test_opts or [])
+    test_options = (
+        (opts.test_options or [])
         + test_nbval_opts
         + [str(p) for p in Path("examples/usage").glob("*.ipynb")]
     )
 
-    session.log(f"{test_opts = }")
+    session.log(f"{test_options = }")
 
     _test(
         session=session,
         run=opts.test_run,
         test_no_pytest=opts.test_no_pytest,
-        test_opts=test_opts,
+        test_options=test_options,
         no_cov=opts.no_cov,
     )
 
@@ -658,9 +671,9 @@ def testdist(
 
     _test(
         session=session,
-        run=opts.testdist_run,
+        run=opts.test_run,
         test_no_pytest=opts.test_no_pytest,
-        test_opts=opts.test_opts,
+        test_options=opts.test_options,
         no_cov=opts.no_cov,
     )
 
@@ -672,7 +685,7 @@ nox.session(name="testdist-conda", **CONDA_ALL_KWS)(testdist)
 # # ** Docs
 @nox.session(name="docs", **DEFAULT_KWS)
 @add_opts
-def docs(  # noqa: C901
+def docs(  # noqa: C901, PLR0912
     session: nox.Session,
     opts: SessionParams,
 ) -> None:
@@ -705,7 +718,10 @@ def docs(  # noqa: C901
         cmd.remove("serve")
 
     if cmd:
-        common_opts = ["--doctree-dir=docs/_build/doctree"]
+        common_opts = [
+            "--doctree-dir=docs/_build/doctree",
+            *(opts.docs_options or ()),
+        ]
         for c in combine_list_str(cmd):
             if c == "clean":
                 for d in ("docs/_build", "generated", "reference/generated"):
@@ -730,6 +746,13 @@ def docs(  # noqa: C901
                         )
                     ),
                 )
+            elif c == "showlinks":
+                session.run(
+                    "python",
+                    "-m",
+                    "sphinx.ext.intersphinx",
+                    "docs/_build/html/objects.inv",
+                )
             else:
                 session.run(
                     "sphinx-build", "-b", c, *common_opts, "docs", f"docs/_build/{c}"
@@ -753,8 +776,10 @@ def docs(  # noqa: C901
 
 # ** lint
 @nox.session(python=False)
+@add_opts
 def lint(
     session: nox.Session,
+    opts: SessionParams,
 ) -> None:
     """
     Run linters with pre-commit.
@@ -767,6 +792,7 @@ def lint(
         "pre-commit",
         "run",
         "--all-files",  # "--show-diff-on-failure",
+        *(opts.lint_options or []),
         specs=get_uvxrun_specs(),
         session=session,
     )
@@ -874,15 +900,15 @@ def build(session: nox.Session, opts: SessionParams) -> None:  # noqa: C901
                     "uvx", "--with", "hatch-vcs", "hatchling", "version", external=True
                 )
         elif cmd == "build":
-            outdir = opts.build_outdir
+            outdir = opts.build_out_dir
             shutil.rmtree(outdir, ignore_errors=True)
 
             args = f"uv build --out-dir={outdir}".split()
             if USE_ENVIRONMENT_FOR_BUILD and not opts.build_isolation:
                 args.append("--no-build-isolation")
 
-            if opts.build_opts:
-                args.extend(opts.build_opts)
+            if opts.build_options:
+                args.extend(opts.build_options)
 
             out = session.run(*args, silent=opts.build_silent)
             if opts.build_silent:
@@ -899,7 +925,7 @@ def get_package_wheel(
     reuse: bool = True,
 ) -> str:
     """
-    Build the package in return the build location
+    Build the package in return the build location.
 
     This is similar to how tox does isolated builds.
 
@@ -912,7 +938,7 @@ def get_package_wheel(
     if reuse and getattr(get_package_wheel, "_called", False):
         session.log("Reuse isolated build")
     else:
-        cmd = f"nox -s build -- ++build-outdir {dist_location} ++build-opts --wheel ++build-silent"
+        cmd = f"nox -s build -- ++build-out-dir {dist_location} ++build-options --wheel ++build-silent"
         session.run_always(*shlex.split(cmd), external=True)
 
         # save that this was called:
@@ -941,7 +967,7 @@ def get_package_wheel(
 @nox.session(python=False)
 @add_opts
 def publish(session: nox.Session, opts: SessionParams) -> None:
-    """Publish the distribution"""
+    """Publish the distribution."""
     run = partial(uvxrun.run, specs=get_uvxrun_specs(), session=session, external=True)
 
     for cmd in opts.publish or []:
@@ -960,7 +986,7 @@ def conda_recipe(
     session: nox.Session,
     opts: SessionParams,
 ) -> None:
-    """Run grayskull to create recipe"""
+    """Run grayskull to create recipe."""
     commands = opts.conda_recipe or ["recipe"]
 
     run = partial(uvxrun.run, specs=get_uvxrun_specs(), session=session)

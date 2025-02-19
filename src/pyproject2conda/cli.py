@@ -48,9 +48,9 @@ if "P2C_COLUMNS" in os.environ:
 class AliasedGroup(TyperGroup):
     """Provide aliasing for commands"""
 
-    def get_command(
+    def get_command(  # noqa: D102
         self, ctx: click.Context, cmd_name: str
-    ) -> Optional[click.core.Command]:
+    ) -> Optional[click.Command]:
         if (rv := super().get_command(ctx, cmd_name)) is not None:
             return rv
         if not (
@@ -64,7 +64,7 @@ class AliasedGroup(TyperGroup):
         )  # pragma: no cover
         return None  # pragma: no cover
 
-    def list_commands(self, ctx: click.Context) -> List[str]:  # noqa: ARG002
+    def list_commands(self, ctx: click.Context) -> List[str]:  # noqa: ARG002, D102
         return list(self.commands)
 
 
@@ -80,7 +80,7 @@ def version_callback(value: bool) -> None:
 
 @app_typer.callback()
 def main(
-    version: bool = typer.Option(
+    version: bool = typer.Option(  # noqa: ARG001
         None, "--version", "-v", callback=version_callback, is_eager=True
     ),
 ) -> None:
@@ -435,7 +435,7 @@ def _get_header_cmd(
     if custom_command is not None:
         return custom_command
 
-    if "PRE_COMMIT" in os.environ:
+    if (header is None or header) and ("PRE_COMMIT" in os.environ):
         return "pre-commit"
 
     if header is None:
@@ -479,7 +479,7 @@ def _log_creating(
     logger.info(s)
 
 
-def add_verbose_logger(
+def _add_verbose_logger(
     logger: logging.Logger, verbose_arg: str = "verbose"
 ) -> Callable[[Callable[..., R]], Callable[..., R]]:
     """Decorator factory to add logger and set logger level based on verbosity argument value."""
@@ -525,10 +525,10 @@ def add_verbose_logger(
 # ** List
 # @app_typer.command("l", hidden=True)
 @app_typer.command("list")
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def create_list(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
-    verbose: VERBOSE_CLI = None,
+    verbose: VERBOSE_CLI = None,  # noqa: ARG001
 ) -> None:
     """List available extras."""
     logger.info("filename: %s", filename)
@@ -545,7 +545,7 @@ def create_list(
 # ** Yaml
 # @app_typer.command("y", hidden=True)
 @app_typer.command()
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def yaml(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     extras: EXTRAS_CLI = None,
@@ -563,7 +563,7 @@ def yaml(
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
-    verbose: VERBOSE_CLI = None,
+    verbose: VERBOSE_CLI = None,  # noqa: ARG001
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
@@ -613,7 +613,7 @@ def yaml(
 # ** Requirements
 # @app_typer.command("r", hidden=True)
 @app_typer.command()
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def requirements(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     extras: EXTRAS_CLI = None,
@@ -625,7 +625,7 @@ def requirements(
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
-    verbose: VERBOSE_CLI = None,
+    verbose: VERBOSE_CLI = None,  # noqa: ARG001
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = False,
@@ -660,7 +660,7 @@ def requirements(
 
 # @app_typer.command("p", hidden=True)
 @app_typer.command()
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def project(
     filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     envs: ENVS_CLI = None,
@@ -738,7 +738,7 @@ def project(
 
 # @app_typer.command("cr", hidden=True)
 @app_typer.command()
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def conda_requirements(
     path_conda: Annotated[Optional[str], typer.Argument()] = None,
     path_pip: Annotated[Optional[str], typer.Argument()] = None,
@@ -759,7 +759,7 @@ def conda_requirements(
     # paths,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-    verbose: VERBOSE_CLI = None,
+    verbose: VERBOSE_CLI = None,  # noqa: ARG001
 ) -> None:
     """
     Create requirement files for conda and pip.
@@ -815,7 +815,7 @@ def conda_requirements(
 # ** json
 # @app_typer.command("j", hidden=True)
 @app_typer.command("json")
-@add_verbose_logger(logger)
+@_add_verbose_logger(logger)
 def to_json(
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
@@ -830,7 +830,7 @@ def to_json(
     skip_package: SKIP_PACKAGE_CLI = False,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
-    verbose: VERBOSE_CLI = None,
+    verbose: VERBOSE_CLI = None,  # noqa: ARG001
     overwrite: OVERWRITE_CLI = Overwrite.force,
 ) -> None:
     """

@@ -45,29 +45,21 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",
-    # "IPython.sphinxext.ipython_directive",
-    # "IPython.sphinxext.ipython_console_highlighting",
-    # "nbsphinx",
-    # - easier external links
-    # "sphinx.ext.extlinks",
-    # - view source code on created page
-    # "sphinx.ext.viewcode",
-    # - view source code on github
     "sphinx.ext.linkcode",
-    # - add copy button
     "sphinx_copybutton",
-    # - redirect stuff?
-    # "sphinxext.rediraffe",
-    # - pretty things up?
-    # "sphinx_design"
-    # - myst stuff
-    # "myst_nb",
     "myst_parser",
     "sphinx_click",
+    "sphinx_autodoc_typehints",
 ]
 
-nitpicky = True
 autosectionlabel_prefix_document = True
+nitpicky = True
+suppress_warnings = ["autosectionlabel.*"]
+nitpick_ignore = [
+    ("py:class", "Command"),
+    ("py:class", "typer.core.TyperGroup"),
+    ("py:class", "Requirement"),
+]
 
 # -- myst stuff ---------------------------------------------------------
 myst_enable_extensions = [
@@ -153,7 +145,17 @@ autodoc_default_flags = [
     "private-members",
     "show-inheritance",
 ]
+# autodoc_typehints = "signature"
 autodoc_typehints = "none"
+
+autodoc_type_aliases = {"Self": "Self"}
+
+typehints_document_rtype = False
+typehints_use_rtype = False
+typehints_defaults = "comma"
+# always_document_param_types = True
+typehints_use_signature = True
+typehints_use_signature_return = True
 
 # -- napoleon ------------------------------------------------------------------
 napoleon_google_docstring = False
@@ -265,7 +267,7 @@ release = version = _get_version()
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -418,12 +420,14 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
-    "numpy": ("https://numpy.org/doc/stable", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "numba": ("https://numba.readthedocs.io/en/stable/", None),
-    "matplotlib": ("https://matplotlib.org/stable/", None),
-    "xarray": ("https://docs.xarray.dev/en/stable/", None),
+    "click": ("https://click.palletsprojects.com/en/stable/", None),
+    "packaging": ("https://packaging.pypa.io/en/stable/", None),
+    # "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    # "numpy": ("https://numpy.org/doc/stable", None),
+    # "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    # "numba": ("https://numba.readthedocs.io/en/stable/", None),
+    # "matplotlib": ("https://matplotlib.org/stable/", None),
+    # "xarray": ("https://docs.xarray.dev/en/stable/", None),
 }
 
 linkcheck_ignore = ["https://doi.org/"]

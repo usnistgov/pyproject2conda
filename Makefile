@@ -1,5 +1,5 @@
 # * Utilities -----------------------------------------------------------------
-.PHONY: clean clean-test clean-pyc clean-build help
+.PHONY: all clean clean-test clean-pyc clean-build help
 .DEFAULT_GOAL := help
 
 
@@ -36,6 +36,8 @@ BROWSER := $(UVRUN) --no-config python -c "$$BROWSER_PYSCRIPT"
 help:
 	@$(UVRUN) python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
+all: help
+
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 clean-build: ## remove build artifacts
@@ -69,6 +71,9 @@ _PRE_COMMIT_RUN = $(PRE_COMMIT) run --all-files
 _PRE_COMMIT_RUN_MANUAL = $(_PRE_COMMIT_RUN) --hook-stage=manual
 lint: ## run pre-commit on all files
 	$(_PRE_COMMIT_RUN)
+
+lint-all: ## run pre-commit using manual stage
+	$(_PRE_COMMIT_RUN_MANUAL)
 
 codespell: ## run codespell. Note that this imports allowed words from docs/spelling_wordlist.txt
 	$(_PRE_COMMIT_RUN) codespell

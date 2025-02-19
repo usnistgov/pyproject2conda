@@ -296,7 +296,7 @@ def write_hashes(hash_path: str | Path, hashes: dict[str, Any]) -> None:
 def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
     import hashlib
 
-    md5 = hashlib.md5()
+    md5 = hashlib.md5()  # noqa: S324
     with Path(path).open("rb") as f:
         while data := f.read(buff_size):  # pylint: disable=while-used
             md5.update(data)

@@ -129,6 +129,18 @@ def simple_toml() -> str:
     [tool.pyproject2conda.envs.both]
     groups = "thing"
 
+    [tool.pyproject2conda.envs.header0]
+    extras = []
+    style = "yaml"
+    python = []
+    header = false
+
+
+    [tool.pyproject2conda.envs.header1]
+    extras = []
+    style = "yaml"
+    python = []
+    header = true
 
     [[tool.pyproject2conda.overrides]]
     envs = ["both"]
@@ -190,6 +202,60 @@ def test_option_override_base(simple_config: Config) -> None:
             "allow_empty": False,
             "remove_whitespace": True,
             "output": "hello-base.yaml",
+        },
+    )
+
+
+def test_option_override_header0(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["header0"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "pip_only": False,
+            "header": False,
+            "custom_command": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "hello-header0.yaml",
+        },
+    )
+
+
+def test_option_override_header1(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["header1"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "pip_only": False,
+            "header": True,
+            "custom_command": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": None,
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "hello-header1.yaml",
         },
     )
 
@@ -827,7 +893,7 @@ def test_config_overrides2() -> None:
     assert next(iter(c.iter_envs())) == expected
 
 
-def test_conifg_overrides_no_envs() -> None:
+def test_config_overrides_no_envs() -> None:
     # test overrides env
     s = """
     [tool.pyproject2conda]
@@ -1038,7 +1104,7 @@ def test_version(runner) -> None:
     )
 
 
-def get_times(path: Path) -> dict[str, Path]:
+def get_times(path: Path) -> dict[Path, float]:
     return {
         p: p.stat().st_mtime for ext in ("txt", "yaml") for p in path.glob(f"*.{ext}")
     }
