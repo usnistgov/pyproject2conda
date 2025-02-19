@@ -1,0 +1,93 @@
+# need this to pick up requires-python from pyproject.toml
+extend = "./pyproject.toml"
+extend-include = [
+    "*.ipynb",
+]
+extend-exclude = [
+    ".numba_cache",
+    ".venv",
+    "dist-conda",
+    # "tests/",
+    # "src/testpackage_book_nocli/tests",
+    "**vendored",
+]
+fix = true
+# unsafe-fixes = true
+
+[format]
+docstring-code-format = true
+
+[lint]
+preview = true
+select = [
+    "ALL",
+]
+# fixable = ["ALL"]
+unfixable = [
+    "ERA",
+    "PLR6104",
+    "T",       # NOTE: remove this option when ready to go to new annotation style (needs python >= 3.10)
+]
+ignore = [
+    "ANN401",  # - Any ok sometimes
+    "COM",     # - flake8-commas, formatter should take care of this?
+    "CPY",     # - Don't require copyright
+    "D105",    # - Missing magic method docstring
+    "D107",    # - Missing docstring in __init__
+    "D203",    # - 1 blank line required before class docstring
+    "D205",    # - blank line after summary
+    "D212",    # - Multi-line docstring summary should start at the first line
+    "D400",    # - First line should end with a period
+    "D401",    # - First line of docstring should be in imperative mood: "{first_line}"
+    "DOC201",  # - Missing return from documentation
+    "DOC501",  # - Missing raises from documentation
+    "E501",    # - line too long - let formatter fix this
+    "E731",    # - do not assign a lambda expression, use a def
+    "FBT",     # - bools are ok
+    "S404",    # - Want to use subprocess sometimes
+    "S603",    # - subprocess-without-shell-equals-true
+    "S607",    # - start-process-with-partial-path
+    "PLC0415", # - import should be at top level (leads to issues with imports in func?)
+    "TID252",  # - Allow relative imports
+]
+# Use extend-ignore for project specific ignores. Prefer lint.extend-per-file-ignores."src/**/*.py" below
+# extend-ignore = [ ]
+isort.known-first-party = [
+    "pyproject2conda",
+]
+pydocstyle.convention = "numpy"
+pylint.max-args = 15
+pylint.max-positional-args = 15
+pylint.max-public-methods = 30
+
+[lint.per-file-ignores]
+"docs/conf.py" = [
+    "ERA",    # - Some helpful commented out code in conf.py
+    "INP001", # - Namespace package fine for docs
+]
+"noxfile.py" = [
+    "RUF009", # - Allow `add_option` for DataClassParser
+]
+"tests/*.py" = [
+    "D",    # - Don't need to document tests
+    "S101", # - Assert is fine with tests
+]
+
+# Project specific ignores (avoid changing per-file-ignores directly)
+# extend-per-file-ignores."path/to/file.py" = [ ... ]
+[lint.extend-per-file-ignores]
+"**/cli.py" = [
+    "FA100",
+    "PLR0913",
+    "PLR0917",
+    "T201",    # NOTE: remove this option when ready to go to new annotation style (needs python >= 3.10)
+]
+"tests/*.py" = [
+    "ANN",
+    "PLC2701",
+    "PLR2004",
+    "PT011",
+]
+"tools/cog_utils.py" = [
+    "D103",
+]

@@ -139,6 +139,7 @@ def _update_requirement(  # noqa: C901
 
 # ** Dependencices
 def resolve_extras(
+    *,
     extras: str | Iterable[str],
     package_name: str,
     unresolved: dict[str, list[Requirement]],
@@ -399,7 +400,7 @@ class ParseDepends:
 
         resolved = {
             extra: resolve_extras(
-                extra, package_name=self.package_name, unresolved=unresolved
+                extras=extra, package_name=self.package_name, unresolved=unresolved
             )
             for extra in unresolved
         }

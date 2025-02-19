@@ -155,11 +155,11 @@ class Option:
         const: Any = UNDEFINED,
         default: Any | None = UNDEFINED,
         dest: str = UNDEFINED,
-        help: str = UNDEFINED,
+        help: str = UNDEFINED,  # noqa: A002
         metavar: str = UNDEFINED,
         nargs: str | int | None = UNDEFINED,
         required: bool = UNDEFINED,
-        type: Callable[[Any], Any] = UNDEFINED,
+        type: Callable[[Any], Any] = UNDEFINED,  # noqa: A002
     ) -> Self:
         """Factory method."""
         return cls(
@@ -187,11 +187,11 @@ def add_option(
     choices: Container[Any] = UNDEFINED,
     const: Any = UNDEFINED,
     dest: str = UNDEFINED,
-    help: str = UNDEFINED,
+    help: str = UNDEFINED,  # noqa: A002
     metavar: str = UNDEFINED,
     nargs: str | int | None = UNDEFINED,
     required: bool = UNDEFINED,
-    type: Callable[[Any], Any] = UNDEFINED,
+    type: Callable[[Any], Any] = UNDEFINED,  # noqa: A002
     **field_kws: Any,  # noqa: ARG001
 ) -> Any:
     """Add option."""
@@ -268,7 +268,7 @@ def _get_dataclass_annotations_and_options(
 ) -> dict[str, tuple[Any, Option]]:
     annotations = get_type_hints(cls, include_extras=True)
 
-    assert is_dataclass(cls)
+    assert is_dataclass(cls)  # noqa: S101
     cls_fields = fields(cls)
 
     out: dict[str, tuple[Any, Any]] = {}
