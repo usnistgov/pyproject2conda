@@ -45,7 +45,7 @@ repos:
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.5.1
+    rev: v3.5.2
     hooks:
       - id: prettier
         alias: markdownlint
@@ -99,7 +99,7 @@ repos:
   # * uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.2
+    rev: 0.6.3
     hooks:
       - id: uv-lock
         args: [--locked]
@@ -140,7 +140,7 @@ repos:
 
   # pyproject-validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2025.02.17
+    rev: 2025.02.24
     hooks:
       - id: validate-pyproject
         alias: validate-pyproject-full
@@ -156,7 +156,7 @@ repos:
   # ** typos
   # Probably stick with codespell, but this might also be nice...
   - repo: https://github.com/crate-ci/typos
-    rev: v1.29.9
+    rev: typos-dict-v0.12.6
     hooks:
       - id: typos
         stages: [manual]
