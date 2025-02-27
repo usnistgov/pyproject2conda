@@ -63,7 +63,7 @@ KERNEL_BASE = "pyproject2conda"
 ROOT = Path(__file__).parent
 
 nox.options.reuse_existing_virtualenvs = True
-nox.options.sessions = ["test"]
+nox.options.sessions = ["lint", "typing", "test-all"]
 nox.options.default_venv_backend = "uv"
 
 # * Options ---------------------------------------------------------------------------
@@ -400,6 +400,7 @@ def install_package(
 @nox.session(name="test-all", python=False)
 def test_all(session: Session) -> None:
     """Run all tests and coverage."""
+    session.notify("coverage-erase")
     for py in PYTHON_ALL_VERSIONS:
         session.notify(f"test-{py}")
     session.notify("coverage")
@@ -650,6 +651,12 @@ def coverage(
                 "coverage",
                 c,
             )
+
+
+@nox.session(name="coverage-erase", python=False)
+def coverage_erase(session: Session) -> None:
+    """Alias to `nox -s coverage -- ++coverage erase`"""
+    session.run("nox", "-s", "coverage", "--", "++coverage", "erase")
 
 
 # *** testdist (conda)
