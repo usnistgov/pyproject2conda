@@ -4,7 +4,6 @@ Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 ================================================================
 """
 # pylint: disable=consider-alternative-union-syntax,deprecated-typing-alias  # change when bump minimum version
-# * Imports -------------------------------------------------------------------
 
 import locale
 import logging
@@ -13,7 +12,7 @@ from enum import Enum
 from functools import lru_cache, wraps
 from inspect import signature
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Union, cast
+from typing import Annotated, Any, Callable, Optional, Union, cast
 
 # from click import click.Context
 import click
@@ -28,7 +27,6 @@ from pyproject2conda.utils import (
 )
 
 from ._typing import R
-from ._typing_compat import Annotated
 
 # * Logger -----------------------------------------------------------------------------
 
@@ -64,7 +62,7 @@ class AliasedGroup(TyperGroup):
         )  # pragma: no cover
         return None  # pragma: no cover
 
-    def list_commands(self, ctx: click.Context) -> List[str]:  # noqa: ARG002, D102
+    def list_commands(self, ctx: click.Context) -> list[str]:  # noqa: ARG002, D102
         return list(self.commands)
 
 
@@ -114,7 +112,7 @@ PYPROJECT_CLI = Annotated[
     ),
 ]
 EXTRAS_CLI = Annotated[
-    Optional[List[str]],
+    Optional[list[str]],
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra",
         "-e",
@@ -126,7 +124,7 @@ EXTRAS_CLI = Annotated[
     ),
 ]
 GROUPS_CLI = Annotated[
-    Optional[List[str]],
+    Optional[list[str]],
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--group",
         "-g",
@@ -138,7 +136,7 @@ GROUPS_CLI = Annotated[
     ),
 ]
 EXTRAS_OR_GROUPS_CLI = Annotated[
-    Optional[List[str]],
+    Optional[list[str]],
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra-or-group",
         help="""
@@ -152,7 +150,7 @@ EXTRAS_OR_GROUPS_CLI = Annotated[
 
 
 CHANNEL_CLI = Annotated[
-    Optional[List[str]],
+    Optional[list[str]],
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--channel",
         "-c",
@@ -307,7 +305,7 @@ CUSTOM_COMMAND_CLI = Annotated[
     ),
 ]
 DEPS_CLI = Annotated[
-    Optional[List[str]],
+    Optional[list[str]],
     typer.Option(
         "--deps",
         "-d",
@@ -315,7 +313,7 @@ DEPS_CLI = Annotated[
     ),
 ]
 REQS_CLI = Annotated[
-    Optional[List[str]],
+    Optional[list[str]],
     typer.Option(
         "--reqs",
         "-r",
@@ -326,7 +324,7 @@ REQS_CLI = Annotated[
     ),
 ]
 ENVS_CLI = Annotated[
-    Optional[List[str]],
+    Optional[list[str]],
     typer.Option(
         help="List of environments to build files for.  Default to building all environments",
     ),

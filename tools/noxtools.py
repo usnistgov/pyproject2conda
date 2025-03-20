@@ -89,7 +89,7 @@ def infer_requirement_path(
     filename = name
     if ext is not None and not filename.endswith(ext):
         filename += ext
-    if python_version is not None:
+    if python_version is not None and ext != ".txt":
         prefix = py_prefix(python_version)
         if not filename.startswith(prefix):
             filename = f"{prefix}-{filename}"

@@ -29,7 +29,7 @@ repos:
 
   # * Pyproject-fmt
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.5.0
+    rev: v2.5.1
     hooks:
       - id: pyproject-fmt
         args: [--indent=4, --keep-full-version]
@@ -39,13 +39,13 @@ repos:
 
   # * Pyproject validate
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.23
+    rev: v0.24
     hooks:
       - id: validate-pyproject
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.5.2
+    rev: v3.5.3
     hooks:
       - id: prettier
         alias: markdownlint
@@ -69,7 +69,7 @@ repos:
         additional_dependencies:
           - black==25.1.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.8
+    rev: v0.11.0
     hooks:
       - id: ruff
         alias: ruff-all
@@ -91,7 +91,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.2.2
+    rev: v4.4.1
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -99,7 +99,7 @@ repos:
   # * uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.3
+    rev: 0.6.8
     hooks:
       - id: uv-lock
         args: [--locked]
@@ -140,7 +140,7 @@ repos:
 
   # pyproject-validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2025.02.24
+    rev: 2025.03.17
     hooks:
       - id: validate-pyproject
         alias: validate-pyproject-full
@@ -156,7 +156,7 @@ repos:
   # ** typos
   # Probably stick with codespell, but this might also be nice...
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.12.6
+    rev: v1.30.2
     hooks:
       - id: typos
         stages: [manual]
