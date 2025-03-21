@@ -7,12 +7,12 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-channels:
-  - conda-forge
-dependencies:
-  - python=3.8
-  - pytest
-  - pytest-cov
-  - pytest-sugar
-  - pytest-xdist
-  - pip
+conda-lock>=2.5.5
+grayskull>=2.5.3
+mypy>=1.15.0
+nbqa>=1.8.4
+pre-commit
+pre-commit-uv
+pyright>=1.1.392
+scriv
+twine>=5.0.0

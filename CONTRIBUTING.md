@@ -410,8 +410,8 @@ nox -s typing -- +m [commands] [options]
 Use `typing-conda` to test typing in a conda environment.
 
 Note that the repo is setup to use a single install of [mypy] and [pyright]. The
-script `tools/uvxrun.py` will run check if an appropriate version of the
-typecheckers is installed. If not, they will be run (and cached) using [uvx].
+script `tools/typecheck.py` will run the checkers via [uvx] and point the
+checker to the appropriate python executable.
 
 ## Setup development environment
 
@@ -511,12 +511,12 @@ uv tool/condax/pipx install nbqa
 ```
 
 Note that the repo is setup to automatically use [uvx] for many of these tools.
-Behind the scenes, the makefile and `noxfile.py` will invoke `tools/uvxrun.py`.
-This will run the tool with `uvx tool..` with proper tool version. Note that if
-the tool is already installed with the proper version, [uvx] will use it. This
-prevents having to install a bunch of tooling in the "dev" environment, and also
-avoid creating a bunch of through away [nox] environments. This is experimental,
-and I might change back to using small [nox] environments again in the future.
+Behind the scenes, the makefile and `noxfile.py` will invoke [uvx] with
+constraints from `requirements/lock/uvx-tools.txt`. This will run the tool with
+with the proper version. Note that if the tool is already installed with the
+proper version, [uvx] will use it. This prevents having to install a bunch of
+tooling in the "dev" environment, and also avoid creating a bunch of through
+away [nox] environments.
 
 ## Package version
 

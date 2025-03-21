@@ -6,12 +6,6 @@ else:
     from typing_extensions import TypeAlias
 
 
-if sys.version_info >= (3, 9):
-    from typing import Annotated
-else:
-    from typing_extensions import Annotated
-
-
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
@@ -19,7 +13,6 @@ else:
 
 
 __all__ = [
-    "Annotated",
     "Self",
     "TypeAlias",
 ]
