@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/usnistgov/cookiecutter-nist-python.git",
-  "commit": "4cefa0cc2b7fc81e45c5c0086a55187e32bec9f5",
+  "commit": "ce2de38160129d527ca4fb11d568d29513a23d1b",
   "checkout": "develop",
   "context": {
     "cookiecutter": {
@@ -19,7 +19,7 @@
       "__answers": "",
       "_copy_without_render": [],
       "_template": "https://github.com/usnistgov/cookiecutter-nist-python.git",
-      "_commit": "4cefa0cc2b7fc81e45c5c0086a55187e32bec9f5"
+      "_commit": "ce2de38160129d527ca4fb11d568d29513a23d1b"
     }
   },
   "directory": null

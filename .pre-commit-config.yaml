@@ -88,7 +88,8 @@ repos:
     hooks:
       - id: typos
         stages: [manual]
-        exclude: "[.]ipynb$|^uv[.]lock$|^requirements"
+        exclude_types: [jupyter]
+        exclude: ^uv[.]lock$|^requirements
   # ** codespell
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
