@@ -121,14 +121,15 @@ def _callback_verbose(
 
 # * Options ----------------------------------------------------------------------------
 
-DEFAULT_TOML_PATH = Path("./pyproject.toml")
-
 PYPROJECT_CLI = Annotated[
     Path,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
+        "--pyproject-file",
         "--file",
         "-f",
         help="input pyproject.toml file",
+        default_factory=lambda: Path("./pyproject.toml"),
+        show_default="pyproject.toml",
     ),
 ]
 EXTRAS_CLI = Annotated[
@@ -167,8 +168,6 @@ EXTRAS_OR_GROUPS_CLI = Annotated[
         """,
     ),
 ]
-
-
 CHANNEL_CLI = Annotated[
     list[str] | None,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
@@ -217,7 +216,6 @@ OVERWRITE_CLI = Annotated[
     """,
     ),
 ]
-
 VERBOSE_CLI = Annotated[
     int | None,
     typer.Option(
@@ -421,8 +419,6 @@ PREPEND_CHANNEL_CLI = Annotated[
         "--prepend-channel",
     ),
 ]
-
-
 ALLOW_EMPTY_OPTION = typer.Option(
     "--allow-empty/--no-allow-empty",
     help="""
@@ -432,8 +428,6 @@ ALLOW_EMPTY_OPTION = typer.Option(
     being printed, but no environment file being created.
     """,
 )
-
-
 REMOVE_WHITESPACE_OPTION = typer.Option(
     "--remove-whitespace/--no-remove-whitespace",
     help="""
@@ -503,13 +497,13 @@ def _log_creating(
 # @app_typer.command("l", hidden=True)
 @app_typer.command("list")
 def create_list(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    pyproject_filename: PYPROJECT_CLI,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
 ) -> None:
     """List available extras."""
-    logger.info("filename: %s", filename)
+    logger.info("pyproject_filename: %s", pyproject_filename)
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     for name, vals in [("Extras", d.extras), ("Groups", d.groups)]:  # pylint: disable=consider-using-tuple
         print(name)
@@ -522,7 +516,7 @@ def create_list(
 # @app_typer.command("y", hidden=True)
 @app_typer.command()
 def yaml(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    pyproject_filename: PYPROJECT_CLI,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -545,7 +539,7 @@ def yaml(
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
-    if not update_target(output, filename, overwrite=overwrite.value):
+    if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return
 
@@ -556,10 +550,10 @@ def yaml(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=filename,
+        toml_path=pyproject_filename,
     )
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     _log_creating(logger, "yaml", output)
 
@@ -589,7 +583,7 @@ def yaml(
 # @app_typer.command("r", hidden=True)
 @app_typer.command()
 def requirements(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    pyproject_filename: PYPROJECT_CLI,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -605,11 +599,11 @@ def requirements(
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = False,
 ) -> None:
     """Create requirements.txt for pip dependencies.  Note that all requirements are normalized using `packaging.requirements.Requirement`"""
-    if not update_target(output, filename, overwrite=overwrite.value):
+    if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "requirements", output)
         return
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     _log_creating(logger, "requirements", output)
 
@@ -635,7 +629,7 @@ def requirements(
 # @app_typer.command("p", hidden=True)
 @app_typer.command()
 def project(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    pyproject_filename: PYPROJECT_CLI,
     envs: ENVS_CLI = None,
     template: TEMPLATE_CLI = None,
     template_python: TEMPLATE_PYTHON_CLI = None,
@@ -657,7 +651,7 @@ def project(
     """Create multiple environment files from `pyproject.toml` specification."""
     from pyproject2conda.config import Config
 
-    c = Config.from_file(filename, user_config=user_config)
+    c = Config.from_file(pyproject_filename, user_config=user_config)
 
     if user_config == "infer" or user_config is None:
         user_config = c.user_config()
@@ -688,7 +682,7 @@ def project(
         # Special case: have output and userconfig.  Check update
         if not update_target(
             d["output"],
-            filename,
+            pyproject_filename,
             *([user_config] if user_config else []),
             overwrite=d["overwrite"],
         ):
@@ -697,10 +691,10 @@ def project(
         else:
             d["overwrite"] = Overwrite("force")
             if style == "yaml":
-                yaml(filename=filename, **d)
+                yaml(pyproject_filename=pyproject_filename, **d)
 
             elif style == "requirements":
-                requirements(filename=filename, **d)
+                requirements(pyproject_filename=pyproject_filename, **d)
             else:  # pragma: no cover
                 msg = f"unknown style {style}"
                 raise ValueError(msg)
@@ -712,6 +706,7 @@ def project(
 # @app_typer.command("cr", hidden=True)
 @app_typer.command()
 def conda_requirements(
+    pyproject_filename: PYPROJECT_CLI,
     path_conda: Annotated[str | None, typer.Argument()] = None,
     path_pip: Annotated[str | None, typer.Argument()] = None,
     extras: EXTRAS_CLI = None,
@@ -721,7 +716,6 @@ def conda_requirements(
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
     channels: CHANNEL_CLI = None,
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     skip_package: SKIP_PACKAGE_CLI = False,
     prefix: PREFIX_CLI = None,
     prepend_channel: PREPEND_CHANNEL_CLI = False,
@@ -745,7 +739,7 @@ def conda_requirements(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=filename,
+        toml_path=pyproject_filename,
     )
 
     if path_conda and not path_pip:
@@ -760,7 +754,7 @@ def conda_requirements(
         path_conda = prefix + "conda.txt"
         path_pip = prefix + "pip.txt"
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     deps_str, reqs_str = d.to_conda_requirements(
         extras=extras,
@@ -788,6 +782,7 @@ def conda_requirements(
 # @app_typer.command("j", hidden=True)
 @app_typer.command("json")
 def to_json(
+    pyproject_filename: PYPROJECT_CLI,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -795,7 +790,6 @@ def to_json(
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
     channels: CHANNEL_CLI = None,
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     sort: SORT_DEPENDENCIES_CLI = True,
     output: OUTPUT_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
@@ -812,19 +806,19 @@ def to_json(
     "pip": pip dependencies.
     "channels": conda channels.
     """
-    if not update_target(output, filename, overwrite=overwrite.value):
+    if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return
 
     import json
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     python_include, python_version = parse_pythons(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=filename,
+        toml_path=pyproject_filename,
     )
 
     conda_deps, pip_deps = d.conda_and_pip_requirements(
