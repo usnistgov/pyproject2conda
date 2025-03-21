@@ -34,14 +34,43 @@ logging.basicConfig(level=logging.WARNING, format=FORMAT)
 logger = logging.getLogger("pyproject2conda")
 
 
-# * Settings ---------------------------------------------------------------------------
-if "P2C_COLUMNS" in os.environ:
-    os.environ["COLUMNS"] = os.environ["P2C_COLUMNS"]  # pragma: no cover
+# * Callbacks -----------------------------------------------------------------
+def _callback_verbose(
+    verbose: int | None,
+) -> int | None:
+    if verbose is None:
+        return None
+
+    if verbose < 0:  # pragma: no cover
+        level = logging.ERROR
+    elif not verbose:  # pragma: no cover
+        level = logging.WARNING
+    elif verbose == 1:
+        level = logging.INFO
+    else:  # pragma: no cover
+        level = logging.DEBUG
+
+    for _logger in map(logging.getLogger, logging.root.manager.loggerDict):  # pylint: disable=no-member,bad-builtin
+        _logger.setLevel(level)
+    return verbose
+
+
+def _callback_columns(
+    columns: int | None,
+) -> int | None:
+    if columns is not None:
+        os.environ["COLUMNS"] = str(columns)
+    return columns
+
+
+def _callback_version(value: bool) -> None:
+    """Versioning call back."""
+    if value:
+        typer.echo(f"pyproject2conda, version {__version__}")
+        raise typer.Exit
 
 
 # * Typer App --------------------------------------------------------------------------
-
-
 class AliasedGroup(TyperGroup):
     """Provide aliasing for commands"""
 
@@ -68,18 +97,22 @@ class AliasedGroup(TyperGroup):
 app_typer = typer.Typer(cls=AliasedGroup, no_args_is_help=True)
 
 
-def version_callback(value: bool) -> None:
-    """Versioning call back."""
-    if value:
-        typer.echo(f"pyproject2conda, version {__version__}")
-        raise typer.Exit
-
-
 @app_typer.callback()
 def main(
-    version: bool = typer.Option(  # noqa: ARG001
-        None, "--version", "-v", callback=version_callback, is_eager=True
-    ),
+    version: Annotated[  # noqa: ARG001
+        bool,
+        typer.Option("--version", "-v", callback=_callback_version, is_eager=True),
+    ] = False,
+    columns: Annotated[  # noqa: ARG001
+        int | None,
+        typer.Option(
+            "--columns",
+            envvar="P2C_COLUMNS",
+            help="Column width in terminal.  Set ``COLUMNS`` environment variable to this value",
+            callback=_callback_columns,
+            is_eager=True,
+        ),
+    ] = None,
 ) -> None:
     """
     Extract conda `environment.yaml` and pip `requirement.txt` files from `pyproject.toml`
@@ -96,27 +129,6 @@ def main(
             $ python -m pyproject2conda yaml ...
     """
     return
-
-
-# * Callbacks -----------------------------------------------------------------
-def _callback_verbose(
-    verbose: int | None,
-) -> int | None:
-    if verbose is None:
-        return None
-
-    if verbose < 0:  # pragma: no cover
-        level = logging.ERROR
-    elif not verbose:  # pragma: no cover
-        level = logging.WARNING
-    elif verbose == 1:
-        level = logging.INFO
-    else:  # pragma: no cover
-        level = logging.DEBUG
-
-    for _logger in map(logging.getLogger, logging.root.manager.loggerDict):  # pylint: disable=no-member,bad-builtin
-        _logger.setLevel(level)
-    return verbose
 
 
 # * Options ----------------------------------------------------------------------------
