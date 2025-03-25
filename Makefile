@@ -8,7 +8,8 @@ UVRUN = uv run --frozen
 
 TYPECHECK = $(UVRUN) --no-config tools/typecheck.py -v
 NOX = $(UVX) --from "nox>=2024.10.9" nox
-PRE_COMMIT = $(UVX) $(UVX_OPTS) --with=pre-commit-uv pre-commit
+# For pre-commit, just use a minimum version...
+PRE_COMMIT = $(UVX) --constraints=requirements/uvx-tools.txt --with=pre-commit-uv pre-commit
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys

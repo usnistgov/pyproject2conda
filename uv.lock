@@ -54,11 +54,11 @@ wheels = [
 
 [[package]]
 name = "argcomplete"
-version = "3.6.0"
+version = "3.6.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ee/be/29abccb5d9f61a92886a2fba2ac22bf74326b5c4f55d36d0a56094630589/argcomplete-3.6.0.tar.gz", hash = "sha256:2e4e42ec0ba2fff54b0d244d0b1623e86057673e57bafe72dda59c64bd5dee8b", size = 73135 }
+sdist = { url = "https://files.pythonhosted.org/packages/0a/35/aacd2207c79d95e4ace44292feedff8fccfd8b48135f42d84893c24cc39b/argcomplete-3.6.1.tar.gz", hash = "sha256:927531c2fbaa004979f18c2316f6ffadcfc5cc2de15ae2624dfe65deaf60e14f", size = 73474 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/08/94/e786d91ccc3a1fc664c20332825b73da20928eb067cdc984b821948a1acc/argcomplete-3.6.0-py3-none-any.whl", hash = "sha256:4e3e4e10beb20e06444dbac0ac8dda650cb6349caeefe980208d3c548708bedd", size = 43769 },
+    { url = "https://files.pythonhosted.org/packages/f5/c8/9fa0e6fa97c328d44e089278399b0a1a08268b06a4a71f7448c6b6effb9f/argcomplete-3.6.1-py3-none-any.whl", hash = "sha256:cef54d7f752560570291214f0f1c48c3b8ef09aca63d65de7747612666725dbc", size = 43984 },
 ]
 
 [[package]]
@@ -1700,7 +1700,7 @@ wheels = [
 
 [[package]]
 name = "scriv"
-version = "1.5.1"
+version = "1.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -1710,9 +1710,9 @@ dependencies = [
     { name = "markdown-it-py" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/56/35/6e05af688bc3f983a207a6f89acf139aa16693473360d0cbc2a9bda19efc/scriv-1.5.1.tar.gz", hash = "sha256:30ae9ff8d144f8e0cf394c4e1d379542f1b3823767642955b54ec40dc00b32b6", size = 84382 }
+sdist = { url = "https://files.pythonhosted.org/packages/11/ed/2e20d7c437a83aa796757cfeb97b5353826c3cc75d345c0d1ca6ec8c9e66/scriv-1.6.1.tar.gz", hash = "sha256:662e6149ecaf2d4688dcc64ab62feb3336b5a63173801bb712f81f757098ce83", size = 91376 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3e/e6/cf5c273f57ded9dd0b22430eb62c2af3c883578bab0d824700355f4c16b2/scriv-1.5.1-py2.py3-none-any.whl", hash = "sha256:a3adc657733b4124fcb54527a5f3daab0d3c300de82d0fd2b9b297b243151b78", size = 35332 },
+    { url = "https://files.pythonhosted.org/packages/ca/dd/db45cb68d9e8e8354735f1576a2bfb08c65ffd57b7b9f8d3526e9f0e8eef/scriv-1.6.1-py3-none-any.whl", hash = "sha256:54d4b51a495d7a4fec68b5c8df4a71a8fbdf31b07c5fe1418e6eb04fe41f378b", size = 36717 },
 ]
 
 [[package]]

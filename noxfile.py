@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 
 PACKAGE_NAME = "pyproject2conda"
 IMPORT_NAME = "pyproject2conda"
-KERNEL_BASE = "pyproject2conda"
+KERNEL_NAME = "pyproject2conda"
 
 # * nox options ------------------------------------------------------------------------
 
@@ -456,7 +456,13 @@ def uvx_run(
 def pre_commit_run(session: Session, *args: str | PathLike[str], **kwargs: Any) -> Any:
     """Run pre-commit via uvx."""
     return uvx_run(
-        session, "--with=pre-commit-uv", "pre-commit", "run", *args, **kwargs
+        session,
+        "--with=pre-commit-uv",
+        "pre-commit",
+        "run",
+        *args,
+        **kwargs,
+        locked=False,
     )
 
 
@@ -510,9 +516,9 @@ def install_ipykernel(session: Session) -> None:
         "install",
         "--user",
         "--name",
-        "pyproject2conda",
+        KERNEL_NAME,
         "--display-name",
-        "Python [venv: pyproject2conda]",
+        f"Python [venv: {KERNEL_NAME}]",
         success_codes=[0, 1],
     )
 

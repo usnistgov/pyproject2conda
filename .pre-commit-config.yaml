@@ -34,12 +34,12 @@ repos:
         exclude: ^tests/data
   # ** validate
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24
+    rev: v0.24.1
     hooks:
       - id: validate-pyproject
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2025.03.17
+    rev: 2025.03.24
     hooks:
       - id: validate-pyproject
         alias: validate-pyproject-full
@@ -84,7 +84,7 @@ repos:
   # * Spelling
   # ** typos (only with manual)
   - repo: https://github.com/crate-ci/typos
-    rev: v1.30.2
+    rev: v1.30.3
     hooks:
       - id: typos
         stages: [manual]
