@@ -165,7 +165,7 @@ docs-clean: ## clean docs
 	rm -rf docs/reference/generated/*
 docs-clean-build: docs-clean docs-build ## clean and build
 docs-release: ## release docs.
-	$(UVX) $(UVX_OPTS) -x "ghp-import -o -n -m \"update docs\" -b nist-pages" docs/_build/html
+	$(UVX) $(UVX_OPTS) ghp-import -o -n -m "update docs" -b nist-pages docs/_build/html
 
 .PHONY: docs-open docs-spelling docs-livehtml docs-linkcheck
 docs-open: ## open the build
@@ -201,8 +201,10 @@ publish-test: ## publish to testpypi
 _UV_PUBLISH = uv publish --username __token__ --keyring-provider subprocess
 uv-publish: ## uv release
 	$(_UV_PUBLISH)
+	@echo https://pypi.org/project/pyproject2conda
 uv-publish-test: ## uv test release on testpypi
 	$(_UV_PUBLISH) --publish-url https://test.pypi.org/legacy/
+	@echo https://test.pypi.org/project/pyproject2conda
 
 
 # ** dist conda
@@ -223,7 +225,7 @@ nox-list:
 check-release: ## run twine check on dist
 	$(NOX) -s publish -- +p check
 check-wheel: ## Run check-wheel-contents (requires check-wheel-contents to be installed)
-	$(UVX) $(UVX_OPTS) -x check-wheel-contents dist/*.whl
+	$(UVX) $(UVX_OPTS) check-wheel-contents dist/*.whl
 check-dist: check-release check-wheel ## Run check-release and check-wheel
 
 .PHONY:  list-wheel list-sdist list-dist
