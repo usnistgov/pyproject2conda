@@ -83,6 +83,15 @@ typos:  ## run typos.
 	$(_PRE_COMMIT_RUN_MANUAL) typos
 	$(_PRE_COMMIT_RUN_MANUAL) nbqa-typos
 
+prettier: ## run prettier
+	$(_PRE_COMMIT_RUN) pyproject-fmt
+	$(_PRE_COMMIT_RUN_MANUAL) prettier
+	$(_PRE_COMMIT_RUN_MANUAL) markdownlint
+
+validate-pyproject: ## run pyproject validators
+	$(_PRE_COMMIT_RUN_MANUAL) validate-pyproject-full
+	$(_PRE_COMMIT_RUN_MANUAL) sp-repo-review
+
 ruff: ## run ruff linters
 	$(_PRE_COMMIT_RUN) ruff
 

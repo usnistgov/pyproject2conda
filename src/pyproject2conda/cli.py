@@ -88,7 +88,7 @@ class AliasedGroup(TyperGroup):
         ctx.fail(
             "Too many matches: {}".format(", ".join(sorted(matches)))
         )  # pragma: no cover
-        return None  # pragma: no cover
+        return None  # type: ignore[unreachable]  # pragma: no cover
 
     def list_commands(self, ctx: click.Context) -> list[str]:  # noqa: ARG002, D102
         return list(self.commands)
@@ -494,7 +494,7 @@ def _log_creating(
     prefix: str | None = None,
 ) -> None:
     if prefix is None:  # pragma: no cover
-        prefix = "# " if prefix is None and output is None else ""
+        prefix = "# " if output is None else ""
 
     s = f"{prefix}Creating {style}"
 

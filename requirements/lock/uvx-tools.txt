@@ -54,9 +54,9 @@ pre-commit-uv==4.1.4 \
     --hash=sha256:3db606a79b226127b27dbbd8381b78c0e30de3ac775a8492c576a68e9250535c \
     --hash=sha256:7f01fb494fa1caa5097d20a38f71df7cea0209197b2564699cef9b3f3aa9d135
     # via -r requirements/uvx-tools.txt
-pyright==1.1.397 \
-    --hash=sha256:07530fd65a449e4b0b28dceef14be0d8e0995a7a5b1bb2f3f897c3e548451ce3 \
-    --hash=sha256:2e93fba776e714a82b085d68f8345b01f91ba43e1ab9d513e79b70fc85906257
+pyright==1.1.398 \
+    --hash=sha256:0a70bfd007d9ea7de1cf9740e1ad1a40a122592cfe22a3f6791b06162ad08753 \
+    --hash=sha256:357a13edd9be8082dc73be51190913e475fa41a6efb6ec0d4b7aab3bc11638d8
     # via -r requirements/uvx-tools.txt
 scriv==1.6.1 \
     --hash=sha256:54d4b51a495d7a4fec68b5c8df4a71a8fbdf31b07c5fe1418e6eb04fe41f378b \

@@ -44,6 +44,12 @@ repos:
       - id: validate-pyproject
         alias: validate-pyproject-full
         stages: [manual]
+  # ** repo review
+  - repo: https://github.com/scientific-python/cookie
+    rev: 2025.01.22
+    hooks:
+      - id: sp-repo-review
+        stages: [manual]
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
@@ -104,7 +110,7 @@ repos:
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.9
+    rev: 0.6.10
     hooks:
       - id: uv-lock
         args: [--locked]

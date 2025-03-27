@@ -11,6 +11,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.12
+  - dependency-groups
   - ipykernel
   - mypy>=1.15.0
   - nox>=2024.10.9
