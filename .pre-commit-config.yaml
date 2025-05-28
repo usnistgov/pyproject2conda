@@ -14,18 +14,25 @@ repos:
         exclude: ^uv[.]lock
       - id: check-case-conflict
       - id: check-merge-conflict
-      - id: check-symlinks
+      # - id: check-symlinks
       - id: check-yaml
       - id: check-json
       - id: check-toml
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: mixed-line-ending
+  # * meta hooks
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+        stages: [manual]
+      - id: check-useless-excludes
+        stages: [manual]
 
   # * pyproject.toml
   # ** format
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.5.1
+    rev: v2.6.0
     hooks:
       - id: pyproject-fmt
         args: [--indent=4, --keep-full-version]
@@ -39,14 +46,14 @@ repos:
       - id: validate-pyproject
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2025.03.24
+    rev: 2025.05.12
     hooks:
       - id: validate-pyproject
         alias: validate-pyproject-full
         stages: [manual]
   # ** repo review
   - repo: https://github.com/scientific-python/cookie
-    rev: 2025.01.22
+    rev: 2025.05.02
     hooks:
       - id: sp-repo-review
         stages: [manual]
@@ -61,7 +68,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.17.2
+    rev: v0.18.1
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -70,14 +77,14 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.2
+    rev: v0.11.11
     hooks:
-      - id: ruff
-        alias: ruff-all
+      - id: ruff-check
+        alias: ruff
         types_or: &ruff-types-or [python, pyi, jupyter]
         args: [--fix, --show-fixes]
       - id: ruff-format
-        alias: ruff-all
+        alias: ruff
         types_or: *ruff-types-or
   # To be replace by ruff analog when I find one ...
   - repo: https://github.com/adamchainz/blacken-docs
@@ -90,7 +97,7 @@ repos:
   # * Spelling
   # ** typos (only with manual)
   - repo: https://github.com/crate-ci/typos
-    rev: v1.30.3
+    rev: v1.32.0
     hooks:
       - id: typos
         stages: [manual]
@@ -110,7 +117,7 @@ repos:
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.10
+    rev: 0.7.8
     hooks:
       - id: uv-lock
         args: [--locked]
@@ -130,11 +137,11 @@ repos:
         language: python
         files: ^requirements/.*\.txt$
         pass_filenames: false
-        additional_dependencies: ["nox==2025.2.9"]
+        additional_dependencies: ["nox==2025.5.1"]
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.4.1
+    rev: v4.8.2
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -145,3 +152,15 @@ repos:
     hooks:
       - id: checkmake
         stages: [manual]
+
+  # * Justfile
+  - repo: local
+    hooks:
+      - id: just-fmt
+        name: just-fmt
+        entry:
+          uvx --constraints=requirements/lock/uvx-tools.txt --from="rust-just"
+          just --fmt --justfile
+        stages: [manual]
+        language: python
+        files: \.?[jJ]ustfile

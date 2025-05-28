@@ -61,7 +61,7 @@ ROOT = Path(__file__).parent
 
 nox.needs_version = ">=2024.10.9"
 nox.options.reuse_existing_virtualenvs = True
-nox.options.sessions = ["lint", "typing", "test-all"]
+nox.options.sessions = ["lint", "typecheck", "test-all"]
 nox.options.default_venv_backend = "uv"
 
 # * Options ---------------------------------------------------------------------------
@@ -194,8 +194,8 @@ class SessionParams(DataclassParser):
     # lint
     lint_options: OPT_TYPE = add_option(help="Options to pre-commit")
 
-    # typing
-    typing: list[
+    # typecheck
+    typecheck: list[
         Literal[
             "clean",
             "mypy",
@@ -203,13 +203,14 @@ class SessionParams(DataclassParser):
             "pylint",
             "pytype",
             "all",
-            "notebook-mypy",
-            "notebook-pyright",
-            "notebook-typecheck",
+            "mypy-notebook",
+            "pyright-notebook",
+            "pylint-notebook",
+            "typecheck-notebook",
         ]
-    ] = add_option("--typing", "-m")
-    typing_run: RUN_ANNO = None
-    typing_options: OPT_TYPE = add_option(help="Options to type checkers")
+    ] = add_option("--typecheck", "-m")
+    typecheck_run: RUN_ANNO = None
+    typecheck_options: OPT_TYPE = add_option(help="Options to type checkers")
 
     # build
     build: list[Literal["build", "version"]] | None = None
@@ -318,9 +319,14 @@ def install_dependencies(
         session.run_install(
             "uv",
             "sync",
-            *(["-U"] if opts.update else []),
+            *(
+                ["-U"]
+                if opts.update and opts.no_frozen
+                else []
+                if opts.no_frozen
+                else ["--frozen"]
+            ),
             *(["--no-dev"] if no_dev else []),
-            *([] if opts.no_frozen else ["--frozen"]),
             *(["--only-group"] if only_group else ["--group"]),
             name,
             # Handle package install here?
@@ -577,7 +583,7 @@ def lock(
         python_version = (
             min_python_version
             if path.name
-            in {"test.txt", "test-extras.txt", "typing.txt", "uvx-tools.txt"}
+            in {"test.txt", "test-extras.txt", "typecheck.txt", "uvx-tools.txt"}
             else PYTHON_DEFAULT_VERSION
         )
 
@@ -784,13 +790,7 @@ def docs(  # noqa: C901, PLR0912
     session: nox.Session,
     opts: SessionParams,
 ) -> None:
-    """
-    Run `make` in docs directory.
-
-    For example, 'nox -s docs -- +d html'
-    calls 'make -C docs html'. With 'release' option, you can set the
-    message with 'message=...' in posargs.
-    """
+    """Build/serve docs."""
     cmd = opts.docs or []
     cmd = ["html"] if not opts.docs_run and not cmd else list(cmd)
     name = "docs-live" if "livehtml" in cmd else "docs"
@@ -887,20 +887,20 @@ def lint(
 
 
 # ** type checking
-@nox.session(name="typing", **ALL_KWS)
+@nox.session(name="typecheck", **ALL_KWS)
 @add_opts
-def typing(  # noqa: C901
+def typecheck(  # noqa: C901
     session: nox.Session,
     opts: SessionParams,
 ) -> None:
     """Run type checkers (mypy, pyright, pytype)."""
     install_dependencies(
-        session, name="typing", opts=opts, include_editable_package=True
+        session, name="typecheck", opts=opts, include_editable_package=True
     )
-    session_run_commands(session, opts.typing_run)
+    session_run_commands(session, opts.typecheck_run)
 
-    cmd = opts.typing or []
-    if not opts.typing_run and not cmd:
+    cmd = opts.typecheck or []
+    if not opts.typecheck_run and not cmd:
         cmd = ["mypy", "pyright", "pylint"]
 
     if "all" in cmd:
@@ -923,8 +923,8 @@ def typing(  # noqa: C901
         raise TypeError
 
     for c in cmd:
-        if c.startswith("notebook-"):
-            session.run("make", c, external=True)
+        if c.endswith("-notebook"):
+            session.run("just", c, external=True)
         elif c in {"mypy", "pyright"}:
             session.run(
                 "python",
@@ -933,7 +933,7 @@ def typing(  # noqa: C901
                 "--verbose",
                 f"--checker={c}",
                 "--",
-                *(opts.typing_options or []),
+                *(opts.typecheck_options or []),
                 *(["--color-output"] if c == "mypy" else []),
             )
         elif c == "pylint":

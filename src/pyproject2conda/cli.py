@@ -469,7 +469,7 @@ def _get_header_cmd(
     if header:
         import sys
 
-        return " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
+        return " ".join([Path(sys.argv[0]).name, *sys.argv[1:]])
 
     return None
 

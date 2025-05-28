@@ -175,7 +175,7 @@ dependencies:
     """
     result = do_run(runner, "yaml", "--header", filename=filename)
 
-    cmd = " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
+    cmd = " ".join([Path(sys.argv[0]).name, *sys.argv[1:]])
     check_result(result, expected.format(cmd=cmd))
 
     # custom command
@@ -863,7 +863,7 @@ def test_alias(filename, runner) -> None:
 
 
 def test_overwrite(filename, caplog) -> None:
-    runner = CliRunner(mix_stderr=True)
+    runner = CliRunner()
 
     caplog.set_level(logging.INFO)
 
