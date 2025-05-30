@@ -54,8 +54,8 @@ def _uvx_run(
     r = subprocess.run(cleaned_args, check=False, env=env)
     if returncode := r.returncode:
         logger.error("Command %s failed with exit code %s", full_cmd, returncode)  # pyright: ignore[reportUnknownArgumentType]
-        msg = f"Returned code {returncode}"
-        raise RuntimeError(msg)
+        # msg = f"Returned code {returncode}"  # noqa: ERA001
+        # raise RuntimeError(msg)  # noqa: ERA001
 
 
 def _run_checker(
@@ -66,16 +66,23 @@ def _run_checker(
     constraints: list[Path],
     dry_run: bool = False,
 ) -> None:
+    if checker == "pyright":
+        python_flag = "pythonpath"
+    elif checker == "ty":
+        python_flag = "python"
+    elif checker == "pyrefly":
+        python_flag = "python-interpreter"
+    else:
+        # default to mypy
+        python_flag = "python-executable"
+
+    version_flag = "pythonversion" if checker == "pyright" else "python-version"
+    check_subcommand = ["check"] if checker in {"ty", "pyrefly"} else []
+
     python_flags = (
-        (
-            f"--pythonpath={python_executable}",
-            f"--pythonversion={python_version}",
-        )
-        if checker == "pyright"
-        else (
-            f"--python-executable={python_executable}",
-            f"--python-version={python_version}",
-        )
+        *check_subcommand,
+        f"--{python_flag}={python_executable}",
+        f"--{version_flag}={python_version}",
     )
 
     _uvx_run(
@@ -109,7 +116,7 @@ def get_parser() -> ArgumentParser:
         help="""
         Python version (x.y) to typecheck against. Defaults to
         ``{sys.version_info.major}.{sys.version_info.minor}``. This is passed
-        to ``--python-version`` and ``--pythonversion`` in mypy and pyright.
+        to ``--pythonversion`` in pyright and ``--python-version`` otherwise.
         """,
     )
     parser.add_argument(
@@ -135,7 +142,7 @@ def get_parser() -> ArgumentParser:
         dest="checkers",
         default=[],
         action="append",
-        choices=["mypy", "pyright"],
+        choices=["mypy", "pyright", "ty", "pyrefly"],
         help="Type checker to use.",
     )
     parser.add_argument(

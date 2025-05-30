@@ -870,7 +870,7 @@ def to_json(
 # app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)  # noqa: ERA001
 
 # Just use the click app....
-app = typer.main.get_command(app_typer)
+app = typer.main.get_command(app_typer)  # ty: ignore[unresolved-attribute]
 
 
 # ** Main

@@ -207,6 +207,10 @@ class SessionParams(DataclassParser):
             "pyright-notebook",
             "pylint-notebook",
             "typecheck-notebook",
+            "ty",
+            "pyrefly",
+            "ty-notebook",
+            "pyrefly-notebook",
         ]
     ] = add_option("--typecheck", "-m")
     typecheck_run: RUN_ANNO = None
@@ -925,7 +929,7 @@ def typecheck(  # noqa: C901
     for c in cmd:
         if c.endswith("-notebook"):
             session.run("just", c, external=True)
-        elif c in {"mypy", "pyright"}:
+        elif c in {"mypy", "pyright", "ty", "pyrefly"}:
             session.run(
                 "python",
                 "tools/typecheck.py",
@@ -933,7 +937,11 @@ def typecheck(  # noqa: C901
                 "--verbose",
                 f"--checker={c}",
                 "--",
-                *(opts.typecheck_options or []),
+                *(
+                    opts.typecheck_options or ["src", "tests"]
+                    if c in {"ty", "pyrefly"}
+                    else []
+                ),
                 *(["--color-output"] if c == "mypy" else []),
             )
         elif c == "pylint":
@@ -1173,7 +1181,7 @@ def _create_doc_examples_symlinks(session: nox.Session, clean: bool = True) -> N
             target_rel = os.path.relpath(target, start=link.parent)
             session.log(f"linking {target_rel} -> {link}")
 
-            os.symlink(target_rel, link)
+            link.symlink_to(target_rel)
 
 
 def _append_recipe(recipe_path: str | Path, append_path: str | Path) -> None:

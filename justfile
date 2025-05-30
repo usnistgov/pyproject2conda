@@ -175,6 +175,13 @@ pyright *options: (_typecheck "pyright" options)
 [group("typecheck")]
 pyright-watch *options: (pyright "-w" options)
 
+# Run ty (NOTE: in alpha)
+[group("typecheck")]
+ty *options="src tests": (_typecheck "ty" options)
+
+# Run pyrefly (Note: in alpha)
+pyrefly *options="src tests": (_typecheck "pyrefly" options)
+
 # Run pylint (with optional args)
 [group("lint")]
 [group("typecheck")]
@@ -236,6 +243,12 @@ pyright-all: (typecheck-all "pyright")
 [group("typecheck")]
 pylint-all: (typecheck-all "pylint")
 
+[group("typecheck")]
+ty-all: (typecheck-all "ty")
+
+[group("typecheck")]
+pyrefly-all: (typecheck-all "pyrefly")
+
 # * dist ----------------------------------------------------------------------
 
 [group("dist")]
@@ -289,6 +302,14 @@ mypy-notebook *files=NOTEBOOKS: (_nbqa_typecheck "mypy" files)
 [group("typecheck")]
 pyright-notebook *files=NOTEBOOKS: (_nbqa_typecheck "pyright" files)
 
+[group("notebook")]
+[group("typecheck")]
+ty-notebook *files=NOTEBOOKS: (_nbqa_typecheck "ty" files)
+
+[group("notebook")]
+[group("typecheck")]
+pyrefly-notebook *files=NOTEBOOKS: (_nbqa_typecheck "pyrefly" files)
+
 [group("lint")]
 [group("notebook")]
 [group("typecheck")]
@@ -309,6 +330,17 @@ install-ipykernel:
     {{ NOX }} -s install-ipykernel
 
 # * Other tools ----------------------------------------------------------------
+
+# update templates
+cruft-update *options="--checkout develop":
+    {{ UVX }} cruft update {{ options }}
+
+# create changelog snippet with scriv
+scriv-create *options="--add --edit":
+    {{ UVX }} scriv create {{ options }}
+
+scriv-collect version *options="--add --edit":
+    {{ UVX }} scriv collect --version {{ version }} {{ options }}
 
 auto-changelog:
     {{ UVX_WITH_OPTS }} auto-changelog -u -r usnistgov -v unreleased --tag-prefix v --stdout --template changelog.d/templates/auto-changelog/template.jinja2
