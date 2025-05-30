@@ -300,9 +300,12 @@ reqs = [
     "nbqa>=1.8.4",
     "pre-commit",
     "pre-commit-uv",
+    "pyrefly",
     "pyright>=1.1.392",
     "scriv",
+    "cruft",
     "twine>=5.0.0",
+    "ty",
 ]
 groups = "mypy"
 skip_package = true

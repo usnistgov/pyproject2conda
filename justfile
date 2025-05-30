@@ -333,14 +333,14 @@ install-ipykernel:
 
 # update templates
 cruft-update *options="--checkout develop":
-    {{ UVX }} cruft update {{ options }}
+    {{ UVX_WITH_OPTS }} cruft update {{ options }}
 
 # create changelog snippet with scriv
 scriv-create *options="--add --edit":
-    {{ UVX }} scriv create {{ options }}
+    {{ UVX_WITH_OPTS }} scriv create {{ options }}
 
 scriv-collect version *options="--add --edit":
-    {{ UVX }} scriv collect --version {{ version }} {{ options }}
+    {{ UVX_WITH_OPTS }} scriv collect --version {{ version }} {{ options }}
 
 auto-changelog:
     {{ UVX_WITH_OPTS }} auto-changelog -u -r usnistgov -v unreleased --tag-prefix v --stdout --template changelog.d/templates/auto-changelog/template.jinja2
