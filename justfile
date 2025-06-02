@@ -199,7 +199,7 @@ typecheck-tools *files="noxfile.py tools/*.py": (mypy "--strict" files) (pyright
 # * NOX ------------------------------------------------------------------------
 # ** docs
 
-# build docs.  Optioons {html, spelling, livehtml, linkcheck, open}.
+# build docs.  Optioons {html, spelling, livehtml, linkcheck, open, symlink}.
 [group("docs")]
 docs *options="html":
     {{ NOX }} -s docs -- +d {{ options }}
