@@ -602,21 +602,21 @@ dependencies:
 [tool.pyproject2conda]
 channels = ['conda-forge']
 # these are the same as the default values of `p2c project`
-template_python = "py{py}-{env}"
+template-python = "py{py}-{env}"
 template = "{env}"
 style = "yaml"
 # options
 python = ["3.10"]
 # Note that this is relative to the location of pyproject.toml
-user_config = "config/userconfig.toml"
+user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
 # dependencies from groups or extras with environment name so the below is the
 # same as
 #
 # [tool.pyproject2conda.envs.test]
-# extras_or_groups = "test"
+# extras-or-groups = "test"
 #
-default_envs = ["test", "dev", "dist-pypi"]
+default-envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
@@ -624,14 +624,14 @@ style = ["requirements"]
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
-# passing extras_or_groups = <env-name>
+# passing extras-or-groups = <env-name>
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-skip_package = true
+skip-package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]
@@ -730,21 +730,21 @@ in the `[tool.pyproject2conda]` section. For example, example the configuration:
 [tool.pyproject2conda]
 channels = ['conda-forge']
 # these are the same as the default values of `p2c project`
-template_python = "py{py}-{env}"
+template-python = "py{py}-{env}"
 template = "{env}"
 style = "yaml"
 # options
 python = ["3.10"]
 # Note that this is relative to the location of pyproject.toml
-user_config = "config/userconfig.toml"
+user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
 # dependencies from groups or extras with environment name so the below is the
 # same as
 #
 # [tool.pyproject2conda.envs.test]
-# extras_or_groups = "test"
+# extras-or-groups = "test"
 #
-default_envs = ["test", "dev", "dist-pypi"]
+default-envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
@@ -752,14 +752,14 @@ style = ["requirements"]
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
-# passing extras_or_groups = <env-name>
+# passing extras-or-groups = <env-name>
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-skip_package = true
+skip-package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]
@@ -831,11 +831,14 @@ Note that here, we have used the `--dry` option to just print the output. In
 production, you'd omit this flag, and files according to `--template` and
 `--template-python` would be used.
 
-The options under `[tool.pyproject2conda]` follow the command line options
-(replace `-` with `_`). To specify an environment, you can either use the
-`[tool.pyproject.envs."environment-name"]` method, or, if the environment is the
-same as an `project.optional-dependencies` or `dependency-grroups`, you can just
-specify it under `tool.pyproject2conda.default_envs`:
+The options under `[tool.pyproject2conda]` follow the command line options. For
+example, specify `template-python = ...` in the config file instead of passing
+`--template-python`. You can optionally replace all dashes with underscores in
+config file option names if you wish. To specify an environment, you can either
+use the `[tool.pyproject.envs."environment-name"]` method, or, if the
+environment is the same as an `project.optional-dependencies` or
+`dependency-groups`, you can just specify it under
+`tool.pyproject2conda.default_envs`:
 
 ```toml
 [tool.pyproject2conda]
@@ -892,7 +895,7 @@ environment definition, and finally, from the default options.
 You can also define "user defined" configurations. This can be done through the
 option `--user-config`. This allows you to define your own environments outside
 of the (most likely source controlled) `pyproject.toml` file. For example, we
-have the option `user_config=config/userconfig.toml`.
+have the option `user-config=config/userconfig.toml`.
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
@@ -909,7 +912,7 @@ name = "hello"
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
 
-Note that the full path of this file is note that the path of the `user_config`
+Note that the full path of this file is note that the path of the `user-config`
 file is relative to them`pyproject.toml` file. So, if the `pyproject.toml` file
 is at `a/path/pyproject.toml`, the path of user configuration files will be
 `a/path/config/userconfig.toml`. We then can run the following:

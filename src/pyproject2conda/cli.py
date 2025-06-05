@@ -20,7 +20,6 @@ from typer.core import TyperGroup
 from pyproject2conda import __version__
 from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
-    conda_env_name_from_template,
     parse_pythons,
     update_target,
 )
@@ -116,10 +115,10 @@ def main(
     ] = None,
 ) -> None:
     """
-    Extract conda `environment.yaml` and pip `requirement.txt` files from `pyproject.toml`
+    Extract conda ``environment.yaml`` and pip ``requirement.txt`` files from ``pyproject.toml``
 
     Note that all subcommands can be called with shortest possible match. Also, you can
-    call with any of `pyproject2conda`, `p2c`, `python -m pyproject2conda`.
+    call with any of ``pyproject2conda``, ``p2c``, ``python -m pyproject2conda``.
     For example,
 
     .. code-block:: console
@@ -151,9 +150,9 @@ EXTRAS_CLI = Annotated[
         "--extra",
         "-e",
         help="""
-        Include dependencies from extra <extra> from `project.optional-dependencies` table of `pyproject.toml`.
+        Include dependencies from extra <extra> from ``project.optional-dependencies`` table of ``pyproject.toml``.
         Can specify multiple times for multiple extras.
-        Use name `extras` for specifying in `pyproject.toml`
+        Use name ``extras`` for specifying in ``pyproject.toml``
         """,
     ),
 ]
@@ -163,9 +162,9 @@ GROUPS_CLI = Annotated[
         "--group",
         "-g",
         help="""
-        Include dependencies from group <group> from `dependency-groups` table of `pyproject.toml`.
+        Include dependencies from group <group> from ``dependency-groups`` table of ``pyproject.toml``.
         Can specify multiple times for multiple groups.
-        Use name `groups` for specifying in `pyproject.toml`
+        Use name ``groups`` for specifying in ``pyproject.toml``
         """,
     ),
 ]
@@ -174,10 +173,10 @@ EXTRAS_OR_GROUPS_CLI = Annotated[
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra-or-group",
         help="""
-        Include dependencies from extra or group of `pyproject.toml`.
-        Extras are checked first, followed by groups.  The first instance of `extra-or-group` found is used.
-        That is, if both `extras` and `groups` contain `extra-or-group`, the extra will be used.
-        Use name `extras_or_groups` for specifying in `pyproject.toml`
+        Include dependencies from extra or group of ``pyproject.toml``.
+        Extras are checked first, followed by groups.  The first instance of ``extra-or-group`` found is used.
+        That is, if both ``extras`` and ``groups`` contain ``extra-or-group``, the extra will be used.
+        Use name ``extras-or-groups`` for specifying in ``pyproject.toml``
         """,
     ),
 ]
@@ -194,10 +193,7 @@ NAME_CLI = Annotated[
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--name",
         "-n",
-        help="""
-        `name` field in generated environment.yaml file.
-        This supports substitution of the fields ``{py_version}`` for the full python version, ``{py}`` for the python version without ``"."``, and ``{env}`` for the environment name (if used with the ``project``) subcommand.
-        """,
+        help="Name of conda env",
     ),
 ]
 OUTPUT_CLI = Annotated[
@@ -211,7 +207,7 @@ OUTPUT_CLI = Annotated[
 
 
 class Overwrite(str, Enum):
-    """Options for `--overwrite`"""
+    """Options for ``--overwrite``"""
 
     check = "check"
     skip = "skip"
@@ -226,7 +222,7 @@ OVERWRITE_CLI = Annotated[
         case_sensitive=False,
         help="""
     What to do if output file exists.
-    (check): Create if missing. If output exists and passed `--filename` is newer, recreate output, else skip.
+    (check): Create if missing. If output exists and passed ``--filename`` is newer, recreate output, else skip.
     (skip): If output exists, skip.
     (force): force: force recreate output.
     """,
@@ -237,7 +233,7 @@ VERBOSE_CLI = Annotated[
     typer.Option(
         "--verbose",
         "-v",
-        help="Pass `-v/--verbose` for verbose output.  Pass multiple times to set verbosity level.",
+        help="Pass ``-v/--verbose`` for verbose output.  Pass multiple times to set verbosity level.",
         count=True,
         callback=_callback_verbose,
     ),
@@ -247,9 +243,9 @@ SKIP_PACKAGE_CLI = Annotated[
     typer.Option(
         "--skip-package",
         help="""
-        Default is to include package dependencies from `project.dependencies`
-        table of `pyproject.toml`. Passing `--skip-package` (or `skip_package =
-        true` in `tool.pyproject2conda.envs...` table of `pyproject.toml`) will
+        Default is to include package dependencies from ``project.dependencies``
+        table of ``pyproject.toml``. Passing ``--skip-package`` (or ``skip_package =
+        true`` in ``tool.pyproject2conda.envs...`` table of ``pyproject.toml``) will
         exclude the package dependencies. This is useful to define environments
         that should exclude base dependencies (like build, etc) in
         pyproject.toml.
@@ -260,7 +256,7 @@ PIP_ONLY_CLI = Annotated[
     bool,
     typer.Option(
         "--pip-only",
-        help="""Treat all requirements as pip requirements. Use option `pip_only` in pyproject.toml""",
+        help="""Treat all requirements as pip requirements. Use option ``pip_only`` in pyproject.toml""",
     ),
 ]
 SORT_DEPENDENCIES_CLI = Annotated[
@@ -268,9 +264,9 @@ SORT_DEPENDENCIES_CLI = Annotated[
     typer.Option(
         "--sort/--no-sort",
         help="""
-        Default is to sort the dependencies (excluding `--python-include`).
-        Pass `--no-sort` to instead place dependencies in order they are
-        gathered.  Use option `sort = true/false` in pyproject.toml
+        Default is to sort the dependencies (excluding ``--python-include``).
+        Pass ``--no-sort`` to instead place dependencies in order they are
+        gathered.  Use option ``sort = true/false`` in pyproject.toml
         """,
     ),
 ]
@@ -280,8 +276,8 @@ PYTHON_INCLUDE_CLI = Annotated[
         "--python-include",
         help="""
         If value passed, use this value (exactly) in the output. So, for
-        example, pass `--python-include "python=3.8"`. Special case is the
-        value `"infer"`. This infers the value of python from `pyproject.toml`
+        example, pass ``--python-include "python=3.8"``. Special case is the
+        value ``"infer"``. This infers the value of python from ``pyproject.toml``
         """,
     ),
 ]
@@ -290,11 +286,11 @@ PYTHON_VERSION_CLI = Annotated[
     typer.Option(
         "--python-version",
         help="""
-         Python version to check `python_version <=> {python_version}` lines
+         Python version to check ``python_version <=> {python_version}`` lines
          against. That is, this version is used to limit packages in resulting
-         output. For example, if have a line like `a-package; python_version <
-         '3.9'`, Using `--python-version 3.10` will not include `a-package`,
-         while `--python-version 3.8` will include `a-package`.
+         output. For example, if have a line like ``a-package; python_version <
+         '3.9'``, Using ``--python-version 3.10`` will not include ``a-package``,
+         while ``--python-version 3.8`` will include ``a-package``.
          """,
     ),
 ]
@@ -304,18 +300,18 @@ PYTHON_CLI = Annotated[
         "--python",
         "-p",
         help="""
-        python version. passing `--python {version}` is equivalent to passing
-        `--python-version={version} --python-include=python{version}`. if
-        passed, this overrides values of passed via `--python-version` and
-        `--python-include`. pass `--python="default"` to include the python
-        version (major.minor only) from, in order, `.python-version-default` or
-        `.python-version`file in the current directory. pass `"lowest"` or
-        `"highest"` to include the lowest or highest python version,
-        respectively, from `pyproject.toml:project.classifiers` table. in
-        project mode, you can pass multiple python version in `pyproject.toml`
-        with, e.g., `python = ["3.8", "3.9", ....]`, or using `python = "all"`,
+        python version. passing ``--python {version}`` is equivalent to passing
+        ``--python-version={version} --python-include=python{version}``. if
+        passed, this overrides values of passed via ``--python-version`` and
+        ``--python-include``. pass ``--python="default"`` to include the python
+        version (major.minor only) from, in order, ``.python-version-default`` or
+        ``.python-version``file in the current directory. pass ``"lowest"`` or
+        ``"highest"`` to include the lowest or highest python version,
+        respectively, from ``pyproject.toml:project.classifiers`` table. in
+        project mode, you can pass multiple python version in ``pyproject.toml``
+        with, e.g., ``python = ["3.8", "3.9", ....]``, or using ``python = "all"``,
         to include all python versions extracted from
-        `pyproject.toml:project.classifiers` table.
+        ``pyproject.toml:project.classifiers`` table.
         """,
     ),
 ]
@@ -335,7 +331,7 @@ CUSTOM_COMMAND_CLI = Annotated[
     typer.Option(
         "--custom-command",
         help="""
-        Custom command to place in header.  Implies `--header`.
+        Custom command to place in header.  Implies ``--header``.
         """,
     ),
 ]
@@ -353,7 +349,7 @@ REQS_CLI = Annotated[
         "--reqs",
         "-r",
         help="""
-        Additional pip requirements. For example, pass `-r '-e .'` to included
+        Additional pip requirements. For example, pass ``-r '-e .'`` to included
         editable version of current package in requirements file.
         """,
     ),
@@ -367,7 +363,7 @@ ENVS_CLI = Annotated[
 TEMPLATE_CLI = Annotated[
     str | None,
     typer.Option(
-        help="Template for environments that do not have a python version. Defaults to `{env}`."
+        help="Template for environments that do not have a python version. Defaults to ``{env}``."
     ),
 ]
 TEMPLATE_PYTHON_CLI = Annotated[
@@ -375,8 +371,8 @@ TEMPLATE_PYTHON_CLI = Annotated[
     typer.Option(
         help="""
         Template for environments that do have a python version. Defaults to
-        "py{py}-{env}". For example, with `--template-python="py{py}-{env}"` and
-        `--python=3.8` and environment "dev", output would be "py38-dev"
+        "py{py}-{env}". For example, with ``--template-python="py{py}-{env}"`` and
+        ``--python=3.8`` and environment "dev", output would be "py38-dev"
         \b
         * {py} -> "38"
         * {py_version} -> "3.8"
@@ -389,7 +385,7 @@ REQS_EXT_CLI = Annotated[
     typer.Option(
         "--reqs-ext",
         help="""
-        Extension to use with requirements file output created from template.  Defaults to `".txt"`.
+        Extension to use with requirements file output created from template.  Defaults to ``".txt"``.
         """,
     ),
 ]
@@ -398,7 +394,7 @@ YAML_EXT_CLI = Annotated[
     typer.Option(
         "--yaml-ext",
         help="""
-        Extension to use with conda environment.yaml file output created from template.  Defaults to `".yaml"`
+        Extension to use with conda environment.yaml file output created from template.  Defaults to ``".yaml"``
         """,
     ),
 ]
@@ -416,8 +412,8 @@ USER_CONFIG_CLI = Annotated[
         help="""
         Additional toml file to supply configuration. This can be used to
         override/add environment files for your own use (apart from project env
-        files). The (default) value `infer` means to infer the configuration
-        from `--filename`.
+        files). The (default) value ``infer`` means to infer the configuration
+        from ``--filename``.
         """,
     ),
 ]
@@ -439,18 +435,18 @@ ALLOW_EMPTY_OPTION = typer.Option(
     "--allow-empty/--no-allow-empty",
     help="""
     What to do if there are no package requirements for an environment. The
-    default (`--no-allow-empty`) is to raise an error if the specification
-    leads to no requirements. Passing `--allow-empty` will lead to a message
+    default (``--no-allow-empty``) is to raise an error if the specification
+    leads to no requirements. Passing ``--allow-empty`` will lead to a message
     being printed, but no environment file being created.
     """,
 )
 REMOVE_WHITESPACE_OPTION = typer.Option(
     "--remove-whitespace/--no-remove-whitespace",
     help="""
-    What to do with whitespace in a dependency. Passing `--remove-whitespace`
+    What to do with whitespace in a dependency. Passing ``--remove-whitespace``
     will remove whitespace in a given dependency. For example, the dependency
-    `package >= 1.0` will be converted to `package>=1.0`. Pass
-    `--no-remove-whitespace` to keep the the whitespace in the output.
+    ``package >= 1.0`` will be converted to ``package>=1.0``. Pass
+    ``--no-remove-whitespace`` to keep the the whitespace in the output.
     """,
 )
 
@@ -569,8 +565,6 @@ def yaml(
         toml_path=pyproject_filename,
     )
 
-    name = conda_env_name_from_template(name=name, python_version=python_version)
-
     d = _get_requirement_parser(pyproject_filename)
 
     _log_creating(logger, "yaml", output)
@@ -616,7 +610,7 @@ def requirements(
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = False,
 ) -> None:
-    """Create requirements.txt for pip dependencies.  Note that all requirements are normalized using `packaging.requirements.Requirement`"""
+    """Create requirements.txt for pip dependencies.  Note that all requirements are normalized using ``packaging.requirements.Requirement``"""
     if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "requirements", output)
         return
@@ -651,7 +645,6 @@ def project(
     envs: ENVS_CLI = None,
     template: TEMPLATE_CLI = None,
     template_python: TEMPLATE_PYTHON_CLI = None,
-    name: NAME_CLI = None,
     reqs: REQS_CLI = None,
     deps: DEPS_CLI = None,
     reqs_ext: REQS_EXT_CLI = ".txt",
@@ -667,7 +660,17 @@ def project(
     allow_empty: Annotated[bool | None, ALLOW_EMPTY_OPTION] = None,
     remove_whitespace: Annotated[bool | None, REMOVE_WHITESPACE_OPTION] = None,
 ) -> None:
-    """Create multiple environment files from `pyproject.toml` specification."""
+    """
+    Create multiple environment files from ``pyproject.toml`` specification.
+
+    Note that if you specify options in ``pyproject.toml``, the name is usually
+    the same as the command line option. You can replace dashes with
+    underscores if you wish, but if you do so, replace all dashes with
+    underscores. For cases where the option can take multiple values, the
+    config file option will be plural. For example, the command line option
+    ``--group`` becomes the config file option ``groups = ...``.  Boolean options
+    like ``--sort/--no-sort`` become ``sort = true/false`` in the config file.
+    """
     from pyproject2conda.config import Config
 
     c = Config.from_file(pyproject_filename, user_config=user_config)
@@ -690,7 +693,6 @@ def project(
         verbose=verbose,
         allow_empty=allow_empty,
         remove_whitespace=remove_whitespace,
-        name=name,
         pip_only=pip_only or None,
     ):
         if dry:
