@@ -7,10 +7,12 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
+name: py{py}-{env}
 channels:
   - conda-forge
 dependencies:
   - python=3.13
+  - dependency-groups
   - packaging
   - pytest
   - pytest-cov

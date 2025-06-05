@@ -415,7 +415,7 @@ class ParseDepends:
     @cached_property
     def requirements_groups(self) -> dict[str, list[Requirement]]:
         """Groups requirements"""
-        from .vendored.dependency_groups._implementation import resolve
+        from dependency_groups import resolve
 
         unresolved: dict[str, list[Requirement]] = {
             group: [Requirement(x) for x in resolve(self.dependency_groups, group)]

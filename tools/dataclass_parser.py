@@ -32,7 +32,6 @@ class Example(DataclassParser):
 
 from __future__ import annotations
 
-import sys
 from argparse import ArgumentParser
 from dataclasses import (
     dataclass,
@@ -54,17 +53,13 @@ from typing import (
 )
 
 if TYPE_CHECKING:
+    import sys
     from collections.abc import Callable, Container, Sequence
 
     if sys.version_info >= (3, 11):
         from typing import Self
     else:
         from typing_extensions import Self
-
-
-if sys.version_info < (3, 10):
-    msg = "Require python >= 3.10"
-    raise RuntimeError(msg)
 
 
 _NoneType = type(None)

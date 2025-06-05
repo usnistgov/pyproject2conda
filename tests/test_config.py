@@ -12,7 +12,6 @@ from textwrap import dedent
 import pytest
 
 import pyproject2conda
-from pyproject2conda import utils
 from pyproject2conda.cli import app
 from pyproject2conda.config import Config
 
@@ -28,24 +27,6 @@ def do_run(runner, command, *opts, filename=None, must_exist=False):
         raise ValueError(msg)
 
     return runner.invoke(app, [command, "-f", str(filename), *opts])
-
-
-def test_template() -> None:
-    assert utils.filename_from_template(None) is None
-
-    expected = "py38-test.yaml"
-
-    t = utils.filename_from_template(
-        "py{py}-{env}", env_name="test", python="3.8", ext=".yaml"
-    )
-
-    assert t == expected
-
-    t = utils.filename_from_template(
-        "py{py}-{env}", env_name="test", python_version="3.8", ext=".yaml"
-    )
-
-    assert t == expected
 
 
 @pytest.fixture
@@ -117,6 +98,9 @@ def simple_toml() -> str:
     python = "highest"
     template_python = "py{py}-hello"
 
+
+    [tool.pyproject2conda.envs.base_name]
+    name = "py{py}-{env}"
 
     [tool.pyproject2conda.envs.extension_yaml]
     style = "yaml"
@@ -343,6 +327,34 @@ def test_option_override_base_pip_only(simple_config: Config) -> None:
     )
 
 
+def test_option_override_base_name(simple_config: Config) -> None:
+    output = list(simple_config.iter_envs(envs=["base_name"]))
+
+    assert output[0] == (
+        "yaml",
+        {
+            "extras": [],
+            "groups": [],
+            "extras_or_groups": [],
+            "sort": True,
+            "skip_package": False,
+            "pip_only": False,
+            "header": None,
+            "custom_command": None,
+            "overwrite": "check",
+            "verbose": None,
+            "reqs": None,
+            "deps": None,
+            "name": "py310-base_name",
+            "channels": ["conda-forge"],
+            "allow_empty": False,
+            "remove_whitespace": True,
+            "output": "py310-base_name.yaml",
+            "python": "3.10",
+        },
+    )
+
+
 def test_option_override_base_custom_command(simple_config: Config) -> None:
     output = list(simple_config.iter_envs(envs=["base-custom-command"]))
 
@@ -499,29 +511,6 @@ def test_option_override_base3_default_python_error(
         match=r"Must include `.python-version-default` or `.python-version`.*",
     ):
         list(simple_config.iter_envs(envs=["base3"]))
-
-
-@pytest.mark.parametrize(
-    ("python_version_default", "python_version", "expected"),
-    [
-        (None, None, []),
-        (None, "3.10", ["3.10"]),
-        ("3.12", "3.11", ["3.12"]),
-        ("3.11", None, ["3.11"]),
-    ],
-)
-def test_default_pythons(
-    example_path, python_version_default, python_version, expected
-) -> None:
-    for name, version in zip(
-        [".python-version-default", ".python-version"],
-        [python_version_default, python_version],
-    ):
-        if version is not None:
-            with (example_path / name).open("w") as f:
-                f.write(f"{version}\n")
-
-    assert utils.get_default_pythons_with_fallback() == expected
 
 
 def test_option_override_base3_default_python(example_path, simple_toml: str) -> None:
@@ -776,7 +765,7 @@ def test_config_only_default() -> None:
     extras = true
     """
 
-    for s, d in zip([s0, s1], (d0, d1)):
+    for s, d in zip([s0, s1], (d0, d1), strict=False):
         c = Config.from_string(s)
         assert list(c.iter_envs()) == [("yaml", d)]
 

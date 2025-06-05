@@ -1,5 +1,5 @@
 # need this to pick up requires-python from pyproject.toml
-extend = "./pyproject.toml"
+# extend = "./pyproject.toml"
 extend-include = [
     "*.ipynb",
 ]
@@ -12,7 +12,7 @@ extend-exclude = [
     "**vendored",
 ]
 fix = true
-# unsafe-fixes = true
+unsafe-fixes = true
 
 [format]
 docstring-code-format = true

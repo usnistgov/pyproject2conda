@@ -14,38 +14,53 @@ repos:
         exclude: ^uv[.]lock
       - id: check-case-conflict
       - id: check-merge-conflict
-      - id: check-symlinks
+      # - id: check-symlinks
       - id: check-yaml
       - id: check-json
       - id: check-toml
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: mixed-line-ending
-  # * Sync dependencies
-  - repo: https://github.com/mxr/sync-pre-commit-deps
-    rev: v0.0.3
+  # * meta hooks
+  - repo: meta
     hooks:
-      - id: sync-pre-commit-deps
+      - id: check-hooks-apply
+        stages: [manual]
+      - id: check-useless-excludes
+        stages: [manual]
 
-  # * Pyproject-fmt
+  # * pyproject.toml
+  # ** format
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.5.0
+    rev: v2.6.0
     hooks:
       - id: pyproject-fmt
         args: [--indent=4, --keep-full-version]
         files: ""
         types: [toml]
         exclude: ^tests/data
-
-  # * Pyproject validate
+  # ** validate
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.23
+    rev: v0.24.1
     hooks:
       - id: validate-pyproject
+  # ** validate (schema-store)
+  - repo: https://github.com/henryiii/validate-pyproject-schema-store
+    rev: 2025.05.12
+    hooks:
+      - id: validate-pyproject
+        alias: validate-pyproject-full
+        stages: [manual]
+  # ** repo review
+  - repo: https://github.com/scientific-python/cookie
+    rev: 2025.05.02
+    hooks:
+      - id: sp-repo-review
+        stages: [manual]
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.5.1
+    rev: v3.5.3
     hooks:
       - id: prettier
         alias: markdownlint
@@ -53,7 +68,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.17.2
+    rev: v0.18.1
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -61,6 +76,16 @@ repos:
         # language_version: 10.9.0
 
   # * Linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.12
+    hooks:
+      - id: ruff-check
+        alias: ruff
+        types_or: &ruff-types-or [python, pyi, jupyter]
+        args: [--fix, --show-fixes]
+      - id: ruff-format
+        alias: ruff
+        types_or: *ruff-types-or
   # To be replace by ruff analog when I find one ...
   - repo: https://github.com/adamchainz/blacken-docs
     rev: 1.19.1
@@ -68,18 +93,17 @@ repos:
       - id: blacken-docs
         additional_dependencies:
           - black==25.1.0
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.6
-    hooks:
-      - id: ruff
-        alias: ruff-all
-        types_or: &ruff-types-or [python, pyi, jupyter]
-        args: [--fix, --show-fixes]
-      - id: ruff-format
-        alias: ruff-all
-        types_or: *ruff-types-or
 
   # * Spelling
+  # ** typos (only with manual)
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.33.1
+    hooks:
+      - id: typos
+        stages: [manual]
+        exclude_types: [jupyter]
+        exclude: ^uv[.]lock$|^requirements
+  # ** codespell
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
@@ -89,29 +113,21 @@ repos:
         exclude_types: [jupyter]
         exclude: ^uv[.]lock$|^requirements
 
-  # * Commit message
-  - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.2.2
-    hooks:
-      - id: commitizen
-        stages: [commit-msg]
-
-  # * uv
+  # * Dependencies
+  # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.1
+    rev: 0.7.11
     hooks:
       - id: uv-lock
         args: [--locked]
-
-  # * pyproject2conda
+  # ** pyproject2conda
   - repo: https://github.com/usnistgov/pyproject2conda
-    rev: v0.19.0
+    rev: v0.19.1
     hooks:
       - id: pyproject2conda-project
         alias: requirements
-
-  # * all lock files
+  # ** all lock files
   - repo: local
     hooks:
       - id: requirements-lock
@@ -121,43 +137,31 @@ repos:
         language: python
         files: ^requirements/.*\.txt$
         pass_filenames: false
-        additional_dependencies: ["nox==2025.2.9"]
+        additional_dependencies: ["nox==2025.5.1"]
 
-  # * Manual Linting ------------------------------------------------------------
-  # - repo: https://github.com/asottile/pyupgrade
-  #   rev: v3.19.1
-  #   hooks:
-  #     - id: pyupgrade
-  #       stages: [manual]
-  #       args: [--py38-plus]
-  # - repo: https://github.com/nbQA-dev/nbQA
-  #   rev: 1.9.1
-  #   hooks:
-  #     - id: nbqa-pyupgrade
-  #       additional_dependencies: [pyupgrade]
-  #       stages: [manual]
-  #       args: [--py38-plus]
-
-  # pyproject-validate (schema-store)
-  - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2025.02.17
+  # * Commit message
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.8.2
     hooks:
-      - id: validate-pyproject
-        alias: validate-pyproject-full
-        stages: [manual]
+      - id: commitizen
+        stages: [commit-msg]
 
-  # * checkmake
-  - repo: https://github.com/mrtazz/checkmake.git
-    rev: 0.2.2
+  # * Justfile
+  - repo: local
     hooks:
-      - id: checkmake
+      - id: just-fmt
+        name: just-fmt
+        entry:
+          uvx --constraints=requirements/lock/uvx-tools.txt --from="rust-just"
+          just --fmt --justfile
         stages: [manual]
+        language: python
+        files: \.?[jJ]ustfile
 
-  # ** typos
-  # Probably stick with codespell, but this might also be nice...
-  - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.12.5
+  # * Cruft
+  - repo: https://github.com/cruft/cruft.git
+    rev: 2.16.0
     hooks:
-      - id: typos
+      - id: cruft
+        args: [--checkout, develop]
         stages: [manual]
-        exclude: "[.]ipynb$|^uv[.]lock$|^requirements"

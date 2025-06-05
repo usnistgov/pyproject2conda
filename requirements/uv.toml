@@ -1,5 +1,5 @@
 # Used to override any options in pyproject.toml
-fork-strategy = "fewest"
+fork-strategy = "requires-python"
 
 [pip]
 annotation-style = "line"

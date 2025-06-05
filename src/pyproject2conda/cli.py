@@ -3,32 +3,30 @@
 Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 ================================================================
 """
-# pylint: disable=consider-alternative-union-syntax,deprecated-typing-alias  # change when bump minimum version
-# * Imports -------------------------------------------------------------------
+
+from __future__ import annotations
 
 import locale
 import logging
 import os
 from enum import Enum
-from functools import lru_cache, wraps
-from inspect import signature
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Annotated
 
-# from click import click.Context
-import click
 import typer
 from typer.core import TyperGroup
 
 from pyproject2conda import __version__
 from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
+    conda_env_name_from_template,
     parse_pythons,
     update_target,
 )
 
-from ._typing import R
-from ._typing_compat import Annotated
+if TYPE_CHECKING:
+    import click
 
 # * Logger -----------------------------------------------------------------------------
 
@@ -37,20 +35,49 @@ logging.basicConfig(level=logging.WARNING, format=FORMAT)
 logger = logging.getLogger("pyproject2conda")
 
 
-# * Settings ---------------------------------------------------------------------------
-if "P2C_COLUMNS" in os.environ:
-    os.environ["COLUMNS"] = os.environ["P2C_COLUMNS"]  # pragma: no cover
+# * Callbacks -----------------------------------------------------------------
+def _callback_verbose(
+    verbose: int | None,
+) -> int | None:
+    if verbose is None:
+        return None
+
+    if verbose < 0:  # pragma: no cover
+        level = logging.ERROR
+    elif not verbose:  # pragma: no cover
+        level = logging.WARNING
+    elif verbose == 1:
+        level = logging.INFO
+    else:  # pragma: no cover
+        level = logging.DEBUG
+
+    for _logger in map(logging.getLogger, logging.root.manager.loggerDict):  # pylint: disable=no-member,bad-builtin
+        _logger.setLevel(level)
+    return verbose
+
+
+def _callback_columns(
+    columns: int | None,
+) -> int | None:
+    if columns is not None:
+        os.environ["COLUMNS"] = str(columns)
+    return columns
+
+
+def _callback_version(value: bool) -> None:
+    """Versioning call back."""
+    if value:
+        typer.echo(f"pyproject2conda, version {__version__}")
+        raise typer.Exit
 
 
 # * Typer App --------------------------------------------------------------------------
-
-
 class AliasedGroup(TyperGroup):
     """Provide aliasing for commands"""
 
     def get_command(  # noqa: D102
         self, ctx: click.Context, cmd_name: str
-    ) -> Optional[click.Command]:
+    ) -> click.Command | None:
         if (rv := super().get_command(ctx, cmd_name)) is not None:
             return rv
         if not (
@@ -62,27 +89,31 @@ class AliasedGroup(TyperGroup):
         ctx.fail(
             "Too many matches: {}".format(", ".join(sorted(matches)))
         )  # pragma: no cover
-        return None  # pragma: no cover
+        return None  # type: ignore[unreachable]  # pragma: no cover
 
-    def list_commands(self, ctx: click.Context) -> List[str]:  # noqa: ARG002, D102
+    def list_commands(self, ctx: click.Context) -> list[str]:  # noqa: ARG002, D102
         return list(self.commands)
 
 
 app_typer = typer.Typer(cls=AliasedGroup, no_args_is_help=True)
 
 
-def version_callback(value: bool) -> None:
-    """Versioning call back."""
-    if value:
-        typer.echo(f"pyproject2conda, version {__version__}")
-        raise typer.Exit
-
-
 @app_typer.callback()
 def main(
-    version: bool = typer.Option(  # noqa: ARG001
-        None, "--version", "-v", callback=version_callback, is_eager=True
-    ),
+    version: Annotated[  # noqa: ARG001
+        bool,
+        typer.Option("--version", "-v", callback=_callback_version, is_eager=True),
+    ] = False,
+    columns: Annotated[  # noqa: ARG001
+        int | None,
+        typer.Option(
+            "--columns",
+            envvar="P2C_COLUMNS",
+            help="Column width in terminal.  Set ``COLUMNS`` environment variable to this value",
+            callback=_callback_columns,
+            is_eager=True,
+        ),
+    ] = None,
 ) -> None:
     """
     Extract conda `environment.yaml` and pip `requirement.txt` files from `pyproject.toml`
@@ -96,25 +127,26 @@ def main(
             # these are equivalent
             $ pyproject2conda yaml ...
             $ p2c y ...
-            $ python -m pyproject2conda ...
+            $ python -m pyproject2conda yaml ...
     """
     return
 
 
 # * Options ----------------------------------------------------------------------------
 
-DEFAULT_TOML_PATH = Path("./pyproject.toml")
-
 PYPROJECT_CLI = Annotated[
     Path,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
+        "--pyproject-file",
         "--file",
         "-f",
         help="input pyproject.toml file",
+        default_factory=lambda: Path("./pyproject.toml"),
+        show_default="pyproject.toml",
     ),
 ]
 EXTRAS_CLI = Annotated[
-    Optional[List[str]],
+    list[str] | None,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra",
         "-e",
@@ -126,7 +158,7 @@ EXTRAS_CLI = Annotated[
     ),
 ]
 GROUPS_CLI = Annotated[
-    Optional[List[str]],
+    list[str] | None,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--group",
         "-g",
@@ -138,7 +170,7 @@ GROUPS_CLI = Annotated[
     ),
 ]
 EXTRAS_OR_GROUPS_CLI = Annotated[
-    Optional[List[str]],
+    list[str] | None,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--extra-or-group",
         help="""
@@ -149,10 +181,8 @@ EXTRAS_OR_GROUPS_CLI = Annotated[
         """,
     ),
 ]
-
-
 CHANNEL_CLI = Annotated[
-    Optional[List[str]],
+    list[str] | None,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--channel",
         "-c",
@@ -160,15 +190,18 @@ CHANNEL_CLI = Annotated[
     ),
 ]
 NAME_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--name",
         "-n",
-        help="Name of conda env",
+        help="""
+        `name` field in generated environment.yaml file.
+        This supports substitution of the fields ``{py_version}`` for the full python version, ``{py}`` for the python version without ``"."``, and ``{env}`` for the environment name (if used with the ``project``) subcommand.
+        """,
     ),
 ]
 OUTPUT_CLI = Annotated[
-    Optional[Path],
+    Path | None,
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--output",
         "-o",
@@ -199,14 +232,14 @@ OVERWRITE_CLI = Annotated[
     """,
     ),
 ]
-
 VERBOSE_CLI = Annotated[
-    Optional[int],
+    int | None,
     typer.Option(
         "--verbose",
         "-v",
         help="Pass `-v/--verbose` for verbose output.  Pass multiple times to set verbosity level.",
         count=True,
+        callback=_callback_verbose,
     ),
 ]
 SKIP_PACKAGE_CLI = Annotated[
@@ -242,7 +275,7 @@ SORT_DEPENDENCIES_CLI = Annotated[
     ),
 ]
 PYTHON_INCLUDE_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         "--python-include",
         help="""
@@ -253,7 +286,7 @@ PYTHON_INCLUDE_CLI = Annotated[
     ),
 ]
 PYTHON_VERSION_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         "--python-version",
         help="""
@@ -266,7 +299,7 @@ PYTHON_VERSION_CLI = Annotated[
     ),
 ]
 PYTHON_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         "--python",
         "-p",
@@ -287,7 +320,7 @@ PYTHON_CLI = Annotated[
     ),
 ]
 HEADER_CLI = Annotated[
-    Optional[bool],
+    bool | None,
     typer.Option(
         "--header/--no-header",
         help="""
@@ -298,7 +331,7 @@ HEADER_CLI = Annotated[
     ),
 ]
 CUSTOM_COMMAND_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         "--custom-command",
         help="""
@@ -307,7 +340,7 @@ CUSTOM_COMMAND_CLI = Annotated[
     ),
 ]
 DEPS_CLI = Annotated[
-    Optional[List[str]],
+    list[str] | None,
     typer.Option(
         "--deps",
         "-d",
@@ -315,7 +348,7 @@ DEPS_CLI = Annotated[
     ),
 ]
 REQS_CLI = Annotated[
-    Optional[List[str]],
+    list[str] | None,
     typer.Option(
         "--reqs",
         "-r",
@@ -326,19 +359,19 @@ REQS_CLI = Annotated[
     ),
 ]
 ENVS_CLI = Annotated[
-    Optional[List[str]],
+    list[str] | None,
     typer.Option(
         help="List of environments to build files for.  Default to building all environments",
     ),
 ]
 TEMPLATE_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         help="Template for environments that do not have a python version. Defaults to `{env}`."
     ),
 ]
 TEMPLATE_PYTHON_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         help="""
         Template for environments that do have a python version. Defaults to
@@ -352,7 +385,7 @@ TEMPLATE_PYTHON_CLI = Annotated[
     ),
 ]
 REQS_EXT_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         "--reqs-ext",
         help="""
@@ -361,7 +394,7 @@ REQS_EXT_CLI = Annotated[
     ),
 ]
 YAML_EXT_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         "--yaml-ext",
         help="""
@@ -377,7 +410,7 @@ DRY_CLI = Annotated[
     ),
 ]
 USER_CONFIG_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         "--user-config",
         help="""
@@ -390,7 +423,7 @@ USER_CONFIG_CLI = Annotated[
 ]
 # For conda-requirements
 PREFIX_CLI = Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
         "--prefix",
         help="set conda-output=prefix + 'conda.txt', pip-output=prefix + 'pip.txt'",
@@ -402,8 +435,6 @@ PREPEND_CHANNEL_CLI = Annotated[
         "--prepend-channel",
     ),
 ]
-
-
 ALLOW_EMPTY_OPTION = typer.Option(
     "--allow-empty/--no-allow-empty",
     help="""
@@ -413,8 +444,6 @@ ALLOW_EMPTY_OPTION = typer.Option(
     being printed, but no environment file being created.
     """,
 )
-
-
 REMOVE_WHITESPACE_OPTION = typer.Option(
     "--remove-whitespace/--no-remove-whitespace",
     help="""
@@ -428,10 +457,10 @@ REMOVE_WHITESPACE_OPTION = typer.Option(
 
 # * Utils ------------------------------------------------------------------------------
 def _get_header_cmd(
-    custom_command: Optional[str],
-    header: Optional[bool],
-    output: Union[str, Path, None],
-) -> Optional[str]:
+    custom_command: str | None,
+    header: bool | None,
+    output: str | Path | None,
+) -> str | None:
     if custom_command is not None:
         return custom_command
 
@@ -444,18 +473,18 @@ def _get_header_cmd(
     if header:
         import sys
 
-        return " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
+        return " ".join([Path(sys.argv[0]).name, *sys.argv[1:]])
 
     return None
 
 
 @lru_cache
-def _get_requirement_parser(filename: Union[str, Path]) -> ParseDepends:
+def _get_requirement_parser(filename: str | Path) -> ParseDepends:
     return ParseDepends.from_path(filename)
 
 
 def _log_skipping(
-    logger: logging.Logger, style: str, output: Union[str, Path, None]
+    logger: logging.Logger, style: str, output: str | Path | None
 ) -> None:
     logger.info(
         "Skipping %s %s. Pass `-w force` to force recreate output", style, output
@@ -465,11 +494,11 @@ def _log_skipping(
 def _log_creating(
     logger: logging.Logger,
     style: str,
-    output: Union[str, Path, None],
-    prefix: Optional[str] = None,
+    output: str | Path | None,
+    prefix: str | None = None,
 ) -> None:
     if prefix is None:  # pragma: no cover
-        prefix = "# " if prefix is None and output is None else ""
+        prefix = "# " if output is None else ""
 
     s = f"{prefix}Creating {style}"
 
@@ -479,61 +508,18 @@ def _log_creating(
     logger.info(s)
 
 
-def _add_verbose_logger(
-    logger: logging.Logger, verbose_arg: str = "verbose"
-) -> Callable[[Callable[..., R]], Callable[..., R]]:
-    """Decorator factory to add logger and set logger level based on verbosity argument value."""
-
-    def decorator(func: Callable[..., R]) -> Callable[..., R]:
-        bind = signature(func).bind
-
-        @wraps(func)
-        def wrapped(*args: Any, **kwargs: Any) -> R:
-            params = bind(*args, **kwargs)
-            params.apply_defaults()
-
-            if (
-                verbosity := cast("Optional[int]", params.arguments[verbose_arg])
-            ) is None:
-                # leave where it is:
-                pass
-            else:
-                if verbosity < 0:  # pragma: no cover
-                    level = logging.ERROR
-                elif not verbosity:  # pragma: no cover
-                    level = logging.WARNING
-                elif verbosity == 1:
-                    level = logging.INFO
-                else:  # pragma: no cover
-                    level = logging.DEBUG
-
-                logger.setLevel(level)
-
-            # add error logger to function call
-            try:
-                return func(*args, **kwargs)
-            except Exception:
-                logger.exception("found error")
-                raise
-
-        return wrapped
-
-    return decorator
-
-
 # * Commands ---------------------------------------------------------------------------
 # ** List
 # @app_typer.command("l", hidden=True)
 @app_typer.command("list")
-@_add_verbose_logger(logger)
 def create_list(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    pyproject_filename: PYPROJECT_CLI,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
 ) -> None:
     """List available extras."""
-    logger.info("filename: %s", filename)
+    logger.info("pyproject_filename: %s", pyproject_filename)
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     for name, vals in [("Extras", d.extras), ("Groups", d.groups)]:  # pylint: disable=consider-using-tuple
         print(name)
@@ -545,9 +531,8 @@ def create_list(
 # ** Yaml
 # @app_typer.command("y", hidden=True)
 @app_typer.command()
-@_add_verbose_logger(logger)
 def yaml(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    pyproject_filename: PYPROJECT_CLI,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -570,7 +555,7 @@ def yaml(
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
-    if not update_target(output, filename, overwrite=overwrite.value):
+    if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return
 
@@ -581,10 +566,12 @@ def yaml(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=filename,
+        toml_path=pyproject_filename,
     )
 
-    d = _get_requirement_parser(filename)
+    name = conda_env_name_from_template(name=name, python_version=python_version)
+
+    d = _get_requirement_parser(pyproject_filename)
 
     _log_creating(logger, "yaml", output)
 
@@ -613,9 +600,8 @@ def yaml(
 # ** Requirements
 # @app_typer.command("r", hidden=True)
 @app_typer.command()
-@_add_verbose_logger(logger)
 def requirements(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    pyproject_filename: PYPROJECT_CLI,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -631,11 +617,11 @@ def requirements(
     remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = False,
 ) -> None:
     """Create requirements.txt for pip dependencies.  Note that all requirements are normalized using `packaging.requirements.Requirement`"""
-    if not update_target(output, filename, overwrite=overwrite.value):
+    if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "requirements", output)
         return
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     _log_creating(logger, "requirements", output)
 
@@ -660,12 +646,12 @@ def requirements(
 
 # @app_typer.command("p", hidden=True)
 @app_typer.command()
-@_add_verbose_logger(logger)
 def project(
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
+    pyproject_filename: PYPROJECT_CLI,
     envs: ENVS_CLI = None,
     template: TEMPLATE_CLI = None,
     template_python: TEMPLATE_PYTHON_CLI = None,
+    name: NAME_CLI = None,
     reqs: REQS_CLI = None,
     deps: DEPS_CLI = None,
     reqs_ext: REQS_EXT_CLI = ".txt",
@@ -678,13 +664,13 @@ def project(
     dry: DRY_CLI = False,
     pip_only: PIP_ONLY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
-    allow_empty: Annotated[Optional[bool], ALLOW_EMPTY_OPTION] = None,
-    remove_whitespace: Annotated[Optional[bool], REMOVE_WHITESPACE_OPTION] = None,
+    allow_empty: Annotated[bool | None, ALLOW_EMPTY_OPTION] = None,
+    remove_whitespace: Annotated[bool | None, REMOVE_WHITESPACE_OPTION] = None,
 ) -> None:
     """Create multiple environment files from `pyproject.toml` specification."""
     from pyproject2conda.config import Config
 
-    c = Config.from_file(filename, user_config=user_config)
+    c = Config.from_file(pyproject_filename, user_config=user_config)
 
     if user_config == "infer" or user_config is None:
         user_config = c.user_config()
@@ -704,6 +690,7 @@ def project(
         verbose=verbose,
         allow_empty=allow_empty,
         remove_whitespace=remove_whitespace,
+        name=name,
         pip_only=pip_only or None,
     ):
         if dry:
@@ -715,7 +702,7 @@ def project(
         # Special case: have output and userconfig.  Check update
         if not update_target(
             d["output"],
-            filename,
+            pyproject_filename,
             *([user_config] if user_config else []),
             overwrite=d["overwrite"],
         ):
@@ -724,10 +711,10 @@ def project(
         else:
             d["overwrite"] = Overwrite("force")
             if style == "yaml":
-                yaml(filename=filename, **d)
+                yaml(pyproject_filename=pyproject_filename, **d)
 
             elif style == "requirements":
-                requirements(filename=filename, **d)
+                requirements(pyproject_filename=pyproject_filename, **d)
             else:  # pragma: no cover
                 msg = f"unknown style {style}"
                 raise ValueError(msg)
@@ -738,10 +725,10 @@ def project(
 
 # @app_typer.command("cr", hidden=True)
 @app_typer.command()
-@_add_verbose_logger(logger)
 def conda_requirements(
-    path_conda: Annotated[Optional[str], typer.Argument()] = None,
-    path_pip: Annotated[Optional[str], typer.Argument()] = None,
+    pyproject_filename: PYPROJECT_CLI,
+    path_conda: Annotated[str | None, typer.Argument()] = None,
+    path_pip: Annotated[str | None, typer.Argument()] = None,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -749,7 +736,6 @@ def conda_requirements(
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
     channels: CHANNEL_CLI = None,
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     skip_package: SKIP_PACKAGE_CLI = False,
     prefix: PREFIX_CLI = None,
     prepend_channel: PREPEND_CHANNEL_CLI = False,
@@ -773,7 +759,7 @@ def conda_requirements(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=filename,
+        toml_path=pyproject_filename,
     )
 
     if path_conda and not path_pip:
@@ -788,7 +774,7 @@ def conda_requirements(
         path_conda = prefix + "conda.txt"
         path_pip = prefix + "pip.txt"
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     deps_str, reqs_str = d.to_conda_requirements(
         extras=extras,
@@ -815,8 +801,8 @@ def conda_requirements(
 # ** json
 # @app_typer.command("j", hidden=True)
 @app_typer.command("json")
-@_add_verbose_logger(logger)
 def to_json(
+    pyproject_filename: PYPROJECT_CLI,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -824,7 +810,6 @@ def to_json(
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
     channels: CHANNEL_CLI = None,
-    filename: PYPROJECT_CLI = DEFAULT_TOML_PATH,
     sort: SORT_DEPENDENCIES_CLI = True,
     output: OUTPUT_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
@@ -841,19 +826,19 @@ def to_json(
     "pip": pip dependencies.
     "channels": conda channels.
     """
-    if not update_target(output, filename, overwrite=overwrite.value):
+    if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return
 
     import json
 
-    d = _get_requirement_parser(filename)
+    d = _get_requirement_parser(pyproject_filename)
 
     python_include, python_version = parse_pythons(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=filename,
+        toml_path=pyproject_filename,
     )
 
     conda_deps, pip_deps = d.conda_and_pip_requirements(
@@ -893,7 +878,7 @@ def to_json(
 # app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)  # noqa: ERA001
 
 # Just use the click app....
-app = typer.main.get_command(app_typer)
+app = typer.main.get_command(app_typer)  # ty: ignore[unresolved-attribute]
 
 
 # ** Main

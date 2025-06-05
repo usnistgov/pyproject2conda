@@ -18,6 +18,19 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.20.0 — 2025-06-05
+
+### Changed
+
+- `--name` option (i.e., the `name` field in an environment.yaml file) now
+  accepts the follinging fields:
+  - `{py_version}`: the full python version passed in with `--python-version`,
+    or specified in `pyproject.toml`
+  - `{py}`: the python version without `"."` (so, for example, if
+    `--python-version=3.8`, `{py}` will expand to `"38"`).
+  - `{env}`: the environment name. Only applicable with the `project`
+    subcommand.
+
 ## v0.19.1 — 2025-02-19
 
 ### Changed

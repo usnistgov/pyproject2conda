@@ -63,7 +63,11 @@ def get_in(
     from functools import reduce
 
     try:
-        return reduce(operator.getitem, keys, nested_dict)
+        return reduce(  # pyre-ignore[no-matching-overload] # ty: ignore[no-matching-overload]
+            operator.getitem,  # pyre-ignore[bad-argument-type]
+            keys,
+            nested_dict,
+        )
     except (KeyError, IndexError, TypeError):
         if factory is not None:
             return factory()
@@ -114,12 +118,12 @@ def get_all_pythons(
 
 def get_lowest_version(versions: Iterable[str]) -> str:
     """Get lowest version"""
-    return min(versions, key=Version)
+    return min(versions, key=Version)  # ty: ignore[no-matching-overload]
 
 
 def get_highest_version(versions: Iterable[str]) -> str:
     """Get highest version"""
-    return max(versions, key=Version)
+    return max(versions, key=Version)  # ty: ignore[no-matching-overload]
 
 
 def select_pythons(
@@ -205,9 +209,23 @@ def update_target(
 
 
 # * filename from template
+def _get_standard_format_dict(
+    env_name: str | None = None,
+    python_version: str | None = None,
+) -> dict[str, str]:
+    kws: dict[str, str] = {}
+    if env_name:
+        kws["env"] = env_name
+
+    if python_version:
+        kws["py_version"] = python_version
+        kws["py"] = python_version.replace(".", "")
+
+    return kws
+
+
 def filename_from_template(
     template: str | None,
-    python: str | None = None,
     python_version: str | None = None,
     env_name: str | None = None,
     ext: str | None = ".yaml",
@@ -224,25 +242,26 @@ def filename_from_template(
     if template is None:
         return None
 
-    kws: dict[str, str] = {}
-    if python:
-        py_version = python
-    elif python_version:
-        py_version = python_version
-    else:
-        py_version = None
-
-    if py_version:
-        kws["py_version"] = py_version
-        kws["py"] = py_version.replace(".", "")
-
-    if env_name:  # pragma: no cover
-        kws["env"] = env_name
+    kws = _get_standard_format_dict(env_name=env_name, python_version=python_version)
 
     if ext:  # pragma: no cover
         template += f"{ext}"
 
     return template.format(**kws)
+
+
+def conda_env_name_from_template(
+    name: str | None,
+    python_version: str | None = None,
+    env_name: str | None = None,
+) -> str | None:
+    """Create environment name from name or template"""
+    if name is None:
+        return name
+
+    kws = _get_standard_format_dict(env_name=env_name, python_version=python_version)
+
+    return name.format(**kws)
 
 
 _WHITE_SPACE_REGEX = re.compile(r"\s+")
