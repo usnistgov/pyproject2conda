@@ -9,6 +9,7 @@ from pyproject2conda import utils
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
     from typing import Any
 
 
@@ -34,7 +35,10 @@ def test_template() -> None:
     ],
 )
 def test_default_pythons(
-    example_path, python_version_default, python_version, expected
+    example_path: Path,
+    python_version_default: str,
+    python_version: str,
+    expected: list[str],
 ) -> None:
     for name, version in zip(
         [".python-version-default", ".python-version"],
@@ -74,7 +78,7 @@ def test__get_standard_format_dict(
     env_name: str | None, python_version: str | None, expected: dict[str, str]
 ) -> None:
     assert (
-        utils._get_standard_format_dict(  # noqa: SLF001
+        utils._get_standard_format_dict(  # noqa: SLF001  # pylint: disable=protected-access
             env_name=env_name, python_version=python_version
         )
         == expected
@@ -89,8 +93,8 @@ def test__get_standard_format_dict(
             "3.8",
             "there",
             ".txt",
-            nullcontext("thing-there.txt"),
-        ),  # pyrefly: ignore
+            nullcontext("thing-there.txt"),  # pyrefly: ignore
+        ),
         ("thing-{py}", None, "there", ".yaml", pytest.raises(KeyError)),
     ],
 )
@@ -122,8 +126,8 @@ def test_filename_from_template(
             "my-{env}-{py}",
             "3.8",
             "thing",
-            nullcontext("my-thing-38"),
-        ),  # pyrefly: ignore
+            nullcontext("my-thing-38"),  # pyrefly: ignore
+        ),
     ],
 )
 def test_conda_env_name_from_template(

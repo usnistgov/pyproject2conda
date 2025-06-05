@@ -18,6 +18,18 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.21.0 — 2025-06-05
+
+### Changed
+
+- The config file version of command line options now accept either dashes or
+  underscores. For example, the command line option `--template-python` now
+  respects either `template-python` or `template_python` in the
+  `tool.pyproject2conda` table of `pyproject.toml`. Note that you have to use
+  either all dashes or all underscores, not a mix. The parser first looks for
+  options with dashes, then falls back to underscores, so if they are both
+  present, the dashed version will win.
+
 ## v0.20.0 — 2025-06-05
 
 ### Changed
