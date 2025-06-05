@@ -11,6 +11,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
+  - dependency-groups
   - packaging
   - pytest
   - pytest-cov

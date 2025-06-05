@@ -63,7 +63,11 @@ def get_in(
     from functools import reduce
 
     try:
-        return reduce(operator.getitem, keys, nested_dict)
+        return reduce(  # pyre-ignore[no-matching-overload] # ty: ignore[no-matching-overload]
+            operator.getitem,  # pyre-ignore[bad-argument-type]
+            keys,
+            nested_dict,
+        )
     except (KeyError, IndexError, TypeError):
         if factory is not None:
             return factory()
@@ -114,12 +118,12 @@ def get_all_pythons(
 
 def get_lowest_version(versions: Iterable[str]) -> str:
     """Get lowest version"""
-    return min(versions, key=Version)
+    return min(versions, key=Version)  # ty: ignore[no-matching-overload]
 
 
 def get_highest_version(versions: Iterable[str]) -> str:
     """Get highest version"""
-    return max(versions, key=Version)
+    return max(versions, key=Version)  # ty: ignore[no-matching-overload]
 
 
 def select_pythons(
