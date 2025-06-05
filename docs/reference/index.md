@@ -11,7 +11,7 @@
 
 
 Modules
-=======
+-------
 
 .. currentmodule:: pyproject2conda
 
