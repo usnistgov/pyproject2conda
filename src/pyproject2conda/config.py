@@ -99,6 +99,15 @@ class Config:  # noqa: PLR0904
                 if value is None:
                     value = self.get_in(key, default=None)
 
+        # For case that key contains a dash, also consider the case where
+        # dashes are underscores
+        if value is None and "-" in key:
+            value = self._get_value(
+                key=key.replace("-", "_"),
+                env_name=env_name,
+                inherit=inherit,
+            )
+
         if value is None:
             value = (
                 default()  # ty: ignore[call-non-callable]
@@ -137,7 +146,7 @@ class Config:  # noqa: PLR0904
     ) -> bool:
         """If True, use pip only"""
         return self._get_value(  # type: ignore[no-any-return]
-            key="pip_only",
+            key="pip-only",
             env_name=env_name,
             inherit=inherit,
             default=default,
@@ -189,7 +198,7 @@ class Config:  # noqa: PLR0904
         These will need to be resolved after the fact.
         """
         return self._get_extras(
-            key="extras_or_groups", env_name=env_name, default=list, inherit=inherit
+            key="extras-or-groups", env_name=env_name, default=list, inherit=inherit
         )
 
     def output(self, env_name: str | None = None) -> str | None:
@@ -206,7 +215,7 @@ class Config:  # noqa: PLR0904
 
     def skip_package(self, env_name: str, default: bool = False) -> bool:
         """skip_package getter."""
-        return self._get_value(key="skip_package", env_name=env_name, default=default)  # type: ignore[no-any-return]
+        return self._get_value(key="skip-package", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
     def name(self, env_name: str) -> str | None:
         """Name option."""
@@ -218,7 +227,7 @@ class Config:  # noqa: PLR0904
 
     def custom_command(self, env_name: str) -> bool:
         """Custom command to place in the header"""
-        return self._get_value(key="custom_command", env_name=env_name, default=None)  # type: ignore[no-any-return]
+        return self._get_value(key="custom-command", env_name=env_name, default=None)  # type: ignore[no-any-return]
 
     def style(self, env_name: str | None = None, default: str = "yaml") -> str:
         """Style getter.  One of `yaml`, `requirements`"""
@@ -233,11 +242,11 @@ class Config:  # noqa: PLR0904
 
     def python_include(self, env_name: str | None = None) -> str | None:
         """Flag python_include"""
-        return self._get_value(key="python_include", env_name=env_name)  # type: ignore[no-any-return]
+        return self._get_value(key="python-include", env_name=env_name)  # type: ignore[no-any-return]
 
     def python_version(self, env_name: str | None = None) -> str | None:
         """Flag python_version"""
-        return self._get_value(key="python_version", env_name=env_name)  # type: ignore[no-any-return]
+        return self._get_value(key="python-version", env_name=env_name)  # type: ignore[no-any-return]
 
     def overwrite(self, env_name: str | None = None, default: str = "check") -> str:
         """Flag overwrite"""
@@ -256,13 +265,13 @@ class Config:  # noqa: PLR0904
     def template_python(self, env_name: str, default: str = "py{py}-{env}") -> str:
         """Flag for template_python."""
         return self._get_value(  # type: ignore[no-any-return]
-            key="template_python", env_name=env_name, default=default
+            key="template-python", env_name=env_name, default=default
         )
 
     def reqs_ext(self, env_name: str, default: str = ".txt") -> str:
         """Requirements extension"""
         return self._get_value(  # type: ignore[no-any-return]
-            key="reqs_ext",
+            key="reqs-ext",
             env_name=env_name,
             default=default,
         )
@@ -270,7 +279,7 @@ class Config:  # noqa: PLR0904
     def yaml_ext(self, env_name: str, default: str = ".yaml") -> str:
         """Conda yaml extension"""
         return self._get_value(  # type: ignore[no-any-return]
-            key="yaml_ext",
+            key="yaml-ext",
             env_name=env_name,
             default=default,
         )
@@ -293,12 +302,12 @@ class Config:  # noqa: PLR0904
 
     def user_config(self, env_name: str | None = None) -> str | None:  # noqa: ARG002
         """Flag user_config"""
-        return self._get_value(key="user_config", default=None)  # type: ignore[no-any-return]
+        return self._get_value(key="user-config", default=None)  # type: ignore[no-any-return]
 
     def allow_empty(self, env_name: str | None = None, default: bool = False) -> bool:
         """Allow empty option."""
         return self._get_value(  # type: ignore[no-any-return]
-            key="allow_empty", env_name=env_name, default=default
+            key="allow-empty", env_name=env_name, default=default
         )
 
     def remove_whitespace(
@@ -306,7 +315,7 @@ class Config:  # noqa: PLR0904
     ) -> bool:
         """Remove whitespace option."""
         return self._get_value(  # type: ignore[no-any-return]
-            key="remove_whitespace",
+            key="remove-whitespace",
             env_name=env_name,
             default=default,
         )
@@ -483,14 +492,15 @@ class Config:  # noqa: PLR0904
         """Create from toml dictionaries."""
         data = get_in(["tool", "pyproject2conda"], data_toml, default={})
 
-        if "default_envs" in data:
-            default_envs = data.pop("default_envs")
+        for key in ("default-envs", "default_envs"):
+            if key in data:
+                default_envs = data.pop(key)
 
-            if "envs" not in data:
-                data["envs"] = {}
+                if "envs" not in data:
+                    data["envs"] = {}
 
-            for env in default_envs:
-                data["envs"][env] = {"extras_or_groups": True}
+                for env in default_envs:
+                    data["envs"][env] = {"extras_or_groups": True}
 
         c = cls(
             data,

@@ -34,21 +34,21 @@ build = { channel = "pip" }
 [tool.pyproject2conda]
 channels = ['conda-forge']
 # these are the same as the default values of `p2c project`
-template_python = "py{py}-{env}"
+template-python = "py{py}-{env}"
 template = "{env}"
 style = "yaml"
 # options
 python = ["3.10"]
 # Note that this is relative to the location of pyproject.toml
-user_config = "config/userconfig.toml"
+user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
 # dependencies from groups or extras with environment name so the below is the
 # same as
 #
 # [tool.pyproject2conda.envs.test]
-# extras_or_groups = "test"
+# extras-or-groups = "test"
 #
-default_envs = ["test", "dev", "dist-pypi"]
+default-envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.envs.base]
 style = ["requirements"]
@@ -56,14 +56,14 @@ style = ["requirements"]
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
-# passing extras_or_groups = <env-name>
+# passing extras-or-groups = <env-name>
 [tool.pyproject2conda.envs."test-extras"]
 extras = ["test"]
 style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-skip_package = true
+skip-package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]
