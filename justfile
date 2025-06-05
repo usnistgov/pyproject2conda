@@ -332,7 +332,7 @@ install-ipykernel:
 # * Other tools ----------------------------------------------------------------
 
 # update templates
-cruft-update *options="--checkout develop":
+cruft-update *options="--skip-apply-ask --checkout develop":
     {{ UVX_WITH_OPTS }} cruft update {{ options }}
 
 # create changelog snippet with scriv
