@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyproject2conda.utils import (
+    conda_env_name_from_template,
     filename_from_template,
     get_all_pythons,
     get_default_pythons_with_fallback,
@@ -202,7 +203,7 @@ class Config:  # noqa: PLR0904
         """skip_package getter."""
         return self._get_value(key="skip_package", env_name=env_name, default=default)  # type: ignore[no-any-return]
 
-    def name(self, env_name: str) -> bool:
+    def name(self, env_name: str) -> str | None:
         """Name option."""
         return self._get_value(key="name", env_name=env_name)  # type: ignore[no-any-return]
 
@@ -379,25 +380,36 @@ class Config:  # noqa: PLR0904
                     env_name=env_name,
                     ext=defaults.get("yaml_ext", self.yaml_ext(env_name)),
                 )
+            data.update(output=output)
 
             if python_include := self.python_include(env_name):
-                data = dict(data, python_include=python_include)
+                data.update(python_include=python_include)
 
             if python_version := self.python_version(env_name):
-                data = dict(data, python_version=python_version)
+                data.update(python_version=python_version)
 
-            data.update(output=output)
+            data.update(
+                name=conda_env_name_from_template(
+                    name=data["name"], python_version=python_version, env_name=env_name
+                )
+            )
+
             yield ("yaml", data)
 
         else:
             for python in pythons:
                 output = filename_from_template(
                     template=template_python,
-                    python=python,
+                    python_version=python,
                     env_name=env_name,
                     ext=defaults.get("yaml_ext", self.yaml_ext(env_name)),
                 )
-                yield ("yaml", dict(data, python=python, output=output))
+
+                name = conda_env_name_from_template(
+                    name=data["name"], python_version=python, env_name=env_name
+                )
+
+                yield ("yaml", dict(data, python=python, output=output, name=name))
 
     def _iter_reqs(
         self, env_name: str, remove_whitespace: bool | None = None, **defaults: Any

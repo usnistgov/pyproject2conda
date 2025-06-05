@@ -36,12 +36,6 @@ def test_template() -> None:
     expected = "py38-test.yaml"
 
     t = utils.filename_from_template(
-        "py{py}-{env}", env_name="test", python="3.8", ext=".yaml"
-    )
-
-    assert t == expected
-
-    t = utils.filename_from_template(
         "py{py}-{env}", env_name="test", python_version="3.8", ext=".yaml"
     )
 

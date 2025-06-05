@@ -22,6 +22,7 @@ from typer.core import TyperGroup
 from pyproject2conda import __version__
 from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
+    conda_env_name_from_template,
     parse_pythons,
     update_target,
 )
@@ -162,7 +163,10 @@ NAME_CLI = Annotated[
     typer.Option(  # pyright: ignore[reportUnknownMemberType]
         "--name",
         "-n",
-        help="Name of conda env",
+        help="""
+        `name` field in generated environment.yaml file.
+        This supports substitution of the fields ``{py_version}`` for the full python version, ``{py}`` for the python version without ``"."``, and ``{env}`` for the environment name (if used with the ``project``) subcommand.
+        """,
     ),
 ]
 OUTPUT_CLI = Annotated[
@@ -582,6 +586,8 @@ def yaml(
         toml_path=filename,
     )
 
+    name = conda_env_name_from_template(name=name, python_version=python_version)
+
     d = _get_requirement_parser(filename)
 
     _log_creating(logger, "yaml", output)
@@ -664,6 +670,7 @@ def project(
     envs: ENVS_CLI = None,
     template: TEMPLATE_CLI = None,
     template_python: TEMPLATE_PYTHON_CLI = None,
+    name: NAME_CLI = None,
     reqs: REQS_CLI = None,
     deps: DEPS_CLI = None,
     reqs_ext: REQS_EXT_CLI = ".txt",
@@ -702,6 +709,7 @@ def project(
         verbose=verbose,
         allow_empty=allow_empty,
         remove_whitespace=remove_whitespace,
+        name=name,
         pip_only=pip_only or None,
     ):
         if dry:

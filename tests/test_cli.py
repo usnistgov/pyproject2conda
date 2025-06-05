@@ -845,7 +845,7 @@ def test_alias(filename, runner) -> None:
 
 
 def test_overwrite(filename, caplog) -> None:
-    runner = CliRunner(mix_stderr=True)
+    runner = CliRunner()
 
     caplog.set_level(logging.INFO)
 
