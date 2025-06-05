@@ -510,6 +510,7 @@ def test_default_pythons(
     for name, version in zip(
         [".python-version-default", ".python-version"],
         [python_version_default, python_version],
+        strict=False,
     ):
         if version is not None:
             with (example_path / name).open("w") as f:
@@ -770,7 +771,7 @@ def test_config_only_default() -> None:
     extras = true
     """
 
-    for s, d in zip([s0, s1], (d0, d1)):
+    for s, d in zip([s0, s1], (d0, d1), strict=False):
         c = Config.from_string(s)
         assert list(c.iter_envs()) == [("yaml", d)]
 

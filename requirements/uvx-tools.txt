@@ -8,11 +8,14 @@
 # Instead edit the corresponding pyproject.toml file.
 #
 conda-lock>=2.5.5
+cruft
 grayskull>=2.5.3
 mypy>=1.15.0
 nbqa>=1.8.4
 pre-commit
 pre-commit-uv
+pyrefly
 pyright>=1.1.392
 scriv
 twine>=5.0.0
+ty

@@ -78,6 +78,7 @@ class Config:  # noqa: PLR0904
         default: Any = None,
     ) -> Any:
         """Get a value from thing"""
+        value: Any
         if env_name is None:
             value = self.get_in(key, default=None)
 
@@ -99,7 +100,11 @@ class Config:  # noqa: PLR0904
                     value = self.get_in(key, default=None)
 
         if value is None:
-            value = default() if callable(default) else default
+            value = (
+                default()  # ty: ignore[call-non-callable]
+                if callable(default)
+                else default
+            )
 
         if value is not None and as_list and not isinstance(value, list):
             value = [value]
@@ -153,7 +158,7 @@ class Config:  # noqa: PLR0904
 
         if not isinstance(val, list):
             val = [val]
-        return val  # type: ignore[no-any-return]
+        return val  # pyright: ignore[reportUnknownVariableType]
 
     def extras(self, env_name: str, inherit: bool = True) -> list[str]:
         """
@@ -371,7 +376,9 @@ class Config:  # noqa: PLR0904
             "remove_whitespace",
         ]
 
-        data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
+        data: dict[str, Any] = {
+            k: defaults.get(k, getattr(self, k)(env_name)) for k in keys
+        }
 
         if not pythons:
             if output is None:

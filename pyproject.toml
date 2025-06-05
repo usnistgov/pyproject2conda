@@ -17,15 +17,13 @@ license-files = [ "LICENSE" ]
 authors = [
     { name = "William P. Krekelberg", email = "wpk@nist.gov" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
-    "License :: Public Domain",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -37,6 +35,7 @@ dynamic = [
     "version",
 ]
 dependencies = [
+    "dependency-groups",
     "packaging",
     "tomli; python_version<'3.11'",
     "typer",
@@ -52,7 +51,7 @@ dev = [
     { include-group = "dev-extras" },
     { include-group = "mypy" },
     { include-group = "test" },
-    { include-group = "typing" },
+    { include-group = "typecheck" },
 ]
 test = [
     { include-group = "test-extras" },
@@ -75,7 +74,7 @@ dev-complete = [
 ]
 dev-extras = [
     "ipykernel",
-    "nox>=2024.10.9",
+    "nox>=2025.5.1",
     "pytest-accept",
 ]
 docs-live = [
@@ -98,7 +97,7 @@ tools = [
     "pre-commit",
     "scriv",
 ]
-typing = [
+typecheck = [
     "pylint",
     "pytest",
     "types-click",
@@ -121,6 +120,15 @@ fragments = [
     { path = "LICENSE" },
 ]
 
+[tool.repo-review]
+ignore = [
+    "GH",    # enable for actions
+    "PC140", # do this externally
+    "PC170", # pygrep
+    "PC901", # ci message
+    "RTD",
+]
+
 [tool.check-wheel-contents]
 toplevel = [ "pyproject2conda" ]
 src_dir = [ "src" ]
@@ -132,6 +140,9 @@ src_dir = [ "src" ]
 
 [tool.pytest.ini_options]
 addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers",
     "--doctest-modules",
     "--doctest-glob=*.md",
     "--pyargs",
@@ -142,6 +153,10 @@ testpaths = [
     "README.md",
     "tests",
 ]
+minversion = "8"
+log_cli_level = "INFO"
+xfail_strict = true
+filterwarnings = [ "error" ]
 
 [tool.coverage.run]
 branch = true
@@ -167,17 +182,17 @@ source = [
     ".nox/**/site-packages/",
 ]
 
-# * Typing ---------------------------------------------------------------------
+# * typecheck ---------------------------------------------------------------------
 
 [tool.mypy]
 files = [
     "src",
     "tests",
 ]
-show_error_codes = true
 warn_unused_ignores = true
 warn_return_any = true
 warn_unused_configs = true
+warn_unreachable = true
 exclude = [
     ".eggs",
     ".tox",
@@ -188,6 +203,11 @@ exclude = [
 ]
 check_untyped_defs = true
 strict = true
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-expr",
+    "truthy-bool",
+]
 
 # [[tool.mypy.overrides]]
 # ignore_missing_imports = true
@@ -276,13 +296,16 @@ skip_package = true
 reqs = [
     # these used solely for specking tools to be used with uvx ...
     "conda-lock>=2.5.5",
+    "cruft",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
     "pre-commit",
     "pre-commit-uv",
+    "pyrefly",
     "pyright>=1.1.392",
     "scriv",
     "twine>=5.0.0",
+    "ty",
 ]
 groups = "mypy"
 skip_package = true
@@ -294,7 +317,7 @@ style = "requirements"
 managed = true
 default-groups = [ "dev" ]
 fork-strategy = "requires-python"
-required-version = ">=0.6.5"
+required-version = ">=0.7.2"
 
 [tool.uv.pip]
 annotation-style = "line"

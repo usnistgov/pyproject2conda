@@ -8,6 +8,7 @@ import tempfile
 from pathlib import Path
 from textwrap import dedent
 from typing import cast
+from unittest.mock import patch
 
 import pytest
 from click.testing import CliRunner
@@ -35,6 +36,23 @@ def check_result(result, expected) -> None:
 @pytest.fixture(params=["test-pyproject.toml"])
 def filename(request) -> Path:
     return ROOT / cast("str", request.param)
+
+
+@patch.dict("os.environ", {}, clear=True)
+@pytest.mark.parametrize(
+    ("arg", "expected"),
+    [
+        (None, {}),
+        (10, {"COLUMNS": "10"}),
+    ],
+)
+def test__callback_columns(arg, expected) -> None:
+    import os
+
+    from pyproject2conda import cli
+
+    cli._callback_columns(arg)  # noqa: SLF001  # pylint: disable=protected-access
+    assert os.environ == expected
 
 
 @pytest.mark.parametrize(
@@ -157,7 +175,7 @@ dependencies:
     """
     result = do_run(runner, "yaml", "--header", filename=filename)
 
-    cmd = " ".join([Path(sys.argv[0]).name] + sys.argv[1:])
+    cmd = " ".join([Path(sys.argv[0]).name, *sys.argv[1:]])
     check_result(result, expected.format(cmd=cmd))
 
     # custom command

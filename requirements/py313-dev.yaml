@@ -10,9 +10,19 @@
 channels:
   - conda-forge
 dependencies:
-  - python=3.9
+  - python=3.13
+  - dependency-groups
+  - ipykernel
+  - mypy>=1.15.0
+  - nox>=2025.5.1
+  - packaging
+  - pylint
   - pytest
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
+  - typer
+  - types-click
   - pip
+  - pip:
+      - pytest-accept

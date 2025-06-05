@@ -95,7 +95,7 @@ Note that if called from pre-commit (detected by the presence of `PRE_COMMIT`
 environment variable), the default is to set `--custom-command="pre-commit"`.
 You can explicitly pass in `--custom-command` to override this.
 
-## Quick start
+## Installation
 
 <!-- start-installation -->
 
