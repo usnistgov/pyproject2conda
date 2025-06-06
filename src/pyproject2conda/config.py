@@ -30,6 +30,7 @@ def _raise_if_underscore(key: str) -> None:
         msg = f"Using underscores in option names is deprecated.  Replace {key} with {key.replace('_', '-')}"
         import warnings
 
+        warnings.simplefilter("default")
         warnings.warn(msg, DeprecationWarning, stacklevel=2)
 
 
