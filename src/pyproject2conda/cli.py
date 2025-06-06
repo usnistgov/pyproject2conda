@@ -664,9 +664,7 @@ def project(
     Create multiple environment files from ``pyproject.toml`` specification.
 
     Note that if you specify options in ``pyproject.toml``, the name is usually
-    the same as the command line option. You can replace dashes with
-    underscores if you wish, but if you do so, replace all dashes with
-    underscores. For cases where the option can take multiple values, the
+    the same as the command line option. For cases where the option can take multiple values, the
     config file option will be plural. For example, the command line option
     ``--group`` becomes the config file option ``groups = ...``.  Boolean options
     like ``--sort/--no-sort`` become ``sort = true/false`` in the config file.
