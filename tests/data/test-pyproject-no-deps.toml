@@ -11,14 +11,14 @@ dist-pypi = ["setuptools", "build"]
 [tool.pyproject2conda]
 channels = ['conda-forge']
 # these are the same as the default values of `p2c project`
-template_python = "py{py}-{env}"
+template-python = "py{py}-{env}"
 template = "{env}"
 style = "yaml"
 # options
 python = ["3.10"]
 # Note that this is relative to the location of pyproject.toml
-user_config = "config/userconfig.toml"
-default_envs = ["test", "dev", "dist-pypi"]
+user-config = "config/userconfig.toml"
+default-envs = ["test", "dev", "dist-pypi"]
 
 [tool.pyproject2conda.dependencies]
 pytest = { channel = "conda-forge" }
@@ -39,7 +39,7 @@ style = ["yaml", "requirements"]
 
 [[tool.pyproject2conda.overrides]]
 envs = ['test-extras', "dist-pypi"]
-skip_package = true
+skip-package = true
 
 [[tool.pyproject2conda.overrides]]
 envs = ["test", "test-extras"]

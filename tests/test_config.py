@@ -45,14 +45,14 @@ def simple_toml() -> str:
     [tool.pyproject2conda]
     channels = ['conda-forge']
     # these are the same as the default values of `p2c project`
-    template_python = "py{py}-{env}"
+    template-python = "py{py}-{env}"
     template = "hello-{env}"
     style = "yaml"
     # options
     python = "3.10"
     # Note that this is relative to the location of pyproject.toml
-    user_config = "config/userconfig.toml"
-    default_envs = ["test", "dev", "dist-pypi"]
+    user-config = "config/userconfig.toml"
+    default-envs = ["test", "dev", "dist-pypi"]
 
     [tool.pyproject2conda.envs.base]
     extras = []
@@ -67,12 +67,12 @@ def simple_toml() -> str:
     [tool.pyproject2conda.envs.base-pip-only]
     style = "yaml"
     extras = []
-    pip_only = true
+    pip-only = true
 
     [tool.pyproject2conda.envs.base-custom-command]
     style = "yaml"
     extras = []
-    custom_command = "make hello"
+    custom-command = "make hello"
 
     [tool.pyproject2conda.envs.base3]
     style = "yaml"
@@ -81,22 +81,22 @@ def simple_toml() -> str:
     [tool.pyproject2conda.envs.base4]
     style = "yaml"
     python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
-    template_python = "py{py}-hello"
+    template-python = "py{py}-hello"
 
     [tool.pyproject2conda.envs.base5]
     style = "yaml"
     python = "all"
-    template_python = "py{py}-hello"
+    template-python = "py{py}-hello"
 
     [tool.pyproject2conda.envs.base_lowest]
     style = "yaml"
     python = "lowest"
-    template_python = "py{py}-hello"
+    template-python = "py{py}-hello"
 
     [tool.pyproject2conda.envs.base_highest]
     style = "yaml"
     python = "highest"
-    template_python = "py{py}-hello"
+    template-python = "py{py}-hello"
 
 
     [tool.pyproject2conda.envs.base_name]
@@ -104,11 +104,11 @@ def simple_toml() -> str:
 
     [tool.pyproject2conda.envs.extension_yaml]
     style = "yaml"
-    yaml_ext = ".yml"
+    yaml-ext = ".yml"
 
     [tool.pyproject2conda.envs.extension_txt]
     style = "requirements"
-    reqs_ext = ".in"
+    reqs-ext = ".in"
 
     [tool.pyproject2conda.envs.both]
     groups = "thing"
@@ -695,6 +695,16 @@ def test_option_override_extension_txt(simple_config: Config) -> None:
     )
 
 
+def test_warns_on_underscore() -> None:
+    s = """
+    [tool.pyproject2conda]
+    python_version = "3.8"
+    """
+
+    with pytest.warns(DeprecationWarning, match=r"Using underscores .*"):
+        _ = Config.from_string(s).python_version(None)
+
+
 @pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
 def test_dry(fname, runner) -> None:
     filename = ROOT / fname
@@ -757,7 +767,7 @@ def test_config_only_default() -> None:
     s0 = """
     [tool.pyproject2conda]
     python = ["3.8"]
-    default_envs = ["test"]
+    default-envs = ["test"]
     """
     s1 = """
     [tool.pyproject2conda.envs.test]
@@ -806,12 +816,12 @@ def test_config_overrides() -> None:
     s = """
     [tool.pyproject2conda]
     python = ["3.8"]
-    default_envs = ["test"]
+    default-envs = ["test"]
 
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
-    skip_package = true
-    pip_only = true
+    skip-package = true
+    pip-only = true
     """
 
     c = Config.from_string(s)
@@ -848,9 +858,9 @@ def test_config_overrides2() -> None:
     s = """
     [tool.pyproject2conda]
     python = ["3.8"]
-    default_envs = ["test"]
-    pip_only = true
-    skip_package = true
+    default-envs = ["test"]
+    pip-only = true
+    skip-package = true
     """
 
     c = Config.from_string(s)
@@ -887,10 +897,10 @@ def test_config_overrides_no_envs() -> None:
     s = """
     [tool.pyproject2conda]
     python = ["3.8"]
-    default_envs = ["test"]
+    default-envs = ["test"]
 
     [[tool.pyproject2conda.overrides]]
-    skip_package = true
+    skip-package = true
     """
 
     c = Config.from_string(s)
@@ -904,13 +914,13 @@ def test_config_python_include_version() -> None:
     [tool.pyproject2conda.envs.test-1]
     extras = ["test"]
     output = "py38-test.yaml"
-    python_include = "3.8"
-    python_version = "3.8"
+    python-include = "3.8"
+    python-version = "3.8"
 
     [tool.pyproject2conda.envs."py38-test"]
     extras = ["test"]
-    python_include = "3.8"
-    python_version = "3.8"
+    python-include = "3.8"
+    python-version = "3.8"
     """
 
     c = Config.from_string(s)
@@ -988,7 +998,7 @@ def test_config_user_config() -> None:
 
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
-    skip_package = true
+    skip-package = true
     """
 
     c = Config.from_string(s, s_user)
@@ -1052,7 +1062,7 @@ def test_config_user_config() -> None:
 
     [[tool.pyproject2conda.overrides]]
     envs = ["test"]
-    skip_package = true
+    skip-package = true
     """
 
     with pytest.raises(TypeError):
@@ -1065,7 +1075,7 @@ def test_config_user_config() -> None:
 
     [tool.pyproject2conda.overrides]
     envs = ["test"]
-    skip_package = true
+    skip-package = true
     """
 
     with pytest.raises(TypeError):
@@ -1080,7 +1090,7 @@ def test_config_user_config() -> None:
 
     assert c.data == {
         "envs": {"user": {"extras": ["a", "b"], "python": "3.9"}},
-        "overrides": [{"envs": ["test"], "skip_package": True}],
+        "overrides": [{"envs": ["test"], "skip-package": True}],
     }
 
 

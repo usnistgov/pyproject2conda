@@ -834,16 +834,16 @@ production, you'd omit this flag, and files according to `--template` and
 The options under `[tool.pyproject2conda]` follow the command line options. For
 example, specify `template-python = ...` in the config file instead of passing
 `--template-python`. You can optionally replace all dashes with underscores in
-config file option names if you wish. To specify an environment, you can either
-use the `[tool.pyproject.envs."environment-name"]` method, or, if the
-environment is the same as an `project.optional-dependencies` or
-`dependency-groups`, you can just specify it under
-`tool.pyproject2conda.default_envs`:
+config file option names, but this will be deprecated in future versions. To
+specify an environment, you can either use the
+`[tool.pyproject.envs."environment-name"]` method, or, if the environment is the
+same as an `project.optional-dependencies` or `dependency-groups`, you can just
+specify it under `tool.pyproject2conda.default-envs`:
 
 ```toml
 [tool.pyproject2conda]
 # ...
-default_envs = ["test"]
+default-envs = ["test"]
 
 ```
 
@@ -903,7 +903,7 @@ have the option `user-config=config/userconfig.toml`.
 
 ```toml
 [tool.pyproject2conda.envs."user-dev"]
-extras_or_groups = ["dev", "dist-pypi"]
+extras-or-groups = ["dev", "dist-pypi"]
 deps = ["extra-dep"]
 reqs = ["extra-req"]
 name = "hello"
