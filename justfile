@@ -1,113 +1,88 @@
-# * Variables ------------------------------------------------------------------
+#!/usr/bin/env -S just --justfile
 
-PACKAGE_NAME := "pyproject2conda"
-IMPORT_NAME := "pyproject2conda"
-NOTEBOOKS := "examples/usage"
-UVX := "uvx"
-UVX_OPTS := "--constraints=requirements/lock/uvx-tools.txt"
-UVX_WITH_OPTS := UVX + " " + UVX_OPTS
-UVRUN := "uv run --frozen"
-TYPECHECK := UVRUN + " --no-config tools/typecheck.py -v"
-NOX := UVX + " --from 'nox>=2025.5.1' nox"
-
-# For pre-commit, just use a minimum version...
-
-PRE_COMMIT := UVX + " --constraints=requirements/uvx-tools.txt --with=pre-commit-uv pre-commit"
-PYTHON_PATH := which("python")
-PYLINT_OPTS := "--enable-all-extensions"
+import "tools/shared.just"
+import? "tools/notebook.just"
 
 set unstable := true
 
 # * Defaults
-default:
-    @just --list
+_default:
+    @just --list --unsorted
 
 # * Clean ----------------------------------------------------------------------
 
-_find_and_clean first *other:
-    find ./src \( -name {{ quote(first) }} {{ prepend("-o -name '", append("'", other)) }} \) -print -exec  rm -fr {} +
+# find and remove files from `path` with `name`
+find_and_clean path name *other_names:
+    find {{ path }} \
+    -not -path "./.nox/*" \
+    -not -path "./.venv/*" \
+    \( -name {{ quote(name) }} {{ prepend("-o -name '", append("'", other_names)) }} \) \
+    -print -exec  rm -fr {} +
 
 _clean *dirs:
     rm -fr {{ dirs }}
 
+# clean .nox, build, docs, test, backups, cache
 [group("clean")]
-clean: clean-build clean-test clean-cache
+clean: (_clean ".nox") clean-build clean-docs clean-test clean-cache clean-backups
 
+# clean plus artifacts (keep .venv)
 [group("clean")]
-clean-all: clean clean-pyc clean-venvs clean-docs
+clean-all: clean clean-artifacts
 
-# remove build artifacts
+# clean build artifacts
 [group("clean")]
 [group("dist")]
-clean-build: (_clean "build/" "docs/_build/" "dist/" "dist-conda/")
+clean-build: (_clean "build/" "dist/" "dist-conda/")
 
-# remove Python file artifact
-[group("clean")]
-clean-pyc: (_find_and_clean "*.pyc" "*.pyo" "*~" "*.nbi" "*.nbc" "__pycache__") (_clean ".numba_cache/*")
-
-# remove all .*_cache directories
-[group("clean")]
-clean-cache: (_clean ".*_cache")
-
-# remove test and coverage artifacts
-[group("clean")]
-[group("test")]
-clean-test: (_clean ".coverage" "htmlcov" ".pytest_cache")
-
+# clean docs artifacts
 [group("clean")]
 [group("docs")]
-clean-docs: (_clean "docs/_build/*" "docs/generated/*" "docs/reference/generated/*")
+clean-docs: (_clean "docs/_build" "README.pdf") (find_and_clean "docs" "generated")
 
-# remove all .nox/.venv files
+# clean test and coverage artifacts
 [group("clean")]
-clean-venvs: (_clean ".nox" ".venv")
+[group("test")]
+clean-test: (_clean ".coverage" "htmlcov")
+
+# clean cache files
+[group("clean")]
+clean-cache: (_clean ".dmypy.json" ".pytype" "tuna-loadtime.log" ".nox/*/tmp" ".nox/.cache") (find_and_clean "." ".*cache")
+
+# clean backup/checkpoint files
+[group("clean")]
+clean-backups: (find_and_clean "." ".ipynb_checkpoints" "*~")
+
+# clean python artifacts
+[group("clean")]
+clean-artifacts: (_clean ".numba_cache/*") (find_and_clean "." "__pycache__") (find_and_clean "." "*.pyd" "*.pyc" "*.pyo" "*.nbi" "*.nbc")
+
+# clean ignored/untracked files. Defaults to dry run.  Pass `-i` for interactive or `-f` for force remove.  Pass `-e ".venv"` to keep .venv.
+[group("clean")]
+sterilize +options="-n":
+    git clean -x -d {{ options }}
 
 # * Pre-commit -----------------------------------------------------------------
 
 # run pre-commit on all files
 [group("lint")]
-lint command="":
-    {{ PRE_COMMIT }} run --all-files {{ command }}
+lint *commands: (pre-commit "run --all-files" commands)
 
-# run pre-commit using manual stage
+# run pre-commit using manual stage on all files
 [group("lint")]
-lint-manual command="":
-    {{ PRE_COMMIT }} run --all-files --hook-stage=manual {{ command }}
+lint-manual *commands: (pre-commit "run --all-files --hook-stage=manual" commands)
 
 alias lint-all := lint-manual
 
-# run codespell. Note that this imports allowed words from docs/spelling_wordlist.txt
+# run prettier/markdownlint/pypoject-fmt
 [group("lint")]
-codespell: (lint "codespell") (lint "nbqa-codespell")
-
-# run typos.
-[group("lint")]
-typos: (lint-manual "typos") (lint-manual "nbqa-typos")
-
-# run prettier
-[group("lint")]
-prettier: (lint "pyproject-fmt") (lint-manual "prettier") (lint-manual "markdownlint")
-
-# run pyproject validators
-[group("lint")]
-validate-pyproject: (lint-manual "validate-pyproject-full") (lint-manual "sp-repo-review")
-
-[group("lint")]
-ruff-check: (lint "ruff-check")
-
-[group("lint")]
-ruff-format: (lint "ruff-format")
+prettier: (lint "pyproject-fmt") (lint-manual "markdownlint")
 
 [group("lint")]
 ruff: (lint "ruff")
 
-alias ruff-all := ruff
-
 [group("lint")]
-checkmake: (lint-manual "checkmake")
-
-[group("lint")]
-just-fmt: (lint-manual "just-fmt")
+cog: (lint-manual "cog" "--verbose")
 
 # * User setup -----------------------------------------------------------------
 
@@ -120,48 +95,62 @@ user-all:
 
 # run tests quickly with the default Python
 [group("test")]
-test *options="":
-    {{ UVRUN }} pytest {{ options }}
+test *options:
+    {{ UVRUN }} --group="test" --no-dev pytest {{ options }}
 
 # test across versions
+[group("nox")]
 [group("test")]
-test-all *options="":
-    {{ NOX }} -s test-all -- ++test-options {{ options }}
+test-all *options: (nox "-s test-all -- ++test-options" options)
 
 # run tests and accept doctest results. (using pytest-accept)
 [group("test")]
-test-accept *options="":
-    DOCFILLER_SUB=False {{ UVRUN }} pytest -v --accept {{ options }}
+test-accept *options:
+    DOCFILLER_SUB=False {{ UVRUN }} --group="test" --group="pytest-accept" --no-dev \
+    pytest -v --accept {{ options }}
+
+# coverage report
+[group("test")]
+coverage *options: (nox "-s coverage -- ++coverage" options)
 
 # * Versioning -----------------------------------------------------------------
 
 # check/update version of package from scm
 [group("version")]
-version-scm:
-    {{ NOX }} -s build -- ++build version
+version-scm: (nox "-s build -- ++build version")
 
 # check version from python import
 [group("version")]
 version-import:
-    -{{ UVRUN }} python -c 'import {{ IMPORT_NAME }}; print({{ IMPORT_NAME }}.__version__)'
+    {{ UVRUN }} --no-dev python -c 'import {{ IMPORT_NAME }}; print({{ IMPORT_NAME }}.__version__)' || true
 
 [group("version")]
 version: version-scm version-import
 
 # * Requirements/Environment files ---------------------------------------------
 
-# Rebuild all requirements files
-[group("requirements")]
-requirements *options:
-    {{ NOX }} -s requirements -- {{ options }}
+_requirements *options:
+    just pre-commit run pyproject2conda-project --all-files --verbose || true
+    uv run --no-project tools/requirements_lock.py --all-files {{ options }}
 
-# Update all requirement files
+# Rebuild requirements, lock requirements, and run uv sync.  Pass --upgrade/-U to upgrade
 [group("requirements")]
-requirements-update: (requirements "+L +U")
+sync *options: (_requirements "--sync" options)
 
-# * Typing ---------------------------------------------------------------------
-_typecheck checker *options:
-    {{ TYPECHECK }} {{ UVX_OPTS }} -x {{ checker }} -- {{ options }}
+# Rebuild requirements, lock requirements, and run uv lock.  Pass --upgrade/-U to upgrade
+[group("requirements")]
+lock *options: (_requirements "--lock" options)
+
+# Rebuild requirements, lock requirements, and run uv sync if .venv exists or uv lock if not.  Pass --upgrade/-U to upgrade
+[group("requirements")]
+requirements *options: (_requirements "--sync-or-lock" options)
+
+# * Typecheck ---------------------------------------------------------------------
+
+TYPECHECK_UVRUN_OPTS := "--group=typecheck --no-dev"
+
+_typecheck checkers="mypy pyright" *check_options:
+    {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} {{ TYPECHECK }} {{ UVX_OPTS }} {{ prepend("-x ", checkers) }} -- {{ check_options }}
 
 # Run mypy (with optional args)
 [group("typecheck")]
@@ -180,29 +169,43 @@ pyright-watch *options: (pyright "-w" options)
 ty *options="src tests": (_typecheck "ty" options)
 
 # Run pyrefly (Note: in alpha)
+[group("typecheck")]
 pyrefly *options="src tests": (_typecheck "pyrefly" options)
 
 # Run pylint (with optional args)
 [group("lint")]
 [group("typecheck")]
 pylint *options="src tests":
-    {{ UVRUN }} pylint {{ PYLINT_OPTS }} {{ options }}
+    {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} pylint {{ PYLINT_OPTS }} {{ options }}
 
 # Run all checkers (with optional directories)
 [group("typecheck")]
-typecheck *options: (mypy options) (pyright options) (pylint options "src" "tests")
+typecheck *options: (_typecheck "mypy pyright" options)
 
+# Run checkers on tools
 [group("tools")]
 [group("typecheck")]
-typecheck-tools *files="noxfile.py tools/*.py": (mypy "--strict" files) (pyright files) (pylint files)
+@typecheck-tools *files="noxfile.py tools/*.py":
+    just TYPECHECK_UVRUN_OPTS="--only-group=nox" mypy --strict {{ files }}
+    just TYPECHECK_UVRUN_OPTS="--only-group=nox" pyright {{ files }}
+    just TYPECHECK_UVRUN_OPTS="--only-group=nox --only-group=pylint" pylint {{ files }}
 
-# * NOX ------------------------------------------------------------------------
-# ** docs
+# ** typecheck all
 
-# build docs.  Optioons {html, spelling, livehtml, linkcheck, open, symlink}.
+# typecheck across versions with nox (options are mypy, pyright, pylint, ty, pyrefly)
+[group("nox")]
+[group("typecheck")]
+typecheck-all *checkers="mypy pyright": (nox "-s typecheck -- +m" checkers)
+
+# * docs -----------------------------------------------------------------------
+
+# build docs.  Optioons {html, spelling, livehtml, linkcheck, open}.
 [group("docs")]
-docs *options="html":
-    {{ NOX }} -s docs -- +d {{ options }}
+[group("nox")]
+docs *options="html": (nox "-s docs -- +d" options)
+
+[group("docs")]
+docs-version version="": (docs "html" prepend("++version=", version))
 
 [group("docs")]
 docs-html: (docs "html")
@@ -211,6 +214,7 @@ docs-html: (docs "html")
 docs-clean-build: clean-docs docs
 
 # create a release
+[group("dist")]
 [group("docs")]
 docs-release message="update docs" branch="nist-pages":
     {{ UVX_WITH_OPTS }} ghp-import -o -n -m "{{ message }}" -b {{ branch }} docs/_build/html
@@ -219,49 +223,21 @@ docs-release message="update docs" branch="nist-pages":
 docs-open: (docs "open")
 
 [group("docs")]
-docs-spelling: (docs "spelling")
-
-[group("docs")]
 docs-livehtml: (docs "livehtml")
-
-[group("docs")]
-docs-linkcheck: (docs "linkcheck")
-
-# ** type check
-
-# typecheck across versions with nox
-[group("typecheck")]
-typecheck-all *options="mypy pyright pylint":
-    {{ NOX }} -s typecheck -- +m {{ options }}
-
-[group("typecheck")]
-mypy-all: (typecheck-all "mypy")
-
-[group("typecheck")]
-pyright-all: (typecheck-all "pyright")
-
-[group("typecheck")]
-pylint-all: (typecheck-all "pylint")
-
-[group("typecheck")]
-ty-all: (typecheck-all "ty")
-
-[group("typecheck")]
-pyrefly-all: (typecheck-all "pyrefly")
 
 # * dist ----------------------------------------------------------------------
 
 [group("dist")]
-build *options:
-    {{ NOX }} -s build -- {{ options }}
+build version="": (nox "-s build --" prepend("++version=", version))
+
+_twine *options:
+    {{ UVX_WITH_OPTS }} twine {{ options }}
 
 [group("dist")]
-publish:
-    {{ NOX }} -s publish -- +p release
+publish: (_twine "upload dist/*")
 
 [group("dist")]
-publish-test:
-    {{ NOX }} -s publish -- +p test
+publish-test: (_twine "upload --repository testpypi dist/*")
 
 _uv-publish *options:
     uv publish --username __token__ --keyring-provider subprocess {{ options }}
@@ -269,19 +245,18 @@ _uv-publish *options:
 _open_page site:
     uv run --no-project python -c "import webbrowser; webbrowser.open('https://{{ site }}/project/{{ PACKAGE_NAME }}')"
 
-# uv release
+# uv publish
 [group("dist")]
 uv-publish: _uv-publish && (_open_page "pypi.org")
 
-# uv test release on testpypi
+# uv publish to testpypi
 [group("dist")]
 uv-publish-test: (_uv-publish "--publish-url https://test.pypi.org/legacy/") && (_open_page "test.pypi.org")
 
-# run twine check on dist
+# lint distribution
 [group("dist")]
 [group("lint")]
-lint-dist:
-    {{ NOX }} -s publish -- +p check
+lint-dist: (_twine "check --strict dist/*")
     {{ UVX_WITH_OPTS }} check-wheel-contents dist/*.whl
 
 [group("dist")]
@@ -290,75 +265,54 @@ list-dist:
     unzip -vl dist/*.whl
     du -skhc dist/*
 
-# * NOTEBOOK -------------------------------------------------------------------
-_nbqa_typecheck checker *files:
-    {{ UVX_WITH_OPTS }} nbqa --nbqa-shell "{{ PYTHON_PATH }} tools/typecheck.py -v {{ UVX_OPTS }} -x {{ checker }}" {{ files }}
-
-[group("notebook")]
-[group("typecheck")]
-mypy-notebook *files=NOTEBOOKS: (_nbqa_typecheck "mypy" files)
-
-[group("notebook")]
-[group("typecheck")]
-pyright-notebook *files=NOTEBOOKS: (_nbqa_typecheck "pyright" files)
-
-[group("notebook")]
-[group("typecheck")]
-ty-notebook *files=NOTEBOOKS: (_nbqa_typecheck "ty" files)
-
-[group("notebook")]
-[group("typecheck")]
-pyrefly-notebook *files=NOTEBOOKS: (_nbqa_typecheck "pyrefly" files)
-
-[group("lint")]
-[group("notebook")]
-[group("typecheck")]
-pylint-notebook *files=NOTEBOOKS:
-    {{ UVX_WITH_OPTS }} nbqa --nbqa-shell "{{ PYTHON_PATH }} -m pylint {{ PYLINT_OPTS }}" {{ files }}
-
-[group("notebook")]
-[group("typecheck")]
-typecheck-notebook *files=NOTEBOOKS: (mypy-notebook files) (pyright-notebook files) (pylint-notebook files)
-
-[group("notebook")]
-[group("test")]
-test-notebook *files=NOTEBOOKS:
-    {{ UVRUN }} pytest --nbval --nbval-current-env --nbval-sanitize-with=config/nbval.ini --dist loadscope -x {{ files }}
-
-[group("notebook")]
-install-ipykernel:
-    {{ NOX }} -s install-ipykernel
-
 # * Other tools ----------------------------------------------------------------
 
+# Run ipython with ephemeral current environment
+[group("tools")]
+ipython *options:
+    {{ UVRUN }} --group=ipython ipython {{ options }}
+
 # update templates
+[group("tools")]
 cruft-update *options="--skip-apply-ask --checkout develop":
     {{ UVX_WITH_OPTS }} cruft update {{ options }}
 
 # create changelog snippet with scriv
+[group("tools")]
 scriv-create *options="--add --edit":
     {{ UVX_WITH_OPTS }} scriv create {{ options }}
 
+[group("tools")]
 scriv-collect version *options="--add --edit":
     {{ UVX_WITH_OPTS }} scriv collect --version {{ version }} {{ options }}
 
+[group("tools")]
 auto-changelog:
-    {{ UVX_WITH_OPTS }} auto-changelog -u -r usnistgov -v unreleased --tag-prefix v --stdout --template changelog.d/templates/auto-changelog/template.jinja2
+    {{ UVX_WITH_OPTS }} \
+    auto-changelog \
+    -u \
+    -r usnistgov \
+    -v unreleased \
+    --tag-prefix v \
+    --stdout \
+    --template changelog.d/templates/auto-changelog/template.jinja2
 
+[group("tools")]
 commitizen-changelog:
-    {{ UVX_WITH_OPTS }} --from=commitizen cz changelog --unreleased-version unreleased --dry-run --incremental
+    {{ UVX_WITH_OPTS }} --from=commitizen \
+    cz changelog \
+    --unreleased-version unreleased \
+    --dry-run \
+    --incremental
 
 # tuna analyze load time:
+[group("tools")]
 tuna-import:
-    {{ UVRUN }} python -X importtime -c 'import {{ IMPORT_NAME }}' 2> tuna-loadtime.log
+    {{ UVRUN }} --no-dev python -X importtime -c 'import {{ IMPORT_NAME }}' 2> tuna-loadtime.log
     {{ UVX_WITH_OPTS }} tuna tuna-loadtime.log
     rm tuna-loadtime.log
 
-# apply cog to README.md
-cog-readme:
-    {{ NOX }} -s cog
-    {{ PRE_COMMIT }} run markdownlint --files README.md
-
 # create README.pdf
+[group("tools")]
 readme-pdf:
     pandoc -V colorlinks -V geometry:margin=0.8in README.md -o README.pdf

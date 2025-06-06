@@ -51,8 +51,7 @@ def run_command(
 
         total = f"$ {cmd}\n{total}"
 
-    if wrapper:
-        total = f"```{wrapper}\n" + total + "```\n"
+    total = f"\n```{wrapper}\n" + total + "```\n" if wrapper else "\n" + total
 
     print(total)  # noqa: T201
 

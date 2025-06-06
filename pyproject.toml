@@ -48,59 +48,53 @@ scripts.pyproject2conda = "pyproject2conda.cli:app"
 
 [dependency-groups]
 dev = [
-    { include-group = "dev-extras" },
+    { include-group = "cog" },
     { include-group = "mypy" },
+    { include-group = "nox" },
+    { include-group = "pytest-accept" },
     { include-group = "test" },
     { include-group = "typecheck" },
 ]
 test = [
-    { include-group = "test-extras" },
+    "pytest-cov",
+    "pytest-sugar",
+    "pytest-xdist",
+    { include-group = "pytest" },
 ]
 docs = [
     "autodocsumm",
     "myst-parser",
-    "pyenchant",
     "sphinx>=5.3.0",
     "sphinx-autodoc-typehints",
     "sphinx-book-theme",
     "sphinx-click",
     "sphinx-copybutton",
-    "sphinxcontrib-spelling",
 ]
+# other packages/tools
 cog = [ "cogapp" ]
-dev-complete = [
-    { include-group = "dev" },
-    { include-group = "tools" },
-]
-dev-extras = [
-    "ipykernel",
-    "nox>=2025.5.1",
-    "pytest-accept",
-]
+ipython = [ "ipython" ]
+mypy = [ "mypy>=1.15.0", "orjson" ]
+nox = [ "nox>=2025.5.1" ]
+pylint = [ "pylint" ]
+pytest = [ "pytest" ]
+pytest-accept = [ "pytest-accept" ]
+# other environments
 docs-live = [
     "sphinx-autobuild",
     { include-group = "docs" },
 ]
-mypy = [
-    "mypy>=1.15.0",
-]
-nbval = [
-    "nbval",
+docs-spelling = [
+    "pyenchant",
+    "sphinxcontrib-spelling",
+    { include-group = "docs" },
 ]
 test-extras = [
-    "pytest",
-    "pytest-cov",
-    "pytest-sugar",
-    "pytest-xdist",
-]
-tools = [
-    "pre-commit",
-    "scriv",
+    { include-group = "test" },
 ]
 typecheck = [
-    "pylint",
-    "pytest",
     "types-click",
+    { include-group = "pylint" },
+    { include-group = "pytest" },
 ]
 
 [tool.hatch.version]
@@ -300,7 +294,7 @@ reqs = [
     "cruft",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
-    "pre-commit",
+    "pre-commit>4.0.0",
     "pre-commit-uv",
     "pyrefly",
     "pyright>=1.1.392",
@@ -308,7 +302,11 @@ reqs = [
     "twine>=5.0.0",
     "ty",
 ]
-groups = "mypy"
+groups = [
+    "cog",
+    "mypy",
+    "nox",
+]
 skip-package = true
 style = "requirements"
 
@@ -318,10 +316,22 @@ style = "requirements"
 managed = true
 default-groups = [ "dev" ]
 fork-strategy = "requires-python"
-required-version = ">=0.7.2"
+required-version = ">=0.7.15"
 
 [tool.uv.pip]
 annotation-style = "line"
+generate-hashes = true
+
+[tool.uv.dependency-groups]
+dev.requires-python = ">=3.12"
+docs.requires-python = ">=3.12"
+docs-live.requires-python = ">=3.12"
+docs-spelling.requires-python = ">=3.12"
+# other tools
+cog.requires-python = ">=3.12"
+ipython.requires-python = ">=3.12"
+mypy.requires-python = ">=3.12"
+nox.requires-python = ">=3.12"
 
 # * Other tools ----------------------------------------------------------------
 

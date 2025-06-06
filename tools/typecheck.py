@@ -19,9 +19,9 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
 
-FORMAT = "[TYPECHECK %(levelname)s] %(message)s"
+FORMAT = "[%(name)s - %(levelname)s] %(message)s"
 logging.basicConfig(level=logging.WARNING, format=FORMAT)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("typecheck")
 
 
 # * Utilities -----------------------------------------------------------------
@@ -77,7 +77,12 @@ def _run_checker(
         python_flag = "python-executable"
 
     version_flag = "pythonversion" if checker == "pyright" else "python-version"
+
     check_subcommand = ["check"] if checker in {"ty", "pyrefly"} else []
+
+    if checker == "ty":
+        # ty prefers `--python` flag pointing to environonmentf
+        python_executable = str(Path(python_executable).parent.parent)
 
     python_flags = (
         *check_subcommand,
@@ -87,6 +92,7 @@ def _run_checker(
 
     _uvx_run(
         *(f"--constraints={c}" for c in constraints),
+        *(["--with", "orjson"] if checker == "mypy" else []),
         checker,
         *python_flags,
         *args,

@@ -1,6 +1,0 @@
-# Used to override any options in pyproject.toml
-fork-strategy = "requires-python"
-
-[pip]
-annotation-style = "line"
-generate-hashes = true

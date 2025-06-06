@@ -121,7 +121,6 @@ Will render optional dependencies from `opt` extra when using group `dev`
   directory. Other options extract values entries of form
   `"Programming Language :: Python :: 3.10"'`, etc,from
   `pyproject.toml:project.classifiers` table.
-
   - `all`: All specified python version
   - `lowest`: Lowest python version
   - `highest`: Highest python version

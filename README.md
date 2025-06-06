@@ -495,7 +495,7 @@ optional-all = [ "hello[all]" ]
 Then, we can build a requirement file, specifying groups with `-g/--group` flag.
 
 <!-- markdownlint-disable-next-line MD013 -->
-  <!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev")]]] -->
 
 ```bash
 $ pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev
@@ -920,6 +920,7 @@ is at `a/path/pyproject.toml`, the path of user configuration files will be
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable-next-line MD013 -->
 <!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev", wrapper="bash")]]] -->
+
 ```bash
 $ p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev
 # --------------------
