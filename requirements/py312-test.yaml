@@ -7,7 +7,7 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-name: py{py}-{env}
+name: py312-test
 channels:
   - conda-forge
 dependencies:
