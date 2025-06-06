@@ -7,7 +7,7 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-name: py{py}-{env}
+name: py311-test-extras
 channels:
   - conda-forge
 dependencies:

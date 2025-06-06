@@ -25,6 +25,14 @@ if TYPE_CHECKING:
     from ._typing_compat import Self
 
 
+def _raise_if_underscore(key: str) -> None:
+    if "_" in key:
+        msg = f"Using underscores in option names is deprecated.  Replace {key} with {key.replace('_', '-')}"
+        import warnings
+
+        warnings.warn(msg, DeprecationWarning, stacklevel=2)
+
+
 # * Utilities
 class Config:  # noqa: PLR0904
     """Class to parse toml file with [tool.pyproject2conda] section"""
@@ -107,6 +115,10 @@ class Config:  # noqa: PLR0904
                 env_name=env_name,
                 inherit=inherit,
             )
+
+        # raise error for underscores
+        if value is not None:
+            _raise_if_underscore(key)
 
         if value is None:
             value = (
@@ -494,13 +506,15 @@ class Config:  # noqa: PLR0904
 
         for key in ("default-envs", "default_envs"):
             if key in data:
-                default_envs = data.pop(key)
+                _raise_if_underscore(key)
+
+                default_envs = data[key]
 
                 if "envs" not in data:
                     data["envs"] = {}
 
                 for env in default_envs:
-                    data["envs"][env] = {"extras_or_groups": True}
+                    data["envs"][env] = {"extras-or-groups": True}
 
         c = cls(
             data,
