@@ -18,6 +18,15 @@ See the fragment files in [changelog.d]
 
 <!-- scriv-insert-here -->
 
+## v0.22.0 — 2025-06-06
+
+### Deprecated
+
+- Deprecating using underscores in option names in `pyproject.toml`. For
+  example, using `template_python` under `tool.pyproject2conda` will lead to a
+  `DeprecationWarning`. We'll fully remove support for underscored names in a
+  future version.
+
 ## v0.21.0 — 2025-06-05
 
 ### Changed
