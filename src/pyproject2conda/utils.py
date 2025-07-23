@@ -63,8 +63,8 @@ def get_in(
     from functools import reduce
 
     try:
-        return reduce(  # pyre-ignore[no-matching-overload] # ty: ignore[no-matching-overload]
-            operator.getitem,  # pyre-ignore[bad-argument-type]  # ty: ignore[invalid-argument-type]
+        return reduce(  # pyrefly: ignore[no-matching-overload] # ty: ignore[no-matching-overload]
+            operator.getitem,  # pyrefly: ignore[bad-argument-type]  # ty: ignore[invalid-argument-type]
             keys,
             nested_dict,
         )

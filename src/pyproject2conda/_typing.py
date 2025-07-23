@@ -19,11 +19,11 @@ if TYPE_CHECKING:
     )
     from .utils import _Missing  # pyright: ignore[reportPrivateUsage]  # noqa: F401
 
-MISSING_TYPE: TypeAlias = "Literal[_Missing.MISSING]"  # pyre-ignore[type-alias-error]
+MISSING_TYPE: TypeAlias = (
+    "Literal[_Missing.MISSING]"  # pyrefly: ignore[type-alias-error]
+)
 
 RequirementCommentPair: TypeAlias = (
-    "tuple[Requirement | None, str | None]"  # pyre-ignore[type-alias-error]
+    "tuple[Requirement | None, str | None]"  # pyrefly: ignore[type-alias-error]
 )
-RequirementOverridePair: TypeAlias = (
-    "tuple[Requirement | None, OverrideDeps | None]"  # pyre-ignore[type-alias-error]
-)
+RequirementOverridePair: TypeAlias = "tuple[Requirement | None, OverrideDeps | None]"  # pyrefly: ignore[type-alias-error]
