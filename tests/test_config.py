@@ -1,6 +1,5 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 # pylint: disable=duplicate-code
-# pyright: basic
 from __future__ import annotations
 
 import filecmp

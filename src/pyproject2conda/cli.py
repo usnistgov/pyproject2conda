@@ -86,7 +86,7 @@ class _AliasedGroup(TyperGroup):
         ctx.fail(
             "Too many matches: {}".format(", ".join(sorted(matches)))
         )  # pragma: no cover
-        return None  # type: ignore[unreachable]  # pragma: no cover
+        return None  # type: ignore[unreachable]  # pragma: no cover  # pyright: ignore[reportUnreachable]
 
     def list_commands(self, ctx: click.Context) -> list[str]:  # noqa: ARG002
         return list(self.commands)

@@ -225,11 +225,24 @@ exclude = [
     "**/.numba_cache/",
     "**/vendored/**",
 ]
-# strict = ["src", "tests", "noxfile.py", "tools/*.py"]
+strict = [
+    "src",
+    "noxfile.py",
+    "tools/*.py",
+]
 pythonVersion = "3.11"
-typeCheckingMode = "strict"
+typeCheckingMode = "standard"
+reportDuplicateImport = true
+reportInvalidStubStatement = true
+reportOverlappingOverload = true
+reportPropertyTypeMismatch = true
+reportUntypedClassDecorator = true
+reportUntypedFunctionDecorator = true
+reportUntypedNamedTuple = true
+reportUnusedImport = true
 enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
+reportUnreachable = "warning"
 
 [tool.pytype]
 inputs = [

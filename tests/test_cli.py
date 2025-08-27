@@ -1,6 +1,5 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call, assignment"
 # pylint: disable=duplicate-code,empty-comment
-# pyright: basic
 import json
 import locale
 import logging
@@ -250,7 +249,7 @@ dependencies:
         check_result(result, expected)
 
     # test if add in "test" gives same answer
-    opts = extra_or_group_opts[0]
+    opt = extra_or_group_opts[0]
     result = do_run(
         runner, "yaml", opt, "dev", opt, "test", "--no-sort", filename=filename
     )
