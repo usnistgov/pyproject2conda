@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 # pylint: disable=duplicate-code,empty-comment
+# pyright: basic
 from __future__ import annotations
 
 import locale
@@ -471,7 +472,7 @@ def test_complete(style, toml) -> None:
     """
     assert dedent(expected) == d.to_requirements(
         skip_package=True,
-        **{style: "build-system.requires"},  # type: ignore[arg-type]
+        **{style: "build-system.requires"},  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
     )
 
     expected = """\
@@ -574,7 +575,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(**{style: "test"}, sort=False)  # type: ignore[arg-type]
+    out = d.to_conda_yaml(**{style: "test"}, sort=False)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
 
     expected = """\
 channels:
@@ -591,7 +592,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(**{style: "test"}, sort=True)  # type: ignore[arg-type]
+    out = d.to_conda_yaml(**{style: "test"}, sort=True)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
 
     expected = """\
 channels:
@@ -608,7 +609,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    out = d.to_conda_yaml(**{style: "dist-pypi"}, skip_package=True)  # type: ignore[arg-type]
+    out = d.to_conda_yaml(**{style: "dist-pypi"}, skip_package=True)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
 
     expected = """\
 channels:
@@ -637,7 +638,7 @@ dependencies:
       - athing
     """
 
-    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"}, sort=False)  # type: ignore[arg-type]
+    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"}, sort=False)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
 
     expected = """\
 channels:
@@ -654,7 +655,7 @@ dependencies:
       - athing
     """
 
-    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"})  # type: ignore[arg-type]
+    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"})  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
 
     # Test deps/reqs
     expected = """\

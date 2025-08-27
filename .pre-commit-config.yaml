@@ -46,7 +46,7 @@ repos:
       - id: validate-pyproject
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2025.08.07
+    rev: 2025.08.21
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -77,7 +77,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.8
+    rev: v0.12.10
     hooks:
       - id: ruff-check
         alias: ruff
@@ -99,7 +99,7 @@ repos:
   # Revert to crate-ci/typos if https://github.com/crate-ci/typos/issues/390 is fixed.
   # - repo: https://github.com/crate-ci/typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.35.3
+    rev: v1.35.5
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -124,7 +124,7 @@ repos:
         alias: requirements
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.8.9
+    rev: 0.8.13
     hooks:
       - id: uv-lock
         alias: requirements

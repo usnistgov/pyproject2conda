@@ -149,7 +149,7 @@ requirements *options: (_requirements "--sync-or-lock" options)
 
 TYPECHECK_UVRUN_OPTS := "--group=typecheck --no-dev"
 
-_typecheck checkers="mypy pyright" *check_options:
+_typecheck checkers="mypy basedpyright" *check_options:
     {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} {{ TYPECHECK }} {{ UVX_OPTS }} {{ prepend("-x ", checkers) }} -- {{ check_options }}
 
 # Run mypy (with optional args)
@@ -163,6 +163,18 @@ pyright *options: (_typecheck "pyright" options)
 # Run pyright (with watch and optional args)
 [group("typecheck")]
 pyright-watch *options: (pyright "-w" options)
+
+# Run basedpyright (with optional args)
+[group("typecheck")]
+basedpyright *options: (_typecheck "basedpyright" options)
+
+# Run basedpyright (with watch and optional args)
+[group("typecheck")]
+basedpyright-watch *options: (basedpyright "-w" options)
+
+# Run basedpyright (with --verifytypes <package> --ignoreexternal)
+[group("typecheck")]
+basedpyright-verifytypes *options=("src/" + IMPORT_NAME): (basedpyright "--verifytypes" options "--ignoreexternal")
 
 # Run ty (NOTE: in alpha)
 [group("typecheck")]
@@ -180,22 +192,22 @@ pylint *options="src tests":
 
 # Run all checkers (with optional directories)
 [group("typecheck")]
-typecheck *options: (_typecheck "mypy pyright" options)
+typecheck *options: (_typecheck "mypy basedpyright" options)
 
 # Run checkers on tools
 [group("tools")]
 [group("typecheck")]
 @typecheck-tools *files="noxfile.py tools/*.py":
-    just TYPECHECK_UVRUN_OPTS="--only-group=nox" mypy --strict {{ files }}
-    just TYPECHECK_UVRUN_OPTS="--only-group=nox" pyright {{ files }}
+    -just TYPECHECK_UVRUN_OPTS="--only-group=nox" mypy --strict {{ files }}
+    just TYPECHECK_UVRUN_OPTS="--only-group=nox" basedpyright {{ files }}
     just TYPECHECK_UVRUN_OPTS="--only-group=nox --only-group=pylint" pylint {{ files }}
 
 # ** typecheck all
 
-# typecheck across versions with nox (options are mypy, pyright, pylint, ty, pyrefly)
+# typecheck across versions with nox (options are mypy, pyright, basedpyright, pylint, ty, pyrefly)
 [group("nox")]
 [group("typecheck")]
-typecheck-all *checkers="mypy pyright": (nox "-s typecheck -- +m" checkers)
+typecheck-all *checkers="mypy basedpyright": (nox "-s typecheck -- +m" checkers)
 
 # * docs -----------------------------------------------------------------------
 

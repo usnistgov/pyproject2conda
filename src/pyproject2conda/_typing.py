@@ -10,12 +10,12 @@ if TYPE_CHECKING:
     from typing import Literal  # noqa: F401
 
     from packaging.requirements import (
-        Requirement,  # pyright: ignore[reportUnusedImport]  # noqa: F401
+        Requirement,  # noqa: F401
     )
 
     from ._typing_compat import TypeAlias
     from .overrides import (
-        OverrideDeps,  # pyright: ignore[reportUnusedImport]  # noqa: F401
+        OverrideDeps,  # noqa: F401
     )
     from .utils import _Missing  # pyright: ignore[reportPrivateUsage]  # noqa: F401
 

@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call, assignment"
 # pylint: disable=duplicate-code,empty-comment
+# pyright: basic
 import json
 import locale
 import logging

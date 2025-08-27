@@ -1,5 +1,5 @@
 """
-Interface to type checkers (mypy/pyright) to handle python-version and python-executable.
+Interface to type checkers (mypy, (based)pyright, ty, pyrefly) to handle python-version and python-executable.
 
 This allows for running centrally installed (or via uvx) type checkers against a given virtual environment.
 """
@@ -41,7 +41,7 @@ def _uvx_run(
     *args: str,
     env: Mapping[str, str] | None = None,
     dry_run: bool = False,
-) -> None:
+) -> int:
     import subprocess
 
     cleaned_args = ["uvx", *(os.fsdecode(arg) for arg in args)]
@@ -49,13 +49,19 @@ def _uvx_run(
     logger.info("Running %s", full_cmd)
 
     if dry_run:
-        return
+        return 0
 
     r = subprocess.run(cleaned_args, check=False, env=env)
+
     if returncode := r.returncode:
-        logger.error("Command %s failed with exit code %s", full_cmd, returncode)  # pyright: ignore[reportUnknownArgumentType]
+        logger.error("Command %s failed with exit code %s", full_cmd, returncode)
         # msg = f"Returned code {returncode}"  # noqa: ERA001
         # raise RuntimeError(msg)  # noqa: ERA001
+    return returncode
+
+
+def _is_pyright_like(checker: str) -> bool:
+    return checker in {"pyright", "basedpyright"}
 
 
 def _run_checker(
@@ -65,8 +71,8 @@ def _run_checker(
     python_executable: str,
     constraints: list[Path],
     dry_run: bool = False,
-) -> None:
-    if checker == "pyright":
+) -> int:
+    if _is_pyright_like(checker):
         python_flag = "pythonpath"
     elif checker == "ty":
         python_flag = "python"
@@ -76,7 +82,7 @@ def _run_checker(
         # default to mypy
         python_flag = "python-executable"
 
-    version_flag = "pythonversion" if checker == "pyright" else "python-version"
+    version_flag = "pythonversion" if _is_pyright_like(checker) else "python-version"
 
     check_subcommand = ["check"] if checker in {"ty", "pyrefly"} else []
 
@@ -90,7 +96,7 @@ def _run_checker(
         f"--{version_flag}={python_version}",
     )
 
-    _uvx_run(
+    return _uvx_run(
         *(f"--constraints={c}" for c in constraints),
         *(["--with", "orjson"] if checker == "mypy" else []),
         checker,
@@ -111,7 +117,7 @@ def get_parser() -> ArgumentParser:
         type=Path,
         help="""
         Path to python executable. Defaults to ``sys.executable``. This is
-        passed to `--python-executable` in mypy and `--pythonpath` in pyright.
+        passed to `--python-executable` in mypy and `--pythonpath` in (based)pyright.
         """,
     )
     parser.add_argument(
@@ -148,8 +154,12 @@ def get_parser() -> ArgumentParser:
         dest="checkers",
         default=[],
         action="append",
-        choices=["mypy", "pyright", "ty", "pyrefly"],
+        choices=["mypy", "pyright", "basedpyright", "ty", "pyrefly"],
         help="Type checker to use.",
+    )
+    parser.add_argument(
+        "--allow-errors",
+        action="store_true",
     )
     parser.add_argument(
         "--dry-run",
@@ -181,8 +191,9 @@ def main(args: Sequence[str] | None = None) -> int:
     logger.debug("checkers: %s", options.checkers)
     logger.debug("args: %s", options.args)
 
+    code = 0
     for checker in options.checkers:
-        _run_checker(
+        code += _run_checker(
             checker,
             *options.args,
             python_version=python_version,
@@ -191,7 +202,7 @@ def main(args: Sequence[str] | None = None) -> int:
             dry_run=options.dry_run,
         )
 
-    return 0
+    return 0 if options.allow_errors else code
 
 
 if __name__ == "__main__":

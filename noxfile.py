@@ -182,10 +182,12 @@ class SessionParams(DataclassParser):
             "clean",
             "mypy",
             "pyright",
+            "basedpyright",
             "pylint",
             "all",
             "mypy-notebook",
             "pyright-notebook",
+            "basedpyright-notebook",
             "pylint-notebook",
             "typecheck-notebook",
             "ty",
@@ -401,7 +403,7 @@ def get_package_wheel(
 
         # save that this was called:
         if reuse:
-            get_package_wheel._called = True  # type: ignore[attr-defined]  # noqa: SLF001  # pylint: disable=protected-access
+            get_package_wheel._called = True  # type: ignore[attr-defined]  # pyright: ignore[reportFunctionMemberAccess] # noqa: SLF001  # pylint: disable=protected-access
 
     paths = list(dist_location.glob("*.whl"))
     if len(paths) != 1:
@@ -792,10 +794,10 @@ def typecheck(  # noqa: C901
 
     cmd = opts.typecheck or []
     if not opts.typecheck_run and not cmd:
-        cmd = ["mypy", "pyright"]
+        cmd = ["mypy", "basedpyright"]
 
     if "all" in cmd:
-        cmd = ["mypy", "pyright", "pylint"]
+        cmd = ["mypy", "basedpyright", "pylint"]
 
     # set the cache directory for mypy
     session.env["MYPY_CACHE_DIR"] = str(Path(session.create_tmp()) / ".mypy_cache")
@@ -816,13 +818,14 @@ def typecheck(  # noqa: C901
     for c in cmd:
         if c.endswith("-notebook"):
             session.run("just", c, external=True)
-        elif c in {"mypy", "pyright", "ty", "pyrefly"}:
+        elif c in {"mypy", "pyright", "basedpyright", "ty", "pyrefly"}:
             session.run(
                 "python",
                 "tools/typecheck.py",
                 *get_uvx_constraint_args(),
                 "--verbose",
                 f"--checker={c}",
+                "--allow-errors",
                 "--",
                 *(
                     opts.typecheck_options
@@ -871,7 +874,7 @@ def build(session: nox.Session, opts: SessionParams) -> None:  # noqa: C901
     for cmd in opts.build or ["build"]:
         if cmd == "version":
             if USE_ENVIRONMENT_FOR_BUILD:
-                session.run(get_python_full_path(session), "-m", "hatchling", "version")  # pyright: ignore[reportPossiblyUnboundVariable]
+                session.run(get_python_full_path(session), "-m", "hatchling", "version")
             else:
                 uvx_run(
                     session, "--with=hatch-vcs", "hatchling", "version", external=True

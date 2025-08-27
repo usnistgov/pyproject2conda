@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 FORMAT = "%(message)s [%(name)s - %(levelname)s]"
 logging.basicConfig(level=logging.WARNING, format=FORMAT)
-logger = logging.getLogger("pyproject2conda")
+logger: logging.Logger = logging.getLogger("pyproject2conda")
 
 
 # * Callbacks -----------------------------------------------------------------
@@ -71,12 +71,10 @@ def _callback_version(value: bool) -> None:
 
 
 # * Typer App --------------------------------------------------------------------------
-class AliasedGroup(TyperGroup):
+class _AliasedGroup(TyperGroup):
     """Provide aliasing for commands"""
 
-    def get_command(  # noqa: D102
-        self, ctx: click.Context, cmd_name: str
-    ) -> click.Command | None:
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         if (rv := super().get_command(ctx, cmd_name)) is not None:
             return rv
         if not (
@@ -90,11 +88,11 @@ class AliasedGroup(TyperGroup):
         )  # pragma: no cover
         return None  # type: ignore[unreachable]  # pragma: no cover
 
-    def list_commands(self, ctx: click.Context) -> list[str]:  # noqa: ARG002, D102
+    def list_commands(self, ctx: click.Context) -> list[str]:  # noqa: ARG002
         return list(self.commands)
 
 
-app_typer = typer.Typer(cls=AliasedGroup, no_args_is_help=True)
+app_typer: typer.Typer = typer.Typer(cls=_AliasedGroup, no_args_is_help=True)
 
 
 @app_typer.callback()
@@ -135,7 +133,7 @@ def main(
 
 PYPROJECT_CLI = Annotated[
     Path,
-    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+    typer.Option(
         "--pyproject-file",
         "--file",
         "-f",
@@ -146,7 +144,7 @@ PYPROJECT_CLI = Annotated[
 ]
 EXTRAS_CLI = Annotated[
     list[str] | None,
-    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+    typer.Option(
         "--extra",
         "-e",
         help="""
@@ -158,7 +156,7 @@ EXTRAS_CLI = Annotated[
 ]
 GROUPS_CLI = Annotated[
     list[str] | None,
-    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+    typer.Option(
         "--group",
         "-g",
         help="""
@@ -170,7 +168,7 @@ GROUPS_CLI = Annotated[
 ]
 EXTRAS_OR_GROUPS_CLI = Annotated[
     list[str] | None,
-    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+    typer.Option(
         "--extra-or-group",
         help="""
         Include dependencies from extra or group of ``pyproject.toml``.
@@ -182,7 +180,7 @@ EXTRAS_OR_GROUPS_CLI = Annotated[
 ]
 CHANNEL_CLI = Annotated[
     list[str] | None,
-    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+    typer.Option(
         "--channel",
         "-c",
         help="Conda channel.  Can specify. Overrides [tool.pyproject2conda.channels]",
@@ -190,7 +188,7 @@ CHANNEL_CLI = Annotated[
 ]
 NAME_CLI = Annotated[
     str | None,
-    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+    typer.Option(
         "--name",
         "-n",
         help="Name of conda env",
@@ -198,7 +196,7 @@ NAME_CLI = Annotated[
 ]
 OUTPUT_CLI = Annotated[
     Path | None,
-    typer.Option(  # pyright: ignore[reportUnknownMemberType]
+    typer.Option(
         "--output",
         "-o",
         help="File to output results",
@@ -870,15 +868,15 @@ def to_json(
 
 # * Click app
 # # If need be, can work directly with click
-# @click.group(cls=AliasedGroup)
+# @click.group(cls=_AliasedGroup)
 # @click.version_option(version=__version__)
 # def app_click() -> None:
 #     pass
 # typer_click_object = typer.main.get_command(app_typer)  # noqa: ERA001
-# app = click.CommandCollection(sources=[app_click, typer_click_object], cls=AliasedGroup)  # noqa: ERA001
+# app = click.CommandCollection(sources=[app_click, typer_click_object], cls=_AliasedGroup)  # noqa: ERA001
 
 # Just use the click app....
-app = typer.main.get_command(app_typer)  # ty: ignore[unresolved-attribute]
+app: click.Command = typer.main.get_command(app_typer)  # ty: ignore[unresolved-attribute]
 
 
 # ** Main

@@ -226,33 +226,10 @@ exclude = [
     "**/vendored/**",
 ]
 # strict = ["src", "tests", "noxfile.py", "tools/*.py"]
-strict = [
-    "src",
-    "noxfile.py",
-    "tools/*.py",
-]
 pythonVersion = "3.11"
-# typeCheckingMode = "strict"
-typeCheckingMode = "basic"
-# enable subset of "strict"
-reportDuplicateImport = true
-reportInvalidStubStatement = true
-reportOverlappingOverload = true
-reportPropertyTypeMismatch = true
-reportUntypedClassDecorator = true
-reportUntypedFunctionDecorator = true
-reportUntypedNamedTuple = true
-reportUnusedImport = true
-# disable subset of "basic"
-reportGeneralTypeIssues = false
-reportMissingModuleSource = false
-reportOptionalCall = false
-reportOptionalIterable = false
-reportOptionalMemberAccess = false
-reportOptionalOperand = false
-reportOptionalSubscript = false
-reportPrivateImportUsage = false
-reportUnboundVariable = false
+typeCheckingMode = "strict"
+enableTypeIgnoreComments = false
+reportUnnecessaryTypeIgnoreComment = true
 
 [tool.pytype]
 inputs = [
@@ -298,6 +275,7 @@ reqs = [
     "pre-commit-uv",
     "pyrefly",
     "pyright>=1.1.392",
+    "basedpyright>=1.31.3",
     "scriv",
     "twine>=5.0.0",
     "ty",
