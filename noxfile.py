@@ -175,6 +175,7 @@ class SessionParams(DataclassParser):
     )
     # lint
     lint_options: OPT_TYPE = add_option(help="Options to pre-commit")
+    lint_use_prek: bool = True
 
     # typecheck
     typecheck: list[
@@ -441,13 +442,18 @@ def uvx_run(
     return session.run("uvx", *get_uvx_constraint_args(locked), *args, **kwargs)
 
 
-def pre_commit_run(session: Session, *args: str | PathLike[str], **kwargs: Any) -> Any:
+def pre_commit_run(
+    session: Session, *args: str | PathLike[str], use_prek: bool = True, **kwargs: Any
+) -> Any:
     """Run pre-commit via uvx."""
+    pre_commit_args = (
+        ("prek", "-c", ".pre-commit-config.yaml", "run")
+        if use_prek
+        else ("--with=pre-commit-uv", "pre-commit", "run")
+    )
     return uvx_run(
         session,
-        "--with=pre-commit-uv",
-        "pre-commit",
-        "run",
+        *pre_commit_args,
         *args,
         **kwargs,
         locked=False,
@@ -776,7 +782,9 @@ def lint(
     To run something else pass, e.g.,
     `nox -s lint -- --lint-run "pre-commit run --hook-stage manual --all-files`
     """
-    pre_commit_run(session, "--all-files", *(opts.lint_options or []))
+    pre_commit_run(
+        session, "--all-files", *(opts.lint_options or []), use_prek=opts.lint_use_prek
+    )
 
 
 # ** type checking
