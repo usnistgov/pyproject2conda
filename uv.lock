@@ -983,6 +983,7 @@ wheels = [
 
 [[package]]
 name = "pyproject2conda"
+version = "0.22.1.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "dependency-groups" },
