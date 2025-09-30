@@ -30,7 +30,6 @@ from tools.dataclass_parser import (
 from tools.noxtools import (
     check_for_change_manager,
     combine_list_str,
-    get_python_full_path,
     infer_requirement_path,
     open_webpage,
     session_run_commands,
@@ -200,14 +199,6 @@ class SessionParams(DataclassParser):
     typecheck_run: RUN_ANNO = None
     typecheck_options: OPT_TYPE = add_option(help="Options to type checkers")
 
-    # build
-    build: list[Literal["build", "version"]] | None = None
-    build_run: RUN_ANNO = None
-    build_isolation: bool = False
-    build_out_dir: str = "./dist"
-    build_options: OPT_ANNO = None
-    build_silent: bool = False
-
     # conda-recipe/grayskull
     conda_recipe: list[Literal["recipe", "recipe-full"]] | None = None
     conda_recipe_sdist_path: str | None = None
@@ -259,6 +250,7 @@ def install_dependencies(
     no_dev: bool = True,
     no_default_groups: bool = False,
     only_group: bool = False,
+    include_no_editable_package: bool = False,
     include_editable_package: bool = False,
     lock: bool | None = None,
 ) -> None:
@@ -296,10 +288,23 @@ def install_dependencies(
             else:
                 session.log("Using cached install")
 
-        if include_editable_package:
+        if include_no_editable_package:
+            install_package(
+                session, f"--reinstall-package={PACKAGE_NAME}", installpkg="."
+            )
+        elif include_editable_package:
             install_package(session, editable=True, update=True)
 
     elif lock:  # pylint: disable=confusing-consecutive-elif
+        # package?
+        package_args: tuple[str, ...]
+        if include_no_editable_package:
+            package_args = ("--no-editable", f"--reinstall-package={PACKAGE_NAME}")
+        elif include_editable_package:
+            package_args = (f"--reinstall-package={PACKAGE_NAME}",)
+        else:
+            package_args = ("--no-install-project",)
+
         session.run_install(
             "uv",
             "sync",
@@ -313,15 +318,7 @@ def install_dependencies(
             ),
             *(["--only-group"] if only_group else ["--group"]),
             name,
-            # Handle package install here?
-            # "--no-editable",
-            # "--reinstall-package",
-            *([] if include_editable_package else ["--no-install-project"]),
-            *(
-                [f"--reinstall-package={PACKAGE_NAME}"]
-                if opts.reinstall_package and include_editable_package
-                else []
-            ),
+            *package_args,
             *(
                 []
                 if any("--python" in a for a in args)
@@ -399,8 +396,8 @@ def get_package_wheel(
     if reuse and getattr(get_package_wheel, "_called", False):
         session.log("Reuse isolated build")
     else:
-        cmd = f"nox -s build -- ++build-out-dir {dist_location} ++build-options --wheel ++build-silent"
-        session.run_always(*shlex.split(cmd), external=True)
+        shutil.rmtree(dist_location)
+        session.run_always("uv", "build", f"--out-dir={dist_location}", "--wheel")
 
         # save that this was called:
         if reuse:
@@ -656,16 +653,19 @@ def testdist(
     opts: SessionParams,
 ) -> None:
     """Test conda distribution."""
-    install_str = PACKAGE_NAME
-    if opts.version:
-        install_str = f"{install_str}=={opts.version}"
+    if opts.installpkg:
+        install_str = opts.installpkg
+    else:
+        install_str = PACKAGE_NAME
+        if opts.version:
+            install_str = f"{install_str}=={opts.version}"
 
     install_dependencies(session, name="test-extras", only_group=True, opts=opts)
 
     if isinstance(session.virtualenv, CondaEnv):
         session.conda_install(install_str)
     else:
-        session.install(install_str)
+        session.install(install_str, f"--reinstall-package={PACKAGE_NAME}")
 
     _test(
         session=session,
@@ -855,58 +855,7 @@ def typecheck(  # noqa: C901
             session.log(f"Skipping unknown command {c}")
 
 
-# ** Dist pypi
-# NOTE: you can skip having the build environment and
-# just use uv build, but faster to use environment ...
-USE_ENVIRONMENT_FOR_BUILD = False
-_build_dec = nox.session(
-    python=PYTHON_DEFAULT_VERSION if USE_ENVIRONMENT_FOR_BUILD else False
-)
-
-
-@_build_dec
-@add_opts
-def build(session: nox.Session, opts: SessionParams) -> None:  # noqa: C901
-    """
-    Build the distribution.
-
-    Note that default is to not use build isolation.
-    Pass `--build-isolation` to use build isolation.
-    """
-    if USE_ENVIRONMENT_FOR_BUILD:
-        install_dependencies(session, name="build", opts=opts, lock=False)
-
-    if opts.version:
-        session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = opts.version
-
-    for cmd in opts.build or ["build"]:
-        if cmd == "version":
-            if USE_ENVIRONMENT_FOR_BUILD:
-                session.run(get_python_full_path(session), "-m", "hatchling", "version")
-            else:
-                uvx_run(
-                    session, "--with=hatch-vcs", "hatchling", "version", external=True
-                )
-        elif cmd == "build":
-            outdir = opts.build_out_dir
-            shutil.rmtree(outdir, ignore_errors=True)
-
-            args = shlex.split(f"uv build --out-dir={outdir}")
-            if USE_ENVIRONMENT_FOR_BUILD and not opts.build_isolation:
-                args.append("--no-build-isolation")
-
-            if opts.build_options:
-                args.extend(opts.build_options)
-
-            out = session.run(*args, silent=opts.build_silent)
-            if opts.build_silent:
-                if not isinstance(out, str):
-                    msg = "session.run output not a string"
-                    raise ValueError(msg)
-                session.log(out.strip().split("\n")[-1])
-
-
-# # ** Dist conda
+# ** Dist conda
 @nox.session(name="conda-recipe", python=False)
 @add_opts
 def conda_recipe(

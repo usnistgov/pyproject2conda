@@ -30,6 +30,7 @@
 [conda-link]: https://anaconda.org/conda-forge/pyproject2conda
 [license-badge]: https://img.shields.io/pypi/l/pyproject2conda?color=informational
 [license-link]: https://github.com/usnistgov/pyproject2conda/blob/main/LICENSE
+[changelog-link]: https://github.com/usnistgov/pyproject2conda/blob/main/CHANGELOG.md
 [pre-commit]: https://pre-commit.com/
 
 <!-- other links -->
@@ -997,6 +998,10 @@ packages:
 ## Documentation
 
 See the [documentation][docs-link] for a look at `pyproject2conda` in action.
+
+## What's new?
+
+See [changelog][changelog-link].
 
 ## License
 
