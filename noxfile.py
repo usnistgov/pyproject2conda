@@ -700,8 +700,6 @@ def docs(  # noqa: C901
 
     install_dependencies(session, name=name, opts=opts, include_editable_package=True)
 
-    if opts.version:
-        session.env["SETUPTOOLS_SCM_PRETEND_VERSION"] = opts.version
     session_run_commands(session, opts.docs_run)
 
     if open_page := "open" in cmd:

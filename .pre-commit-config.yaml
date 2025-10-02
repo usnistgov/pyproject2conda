@@ -99,7 +99,7 @@ repos:
   # Revert to crate-ci/typos if https://github.com/crate-ci/typos/issues/390 is fixed.
   # - repo: https://github.com/crate-ci/typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.36.3
+    rev: v1.37.0
     hooks:
       - id: typos
         exclude_types: [jupyter]

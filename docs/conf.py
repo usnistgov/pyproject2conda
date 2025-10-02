@@ -249,13 +249,7 @@ author = "William P. Krekelberg"
 # the built documents.
 #
 # The short X.Y version.
-def _get_version() -> str:
-    if (version := os.environ.get("SETUPTOOLS_SCM_PRETEND_VERSION")) is None:
-        version = pyproject2conda.__version__
-    return version
-
-
-release = version = _get_version()
+release = version = pyproject2conda.__version__
 
 
 # if always want to print "latest"

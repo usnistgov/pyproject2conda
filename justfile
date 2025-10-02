@@ -118,7 +118,7 @@ coverage *options: (nox "-s coverage -- ++coverage" options)
 # check/update version of package from scm
 [group("version")]
 version-scm:
-    {{ UVX_WITH_OPTS }} --with=hatch-vcs hatchling version
+    {{ UVX_WITH_OPTS }} hatchling version
 
 # check version from python import
 [group("version")]
@@ -241,9 +241,9 @@ docs-livehtml: (docs "livehtml")
 # * dist ----------------------------------------------------------------------
 
 [group("dist")]
-build version="":
+build:
     -rm -f dist/*
-    {{ prepend("SETUPTOOLS_SCM_PRETEND_VERSION=", version) }} uv build
+    uv build
 
 _twine *options:
     {{ UVX_WITH_OPTS }} twine {{ options }}

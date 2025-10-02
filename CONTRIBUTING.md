@@ -360,16 +360,23 @@ nox -s conda-build -- ++conda-build-run "anaconda upload PATH-TO-TARBALL"
 
 ## Building distribution for pypi
 
-The basic command is:
+Set the package version by editing `project.version` in `pyproject.toml` (or use
+`uv version --bump`). To build the package, use:
 
 ```bash
-nox -s build
+just build
 ```
 
 To upload the pypi distribution:
 
 ```bash
-nox -s publish -- +p [release, test]
+just publish/uv-publish
+```
+
+You should first run a test with:
+
+```bash
+just publish-test/uv-publish-test
 ```
 
 - test : upload to testpypi
@@ -380,13 +387,13 @@ nox -s publish -- +p [release, test]
 Run:
 
 ```bash
-nox -s testdist-pypi -- ++version [version]
+nox -s testdist-pypi-{python-version} -- ++version [version]
 ```
 
 to test a specific version from pypi and
 
 ```bash
-nox -s testdist-conda -- ++version [version]
+nox -s testdist-conda-{python-version} -- ++version [version]
 ```
 
 to do likewise from conda.
@@ -508,28 +515,8 @@ tooling in the "dev" environment, and also avoid creating a bunch of throw away
 
 ## Package version
 
-[hatch-vcs]: https://github.com/ofek/hatch-vcs
-
-Versioning is handled with [hatch-vcs]. The package version is set by the git
-tag. For convenience, you can override the version with nox setting
-`++version ...`. This is useful for updating the docs, etc.
-
-Note that the version in a given environment/session can become stale. The
-easiest way to update the installed package version version is to reinstall the
-package. This can be done using the following:
-
-```bash
-# using pip
-pip install -e . --no-deps
-# using uv
-uv pip install -e . --no-deps
-```
-
-To do this in a given session, use:
-
-```bash
-nox -s {session} -- +P/++update-package
-```
+Versioning is handled by the `project.version` variable in `pyproject.toml`. Use
+`uv version --bump` to update the package version.
 
 [commitizen]: https://github.com/commitizen-tools/commitizen
 [conda-fast-setup]:
