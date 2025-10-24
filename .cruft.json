@@ -1,7 +1,7 @@
 {
   "template": "https://github.com/usnistgov/cookiecutter-nist-python.git",
   "commit": "43ca76b0c297b6ab13e285871228398dd322f510",
-  "checkout": "develop",
+  "checkout": "main",
   "context": {
     "cookiecutter": {
       "project_name": "pyproject2conda",
