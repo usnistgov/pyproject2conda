@@ -295,7 +295,7 @@ ipython *options:
 
 # update templates
 [group("tools")]
-cruft-update *options="--skip-apply-ask --checkout develop":
+cruft-update *options="--skip-apply-ask --checkout main":
     {{ UVX_WITH_OPTS }} cruft update {{ options }}
 
 # create changelog snippet with scriv
@@ -304,8 +304,10 @@ scriv-create *options="--add --edit":
     {{ UVX_WITH_OPTS }} scriv create {{ options }}
 
 [group("tools")]
-scriv-collect version *options="--add --edit":
+scriv-collect version *options="--keep":
     {{ UVX_WITH_OPTS }} scriv collect --version {{ version }} {{ options }}
+    uv run --no-project tools/remove_changelog_html_tag.py CHANGELOG.md
+    git add CHANGELOG.md
 
 [group("tools")]
 auto-changelog:

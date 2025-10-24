@@ -77,7 +77,7 @@ def _run_checker(
     elif checker == "ty":
         python_flag = "python"
     elif checker == "pyrefly":
-        python_flag = "python-interpreter"
+        python_flag = "python-interpreter-path"
     else:
         # default to mypy
         python_flag = "python-executable"

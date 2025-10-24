@@ -19,7 +19,7 @@ orjson
 pre-commit-uv
 pre-commit>4.0.0
 prek
-pyrefly
+pyrefly>=0.37.0
 pyright>=1.1.392
 scriv
 twine>=5.0.0
