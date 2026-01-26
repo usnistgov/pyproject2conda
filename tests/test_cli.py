@@ -647,8 +647,7 @@ setuptools
 
 
 def check_results_conda_req(path, expected) -> None:
-    with Path(path).open(encoding=locale.getpreferredencoding(False)) as f:
-        result = f.read()
+    result = Path(path).read_text(encoding=locale.getpreferredencoding(False))
 
     assert result == dedent(expected)
 
