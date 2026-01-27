@@ -72,8 +72,7 @@ def test_optional_write() -> None:
 
         _optional_write(s, p)
 
-        with Path(p).open(encoding=locale.getpreferredencoding(False)) as f:
-            test = f.read()
+        test = Path(p).read_text(encoding=locale.getpreferredencoding(False))
 
         assert test == s
 
