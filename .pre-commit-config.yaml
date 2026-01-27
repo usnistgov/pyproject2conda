@@ -2,6 +2,13 @@
 # pre-commit run --all-files
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+ci:
+  autoupdate_commit_msg: "chore(deps): update pre-commit hooks"
+  autofix_commit_msg: "style: pre-commit fixes"
+  autoupdate_schedule: "weekly"
+  skip:
+    - uv-lock
+    - pip-compile
 default_install_hook_types:
   - pre-commit
   - commit-msg
