@@ -102,9 +102,8 @@ default-groups = [ "dev" ]
 fork-strategy = "requires-python"
 required-version = ">=0.7.15"
 
-[tool.uv.pip]
-annotation-style = "line"
-generate-hashes = true
+[tool.uv.build-backend]
+source-include = [ "tests/**" ]
 
 [tool.uv.dependency-groups]
 dev.requires-python = ">=3.14"
@@ -117,8 +116,9 @@ ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
 
-[tool.uv.build-backend]
-source-include = [ "tests/**" ]
+[tool.uv.pip]
+annotation-style = "line"
+generate-hashes = true
 
 # * Checks ---------------------------------------------------------------------
 
@@ -137,6 +137,7 @@ toplevel = [ "pyproject2conda" ]
 src_dir = [ "src" ]
 
 [tool.pyproject-fmt]
+
 # max_supported_python = "3.13"
 
 # * Testing --------------------------------------------------------------------
@@ -161,8 +162,11 @@ log_cli_level = "INFO"
 xfail_strict = true
 filterwarnings = [ "error" ]
 
-[tool.coverage.run]
-branch = true
+[tool.coverage.paths]
+source = [
+    "src/",
+    ".nox/**/site-packages/",
+]
 
 [tool.coverage.report]
 show_missing = true
@@ -179,11 +183,8 @@ include = [
     "src/*",
 ]
 
-[tool.coverage.paths]
-source = [
-    "src/",
-    ".nox/**/site-packages/",
-]
+[tool.coverage.run]
+branch = true
 
 # * typecheck ---------------------------------------------------------------------
 

@@ -60,19 +60,6 @@ pylint.max-args = 15
 pylint.max-positional-args = 15
 pylint.max-public-methods = 30
 
-[lint.per-file-ignores]
-"docs/conf.py" = [
-    "ERA",    # - Some helpful commented out code in conf.py
-    "INP001", # - Namespace package fine for docs
-]
-"noxfile.py" = [
-    "RUF009", # - Allow `add_option` for DataClassParser
-]
-"tests/*.py" = [
-    "D",    # - Don't need to document tests
-    "S101", # - Assert is fine with tests
-]
-
 # Project specific ignores (avoid changing per-file-ignores directly)
 # extend-per-file-ignores."path/to/file.py" = [ ... ]
 [lint.extend-per-file-ignores]
@@ -90,4 +77,16 @@ pylint.max-public-methods = 30
 ]
 "tools/cog_utils.py" = [
     "D103",
+]
+[lint.per-file-ignores]
+"docs/conf.py" = [
+    "ERA",    # - Some helpful commented out code in conf.py
+    "INP001", # - Namespace package fine for docs
+]
+"noxfile.py" = [
+    "RUF009", # - Allow `add_option` for DataClassParser
+]
+"tests/*.py" = [
+    "D",    # - Don't need to document tests
+    "S101", # - Assert is fine with tests
 ]
