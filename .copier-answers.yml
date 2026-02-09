@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v0.6.0-3-g76080a0
+_src_path: https://github.com/usnistgov/cookiecutter-nist-python.git
+command_line_interface: typer
+conda_channel: wpk-nist
+email: wpk@nist.gov
+full_name: William P. Krekelberg
+github_username: usnistgov
+project_name: pyproject2conda
+project_short_description: A script to convert a Python project declared on a pyproject.toml to a conda environment.
+project_slug: pyproject2conda
+pypi_username: wpk-nist
+sphinx_theme: sphinx_book_theme
+sphinx_use_autodocsumm: true
+year: '2023'
