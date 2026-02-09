@@ -20,10 +20,6 @@ copier-template-extensions==0.3.3 \
     --hash=sha256:86bd5e2e89c94b6f9321e4078781b4456c5658b820bcae49ac60fd1e1dd23c10 \
     --hash=sha256:bf6bbdebada26132640d6e1128723fa1ff7eb59d008de07a7543c51e0facb0ea
     # via -r requirements/uvx-tools.txt
-cruft==2.16.0 \
-    --hash=sha256:184662853fbc1c16c0137fe0e9444e0cbe95e40362f5ebb2d9fae33d9223e73f \
-    --hash=sha256:96adb81f814300a9db0fca690eaa063547f5d3c25f486ac0a366cf8da5cdfb79
-    # via -r requirements/uvx-tools.txt
 grayskull==3.1.0 \
     --hash=sha256:625a60a7036eaedcc5e4e44ed68eec79aaade35f662729ec564b6120d2b3b7c5 \
     --hash=sha256:6ccbcc7455c08b68d95ed880fe486d87ad321ee483ccb375bfd8163c19a0fdfa

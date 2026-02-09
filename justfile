@@ -304,10 +304,6 @@ ipython *options:
 
 # update templates
 [group("tools")]
-cruft-update *options="--skip-apply-ask --checkout main":
-    {{ UVX_WITH_OPTS }} cruft update {{ options }}
-
-[group("tools")]
 copier-update *options="-r main --trust -A":
     {{ UVX_WITH_OPTS }} --with copier-template-extensions copier update {{ options }}
 
