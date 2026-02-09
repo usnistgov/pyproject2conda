@@ -925,7 +925,7 @@ def test_overwrite(filename, caplog) -> None:
         )
         orig_time = path.stat().st_mtime
 
-        assert f"Creating requirements {d_tmp}/out.txt" in caplog.text
+        assert f"Creating requirements {path}" in caplog.text
 
         for cmd in ("check", "skip", "force"):
             do_run(
