@@ -80,7 +80,7 @@ UV_LOCK = True
 PYTHON_ALL_VERSIONS = nox.project.python_versions(
     nox.project.load_toml("pyproject.toml"),
 )
-PYTHON_TEST_VERSIONS = PYTHON_ALL_VERSIONS
+PYTHON_TEST_VERSIONS = [*PYTHON_ALL_VERSIONS, "pypy-3.11"]
 PYTHON_DEFAULT_VERSION = Path(".python-version").read_text(encoding="utf-8").strip()
 
 UVX_LOCK_CONSTRAINTS = "requirements/lock/uvx-tools.txt"

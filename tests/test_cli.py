@@ -884,7 +884,7 @@ def test_overwrite(filename, caplog) -> None:
             catch_exceptions=False,
             filename=filename,
         )
-        assert f"Creating yaml {d_tmp}/out.yaml" in caplog.text
+        assert f"Creating yaml {path}" in caplog.text
 
         orig_time = path.stat().st_mtime
 
