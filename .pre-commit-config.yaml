@@ -73,6 +73,7 @@ repos:
     rev: v2.12.1
     hooks:
       - id: pyproject-fmt
+        files: ^pyproject\.toml$
   # ** validate
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25

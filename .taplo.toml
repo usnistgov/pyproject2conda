@@ -11,3 +11,11 @@ keys = [ "project" ]
 
 [rule.formatting]
 reorder_arrays = false
+
+
+[[rule]]
+include = [ "tests/data/*.toml" ]
+keys = [ "dependency-groups", "project", "tool.pyproject2conda" ]
+
+[rule.formatting]
+reorder_arrays = false

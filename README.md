@@ -169,11 +169,11 @@ test = [
 "pytest",
 ]
 dev-extras = [ "matplotlib" ]
-dev = [ "hello[dev-extras]", "hello[test]" ]
+dev = [ "hello[test]", "hello[dev-extras]" ]
 dist-pypi = [
 # this is intended to be parsed with --skip-package option
-"build",
 "setuptools",
+"build",
 ]
 
 [tool.pyproject2conda.dependencies]
@@ -404,11 +404,11 @@ test = [
 "pytest",
 ]
 dev-extras = [ "matplotlib" ]
-dev = [ "hello[dev-extras]", "hello[test]" ]
+dev = [ "hello[test]", "hello[dev-extras]" ]
 dist-pypi = [
 # this is intended to be parsed with --skip-package option
-"build",
 "setuptools",
+"build",
 ]
 
 # ...
@@ -476,11 +476,11 @@ dependencies:
 [dependency-groups]
 test = [ "pandas", "pytest" ]
 dev-extras = [ "matplotlib" ]
-dev = [ { include-group = "dev-extras" }, { include-group = "test" } ]
+dev = [ { include-group = "test" }, { include-group = "dev-extras" } ]
 dist-pypi = [
 # this is intended to be parsed with --skip-package option
-"build",
 "setuptools",
+"build",
 ]
 optional-opt1 = [ "hello[opt1]" ]
 optional-opt2 = [ "hello[opt2]" ]
@@ -617,7 +617,7 @@ user-config = "config/userconfig.toml"
 # [tool.pyproject2conda.envs.test]
 # extras-or-groups = "test"
 #
-default-envs = [ "dev", "dist-pypi", "test" ]
+default-envs = [ "test", "dev", "dist-pypi" ]
 
 [tool.pyproject2conda.envs.base]
 style = [ "requirements" ]
@@ -628,10 +628,10 @@ style = [ "requirements" ]
 # passing extras-or-groups = <env-name>
 [tool.pyproject2conda.envs."test-extras"]
 extras = [ "test" ]
-style = [ "requirements", "yaml" ]
+style = [ "yaml", "requirements" ]
 
 [[tool.pyproject2conda.overrides]]
-envs = [ "dist-pypi", 'test-extras' ]
+envs = [ 'test-extras', "dist-pypi" ]
 skip-package = true
 
 [[tool.pyproject2conda.overrides]]
@@ -658,8 +658,8 @@ installed. For example:
 # ...
 dist-pypi = [
 # this is intended to be parsed with --skip-package option
-"build",
 "setuptools",
+"build",
 ]
 
 [tool.pyproject2conda.dependencies]
@@ -745,7 +745,7 @@ user-config = "config/userconfig.toml"
 # [tool.pyproject2conda.envs.test]
 # extras-or-groups = "test"
 #
-default-envs = [ "dev", "dist-pypi", "test" ]
+default-envs = [ "test", "dev", "dist-pypi" ]
 
 [tool.pyproject2conda.envs.base]
 style = [ "requirements" ]
@@ -756,10 +756,10 @@ style = [ "requirements" ]
 # passing extras-or-groups = <env-name>
 [tool.pyproject2conda.envs."test-extras"]
 extras = [ "test" ]
-style = [ "requirements", "yaml" ]
+style = [ "yaml", "requirements" ]
 
 [[tool.pyproject2conda.overrides]]
-envs = [ "dist-pypi", 'test-extras' ]
+envs = [ 'test-extras', "dist-pypi" ]
 skip-package = true
 
 [[tool.pyproject2conda.overrides]]
@@ -783,10 +783,6 @@ athing
 bthing
 cthing; python_version < "3.10"
 # --------------------
-# Creating requirements test-extras.txt
-pandas
-pytest
-# --------------------
 # Creating yaml py310-test-extras.yaml
 channels:
   - conda-forge
@@ -803,25 +799,29 @@ dependencies:
   - conda-forge::pytest
   - pandas
 # --------------------
-# Creating yaml py310-dev.yaml
+# Creating requirements test-extras.txt
+pandas
+pytest
+# --------------------
+# Creating yaml py310-test.yaml
 channels:
   - conda-forge
 dependencies:
   - python=3.10
   - bthing-conda
   - conda-forge::pytest
-  - conda-matplotlib
   - pandas
   - pip
   - pip:
       - athing
 # --------------------
-# Creating yaml py310-dist-pypi.yaml
+# Creating yaml py311-test.yaml
 channels:
   - conda-forge
 dependencies:
-  - python=3.10
-  - setuptools
+  - python=3.11
+  - bthing-conda
+  - conda-forge::pytest
 
  ...
 ```
@@ -871,7 +871,7 @@ override those at the `tool.pyproject2conda` level. So, for example:
 # ...
 [tool.pyproject2conda.envs."test-extras"]
 extras = [ "test" ]
-style = [ "requirements", "yaml" ]
+style = [ "yaml", "requirements" ]
 
 # ...
 ```
