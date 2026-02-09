@@ -4,6 +4,7 @@ import "tools/shared.just"
 import? "tools/notebook.just"
 
 set unstable := true
+set shell := ["bash", "-c"]
 
 # * Defaults
 _default:
@@ -84,6 +85,13 @@ ruff: (lint "ruff")
 [group("lint")]
 cog: (lint-manual "cog" "--verbose")
 
+# update all supported additional dependencies
+[group("lint")]
+lint-upgrade:
+    just pre-commit autoupdate
+    uv run --no-project --script tools/requirements_lock.py --upgrade requirements/pre-commit-additional-dependencies.txt
+    just pre-commit run -v sync-pre-commit-deps -a
+
 # * User setup -----------------------------------------------------------------
 
 # Create .autoenv.zsh files
@@ -148,42 +156,43 @@ requirements *options: (_requirements "--sync-or-lock" options)
 
 # * Typecheck ---------------------------------------------------------------------
 
-TYPECHECK_UVRUN_OPTS := "--group=typecheck --no-dev"
+TYPECHECK_UVRUN_OPTS := "--only-group=typecheck"
 
-_typecheck checkers="mypy basedpyright" *check_options:
-    {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} {{ TYPECHECK }} {{ UVX_OPTS }} {{ prepend("-x ", checkers) }} -- {{ check_options }}
+_typecheck *check_options:
+    {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} {{ TYPECHECK }} {{ UVX_OPTS }} {{ check_options }}
 
 # Run mypy (with optional args)
 [group("typecheck")]
-mypy *options: (_typecheck "mypy" options)
+mypy *options: (_typecheck "-cmypy[faster-cache]" options)
 
 # Run pyright (with optional args)
 [group("typecheck")]
-pyright *options: (_typecheck "pyright" options)
+pyright *options: (_typecheck "-cpyright" options)
 
 # Run pyright (with watch and optional args)
 [group("typecheck")]
-pyright-watch *options: (pyright "-w" options)
+pyright-watch *options: (_typecheck "-c'pyright -w'" options)
 
 # Run basedpyright (with optional args)
 [group("typecheck")]
-basedpyright *options: (_typecheck "basedpyright" options)
+basedpyright *options: (_typecheck "-cbasedpyright" options)
 
 # Run basedpyright (with watch and optional args)
 [group("typecheck")]
-basedpyright-watch *options: (basedpyright "-w" options)
+basedpyright-watch *options: (_typecheck "-c'basedpyright -w'" options)
 
-# Run basedpyright (with --verifytypes <package> --ignoreexternal)
+# Run basedpyright (with --verifytypes <package>)
 [group("typecheck")]
-basedpyright-verifytypes *options=("src/" + IMPORT_NAME): (basedpyright "--verifytypes" options "--ignoreexternal")
+basedpyright-verifytypes:
+    {{ UVRUN }} --group=basedpyright --no-dev basedpyright --verifytypes {{ IMPORT_NAME }}
 
 # Run ty (NOTE: in alpha)
 [group("typecheck")]
-ty *options="src tests": (_typecheck "ty" options)
+ty *options: (_typecheck "-cty" options)
 
 # Run pyrefly (Note: in alpha)
 [group("typecheck")]
-pyrefly *options="src tests": (_typecheck "pyrefly" options)
+pyrefly *options: (_typecheck "-cpyrefly" options)
 
 # Run pylint (with optional args)
 [group("lint")]
@@ -193,14 +202,14 @@ pylint *options="src tests":
 
 # Run all checkers (with optional directories)
 [group("typecheck")]
-typecheck *options: (_typecheck "mypy basedpyright" options)
+typecheck *options: (_typecheck "-cmypy[faster-cache] -cbasedpyright -cpyrefly -cty" options)
 
 # Run checkers on tools
 [group("tools")]
 [group("typecheck")]
 @typecheck-tools *files="noxfile.py tools/*.py":
-    -just TYPECHECK_UVRUN_OPTS="--only-group=nox" mypy --strict {{ files }}
-    just TYPECHECK_UVRUN_OPTS="--only-group=nox" basedpyright {{ files }}
+    -just TYPECHECK_UVRUN_OPTS="--only-group=nox --only-group=typecheck-runner" mypy -- --strict {{ files }}
+    just TYPECHECK_UVRUN_OPTS="--only-group=nox --only-group=typecheck-runner" basedpyright -- {{ files }}
     just TYPECHECK_UVRUN_OPTS="--only-group=nox --only-group=pylint" pylint {{ files }}
 
 # ** typecheck all
@@ -297,6 +306,10 @@ ipython *options:
 [group("tools")]
 cruft-update *options="--skip-apply-ask --checkout main":
     {{ UVX_WITH_OPTS }} cruft update {{ options }}
+
+[group("tools")]
+copier-update *options="-r main --trust -A":
+    {{ UVX_WITH_OPTS }} --with copier-template-extensions copier update {{ options }}
 
 # create changelog snippet with scriv
 [group("tools")]

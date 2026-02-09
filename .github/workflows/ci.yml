@@ -1,0 +1,231 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "3"
+  UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
+  UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
+
+permissions: {}
+
+jobs:
+  build-package:
+    name: Build & verify package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: hynek/build-and-inspect-python-package@efb823f52190ad02594531168b7a2d5790e66516 # v2.14.0
+        id: baipp
+
+      - name: Set python version parameters
+        id: versions
+        shell: python
+        env:
+          python_classifiers:
+            ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+        run: |
+          import os
+          import json
+          from pathlib import Path
+
+          python_versions = json.loads(os.getenv("python_classifiers"))
+          default_python_version = Path(".python-version").read_text().strip()
+
+          # min max and default pythons
+          matrix_test_python = list({ python_versions[0], python_versions[-1], default_python_version, f"pypy-3.11" })
+
+          with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
+            f.write(f"{default_python_version=:s}\n")
+            f.write(f"matrix_test_python={json.dumps(matrix_test_python)}\n")
+
+    outputs:
+      supported-python-versions:
+        ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+      default-python-version:
+        ${{ steps.versions.outputs.default_python_version }}
+      matrix-test-python: ${{ steps.versions.outputs.matrix_test_python }}
+
+  lint:
+    # only run checks not covered by pre-commit.ci
+    name: Lint package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-cached-uv-and-python
+        with:
+          python-version-file: ".python-version"
+          cache-dependency-path: .pre-commit-config.yaml
+
+      # from https://github.com/j178/prek-action/blob/main/action.yaml
+      - name: Setup prek cache
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        with:
+          path: |
+            ~/.cache/prek
+            ~\AppData\Local\prek
+          key:
+            prek-v1|${{ runner.os }}|${{ runner.arch }}|${{ env.pythonLocation
+            }}|${{ hashFiles('./**/.pre-commit-config.yaml') }}
+      - name: Run prek
+        env:
+          SKIP: typecheck
+        run: >-
+          $UVX_COMMAND prek run --show-diff-on-failure --color=always
+          --all-files --hook-stage=manual -v
+
+  typecheck:
+    name: Typecheck package
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-cached-uv-and-python
+        with:
+          python-version-file: ".python-version"
+          cache-dependency-path: uv.lock
+      - name: Get python version
+        run: |
+          python_version=$(cat .python-version)
+          echo "python_version=${python_version}" >> "$GITHUB_ENV"
+        shell: bash
+      - name: typecheck
+        env:
+          python_version: ${{ env.python_version }}
+        run: $UVX_COMMAND nox -s typecheck-"$python_version"
+        shell: bash
+
+  test:
+    name: Test package across pythons
+    needs: build-package
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          ${{ fromJson(needs.build-package.outputs.matrix-test-python) }}
+        include:
+          - os: windows-latest
+            python-version:
+              ${{ needs.build-package.outputs.default-python-version }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: Packages
+          path: dist
+      - uses: ./.github/actions/setup-cached-uv-and-python
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache-dependency-path: uv.lock
+
+      - name: Test with nox
+        env:
+          python_version: ${{ matrix.python-version }}
+        run: >-
+          $UVX_COMMAND nox -s test-"$python_version" -- ++installpkg dist/*.whl
+        shell: bash
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}
+          path: .nox/test-*/tmp/.coverage*
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  coverage:
+    name: Combine coverage
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Download individual coverage reports
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: coverage-data-*
+          path: .nox
+          merge-multiple: true
+      - name: Display structure of downloaded files
+        run: ls -aR
+
+      - uses: ./.github/actions/setup-cached-uv-and-python
+        with:
+          python-version-file: ".python-version"
+          cache-dependency-path: requirements/lock/uvx-tools.txt
+      - name: Run coverage
+        run: |
+          $UVX_COMMAND nox -s coverage -- ++coverage combine html report markdown
+          cat coverage.md
+          cat coverage.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+      - name: Upload HTML report if check failed.
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: html-report
+          path: htmlcov
+        if: ${{ failure() }}
+
+  docs:
+    permissions:
+      contents: write
+    uses: ./.github/workflows/reusable-docs.yml
+
+  pinact:
+    name: Pin actions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Pin actions
+        uses: suzuki-shunsuke/pinact-action@3d49c6412901042473ffa78becddab1aea46bbea # v1.3.1
+        with:
+          skip_push: "true"
+
+  # Ensure everything required is passing for branch protection.
+  required-checks-pass:
+    if: always()
+    needs:
+      - lint
+      - typecheck
+      - test
+      - coverage
+      - pinact
+      - docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          jobs: ${{ toJSON(needs) }}

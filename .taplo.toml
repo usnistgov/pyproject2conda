@@ -1,0 +1,13 @@
+[formatting]
+array_auto_collapse = false
+indent_string = "    "
+compact_arrays = false
+column_width = 120
+reorder_arrays = true
+
+[[rule]]
+include = [ "**/pyproject.toml" ]
+keys = [ "project" ]
+
+[rule.formatting]
+reorder_arrays = false

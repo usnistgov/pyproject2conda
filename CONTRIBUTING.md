@@ -74,33 +74,13 @@ Ready to contribute? Here's how to make a contribution.
   git submodule update --init --recursive
   ```
 
-- Create development environment. See [](#setup-development-environment) for
-  details.
-
-- Initiate [pre-commit] with:
+- Optionally install [pre-commit] hooks with
 
   ```bash
-  pre-commit install
+  just pre-commit install
   ```
 
-  Note that this is strictly optional. You can always use
-  `pre-commit run --all-files` without installing the pre-commit hooks.
-
-  To update the recipe, periodically run:
-
-  ```bash
-  pre-commit autoupdate
-  ```
-
-  If recipes change over time, you can clean up old installs with:
-
-  ```bash
-  pre-commit gc
-  ```
-
-  You can instead use [prek] (replacing all above `pre-commit` commands with
-  `prek` commands) which is written in rust, and faster than [pre-commit], but
-  is still under development.
+  You can instead use [prek].
 
 - Create a branch for local development:
 
@@ -108,32 +88,29 @@ Ready to contribute? Here's how to make a contribution.
   git checkout -b name-of-your-bugfix-or-feature
   ```
 
-  Now you can make your changes locally. Alternatively, we recommend using
-  [git-flow].
-
 - When you're done making changes, check that your changes pass the pre-commit
   checks: tests.
 
   ```bash
-  pre-commit run [--all-files]
+  just pre-commit run [--all-files]
   ```
 
   To run tests, use:
 
   ```bash
-  pytest
+  just test
   ```
 
   To test against multiple python versions, use [nox]:
 
   ```bash
-  nox -s test
+  just test-all
   ```
 
 - Create changelog fragment. See [scriv] for more info.
 
   ```bash
-  scriv create --edit
+  just scriv-create --edit
   ```
 
 - Commit your changes and push your branch to GitHub:
@@ -166,63 +143,20 @@ Before you submit a pull request, check that it meets these guidelines:
 
 <!-- start-tutorial -->
 
-## Using [pre-commit]
+## Using [just] as task runner
 
-It is highly recommended to enable [pre-commit] or [prek]. See
-[](#setup-development-environment) for installation instructions. To install the
-pre-commit hooks, run:
-
-```bash
-pre-commit install
-```
-
-This will enable a variety of code-checkers (linters) when you add a file to
-commit. Alternatively, you can run the hooks over all files using:
+The project includes a `justfile` to be invoked using [just] to simplify common
+tasks. Run `just` with no options to see available commands. Just can be
+installed using:
 
 ```bash
-pre-commit run --all-files
-```
-
-You can also run [pre-commit] on all files via nox using:
-
-```bash
-nox -s lint
+uv tool install rust-just
 ```
 
 ## Using nox
 
 This project makes extensive use of [nox] to automate testing, type checking,
-documentation creation, etc. One downside of using [tox] with this particular
-workflow is the need for multiple scripts, while with [nox], most everything is
-self contained in the file `noxfile.py`. [nox] also allows for a mix of [conda]
-and [virtualenv] environments.
-
-### Installing interpreters for virtualenv creation
-
-If using virtualenvs across multiple python versions (e.g., `test`, `typecheck`,
-etc), you'll need to install python interpreters for each version. If using
-[pyenv], you should be good to go.
-
-Instead of using [pyenv], I use [uv] to manage python versions. For example:
-
-```bash
-uv python install python3.12
-```
-
-I also set the global [uv] config file (`~/.config/uv/uv.toml` on mac and linux)
-to use only managed python:
-
-```toml
-python-preference = "only-managed"
-
-```
-
-[nox] is setup to automatically work with [uv]. Note that the python interpreter
-may need to be installed before it can be used with [nox]
-
-### Nox session options
-
-To see all nox session, run:
+documentation creation, etc. To see all nox session, run:
 
 ```bash
 nox --list
@@ -250,30 +184,17 @@ open the documentation, run:
 nox -s docs -- +d build open
 ```
 
-### Creating environment.yaml/requirement.txt files
+### Update/lock/sync requirements
 
 The project is setup to create `environment.yaml` and `requirement.txt` files
 from `pyproject.toml`. This can be done using:
 
 ```bash
-just requirements
+just lock/sync
 ```
 
-This uses [pyproject2conda] to create the requirement files. Note that all
-requirement files are under something like
-`requirements/py{version}-{env-name}.yaml` (conda environment) or
-`requirements/{env-name}.txt` (virtual environment).
-
-Additionally, requirement files for virtualenvs (e.g., `requirements.txt` like
-files) will be "locked" using `uv pip compile` from [uv]. These files are placed
-under `requirements/lock`. This uses the script `tools/requirements_lock.py`.
-The `uv.lock` file will also be updated. To upgrade locked requirements pass
-option `--upgrade/-U`.
-
-## Using [just] as task runner
-
-The project includes a `justfile` to be invoked using [just] to simplify common
-tasks. Run `just` with no options to see available commands.
+This runs `uv lock` and update requirements files. Pass `-upgrade/-U` to upgrade
+requirements.
 
 ## ipykernel
 
@@ -287,231 +208,10 @@ point to a removed environment), You can use the script
 python tools/clean_kernelspec.py
 ```
 
-## Building the docs
-
-We use [nox] to isolate the documentation build. Specific tasks can be run with
-
-```bash
-nox -s docs -- +d [commands]
-```
-
-where commands can be one of:
-
-- clean : remove old doc build
-- build/html : build html documentation
-- spelling : check spelling
-- linkcheck : check the links
-- release : make pages branch for documentation hosting (using
-  [ghp-import](https://github.com/c-w/ghp-import))
-- livehtml : Live documentation updates
-- open : open the documentation in a web browser
-- serve : Serve the created documentation webpage (Need this to view javascript
-  in created pages).
-
-## Testing with nox
-
-The basic command is:
-
-```bash
-nox -s test -- [++test-opts] [++no-cov]
-```
-
-where you can pass in additional pytest options via `++test-opts`. For example:
-
-```bash
-nox -s test -- ++test-opts -x -v
-```
-
-Use session `test-conda` to test under a conda environment.
-
-Note that by default, these will install an isolated copy of the package, as
-apposed to installing with `pip install -e . --no-deps`. This is similar to how
-[tox] works. This uses the nox session `build` behind the scenes. This should
-therefore be a fast operation.
-
-## Building distribution for conda
-
-[grayskull]: https://github.com/conda/grayskull
-
-For the most part, we use [grayskull] to create the conda recipe. However, I've
-had issues getting it to play nice with `pyproject.toml` for some of the 'extra'
-variables. So, we use grayskull to build the majority of the recipe, and append
-the file `config/recipe-append.yaml`. For some edge cases (install name
-different from package name, etc), you'll need to manually edit this file to
-create the final recipe.
-
-To build the conda recipe using [grayskull]:
-
-```bash
-nox -s conda-recipe -- ++conda-recipe [recipe, recipe-full]
-```
-
-To build the conda distribution:
-
-```bash
-nox -s conda-build -- ++conda-build [build,clean]
-```
-
-To upload the recipe, you'll need to run an external command like:
-
-```bash
-nox -s conda-build -- ++conda-build-run "anaconda upload PATH-TO-TARBALL"
-```
-
-## Building distribution for pypi
-
-Set the package version by editing `project.version` in `pyproject.toml` (or use
-`uv version --bump`). To build the package, use:
-
-```bash
-just build
-```
-
-To upload the pypi distribution:
-
-```bash
-just publish/uv-publish
-```
-
-You should first run a test with:
-
-```bash
-just publish-test/uv-publish-test
-```
-
-- test : upload to testpypi
-- release : upload to pypi
-
-## Testing pypi or conda installs
-
-Run:
-
-```bash
-nox -s testdist-pypi-{python-version} -- ++version [version]
-```
-
-to test a specific version from pypi and
-
-```bash
-nox -s testdist-conda-{python-version} -- ++version [version]
-```
-
-to do likewise from conda.
-
-## Testing notebooks with [nbval]
-
-To test notebooks expected output using [nbval], run
-
-```bash
-nox -s test-notebook
-```
-
-## Type checking
-
-Run:
-
-```bash
-nox -s typecheck -- +m [commands] [options]
-```
-
-Note that the repo is setup to use a single install of [mypy] and [pyright]. The
-script `tools/typecheck.py` will run the checkers via [uvx] and point the
-checker to the appropriate python executable.
-
-## Setup development environment
-
-This project uses a host of tools to (hopefully) make development easier. We
-recommend installing some of these tools system wide. For this, we recommend
-using [uv] (or [pipx] or [condax]). We mostly use [uv], but the choice is yours.
-For conda, we recommend actually using [mamba]. Alternatively, you can setup
-`conda` to use the faster `mamba` solver. [See here][conda-fast-setup] for
-details.
-
-### Create development environment with conda
-
-To install a development environment using [conda]/[mamba] run:
-
-```bash
-conda env create -n {env-name} -f requirements/py{version}-dev.yaml
-conda activate {env-name}
-pip install -e . --no-deps
-```
-
-### Create development environment with uv/pip
-
-The easiest way to create an development environment, if using `uv.lock`
-mechanism is:
-
-```bash
-uv sync
-```
-
-If the project does not use `uv.lock`, or you don't want to use uv to manage
-your environment, then use one of the following:
-
-```bash
-# using venv
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements/lock/py{version}-dev.txt
-python -m pip install -e . --no-deps
-# using uv
-uv venv --python 3.11 .venv
-uv pip sync requirements/lock/py{version}-dev.txt
-```
-
-Note that if the project is setup to use `uv.lock` but you'd like to use one of
-the above, you may have to run something like:
-
-```bash
-uv export --dev > requirements.txt
-```
-
-and use this requirement file in the commands above.
-
-If the project includes an ipython kernel, you can install it with:
-
-```bash
-just install-kernel
-```
-
-Alternatively, you can simply use:
-
-```bash
-nox -s dev
-```
-
-which will create a virtual environment under `.venv`. If you go this route, you
-may want to use something like
-[zsh-autoenv](https://github.com/Tarrasch/zsh-autoenv) (if using zsh shell) or
-[autoenv](https://github.com/hyperupcall/autoenv) (if using bash) to auto
-activate the development environment when in the parent directory.
-
 ### Development tools
 
 The only required tool is [uv], but it highly recommended to also install
-[just]. Other tools used are:
-
-- [pre-commit]
-- [just]
-- [scriv]
-- [pyright]
-- [cruft]
-- [commitizen]
-
-which can be installed using:
-
-```bash
-uv tool install pre-commit
-```
-
-Note that the repo is setup to automatically use [uvx] for many of these tools.
-Behind the scenes, the `justfile` and `noxfile.py` will invoke [uvx] with
-constraints from `requirements/lock/uvx-tools.txt`. This will run the tool with
-with the proper version. Note that if the tool is already installed with the
-proper version, [uvx] will use it. This prevents having to install a bunch of
-tooling in the "dev" environment, and also avoid creating a bunch of throw away
-[nox] environments.
+[just].
 
 ## Package version
 
@@ -519,26 +219,10 @@ Versioning is handled by the `project.version` variable in `pyproject.toml`. Use
 `uv version --bump` to update the package version.
 
 [commitizen]: https://github.com/commitizen-tools/commitizen
-[conda-fast-setup]:
-  https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community
-[conda]: https://docs.conda.io/en/latest/
-[condax]: https://github.com/mariusvniekerk/condax
 [conventional-style]: https://www.conventionalcommits.org/en/v1.0.0/
-[cruft]: https://github.com/cruft/cruft
-[git-flow]: https://github.com/nvie/gitflow
 [just]: https://github.com/casey/just
-[mamba]: https://github.com/mamba-org/mamba
-[mypy]: https://github.com/python/mypy
-[nbval]: https://github.com/computationalmodelling/nbval
 [nox]: https://github.com/wntrblm/nox
-[pipx]: https://github.com/pypa/pipx
 [pre-commit]: https://pre-commit.com/
 [prek]: https://github.com/j178/prek
-[pyenv]: https://github.com/pyenv/pyenv
-[pyproject2conda]: https://github.com/wpk-nist-gov/pyproject2conda
-[pyright]: https://github.com/microsoft/pyright
 [scriv]: https://github.com/nedbat/scriv
-[tox]: https://tox.wiki/en/latest/
 [uv]: https://github.com/astral-sh/uv
-[uvx]: https://docs.astral.sh/uv/guides/tools/
-[virtualenv]: https://virtualenv.pypa.io/en/latest/

@@ -44,7 +44,7 @@ envs/
 .coverage.*
 .cache
 nosetests.xml
-coverage.xml
+coverage.*
 *.cover
 .hypothesis/
 .pytest_cache/
@@ -107,6 +107,9 @@ ENV/
 
 # ruff
 .ruff_cache
+
+# prettier
+.prettier_cache
 
 # PDF output
 README.pdf

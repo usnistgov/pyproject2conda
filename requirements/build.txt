@@ -7,13 +7,4 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-name: py312-test-extras
-channels:
-  - conda-forge
-dependencies:
-  - python=3.12
-  - pytest
-  - pytest-cov
-  - pytest-sugar
-  - pytest-xdist
-  - pip
+uv-build<0.10.0,>=0.8.22

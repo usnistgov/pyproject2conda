@@ -21,9 +21,9 @@ def _remove_html_tag(path: Path) -> Iterator[str]:
                 yield line
 
 
-def _main() -> None:
+def _main() -> int:
     parser = ArgumentParser()
-    parser.add_argument("changelog", type=Path)
+    _ = parser.add_argument("changelog", type=Path)
 
     options = parser.parse_args()
 
@@ -34,8 +34,8 @@ def _main() -> None:
     with path.open("w") as f:
         f.writelines(out)
 
+    return 0
+
 
 if __name__ == "__main__":
-    import sys
-
-    sys.exit(_main())
+    raise SystemExit(_main())

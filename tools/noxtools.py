@@ -159,7 +159,7 @@ def open_webpage(path: str | Path | None = None, url: str | None = None) -> None
     if path:
         url = "file://" + pathname2url(str(Path(path).absolute()))
     if url:
-        webbrowser.open(url)
+        _ = webbrowser.open(url)
 
 
 def session_run_commands(
@@ -172,7 +172,7 @@ def session_run_commands(
     if commands:
         kws.update(external=external)
         for opt in combine_list_list_str(commands):
-            session.run(*opt, **kws)
+            _ = session.run(*opt, **kws)
 
 
 # * Caching -------------------------------------------------------------------
@@ -290,7 +290,7 @@ def write_hashes(hash_path: str | Path, hashes: dict[str, Any]) -> None:
 
     with Path(hash_path).open("w", encoding=locale.getpreferredencoding(False)) as f:
         json.dump(hashes, f, indent=2)
-        f.write("\n")
+        _ = f.write("\n")
 
 
 def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
