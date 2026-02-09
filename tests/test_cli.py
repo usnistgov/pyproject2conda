@@ -907,7 +907,7 @@ def test_overwrite(filename, caplog) -> None:
                 assert path.stat().st_mtime == orig_time
 
             assert (
-                f"Skipping yaml {d_tmp}/out.yaml. Pass `-w force` to force recreate output"
+                f"Skipping yaml {path}. Pass `-w force` to force recreate output"
                 in caplog.text
             )
 
@@ -945,7 +945,7 @@ def test_overwrite(filename, caplog) -> None:
             else:
                 assert path.stat().st_mtime == orig_time
             assert (
-                f"Skipping requirements {d_tmp}/out.txt. Pass `-w force` to force recreate output"
+                f"Skipping requirements {path}. Pass `-w force` to force recreate output"
                 in caplog.text
             )
 
