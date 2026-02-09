@@ -12,9 +12,9 @@ defining-attr-methods = [
     "__init__",
     "__new__",
     "__post_init__",
-    "setUp",
-    "reset",
     "_reset",
+    "reset",
+    "setUp",
 ]
 
 [tool.pylint.design]
@@ -38,12 +38,12 @@ enable = [
 disable = [
     # defer to ruff
     "line-too-long",
-    "missing-module-docstring",
     "missing-function-docstring",
-    "redefined-outer-name",
-    "unused-argument",
-    "too-complex",
+    "missing-module-docstring",
     "missing-param-doc",
+    "redefined-outer-name",
+    "too-complex",
+    "unused-argument",
     # Silly
     "docstring-first-line-empty",
     "magic-value-comparison",
@@ -55,10 +55,10 @@ disable = [
     "superfluous-parens",
     "too-many-lines",
     # Messages that are noisy for now, eventually maybe we'll turn them on:
-    "invalid-name",
-    # "protected-access",
-    "unspecified-encoding",
     "consider-using-f-string",
+    "invalid-name",
+    "unspecified-encoding",
+    # "protected-access",
     # "duplicate-code",
     # "cyclic-import",
 ]

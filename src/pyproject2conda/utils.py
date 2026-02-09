@@ -12,11 +12,13 @@ from typing import TYPE_CHECKING
 
 from packaging.version import Version
 
+from ._typing_compat import override
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, Sequence
-    from typing import Any
+    from typing import Any, TypeVar
 
-    from ._typing import T
+    T = TypeVar("T")
 
 
 # taken from https://github.com/python-attrs/attrs/blob/main/src/attr/_make.py
@@ -33,6 +35,7 @@ class _Missing(enum.Enum):
 
     MISSING = enum.auto()
 
+    @override
     def __repr__(self) -> str:
         return "MISSING"  # pragma: no cover
 
@@ -63,8 +66,8 @@ def get_in(
     from functools import reduce
 
     try:
-        return reduce(  # pyrefly: ignore[no-matching-overload] # ty: ignore[no-matching-overload]
-            operator.getitem,  # pyrefly: ignore[bad-argument-type]  # ty: ignore[invalid-argument-type]
+        return reduce(  # pyrefly: ignore[no-matching-overload]
+            operator.getitem,  # pyrefly: ignore[bad-argument-type]
             keys,
             nested_dict,
         )
@@ -118,12 +121,12 @@ def get_all_pythons(
 
 def get_lowest_version(versions: Iterable[str]) -> str:
     """Get lowest version"""
-    return min(versions, key=Version)  # ty: ignore[no-matching-overload]
+    return min(versions, key=Version)
 
 
 def get_highest_version(versions: Iterable[str]) -> str:
     """Get highest version"""
-    return max(versions, key=Version)  # ty: ignore[no-matching-overload]
+    return max(versions, key=Version)
 
 
 def select_pythons(

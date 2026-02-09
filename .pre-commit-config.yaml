@@ -13,21 +13,6 @@ default_install_hook_types:
   - pre-commit
   - commit-msg
 repos:
-  # * Top level
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
-      - id: check-added-large-files
-        exclude: ^uv[.]lock
-      - id: check-case-conflict
-      - id: check-merge-conflict
-      # - id: check-symlinks
-      - id: check-yaml
-      - id: check-json
-      - id: check-toml
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: mixed-line-ending
   # * meta hooks
   - repo: meta
     hooks:
@@ -36,19 +21,62 @@ repos:
       - id: check-useless-excludes
         stages: [manual]
 
-  # * pyproject.toml
+  # * sync dependencies
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.3.0
+    hooks:
+      - id: sync-pre-commit-deps
+        args:
+          - "--requirements=requirements/lock/pre-commit-additional-dependencies.txt"
+        files: >-
+          ^\.pre-commit-config\.yaml$|^requirements/lock/pre-commit-additional-dependencies\.txt$
+      - id: sync-uv-dependency-groups
+      - id: justfile-format
+        additional_dependencies:
+          - rust-just==1.46.0
+
+  # * Forbidden files
+  - repo: local
+    hooks:
+      - id: forbidden-files
+        name: forbidden files
+        entry: Found forbidden file.
+        language: fail
+        files: \.(rej|bak)$
+
+  # * Top level
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        exclude: ^uv[.]lock
+      - id: check-case-conflict
+      - id: check-merge-conflict
+        args: [--assume-in-merge]
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+
+  # * toml/pyproject.toml
   # ** format
+  - repo: https://github.com/ComPWA/taplo-pre-commit
+    rev: v0.9.3
+    hooks:
+      - id: taplo-format
+        # exclude: (^|/)pyproject\.toml$
+      - id: taplo-lint
+        args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.11.1
+    rev: v2.12.1
     hooks:
       - id: pyproject-fmt
-        args: [--indent=4, --keep-full-version]
-        files: ""
-        types: [toml]
-        exclude: ^tests/data
+        files: ^pyproject\.toml$
   # ** validate
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: v0.25
     hooks:
       - id: validate-pyproject
   # ** validate (schema-store)
@@ -72,6 +100,9 @@ repos:
       - id: prettier
         alias: markdownlint
         stages: [pre-commit, manual]
+        args:
+          - "--cache"
+          - "--cache-location=.prettier_cache/cache"
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
@@ -84,43 +115,38 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
+    rev: v0.15.0
     hooks:
       - id: ruff-check
         alias: ruff
-        types_or: &ruff-types-or [python, pyi, jupyter]
         args: [--fix, --show-fixes]
       - id: ruff-format
         alias: ruff
-        types_or: *ruff-types-or
-  # To be replace by ruff analog when I find one ...
-  - repo: https://github.com/adamchainz/blacken-docs
-    rev: 1.20.0
+  - repo: https://github.com/adamtheturtle/doccmd-pre-commit
+    rev: v2026.1.31.3
     hooks:
-      - id: blacken-docs
+      - id: doccmd
+        name: "ruff format markdown"
+        alias: ruff
+        args:
+          - "--language"
+          - "python"
+          - "--no-pad-file"
+          - "--command"
+          - "ruff format"
         additional_dependencies:
-          - black==25.9.0
+          - ruff==0.15.0
 
   # * Spelling
   # ** typos
   # Revert to crate-ci/typos if https://github.com/crate-ci/typos/issues/390 is fixed.
   # - repo: https://github.com/crate-ci/typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.42.1
+    rev: v1.43.2
     hooks:
       - id: typos
         exclude_types: [jupyter]
         exclude: ^uv[.]lock$|^requirements
-  # ** codespell
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
-    hooks:
-      - id: codespell
-        additional_dependencies: [tomli]
-        args: [-I, docs/spelling_wordlist.txt]
-        exclude_types: [jupyter]
-        exclude: ^uv[.]lock$|^requirements
-        stages: [manual]
 
   # * Dependencies
   # ** pyproject2conda
@@ -129,9 +155,11 @@ repos:
     hooks:
       - id: pyproject2conda-project
         alias: requirements
+        args:
+          - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.26
+    rev: 0.10.0
     hooks:
       - id: uv-lock
         alias: requirements
@@ -144,30 +172,10 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.12.1
+    rev: v4.13.5
     hooks:
       - id: commitizen
         stages: [commit-msg]
-
-  # * Justfile
-  - repo: local
-    hooks:
-      - id: just-fmt
-        name: just-fmt
-        entry:
-          bash -c 'for x in "$@"; do just --fmt --unstable --justfile "$x";
-          done' --
-        language: system
-        files: \.?[jJ]ustfile|.*\.just$
-        stages: [manual]
-
-  # * Cruft
-  - repo: https://github.com/cruft/cruft.git
-    rev: 2.16.0
-    hooks:
-      - id: cruft
-        args: [--checkout, main]
-        stages: [manual]
 
   # * Cog
   - repo: local
@@ -181,3 +189,38 @@ repos:
         language: python
         pass_filenames: false
         stages: [manual]
+
+  # * Actions
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.36.1
+    hooks:
+      - id: check-github-workflows
+        alias: actions
+        priority: 0
+      - id: check-github-actions
+        alias: actions
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.10
+    hooks:
+      - id: actionlint
+        alias: actions
+        stages: [manual]
+        args:
+          - "-ignore=SC2129" # ignorable stylistic lint from shellcheck
+          - "-ignore=SC2016" # another shellcheck lint: seems to have false positives?
+        language: golang # means renovate will also update `additional_dependencies`
+        additional_dependencies:
+          # actionlint has a shellcheck integration which extracts shell scripts in `run:` steps from GitHub Actions
+          # and checks these with shellcheck. This is arguably its most useful feature,
+          # but the integration only works if shellcheck is installed
+          - "github.com/wasilibs/go-shellcheck/cmd/shellcheck@v0.11.1"
+        # see https://github.com/rhysd/actionlint/issues/46
+        exclude: ^\.github/actions
+        priority: 0
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    # Zizmor version.
+    rev: v1.22.0
+    hooks:
+      # Run the linter.
+      - id: zizmor
+        alias: actions

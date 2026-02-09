@@ -1,0 +1,43 @@
+name: Setup cached uv and python
+description:
+  Composite action to do 'actions/setup-python' and 'hynek/setup-cached-uv'
+inputs:
+  # actions/setup-python
+
+  python-version:
+    description: "Version to pass to actions/setup-python"
+  python-version-file:
+    description: "File to pass to actions/setup-python"
+  # hynek/setup-cached-uv
+  cache-dependency-path:
+    description: "Passed to hynek/setup-cached-uv"
+    required: false
+    default: "pyproject.toml"
+
+outputs:
+  python-version:
+    description:
+      "The installed Python or PyPy version. Useful when given a version range
+      as input."
+    value: ${{ steps.setup-python.outputs.python-version }}
+  cache-hit:
+    description: "A boolean value to indicate a cache entry was found"
+    value: ${{ steps.setup-python.outputs.cache-hit }}
+  python-path:
+    description: "The absolute path to the Python or PyPy executable."
+    value: ${{ steps.setup-python.outputs.pytyhon-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup python
+      id: setup-python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      with:
+        python-version: ${{ inputs.python-version }}
+        python-version-file: ${{ inputs.python-version-file }}
+    - name: Setup cached uv
+      id: setup-cached-uv
+      uses: hynek/setup-cached-uv@757bedc3f972eb7227a1aa657651f15a8527c817 # v2.3.0
+      with:
+        cache-dependency-path: ${{ inputs.cache-dependency-path }}

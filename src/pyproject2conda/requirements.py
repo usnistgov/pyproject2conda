@@ -102,15 +102,15 @@ def _update_requirement(  # noqa: C901
     specifier: str | SpecifierSet | MISSING_TYPE | None = MISSING,
     marker: str | Marker | MISSING_TYPE | None = MISSING,
 ) -> Requirement:  # pragma: no cover
-    requirement = (
+    req = (
         Requirement(requirement) if isinstance(requirement, str) else copy(requirement)
     )
 
     if name is not MISSING:
-        requirement.name = name
+        req.name = name
 
     if url is not MISSING:
-        requirement.url = url
+        req.url = url
 
     if extras is not MISSING:
         if extras is None:
@@ -119,22 +119,22 @@ def _update_requirement(  # noqa: C901
             extras = {extras}
         else:
             extras = set(extras)
-        requirement.extras = extras
+        req.extras = extras
 
     if specifier is not MISSING:
         if specifier is None:
             specifier = SpecifierSet()
         elif isinstance(specifier, str):
             specifier = SpecifierSet(specifier)
-        requirement.specifier = specifier
+        req.specifier = specifier
 
     if marker is not MISSING:
         if isinstance(marker, str):
             marker = Marker(marker)
 
-        requirement.marker = marker
+        req.marker = marker
 
-    return requirement
+    return req
 
 
 # ** Dependencices
@@ -275,7 +275,7 @@ def _optional_write(
     path = Path(output)
 
     with path.open(mode) as f:
-        f.write(string)
+        _ = f.write(string)
 
 
 # * Main class
@@ -364,6 +364,7 @@ class ParseDepends:
         """
         if out := self.get_in("tool", "pyproject2conda", "dependencies", factory=dict):
             out = {k: OverrideDeps(**v) for k, v in out.items()}
+        # pyrefly: ignore [unbound-name]
         return cast("dict[str, OverrideDeps]", out)
 
     @cached_property
@@ -547,7 +548,7 @@ class ParseDepends:
 
         if pip_deps:
             pip_deps = [pip_deps] if isinstance(pip_deps, str) else list(pip_deps)
-            out.extend(_clean_pip_reqs(pip_deps))
+            out.extend(_clean_pip_reqs(pip_deps))  # ty: ignore[invalid-argument-type]
 
         return self._cleanup(
             out, remove_whitespace=remove_whitespace, unique=unique, sort=sort

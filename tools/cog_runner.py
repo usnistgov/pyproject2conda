@@ -55,7 +55,7 @@ def _run_cog(
 
     from subprocess import check_call
 
-    check_call(command, env=env)
+    _ = check_call(command, env=env)
 
 
 def _run_linters(
@@ -70,7 +70,7 @@ def _run_linters(
         command = [
             "uvx",
             *([f"--constraints={constraints}"] if constraints else []),
-            "pre-commit",
+            "prek",
             "run",
             linter,
             "--files",
@@ -78,42 +78,42 @@ def _run_linters(
         ]
 
         logger.info(shlex.join(command))
-        run(command, check=check)
+        _ = run(command, check=check)
 
 
 def main(args: Sequence[str] | None = None) -> int:
     """Main script."""
     parser = ArgumentParser(description="run cog and linters")
-    parser.add_argument(
+    _ = parser.add_argument(
         "--use-uvx",
         action="store_true",
         help="use uvx instead of uv run",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--lint",
         dest="linters",
         action="append",
         default=[],
         help="linters (if fail, command fails)",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--format",
         dest="formatters",
         action="append",
         default=[],
         help="formatters (if fail, command does not fail)",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--constraints",
         default="requirements/uvx-tools.txt",
         help="Constraints used with ``uv run``. Pass '' for no constraints",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--constraints-locked",
         default="requirements/lock/uvx-tools.txt",
         help="Constraints used with ``uvx cog``. Pass '' for no constraints",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "files",
         nargs="+",
     )
@@ -132,7 +132,7 @@ def main(args: Sequence[str] | None = None) -> int:
         files=opts.files,
         extras=extras,
         use_uvx=opts.use_uvx,
-        env={"COLUMNS": "90"},
+        env={"COLUMNS": "90", "NO_COLOR": "1"},
         constraints=opts.constraints,
         constraints_locked=opts.constraints_locked,
     )
@@ -155,6 +155,4 @@ def main(args: Sequence[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    import sys
-
-    sys.exit(main())
+    raise SystemExit(main())

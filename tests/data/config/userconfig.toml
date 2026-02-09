@@ -1,5 +1,5 @@
 [tool.pyproject2conda.envs."user-dev"]
-extras-or-groups = ["dev", "dist-pypi"]
-deps = ["extra-dep"]
-reqs = ["extra-req"]
+extras-or-groups = [ "dev", "dist-pypi" ]
+deps = [ "extra-dep" ]
+reqs = [ "extra-req" ]
 name = "hello"

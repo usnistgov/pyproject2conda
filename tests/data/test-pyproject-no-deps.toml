@@ -3,44 +3,44 @@ name = "hello"
 requires-python = ">=3.8,<3.11"
 
 [project.optional-dependencies]
-test = ["pandas", "pytest"]
-dev-extras = ["matplotlib"]
-dev = ["hello[test]", "hello[dev-extras]"]
-dist-pypi = ["setuptools", "build"]
+test = [ "pandas", "pytest" ]
+dev-extras = [ "matplotlib" ]
+dev = [ "hello[test]", "hello[dev-extras]" ]
+dist-pypi = [ "setuptools", "build" ]
 
 [tool.pyproject2conda]
-channels = ['conda-forge']
+channels = [ 'conda-forge' ]
 # these are the same as the default values of `p2c project`
 template-python = "py{py}-{env}"
 template = "{env}"
 style = "yaml"
 # options
-python = ["3.10"]
+python = [ "3.10" ]
 # Note that this is relative to the location of pyproject.toml
 user-config = "config/userconfig.toml"
-default-envs = ["test", "dev", "dist-pypi"]
+default-envs = [ "test", "dev", "dist-pypi" ]
 
 [tool.pyproject2conda.dependencies]
 pytest = { channel = "conda-forge" }
 matplotlib = { skip = true, packages = [
     "additional-tying; python_version < '3.9'",
-    "conda-matplotlib"
+    "conda-matplotlib",
 ] }
 build = { pip = true }
 
 [tool.pyproject2conda.envs.base]
-extras = []
+extras = [  ]
 style = "yaml"
-python = []
+python = [  ]
 
 [tool.pyproject2conda.envs."test-extras"]
-extras = ["test"]
-style = ["yaml", "requirements"]
+extras = [ "test" ]
+style = [ "yaml", "requirements" ]
 
 [[tool.pyproject2conda.overrides]]
-envs = ['test-extras', "dist-pypi"]
+envs = [ 'test-extras', "dist-pypi" ]
 skip-package = true
 
 [[tool.pyproject2conda.overrides]]
-envs = ["test", "test-extras"]
-python = ["3.10", "3.11"]
+envs = [ "test", "test-extras" ]
+python = [ "3.10", "3.11" ]

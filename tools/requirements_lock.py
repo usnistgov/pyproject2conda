@@ -22,6 +22,15 @@ if sys.version_info < (3, 11):
     raise RuntimeError(msg)
 
 
+USE_PYTHON_MIN_VERSION = [
+    "test.txt",
+    "test-extras.txt",
+    "typecheck.txt",
+    "uvx-tools.txt",
+]
+USE_NO_DEPS = ["uvx-tools.txt", "pre-commit-additional-dependencies.txt"]
+
+
 def _get_min_python_version() -> str:
     with Path("pyproject.toml").open("rb") as f:
         import tomllib
@@ -47,8 +56,7 @@ def _lock_files(
     for path in paths:
         python_version = (
             min_python_version
-            if path.name
-            in {"test.txt", "test-extras.txt", "typecheck.txt", "uvx-tools.txt"}
+            if path.name in USE_PYTHON_MIN_VERSION
             else default_python_version
         )
 
@@ -66,11 +74,7 @@ def _lock_files(
             ),
             "-q",
             # don't include dependencies for uvx-tools
-            *(
-                ["--no-deps", "--no-strip-extras"]
-                if path.name == "uvx-tools.txt"
-                else []
-            ),
+            *(["--no-deps", "--no-strip-extras"] if path.name in USE_NO_DEPS else []),
             "--python-version",
             python_version,
             *(["--upgrade"] if upgrade else []),
@@ -80,7 +84,7 @@ def _lock_files(
         ]
 
         logger.info(shlex.join(options))
-        check_call(options)
+        _ = check_call(options)
 
 
 def _maybe_lock_or_sync(
@@ -104,20 +108,20 @@ def _maybe_lock_or_sync(
         ]
 
         logger.info(shlex.join(command))
-        check_call(command)
+        _ = check_call(command)
 
 
 def main(args: Sequence[str] | None = None) -> int:
     """Main script."""
     # pylint: disable=duplicate-code
     parser = ArgumentParser()
-    parser.add_argument(
+    _ = parser.add_argument(
         "--upgrade",
         "-U",
         action="store_true",
         help="Upgrade requirements",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--pip-compile-config-file",
         default=None,
         type=Path,
@@ -128,23 +132,23 @@ def main(args: Sequence[str] | None = None) -> int:
         pip-compile specific settings in ``requirements/uv.toml``.
         """,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--all-files",
         dest="all_files",
         action="store_true",
         help="Run ``uv pip compile`` on all files.",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--lock",
         action="store_true",
         help="Run ``uv lock``",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--sync",
         action="store_true",
         help="Run ``uv sync`` (overrides ``uv lock``)",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--sync-or-lock",
         action="store_true",
         help="""
@@ -152,7 +156,7 @@ def main(args: Sequence[str] | None = None) -> int:
         Overridden by ``--sync``.
         """,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "paths",
         type=Path,
         nargs="*",
@@ -179,4 +183,4 @@ def main(args: Sequence[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

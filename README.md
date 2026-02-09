@@ -158,7 +158,7 @@ Consider the `toml` file
 name = "hello"
 requires-python = ">=3.8,<3.11"
 dependencies = [
-"athing", #
+"athing",                          #
 "bthing",
 "cthing; python_version < '3.10'",
 ]
@@ -168,8 +168,8 @@ test = [
 "pandas", #
 "pytest",
 ]
-dev-extras = ["matplotlib"]
-dev = ["hello[test]", "hello[dev-extras]"]
+dev-extras = [ "matplotlib" ]
+dev = [ "hello[test]", "hello[dev-extras]" ]
 dist-pypi = [
 # this is intended to be parsed with --skip-package option
 "setuptools",
@@ -183,7 +183,7 @@ cthing = { channel = "conda-forge" }
 pytest = { channel = "conda-forge" }
 matplotlib = { skip = true, packages = [
 "additional-thing; python_version < '3.9'",
-"conda-matplotlib"
+"conda-matplotlib",
 ] }
 build = { channel = "pip" }
 
@@ -403,8 +403,8 @@ test = [
 "pandas", #
 "pytest",
 ]
-dev-extras = ["matplotlib"]
-dev = ["hello[test]", "hello[dev-extras]"]
+dev-extras = [ "matplotlib" ]
+dev = [ "hello[test]", "hello[dev-extras]" ]
 dist-pypi = [
 # this is intended to be parsed with --skip-package option
 "setuptools",
@@ -474,9 +474,9 @@ dependencies:
 ```toml
 # ...
 [dependency-groups]
-test = ["pandas", "pytest"]
-dev-extras = ["matplotlib"]
-dev = [{ include-group = "test" }, { include-group = "dev-extras" }]
+test = [ "pandas", "pytest" ]
+dev-extras = [ "matplotlib" ]
+dev = [ { include-group = "test" }, { include-group = "dev-extras" } ]
 dist-pypi = [
 # this is intended to be parsed with --skip-package option
 "setuptools",
@@ -601,13 +601,13 @@ dependencies:
 ```toml
 # ...
 [tool.pyproject2conda]
-channels = ['conda-forge']
+channels = [ 'conda-forge' ]
 # these are the same as the default values of `p2c project`
 template-python = "py{py}-{env}"
 template = "{env}"
 style = "yaml"
 # options
-python = ["3.10"]
+python = [ "3.10" ]
 # Note that this is relative to the location of pyproject.toml
 user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
@@ -617,26 +617,26 @@ user-config = "config/userconfig.toml"
 # [tool.pyproject2conda.envs.test]
 # extras-or-groups = "test"
 #
-default-envs = ["test", "dev", "dist-pypi"]
+default-envs = [ "test", "dev", "dist-pypi" ]
 
 [tool.pyproject2conda.envs.base]
-style = ["requirements"]
+style = [ "requirements" ]
 
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
 # passing extras-or-groups = <env-name>
 [tool.pyproject2conda.envs."test-extras"]
-extras = ["test"]
-style = ["yaml", "requirements"]
+extras = [ "test" ]
+style = [ "yaml", "requirements" ]
 
 [[tool.pyproject2conda.overrides]]
-envs = ['test-extras', "dist-pypi"]
+envs = [ 'test-extras', "dist-pypi" ]
 skip-package = true
 
 [[tool.pyproject2conda.overrides]]
-envs = ["test", "test-extras"]
-python = ["3.10", "3.11"]
+envs = [ "test", "test-extras" ]
+python = [ "3.10", "3.11" ]
 ```
 
 <!-- [[[end]]] -->
@@ -669,7 +669,7 @@ cthing = { channel = "conda-forge" }
 pytest = { channel = "conda-forge" }
 matplotlib = { skip = true, packages = [
 "additional-thing; python_version < '3.9'",
-"conda-matplotlib"
+"conda-matplotlib",
 ] }
 build = { channel = "pip" }
 
@@ -729,13 +729,13 @@ in the `[tool.pyproject2conda]` section. For example, example the configuration:
 ```toml
 # ...
 [tool.pyproject2conda]
-channels = ['conda-forge']
+channels = [ 'conda-forge' ]
 # these are the same as the default values of `p2c project`
 template-python = "py{py}-{env}"
 template = "{env}"
 style = "yaml"
 # options
-python = ["3.10"]
+python = [ "3.10" ]
 # Note that this is relative to the location of pyproject.toml
 user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
@@ -745,26 +745,26 @@ user-config = "config/userconfig.toml"
 # [tool.pyproject2conda.envs.test]
 # extras-or-groups = "test"
 #
-default-envs = ["test", "dev", "dist-pypi"]
+default-envs = [ "test", "dev", "dist-pypi" ]
 
 [tool.pyproject2conda.envs.base]
-style = ["requirements"]
+style = [ "requirements" ]
 
 # This will have no extras or groups
 #
 # A value of `extras = true` will would be equivalent to
 # passing extras-or-groups = <env-name>
 [tool.pyproject2conda.envs."test-extras"]
-extras = ["test"]
-style = ["yaml", "requirements"]
+extras = [ "test" ]
+style = [ "yaml", "requirements" ]
 
 [[tool.pyproject2conda.overrides]]
-envs = ['test-extras', "dist-pypi"]
+envs = [ 'test-extras', "dist-pypi" ]
 skip-package = true
 
 [[tool.pyproject2conda.overrides]]
-envs = ["test", "test-extras"]
-python = ["3.10", "3.11"]
+envs = [ "test", "test-extras" ]
+python = [ "3.10", "3.11" ]
 ```
 
 <!-- [[[end]]] -->
@@ -870,8 +870,8 @@ override those at the `tool.pyproject2conda` level. So, for example:
 ```toml
 # ...
 [tool.pyproject2conda.envs."test-extras"]
-extras = ["test"]
-style = ["yaml", "requirements"]
+extras = [ "test" ]
+style = [ "yaml", "requirements" ]
 
 # ...
 ```
@@ -904,9 +904,9 @@ have the option `user-config=config/userconfig.toml`.
 
 ```toml
 [tool.pyproject2conda.envs."user-dev"]
-extras-or-groups = ["dev", "dist-pypi"]
-deps = ["extra-dep"]
-reqs = ["extra-req"]
+extras-or-groups = [ "dev", "dist-pypi" ]
+deps = [ "extra-dep" ]
+reqs = [ "extra-req" ]
 name = "hello"
 ```
 

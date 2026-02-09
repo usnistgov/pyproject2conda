@@ -122,11 +122,7 @@ class Config:  # noqa: PLR0904
             _raise_if_underscore(key)
 
         if value is None:
-            value = (
-                default()  # ty: ignore[call-non-callable]
-                if callable(default)
-                else default
-            )
+            value = default() if callable(default) else default
 
         if value is not None and as_list and not isinstance(value, list):
             value = [value]
