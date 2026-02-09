@@ -38,9 +38,11 @@ dependencies = [
     "typer",
     "typing-extensions; python_version<'3.11'",
 ]
+
 [project.scripts]
 p2c = "pyproject2conda.cli:app"
 pyproject2conda = "pyproject2conda.cli:app"
+
 [project.urls]
 Documentation = "https://pages.nist.gov/pyproject2conda/"
 Homepage = "https://github.com/usnistgov/pyproject2conda"
@@ -73,14 +75,6 @@ docs = [
 # other packages/tools
 basedpyright = [ "basedpyright>=1.31.3" ]
 cog = [ "cogapp" ]
-ipython = [ "ipython" ]
-mypy = [ "mypy[faster-cache]>=1.15.0" ]
-notebook = [ "ipykernel", "nbclient" ]
-nox = [ "nox>=2025.5.1" ]
-pylint = [ "pylint" ]
-pytest = [ "pytest" ]
-pytest-accept = [ "pytest-accept" ]
-typecheck-runner = [ "typecheck-runner>=0.1.0; python_version>'3.9'" ]
 # other environments
 docs-live = [
     "sphinx-autobuild",
@@ -91,6 +85,13 @@ docs-spelling = [
     "sphinxcontrib-spelling",
     { include-group = "docs" },
 ]
+ipython = [ "ipython" ]
+mypy = [ "mypy[faster-cache]>=1.15.0" ]
+notebook = [ "ipykernel", "nbclient" ]
+nox = [ "nox>=2025.5.1" ]
+pylint = [ "pylint" ]
+pytest = [ "pytest" ]
+pytest-accept = [ "pytest-accept" ]
 test-extras = [
     { include-group = "test" },
 ]
@@ -100,32 +101,27 @@ typecheck = [
     { include-group = "pytest" },
     { include-group = "typecheck-runner" },
 ]
+typecheck-runner = [ "typecheck-runner>=0.1.0; python_version>'3.9'" ]
 
 # * uv -------------------------------------------------------------------------
 
 [tool.uv]
-managed = true
-default-groups = [ "dev" ]
-fork-strategy = "requires-python"
 required-version = ">=0.7.15"
-
-[tool.uv.build-backend]
-source-include = [ "tests/**" ]
-
-[tool.uv.dependency-groups]
-dev.requires-python = ">=3.14"
-docs.requires-python = ">=3.14"
-docs-live.requires-python = ">=3.14"
-docs-spelling.requires-python = ">=3.14"
+default-groups = [ "dev" ]
 # other tools
-cog.requires-python = ">=3.14"
-ipython.requires-python = ">=3.14"
-mypy.requires-python = ">=3.14"
-nox.requires-python = ">=3.14"
-
-[tool.uv.pip]
-annotation-style = "line"
-generate-hashes = true
+dependency-groups.cog.requires-python = ">=3.14"
+dependency-groups.dev.requires-python = ">=3.14"
+dependency-groups.docs-live.requires-python = ">=3.14"
+dependency-groups.docs-spelling.requires-python = ">=3.14"
+dependency-groups.docs.requires-python = ">=3.14"
+dependency-groups.ipython.requires-python = ">=3.14"
+dependency-groups.mypy.requires-python = ">=3.14"
+dependency-groups.nox.requires-python = ">=3.14"
+fork-strategy = "requires-python"
+managed = true
+build-backend.source-include = [ "tests/**" ]
+pip.annotation-style = "line"
+pip.generate-hashes = true
 
 # * Checks ---------------------------------------------------------------------
 
@@ -152,15 +148,15 @@ expand_tables = [
     "project.scripts",
     "project.urls",
 ]
-collapse_tables = [  ]
+collapse_tables = []
 
-[tool.typos.default.extend-identifiers]
-CPY = "CPY"
+[tool.typos]
+default.extend-identifiers.CPY = "CPY"
 
+[tool.pytest]
 # * Testing --------------------------------------------------------------------
 
-[tool.pytest.ini_options]
-addopts = [
+ini_options.addopts = [
     "--cov-config=pyproject.toml",
     "--doctest-glob=*.md",
     "--doctest-modules",
@@ -169,41 +165,37 @@ addopts = [
     "--strict-markers",
     "-ra",
 ]
-testpaths = [
+ini_options.testpaths = [
     "README.md",
     "pyproject2conda",
     "tests",
 ]
-minversion = "8"
-log_cli_level = "INFO"
-log_level = "INFO"
-strict_xfail = "true"
-filterwarnings = [ "error" ]
+ini_options.minversion = "8"
+ini_options.log_cli_level = "INFO"
+ini_options.log_level = "INFO"
+ini_options.strict_xfail = "true"
+ini_options.filterwarnings = [ "error" ]
 
-[tool.coverage.paths]
-source = [
+[tool.coverage]
+run.branch = true
+paths.source = [
     "src/",
     # needed for testing source if not editable install
     ".nox/**/site-packages/",
 ]
-
-[tool.coverage.report]
-show_missing = true
-exclude_also = [
+report.exclude_also = [
     "@overload",
     "if TYPE_CHECKING:",
 ]
-omit = [
+report.include = [
+    "src/*",
+]
+report.omit = [
     "*/__main__.py",
     "*/_typing.py",
     "*/vendored/*",
 ]
-include = [
-    "src/*",
-]
-
-[tool.coverage.run]
-branch = true
+report.show_missing = true
 
 # * typecheck ---------------------------------------------------------------------
 
@@ -274,7 +266,6 @@ reportUntypedFunctionDecorator = true
 enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 reportUnreachable = "warning"
-
 deprecateTypingAliases = true
 enableReachabilityAnalysis = false
 reportCallInDefaultInitializer = true
@@ -283,27 +274,24 @@ reportImportCycles = true
 # reportMissingSuperCall = true
 reportUninitializedInstanceVariable = true
 reportUnusedCallResult = true
-
 # type-checkers should type-check; linters should lint
 reportImplicitStringConcatenation = false
-reportPrivateUsage = false                # dupe of PLC2701
-reportPrivateImportUsage = false          # dupe of PLC2701
-reportUnusedImport = false                # dupe of F401
-reportUnusedVariable = false              # dupe of F841
+reportPrivateUsage = false  # dupe of PLC2701
+reportPrivateImportUsage = false  # dupe of PLC2701
+reportUnusedImport = false  # dupe of F401
+reportUnusedVariable = false  # dupe of F841
+executionEnvironments = [
+    { root = "tests" },
+    # reportCallIssue = false
+    # reportArgumentType = false
+    # reportMissingImports = false
+    { reportUnusedCallResult = false },
+]
 
-[[tool.pyright.executionEnvironments]]
-root = "tests"
-# reportCallIssue = false
-# reportArgumentType = false
-# reportMissingImports = false
-reportUnusedCallResult = false
-
-[tool.ty.analysis]
+[tool.ty]
 # Disable support for `type: ignore` comments
-respect-type-ignore-comments = false
-
-[tool.ty.src]
-include = [ "src", "tests" ]
+analysis.respect-type-ignore-comments = false
+src.include = [ "src", "tests" ]
 
 [tool.pytype]
 inputs = [
@@ -322,31 +310,19 @@ python = "default"
 channels = "conda-forge"
 style = "yaml"
 deps = "pip"
-
-[tool.pyproject2conda.dependencies]
-pytest-accept = { pip = true }
-
-[tool.pyproject2conda.envs.dev]
-groups = "dev"
-
-[tool.pyproject2conda.envs.pre-commit-additional-dependencies]
-reqs = [
+dependencies.pytest-accept = { pip = true }
+envs.dev.groups = "dev"
+envs.pre-commit-additional-dependencies.reqs = [
     "rust-just",
 ]
-skip-package = true
-style = "requirements"
-
-[tool.pyproject2conda.envs.test]
-groups = "test"
-python = "all"
-
-[tool.pyproject2conda.envs.test-extras]
-groups = "test-extras"
-python = "all"
-skip-package = true
-
-[tool.pyproject2conda.envs.uvx-tools]
-reqs = [
+envs.pre-commit-additional-dependencies.skip-package = true
+envs.pre-commit-additional-dependencies.style = "requirements"
+envs.test.groups = "test"
+envs.test.python = "all"
+envs.test-extras.groups = "test-extras"
+envs.test-extras.python = "all"
+envs.test-extras.skip-package = true
+envs.uvx-tools.reqs = [
     # these used solely for specking tools to be used with uvx ...
     "conda-lock>=2.5.5",
     "copier",
@@ -360,15 +336,15 @@ reqs = [
     "twine>=5.0.0",
     "ty>=0.0.14",
 ]
-groups = [
+envs.uvx-tools.groups = [
     "basedpyright",
     "cog",
     "mypy",
     "nox",
     "typecheck-runner",
 ]
-skip-package = true
-style = "requirements"
+envs.uvx-tools.skip-package = true
+envs.uvx-tools.style = "requirements"
 
 # * Other tools ----------------------------------------------------------------
 
