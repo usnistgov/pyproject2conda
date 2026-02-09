@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from typing import TypedDict
 
+from ._typing_compat import override
+
 
 class OverrideDict(TypedDict, total=False):
     """Dict for storing override options."""
@@ -41,5 +43,6 @@ class OverrideDeps:
             packages = [packages]
         self.packages = packages
 
+    @override
     def __repr__(self) -> str:  # pragma: no cover
         return repr(self.__dict__)

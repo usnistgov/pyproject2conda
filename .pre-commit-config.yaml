@@ -176,14 +176,6 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 
-  # * Cruft
-  - repo: https://github.com/cruft/cruft.git
-    rev: 2.16.0
-    hooks:
-      - id: cruft
-        args: [--checkout, main]
-        stages: [manual]
-
   # * Cog
   - repo: local
     hooks:

@@ -24,6 +24,8 @@ from pyproject2conda.utils import (
     update_target,
 )
 
+from ._typing_compat import override
+
 if TYPE_CHECKING:
     import click
 
@@ -74,6 +76,7 @@ def _callback_version(value: bool) -> None:
 class _AliasedGroup(TyperGroup):
     """Provide aliasing for commands"""
 
+    @override
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         if (rv := super().get_command(ctx, cmd_name)) is not None:
             return rv
@@ -88,6 +91,7 @@ class _AliasedGroup(TyperGroup):
         )  # pragma: no cover
         return None  # type: ignore[unreachable]  # pragma: no cover  # pyright: ignore[reportUnreachable]
 
+    @override
     def list_commands(self, ctx: click.Context) -> list[str]:  # noqa: ARG002
         return list(self.commands)
 
@@ -876,7 +880,7 @@ def to_json(
 # app = click.CommandCollection(sources=[app_click, typer_click_object], cls=_AliasedGroup)  # noqa: ERA001
 
 # Just use the click app....
-app: click.Command = typer.main.get_command(app_typer)  # ty: ignore[unresolved-attribute]
+app: click.Command = typer.main.get_command(app_typer)
 
 
 # ** Main
