@@ -69,7 +69,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.12.1
+    rev: v2.15.1
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
@@ -141,7 +141,7 @@ repos:
   # Revert to crate-ci/typos if https://github.com/crate-ci/typos/issues/390 is fixed.
   # - repo: https://github.com/crate-ci/typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.43.2
+    rev: v1.43.4
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -158,7 +158,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.10.0
+    rev: 0.10.1
     hooks:
       - id: uv-lock
         alias: requirements
@@ -171,7 +171,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.13.5
+    rev: v4.13.7
     hooks:
       - id: commitizen
         stages: [commit-msg]

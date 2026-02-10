@@ -38,6 +38,7 @@ dependencies = [
     "typer",
     "typing-extensions; python_version<'3.11'",
 ]
+
 [project.scripts]
 p2c = "pyproject2conda.cli:app"
 pyproject2conda = "pyproject2conda.cli:app"
