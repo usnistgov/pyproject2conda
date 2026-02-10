@@ -65,27 +65,32 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+
+      # Not always needed but some hooks use it...
       - uses: ./.github/actions/setup-cached-uv-and-python
         with:
           python-version-file: ".python-version"
-          cache-dependency-path: .pre-commit-config.yaml
+          cache-dependency-path: uv.lock
 
-      # from https://github.com/j178/prek-action/blob/main/action.yaml
-      - name: Setup prek cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      - name: Get prek version
+        shell: bash
+        run: |
+          prek_version=$(grep prek "$UVX_CONSTRAINT" | cut -d " " -f1 | sed "s/prek==//")
+          echo "prek_version: ${prek_version}"
+          echo "prek_version=${prek_version}" >> "$GITHUB_ENV"
+
+      - name: Setup prek
+        uses: j178/prek-action@0bb87d7f00b0c99306c8bcb8b8beba1eb581c037 # v1.1.0
         with:
-          path: |
-            ~/.cache/prek
-            ~\AppData\Local\prek
-          key:
-            prek-v1|${{ runner.os }}|${{ runner.arch }}|${{ env.pythonLocation
-            }}|${{ hashFiles('./**/.pre-commit-config.yaml') }}
+          prek-version: ${{ env.prek_version }}
+          install-only: true
+
       - name: Run prek
         env:
-          SKIP: typecheck
+          SKIP: "typecheck"
         run: >-
-          $UVX_COMMAND prek run --show-diff-on-failure --color=always
-          --all-files --hook-stage=manual -v
+          prek run --show-diff-on-failure --color=always --all-files
+          --hook-stage=manual -v
 
   typecheck:
     name: Typecheck package

@@ -19,4 +19,5 @@ dependencies:
   - pytest-sugar
   - pytest-xdist
   - typer
+  - typing-extensions
   - pip
