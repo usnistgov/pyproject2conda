@@ -36,7 +36,7 @@ dependencies = [
     "packaging",
     "tomli; python_version<'3.11'",
     "typer",
-    "typing-extensions; python_version<'3.11'",
+    "typing-extensions; python_version<'3.12'",
 ]
 
 [project.scripts]
