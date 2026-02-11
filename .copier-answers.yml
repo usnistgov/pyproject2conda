@@ -2,7 +2,7 @@
 _commit: v0.6.0-123-g098bef9
 _src_path: https://github.com/usnistgov/cookiecutter-nist-python.git
 command_line_interface: typer
-conda_channel: wpk-nist
+conda_channel: conda-forge
 email: wpk@nist.gov
 full_name: William P. Krekelberg
 github_username: usnistgov
