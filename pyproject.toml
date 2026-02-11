@@ -270,10 +270,10 @@ enableTypeIgnoreComments = false
 reportCallInDefaultInitializer = true
 reportImplicitOverride = true
 reportImportCycles = true
-reportUnnecessaryTypeIgnoreComment = true
-reportUnreachable = "warning"
 # reportMissingSuperCall = true
 reportUninitializedInstanceVariable = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUnreachable = "warning"
 reportUnusedCallResult = true
 # type-checkers should type-check; linters should lint
 reportImplicitStringConcatenation = false
