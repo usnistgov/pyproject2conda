@@ -1571,7 +1571,7 @@ test-extras = [
     { name = "pytest-sugar" },
     { name = "pytest-xdist" },
 ]
-typecheck = [
+type = [
     { name = "pylint" },
     { name = "pytest" },
     { name = "typecheck-runner" },
@@ -1658,7 +1658,7 @@ test-extras = [
     { name = "pytest-sugar" },
     { name = "pytest-xdist" },
 ]
-typecheck = [
+type = [
     { name = "pylint" },
     { name = "pytest" },
     { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.0" },
