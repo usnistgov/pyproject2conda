@@ -35,6 +35,7 @@ enable = [
     # "useless-suppression",
     "all",
 ]
+# disable options
 disable = [
     # defer to ruff
     "line-too-long",

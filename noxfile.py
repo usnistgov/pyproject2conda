@@ -61,7 +61,6 @@ if TYPE_CHECKING:
 
 PACKAGE_NAME = "pyproject2conda"
 IMPORT_NAME = "pyproject2conda"
-KERNEL_NAME = "pyproject2conda"
 
 # * nox options ------------------------------------------------------------------------
 
@@ -478,53 +477,6 @@ def test_all(session: Session) -> None:
     session.notify("coverage")
 
 
-# ** dev
-@nox.session(name="dev", python=False)
-@add_opts
-def dev(
-    session: Session,
-    opts: SessionParams,
-) -> None:
-    """Create development environment."""
-    session.run("uv", "venv", ".venv", "--allow-existing", "--prompt", PACKAGE_NAME)
-
-    python_opt = "--python=.venv/bin/python"
-
-    install_dependencies(
-        session,
-        python_opt,
-        name="dev",
-        opts=opts,
-        python_version=PYTHON_DEFAULT_VERSION,
-        location=".venv",
-        no_dev=False,
-        include_editable_package=True,
-    )
-    session.notify("install-ipykernel")
-
-
-@nox.session(name="install-ipykernel", python=False)
-@add_opts
-def install_ipykernel(session: Session, opts: SessionParams) -> None:
-    """Install ipykernel for .venv"""
-    session.run(
-        "uv",
-        "run",
-        *opts.uv_sync_options,
-        "--python=.venv/bin/python",
-        "python",
-        "-m",
-        "ipykernel",
-        "install",
-        "--user",
-        "--name",
-        KERNEL_NAME,
-        "--display-name",
-        f"Python [venv: {KERNEL_NAME}]",
-        success_codes=[0, 1],
-    )
-
-
 # ** testing
 def _test(
     session: nox.Session,
@@ -720,8 +672,10 @@ def docs(  # noqa: C901
     )
 
     install_dependencies(session, name=name, opts=opts, include_editable_package=True)
-
     session_run_commands(session, opts.docs_run)
+
+    # enable docstring-inheritance
+    session.env["DOCSTRING_INHERITANCE_ENABLE"] = "1"
 
     if open_page := "open" in cmd:
         cmd.remove("open")
@@ -814,9 +768,7 @@ def typecheck(  # noqa: C901
     opts: SessionParams,
 ) -> None:
     """Run type checkers (mypy, pyright, etc)."""
-    install_dependencies(
-        session, name="typecheck", opts=opts, include_editable_package=True
-    )
+    install_dependencies(session, name="type", opts=opts, include_editable_package=True)
     session_run_commands(session, opts.typecheck_run)
 
     cmd = opts.typecheck or []
