@@ -69,7 +69,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.15.2
+    rev: v2.15.3
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
