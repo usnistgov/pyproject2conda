@@ -45,6 +45,7 @@ disable = [
     "redefined-outer-name",
     "too-complex",
     "unused-argument",
+    "unused-import",
     # Silly
     "docstring-first-line-empty",
     "magic-value-comparison",
