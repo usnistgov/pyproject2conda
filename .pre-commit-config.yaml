@@ -69,13 +69,13 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.15.3
+    rev: v2.16.0
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.01.22
+    rev: 2026.02.15
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -100,7 +100,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.20.0
+    rev: v0.21.0
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -109,7 +109,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.0
+    rev: v0.15.1
     hooks:
       - id: ruff-check
         alias: ruff
@@ -117,7 +117,7 @@ repos:
       - id: ruff-format
         alias: ruff
   - repo: https://github.com/adamtheturtle/doccmd-pre-commit
-    rev: v2026.1.31.3
+    rev: v2026.2.15
     hooks:
       - id: doccmd
         name: "ruff format markdown"
@@ -153,7 +153,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.10.2
+    rev: 0.10.3
     hooks:
       - id: uv-lock
         alias: requirements
@@ -186,7 +186,7 @@ repos:
 
   # * Actions
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.36.1
+    rev: 0.36.2
     hooks:
       - id: check-github-workflows
         alias: actions
@@ -194,7 +194,7 @@ repos:
       - id: check-github-actions
         alias: actions
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.10
+    rev: v1.7.11
     hooks:
       - id: actionlint
         alias: actions
