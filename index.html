@@ -1,0 +1,1405 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pyproject2conda &#8212; pyproject2conda 0.22.2.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/leaveNotice/css/jquery.leaveNotice.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=0aebe9f5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+    <script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js"></script>
+    <script src="https://pages.nist.gov/leaveNotice/js/jquery.leaveNotice-nist.min.js"></script>
+    <script src="_static/js/leave_notice.js?v=133c5535"></script>
+    <script async="async" id="_fed_au_ua_tag" type="text/javascript" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=NIST&subagency=github&pua=UA-66610693-1&yt=true&exts=ppsx,pps,f90,sch,rtf,wrl,txz,m1v,xlsm,msi,xsd,f,tif,eps,mpg,xml,pl,xlt,c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+    <meta name="docbuild:last-update" content="2026-02-20"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyproject2conda 0.22.2.dev0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1 current active">
+                <a class="reference internal" href="#">
+                    pyproject2conda
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/cli.html">Command line interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.overrides.html">Override dependencies (<code class="xref py py-mod docutils literal notranslate"><span class="pre">overrides</span></code>)</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.requirements.html">Requirements parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">requirements</span></code>)</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+
+
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="navigation.html">Indices and tables</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="genindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="py-modindex.html">Module Index</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda/issues/new?title=Issue%20on%20page%20%2Findex.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/index.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>pyproject2conda</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#status">Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-commit-hooks">Pre-commit hooks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-usage">Example usage</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#specify-python-version">Specify python version</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-extra-conda-dependencies-and-pip-requirements">Adding extra conda dependencies and pip requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#command-aliases">Command “aliases”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-extras">Installing extras</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-dependency-groups">Installing from <code class="docutils literal notranslate"><span class="pre">dependency-groups</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header-in-output">Header in output</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-within-python">Usage within python</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-multiple-environments-from-pyproject-toml">Creating multiple environments from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-work">Related work</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!-- markdownlint-disable MD041 -->
+<!-- markdownlint-disable MD041 -->
+<!-- prettier-ignore-start -->
+<p><a class="reference external" href="https://github.com/usnistgov/pyproject2conda"><img alt="Repo" src="https://img.shields.io/badge/--181717?logo=github&amp;logoColor=ffffff" /></a>
+<a class="reference external" href="https://pages.nist.gov/pyproject2conda/"><img alt="Docs" src="https://img.shields.io/badge/docs-sphinx-informational" /></a>
+<a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/LICENSE"><img alt="PyPI license" src="https://img.shields.io/pypi/l/pyproject2conda?color=informational" /></a>
+<a class="reference external" href="https://pypi.org/project/pyproject2conda"><img alt="PyPI version" src="https://img.shields.io/pypi/v/pyproject2conda" /></a>
+<a class="reference external" href="https://anaconda.org/conda-forge/pyproject2conda"><img alt="Conda (channel only)" src="https://img.shields.io/conda/v/conda-forge/pyproject2conda" /></a>
+<a class="reference external" href="https://github.com/astral-sh/ruff"><img alt="Code style: ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" /></a>
+<a class="reference external" href="https://github.com/astral-sh/uv"><img alt="uv" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json" /></a></p>
+<!--
+  For more badges, see
+  https://shields.io/category/other
+  https://naereen.github.io/badges/
+  [pypi-badge]: https://badge.fury.io/py/pyproject2conda
+-->
+<!-- other links -->
+<!-- prettier-ignore-end -->
+<section class="tex2jax_ignore mathjax_ignore" id="pyproject2conda">
+<h1><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code><a class="headerlink" href="#pyproject2conda" title="Link to this heading">#</a></h1>
+<p>A script to convert <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> dependencies to <code class="docutils literal notranslate"><span class="pre">environment.yaml</span></code> files.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The main goal of <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> is to provide a means to keep all basic
+dependency information, for both <code class="docutils literal notranslate"><span class="pre">pip</span></code> based and <code class="docutils literal notranslate"><span class="pre">conda</span></code> based environments, in
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>. I often use a mix of pip and conda when developing packages,
+and in my everyday workflow. Some packages just aren’t available on both. If you
+use poetry, I’d highly recommend <a class="reference external" href="https://github.com/dojeda/poetry2conda">poetry2conda</a>.</p>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Automatic creation of <code class="docutils literal notranslate"><span class="pre">environment.yaml</span></code>and <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> files from
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p></li>
+<li><p>Simple remapping of <code class="docutils literal notranslate"><span class="pre">pypi</span></code> package name to <code class="docutils literal notranslate"><span class="pre">conda</span></code> package name when creating
+<code class="docutils literal notranslate"><span class="pre">environment.yaml</span></code> files.</p></li>
+<li><p><a class="reference external" href="https://pre-commit.com/">pre-commit</a> hooks to automatically keep dependency files up to data.</p></li>
+</ul>
+</section>
+<section id="status">
+<h2>Status<a class="headerlink" href="#status" title="Link to this heading">#</a></h2>
+<p>This package is actively used by the author, but is still very much a work in
+progress. Please feel free to create a pull request for wanted features and
+suggestions!</p>
+</section>
+<section id="pre-commit-hooks">
+<h2>Pre-commit hooks<a class="headerlink" href="#pre-commit-hooks" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> works with <a class="reference external" href="https://pre-commit.com/">pre-commit</a>. Hooks are available for the
+<code class="docutils literal notranslate"><span class="pre">project</span></code>, <code class="docutils literal notranslate"><span class="pre">yaml</span></code>, and <code class="docutils literal notranslate"><span class="pre">requirements</span></code> subcommands described below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/usnistgov/pyproject2conda</span>
+<span class="w">  </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="nv">version</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># replace with current version</span>
+<span class="w">  </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pyproject2conda-project</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pyproject2conda-yaml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pyproject2conda-requirements</span>
+</pre></div>
+</div>
+<p>For <code class="docutils literal notranslate"><span class="pre">yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">requirements</span></code>, you can override the default behavior (of
+creating environment/requirement files from the <code class="docutils literal notranslate"><span class="pre">dependency-group</span></code> <code class="docutils literal notranslate"><span class="pre">dev</span></code>) by
+passing in <code class="docutils literal notranslate"><span class="pre">args</span></code>. For example, you could use the following to create an
+environment file with the extra <code class="docutils literal notranslate"><span class="pre">dev-complete</span></code></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/usnistgov/pyproject2conda</span>
+<span class="w">  </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="nv">version</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># replace with current version</span>
+<span class="w">  </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pyproject2conda-yaml</span>
+<span class="w">      </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;-e&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;dev-complete&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-o&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;environment-dev.yaml&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-w&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;force&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p>Note that if called from pre-commit (detected by the presence of <code class="docutils literal notranslate"><span class="pre">PRE_COMMIT</span></code>
+environment variable), the default is to set <code class="docutils literal notranslate"><span class="pre">--custom-command=&quot;pre-commit&quot;</span></code>.
+You can explicitly pass in <code class="docutils literal notranslate"><span class="pre">--custom-command</span></code> to override this.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<!-- start-installation -->
+<p>Use one of the following to install <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code>:</p>
+<!-- markdownlint-disable MD014 -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip/pipx/uvx<span class="w"> </span>install<span class="w"> </span>pyproject2conda
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda/condax<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>pyproject2conda
+</pre></div>
+</div>
+<p>If using pip, to install with <a class="reference external" href="https://github.com/Textualize/rich">rich</a> and <a class="reference external" href="https://github.com/sarugaku/shellingham">shellingham</a> support, either install
+them your self, or use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip/pipx/uvx<span class="w"> </span>install<span class="w"> </span>pyproject2conda<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
+<!-- markdownlint-enable MD014 -->
+<p>The conda-forge distribution of <a class="reference external" href="https://github.com/fastapi/typer">typer</a> (which <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> uses) installs
+<a class="reference external" href="https://github.com/Textualize/rich">rich</a> and <a class="reference external" href="https://github.com/sarugaku/shellingham">shellingham</a> by default.</p>
+<!-- end-installation -->
+</section>
+<section id="example-usage">
+<h2>Example usage<a class="headerlink" href="#example-usage" title="Link to this heading">#</a></h2>
+<section id="basic-usage">
+<h3>Basic usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h3>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog
+import sys
+
+sys.path.insert(0, ".")
+from tools.cog_utils import wrap_command, get_pyproject, run_command, cat_lines
+sys.path.pop(0)
+]]] -->
+<!-- [[[end]]] -->
+<p>Consider the <code class="docutils literal notranslate"><span class="pre">toml</span></code> file
+<a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/tests/data/test-pyproject.toml">test-pyproject.toml</a>.</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin=None, end="[tool.pyproject2conda]", begin_dot=False)]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hello&quot;</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&gt;=3.8,&lt;3.11&quot;</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="s2">&quot;athing&quot;</span><span class="p">,</span><span class="w">                          </span><span class="c1">#</span>
+<span class="s2">&quot;bthing&quot;</span><span class="p">,</span>
+<span class="s2">&quot;cthing; python_version &lt; &#39;3.10&#39;&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[project.optional-dependencies]</span>
+<span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="s2">&quot;pandas&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">#</span>
+<span class="s2">&quot;pytest&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">dev-extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;matplotlib&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;hello[test]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;hello[dev-extras]&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">dist-pypi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="c1"># this is intended to be parsed with --skip-package option</span>
+<span class="s2">&quot;setuptools&quot;</span><span class="p">,</span>
+<span class="s2">&quot;build&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[tool.pyproject2conda.dependencies]</span>
+<span class="n">athing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">pip</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span>
+<span class="n">bthing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">packages</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;bthing-conda&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">cthing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;conda-forge&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">pytest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;conda-forge&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">matplotlib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">packages</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span>
+<span class="s2">&quot;additional-thing; python_version &lt; &#39;3.9&#39;&quot;</span><span class="p">,</span>
+<span class="s2">&quot;conda-matplotlib&quot;</span><span class="p">,</span>
+<span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;pip&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<p>Note the table <code class="docutils literal notranslate"><span class="pre">[tool.pyproject2conda.dependencies]</span></code>. This table takes as keys
+the dependency names from <code class="docutils literal notranslate"><span class="pre">project.dependencies</span></code> or
+<code class="docutils literal notranslate"><span class="pre">project.optional-dependencies</span></code>, and as values a mapping with keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span></code>: if <code class="docutils literal notranslate"><span class="pre">true</span></code>, specify install via pip in <code class="docutils literal notranslate"><span class="pre">environment.yaml</span></code> file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skip</span></code>: if <code class="docutils literal notranslate"><span class="pre">true</span></code>, skip the dependency</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">channel</span></code>: conda-channel to use for this dependency</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">packages</span></code>: Additional packages to include in <code class="docutils literal notranslate"><span class="pre">environment.yaml</span></code> file</p></li>
+</ul>
+<p>So, if we run the following, we get:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>By default, the python version is not included in the resulting conda output. To
+include the specification from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, use <code class="docutils literal notranslate"><span class="pre">--python-include</span> <span class="pre">infer</span></code>
+option:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include infer")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-include<span class="w"> </span>infer
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>python&gt;<span class="o">=</span><span class="m">3</span>.8,&lt;<span class="m">3</span>.11
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+</section>
+<section id="specify-python-version">
+<h3>Specify python version<a class="headerlink" href="#specify-python-version" title="Link to this heading">#</a></h3>
+<p>To specify a specific value of python in the output, pass a value with:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include python=3.9")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-include<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.9
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.9
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>Note that this is for including python in the resulting environment file.</p>
+<p>You can also constrain packages by the python version using the standard
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> syntax <code class="docutils literal notranslate"><span class="pre">&quot;...;</span> <span class="pre">python_version</span> <span class="pre">&lt;</span> <span class="pre">'some-version-number'&quot;</span></code>. For is
+parsed for both the pip packages and conda packages:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-version<span class="w"> </span><span class="m">3</span>.10
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>It is common to want to specify the python version and include it in the
+resulting environment file. You could, for example use:</p>
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 --python-include python=3.10")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python-version<span class="w"> </span><span class="m">3</span>.10<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--python-include<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- markdownlint-enable MD013 -->
+<p>Because this is common, you can also just pass the option <code class="docutils literal notranslate"><span class="pre">-p/--python</span></code>:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python 3.10")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.10
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>Passing <code class="docutils literal notranslate"><span class="pre">--python=&quot;default&quot;</span></code> will extract the python version from
+<code class="docutils literal notranslate"><span class="pre">.python-version</span></code> file. Passing <code class="docutils literal notranslate"><span class="pre">--python</span></code> value <code class="docutils literal notranslate"><span class="pre">&quot;lowest&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;highest&quot;</span></code> will
+extract the lowest or highest python version, respectively, from the
+<code class="docutils literal notranslate"><span class="pre">project.classifiers</span></code> table of the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file. Using the option
+<code class="docutils literal notranslate"><span class="pre">python=&quot;all&quot;</span></code> in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> will include all python versions in the
+<code class="docutils literal notranslate"><span class="pre">project.classifiers</span></code> table.</p>
+</section>
+<section id="adding-extra-conda-dependencies-and-pip-requirements">
+<h3>Adding extra conda dependencies and pip requirements<a class="headerlink" href="#adding-extra-conda-dependencies-and-pip-requirements" title="Link to this heading">#</a></h3>
+<p>You can also add additional conda and pip dependencies with the flags
+<code class="docutils literal notranslate"><span class="pre">-d/--deps</span></code> and <code class="docutils literal notranslate"><span class="pre">-r/--reqs</span></code>, respectively. Adding the last example:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -d dep -r req")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>-d<span class="w"> </span>dep<span class="w"> </span>-r<span class="w"> </span>req
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>dep
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+<span class="w">      </span>-<span class="w"> </span>req
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>These will also obey dependencies like <code class="docutils literal notranslate"><span class="pre">dep:python_version&lt;={version}</span></code>. Pass the
+flags multiple times to pass multiple dependencies.</p>
+</section>
+<section id="command-aliases">
+<h3>Command “aliases”<a class="headerlink" href="#command-aliases" title="Link to this heading">#</a></h3>
+<p>The name <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> can be a bit long to type. For this reason, the
+package also ships with the alias <code class="docutils literal notranslate"><span class="pre">p2c</span></code>, which has the exact same functionality.
+Additionally, the subcommands can be shortened to a unique match:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("p2c y -f tests/data/test-pyproject.toml --python 3.10")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>p2c<span class="w"> </span>y<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.10
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>You can also call with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pyproject2conda</span></code>.</p>
+</section>
+<section id="installing-extras">
+<h3>Installing extras<a class="headerlink" href="#installing-extras" title="Link to this heading">#</a></h3>
+<p>Given the extra dependency:</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog cat_lines(begin="[project.optional-dependencies]", end="[tool.pyproject2conda.dependencies]")]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
+<span class="k">[project.optional-dependencies]</span>
+<span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="s2">&quot;pandas&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">#</span>
+<span class="s2">&quot;pytest&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">dev-extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;matplotlib&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;hello[test]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;hello[dev-extras]&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">dist-pypi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="c1"># this is intended to be parsed with --skip-package option</span>
+<span class="s2">&quot;setuptools&quot;</span><span class="p">,</span>
+<span class="s2">&quot;build&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+<p>and running the following gives:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e test")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> also works with self referenced dependencies:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dev")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span>dev
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>additional-thing
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>conda-matplotlib
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+</section>
+<section id="installing-from-dependency-groups">
+<h3>Installing from <code class="docutils literal notranslate"><span class="pre">dependency-groups</span></code><a class="headerlink" href="#installing-from-dependency-groups" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> also support the <a class="reference external" href="https://peps.python.org/pep-0735/">PEP 735</a>
+<code class="docutils literal notranslate"><span class="pre">dependency-groups</span></code> table. For example, if we have the follinging</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog cat_lines(begin="[dependency-groups]", end="[tool.pyproject2conda.dependencies]", path="tests/data/test-pyproject-groups.toml")]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
+<span class="k">[dependency-groups]</span>
+<span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pytest&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">dev-extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;matplotlib&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">include-group</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">include-group</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;dev-extras&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">]</span>
+<span class="n">dist-pypi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="c1"># this is intended to be parsed with --skip-package option</span>
+<span class="s2">&quot;setuptools&quot;</span><span class="p">,</span>
+<span class="s2">&quot;build&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">optional-opt1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;hello[opt1]&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">optional-opt2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;hello[opt2]&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">optional-all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;hello[all]&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+<p>Then, we can build a requirement file, specifying groups with <code class="docutils literal notranslate"><span class="pre">-g/--group</span></code> flag.</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject-groups.toml<span class="w"> </span>--group<span class="w"> </span>dev
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>additional-thing
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>conda-matplotlib
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>The advantage of using <code class="docutils literal notranslate"><span class="pre">dependency-groups</span></code> as opposed to
+<code class="docutils literal notranslate"><span class="pre">package.optional-dependencies</span></code> is that they work for non-package projects, and
+are not included in the metadata of distributed packages.</p>
+</section>
+<section id="header-in-output">
+<h3>Header in output<a class="headerlink" href="#header-in-output" title="Link to this heading">#</a></h3>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> includes a header in most output files to note
+that the files are auto generated. No header is included by default when writing
+to standard output. To override this behavior, pass <code class="docutils literal notranslate"><span class="pre">--header/--noheader</span></code>:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --header")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--header
+<span class="c1">#</span>
+<span class="c1"># This file is autogenerated by pyproject2conda</span>
+<span class="c1"># with the following command:</span>
+<span class="c1">#</span>
+<span class="c1">#     $ pyproject2conda yaml -f tests/data/test-pyproject.toml --header</span>
+<span class="c1">#</span>
+<span class="c1"># You should not manually edit this file.</span>
+<span class="c1"># Instead edit the corresponding pyproject.toml file.</span>
+<span class="c1">#</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::cthing
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>You can customize the command in the header with the <code class="docutils literal notranslate"><span class="pre">--custom-command</span></code> option.</p>
+</section>
+<section id="usage-within-python">
+<h3>Usage within python<a class="headerlink" href="#usage-within-python" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> can also be used within python:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pyproject2conda.requirements</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParseDepends</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">ParseDepends</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span><span class="s2">&quot;./tests/data/test-pyproject.toml&quot;</span><span class="p">)</span>
+
+<span class="go"># Basic environment</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">to_conda_yaml</span><span class="p">(</span><span class="n">python_include</span><span class="o">=</span><span class="s2">&quot;infer&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+<span class="go">channels:</span>
+<span class="go">  - conda-forge</span>
+<span class="go">dependencies:</span>
+<span class="go">  - python&gt;=3.8,&lt;3.11</span>
+<span class="go">  - bthing-conda</span>
+<span class="go">  - conda-forge::cthing</span>
+<span class="go">  - pip</span>
+<span class="go">  - pip:</span>
+<span class="go">      - athing</span>
+
+<span class="go"># Environment with extras</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">to_conda_yaml</span><span class="p">(</span><span class="n">extras</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+<span class="go">channels:</span>
+<span class="go">  - conda-forge</span>
+<span class="go">dependencies:</span>
+<span class="go">  - bthing-conda</span>
+<span class="go">  - conda-forge::cthing</span>
+<span class="go">  - conda-forge::pytest</span>
+<span class="go">  - pandas</span>
+<span class="go">  - pip</span>
+<span class="go">  - pip:</span>
+<span class="go">      - athing</span>
+
+</pre></div>
+</div>
+</section>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> can be configured with a <code class="docutils literal notranslate"><span class="pre">[tool.pyproject2conda]</span></code> section in
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>. To specify conda channels use:</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin="[tool.pyproject2conda]", end=None)]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
+<span class="k">[tool.pyproject2conda]</span>
+<span class="n">channels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s1">&#39;conda-forge&#39;</span><span class="w"> </span><span class="p">]</span>
+<span class="c1"># these are the same as the default values of `p2c project`</span>
+<span class="n">template-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;py{py}-{env}&quot;</span>
+<span class="n">template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;{env}&quot;</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;yaml&quot;</span>
+<span class="c1"># options</span>
+<span class="n">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;3.10&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="c1"># Note that this is relative to the location of pyproject.toml</span>
+<span class="n">user-config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;config/userconfig.toml&quot;</span>
+<span class="c1"># These environments will be created with the package, package dependencies, and</span>
+<span class="c1"># dependencies from groups or extras with environment name so the below is the</span>
+<span class="c1"># same as</span>
+<span class="c1">#</span>
+<span class="c1"># [tool.pyproject2conda.envs.test]</span>
+<span class="c1"># extras-or-groups = &quot;test&quot;</span>
+<span class="c1">#</span>
+<span class="n">default-envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dist-pypi&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="k">[tool.pyproject2conda.envs.base]</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;requirements&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="c1"># This will have no extras or groups</span>
+<span class="c1">#</span>
+<span class="c1"># A value of `extras = true` will would be equivalent to</span>
+<span class="c1"># passing extras-or-groups = &lt;env-name&gt;</span>
+<span class="k">[tool.pyproject2conda.envs.</span><span class="s2">&quot;test-extras&quot;</span><span class="k">]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;requirements&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="k">[[tool.pyproject2conda.overrides]]</span>
+<span class="n">envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s1">&#39;test-extras&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dist-pypi&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">skip-package</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="k">[[tool.pyproject2conda.overrides]]</span>
+<span class="n">envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;test-extras&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;3.10&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;3.11&quot;</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<p>Note that specifying channels at the command line overrides
+<code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.channels</span></code>.</p>
+<p>You can also specify environments without the package dependences (those under
+<code class="docutils literal notranslate"><span class="pre">project.dependencies</span></code>) by passing the <code class="docutils literal notranslate"><span class="pre">--skip-package</span></code> flag. This is useful for
+defining environments for build, etc, that do not require the package be
+installed. For example:</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin="dist-pypi = [", end="[tool.pyproject2conda]")]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
+<span class="n">dist-pypi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="c1"># this is intended to be parsed with --skip-package option</span>
+<span class="s2">&quot;setuptools&quot;</span><span class="p">,</span>
+<span class="s2">&quot;build&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[tool.pyproject2conda.dependencies]</span>
+<span class="n">athing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">pip</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span>
+<span class="n">bthing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">packages</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;bthing-conda&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">cthing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;conda-forge&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">pytest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;conda-forge&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">matplotlib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">packages</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span>
+<span class="s2">&quot;additional-thing; python_version &lt; &#39;3.9&#39;&quot;</span><span class="p">,</span>
+<span class="s2">&quot;conda-matplotlib&quot;</span><span class="p">,</span>
+<span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;pip&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<p>These can be accessed using either of the following:</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --skip-package")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>-e<span class="w"> </span>dist-pypi<span class="w"> </span>--skip-<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>package
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span>setuptools
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>build
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>or</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pyproject2conda.requirements</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParseDepends</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">ParseDepends</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span><span class="s2">&quot;./tests/data/test-pyproject.toml&quot;</span><span class="p">)</span>
+
+<span class="go"># Basic environment</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">to_conda_yaml</span><span class="p">(</span><span class="n">extras</span><span class="o">=</span><span class="s2">&quot;dist-pypi&quot;</span><span class="p">,</span> <span class="n">skip_package</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+<span class="go">channels:</span>
+<span class="go">  - conda-forge</span>
+<span class="go">dependencies:</span>
+<span class="go">  - setuptools</span>
+<span class="go">  - pip</span>
+<span class="go">  - pip:</span>
+<span class="go">      - build</span>
+
+</pre></div>
+</div>
+</section>
+<section id="creating-multiple-environments-from-pyproject-toml">
+<h3>Creating multiple environments from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code><a class="headerlink" href="#creating-multiple-environments-from-pyproject-toml" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> provides a means to create all needed environment/requirement
+files in one go. We configure the environments using the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> files
+in the <code class="docutils literal notranslate"><span class="pre">[tool.pyproject2conda]</span></code> section. For example, example the configuration:</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin="[tool.pyproject2conda]", end=None)]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
+<span class="k">[tool.pyproject2conda]</span>
+<span class="n">channels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s1">&#39;conda-forge&#39;</span><span class="w"> </span><span class="p">]</span>
+<span class="c1"># these are the same as the default values of `p2c project`</span>
+<span class="n">template-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;py{py}-{env}&quot;</span>
+<span class="n">template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;{env}&quot;</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;yaml&quot;</span>
+<span class="c1"># options</span>
+<span class="n">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;3.10&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="c1"># Note that this is relative to the location of pyproject.toml</span>
+<span class="n">user-config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;config/userconfig.toml&quot;</span>
+<span class="c1"># These environments will be created with the package, package dependencies, and</span>
+<span class="c1"># dependencies from groups or extras with environment name so the below is the</span>
+<span class="c1"># same as</span>
+<span class="c1">#</span>
+<span class="c1"># [tool.pyproject2conda.envs.test]</span>
+<span class="c1"># extras-or-groups = &quot;test&quot;</span>
+<span class="c1">#</span>
+<span class="n">default-envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dist-pypi&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="k">[tool.pyproject2conda.envs.base]</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;requirements&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="c1"># This will have no extras or groups</span>
+<span class="c1">#</span>
+<span class="c1"># A value of `extras = true` will would be equivalent to</span>
+<span class="c1"># passing extras-or-groups = &lt;env-name&gt;</span>
+<span class="k">[tool.pyproject2conda.envs.</span><span class="s2">&quot;test-extras&quot;</span><span class="k">]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;requirements&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="k">[[tool.pyproject2conda.overrides]]</span>
+<span class="n">envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s1">&#39;test-extras&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dist-pypi&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">skip-package</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="k">[[tool.pyproject2conda.overrides]]</span>
+<span class="n">envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;test-extras&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;3.10&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;3.11&quot;</span><span class="w"> </span><span class="p">]</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<p>run through the command <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span> <span class="pre">project</span></code> (or <code class="docutils literal notranslate"><span class="pre">p2c</span> <span class="pre">project</span></code>):</p>
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry ", wrapper="bash", bounds=(None, 45))]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>p2c<span class="w"> </span>project<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--dry
+<span class="c1"># --------------------</span>
+<span class="c1"># Creating requirements base.txt</span>
+athing
+bthing
+cthing<span class="p">;</span><span class="w"> </span>python_version<span class="w"> </span>&lt;<span class="w"> </span><span class="s2">&quot;3.10&quot;</span>
+<span class="c1"># --------------------</span>
+<span class="c1"># Creating yaml py310-test-extras.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="c1"># --------------------</span>
+<span class="c1"># Creating yaml py311-test-extras.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="c1"># --------------------</span>
+<span class="c1"># Creating requirements test-extras.txt</span>
+pandas
+pytest
+<span class="c1"># --------------------</span>
+<span class="c1"># Creating yaml py310-test.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+<span class="c1"># --------------------</span>
+<span class="c1"># Creating yaml py311-test.yaml</span>
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+
+<span class="w"> </span>...
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<p>Note that here, we have used the <code class="docutils literal notranslate"><span class="pre">--dry</span></code> option to just print the output. In
+production, you’d omit this flag, and files according to <code class="docutils literal notranslate"><span class="pre">--template</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--template-python</span></code> would be used.</p>
+<p>The options under <code class="docutils literal notranslate"><span class="pre">[tool.pyproject2conda]</span></code> follow the command line options. For
+example, specify <code class="docutils literal notranslate"><span class="pre">template-python</span> <span class="pre">=</span> <span class="pre">...</span></code> in the config file instead of passing
+<code class="docutils literal notranslate"><span class="pre">--template-python</span></code>. You can optionally replace all dashes with underscores in
+config file option names, but this will be deprecated in future versions. To
+specify an environment, you can either use the
+<code class="docutils literal notranslate"><span class="pre">[tool.pyproject.envs.&quot;environment-name&quot;]</span></code> method, or, if the environment is the
+same as an <code class="docutils literal notranslate"><span class="pre">project.optional-dependencies</span></code> or <code class="docutils literal notranslate"><span class="pre">dependency-groups</span></code>, you can just
+specify it under <code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.default-envs</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pyproject2conda]</span>
+<span class="c1"># ...</span>
+<span class="n">default-envs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>is equivalent to</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pyproject2conda.envs.test]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To specify a conda environment (<code class="docutils literal notranslate"><span class="pre">yaml</span></code>) file, pass <code class="docutils literal notranslate"><span class="pre">style</span> <span class="pre">=</span> <span class="pre">&quot;yaml&quot;</span></code> (the
+default). To specify a requirements file, pass <code class="docutils literal notranslate"><span class="pre">style</span> <span class="pre">=</span> <span class="pre">&quot;requirements&quot;</span></code>. You can
+specify both to make both.</p>
+<p>Options in a given <code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.envs.&quot;environment-name&quot;</span></code> section
+override those at the <code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda</span></code> level. So, for example:</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(begin='[tool.pyproject2conda.envs."test-extras"]', end='[[tool.pyproject2conda.overrides]]', begin_dot=False)]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
+<span class="k">[tool.pyproject2conda.envs.</span><span class="s2">&quot;test-extras&quot;</span><span class="k">]</span>
+<span class="n">extras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;requirements&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<p>will override use the two styles instead of the default of <code class="docutils literal notranslate"><span class="pre">yaml</span></code>.</p>
+<p>You can also override options for multiple environments using the
+<code class="docutils literal notranslate"><span class="pre">[[tools.pyproject2conda.overrides]]</span></code> list. Just specify the override option(s)
+and the environments to apply them to. For example, above we specify that the
+base option is <code class="docutils literal notranslate"><span class="pre">False</span></code> for envs <code class="docutils literal notranslate"><span class="pre">test-extras</span></code> and <code class="docutils literal notranslate"><span class="pre">dist-pypi</span></code>, and that the
+python version should be <code class="docutils literal notranslate"><span class="pre">3.10</span></code> and <code class="docutils literal notranslate"><span class="pre">3.11</span></code> for envs <code class="docutils literal notranslate"><span class="pre">test</span></code> and <code class="docutils literal notranslate"><span class="pre">test-extras</span></code>.
+Note that each “overrides” table must specify the options to be overridden, and
+the environments that these overrides apply to. Also, note that subsequent
+overrides override previous overrides/options (last option wins).</p>
+<p>So in all, options are picked up, in order, from the overrides list, then the
+environment definition, and finally, from the default options.</p>
+<p>You can also define “user defined” configurations. This can be done through the
+option <code class="docutils literal notranslate"><span class="pre">--user-config</span></code>. This allows you to define your own environments outside
+of the (most likely source controlled) <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file. For example, we
+have the option <code class="docutils literal notranslate"><span class="pre">user-config=config/userconfig.toml</span></code>.</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog cat_lines(path="./tests/data/config/userconfig.toml", begin=None, end=None)]]] -->
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.pyproject2conda.envs.</span><span class="s2">&quot;user-dev&quot;</span><span class="k">]</span>
+<span class="n">extras-or-groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dist-pypi&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">deps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;extra-dep&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">reqs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;extra-req&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hello&quot;</span>
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+<p>Note that the full path of this file is note that the path of the <code class="docutils literal notranslate"><span class="pre">user-config</span></code>
+file is relative to them<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file. So, if the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file
+is at <code class="docutils literal notranslate"><span class="pre">a/path/pyproject.toml</span></code>, the path of user configuration files will be
+<code class="docutils literal notranslate"><span class="pre">a/path/config/userconfig.toml</span></code>. We then can run the following:</p>
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev", wrapper="bash")]]] -->
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>p2c<span class="w"> </span>project<span class="w"> </span>-f<span class="w"> </span>tests/data/test-pyproject.toml<span class="w"> </span>--dry<span class="w"> </span>--envs<span class="w"> </span>user-dev
+<span class="c1"># --------------------</span>
+<span class="c1"># Creating yaml py310-user-dev.yaml</span>
+name:<span class="w"> </span>hello
+channels:
+<span class="w">  </span>-<span class="w"> </span>conda-forge
+dependencies:
+<span class="w">  </span>-<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+<span class="w">  </span>-<span class="w"> </span>bthing-conda
+<span class="w">  </span>-<span class="w"> </span>conda-forge::pytest
+<span class="w">  </span>-<span class="w"> </span>conda-matplotlib
+<span class="w">  </span>-<span class="w"> </span>extra-dep
+<span class="w">  </span>-<span class="w"> </span>pandas
+<span class="w">  </span>-<span class="w"> </span>setuptools
+<span class="w">  </span>-<span class="w"> </span>pip
+<span class="w">  </span>-<span class="w"> </span>pip:
+<span class="w">      </span>-<span class="w"> </span>athing
+<span class="w">      </span>-<span class="w"> </span>build
+<span class="w">      </span>-<span class="w"> </span>extra-req
+</pre></div>
+</div>
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+</section>
+<section id="cli-options">
+<h3>CLI options<a class="headerlink" href="#cli-options" title="Link to this heading">#</a></h3>
+<p>See
+<a class="reference external" href="https://pages.nist.gov/pyproject2conda/reference/cli.html#">command line interface documentation</a>
+for details on the commands and options.</p>
+<!-- markdownlint-disable MD013 -->
+<!-- prettier-ignore-start -->
+<!-- [cog
+  import os
+  os.environ["P2C_RICH_CLICK_MAX_WIDTH"] = "90"
+
+  run_command("pyproject2conda --help", wrapper="bash")
+
+  cmds = [
+    "list",
+    "yaml",
+    "requirements",
+    "project",
+    "conda-requirements",
+    "json"
+  ]
+
+  for cmd in cmds:
+    print(f"#### {cmd}\n")
+    run_command(f"pyproject2conda {cmd} --help", wrapper="bash")
+
+] -->
+<!-- [end] -->
+<!-- prettier-ignore-end -->
+<!-- markdownlint-enable MD013 -->
+</section>
+</section>
+<section id="related-work">
+<h2>Related work<a class="headerlink" href="#related-work" title="Link to this heading">#</a></h2>
+<p>The application <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> is used in the development of the following
+packages:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/usnistgov/cmomy"><code class="docutils literal notranslate"><span class="pre">cmomy</span></code></a></p></li>
+<li><p><a class="reference external" href="https://github.com/usnistgov/thermoextrap"><code class="docutils literal notranslate"><span class="pre">thermoextrap</span></code></a></p></li>
+<li><p><a class="reference external" href="https://github.com/usnistgov/tmmc-lnpy"><code class="docutils literal notranslate"><span class="pre">tmmc-lnpy</span></code></a></p></li>
+<li><p><a class="reference external" href="https://github.com/usnistgov/module-utilities"><code class="docutils literal notranslate"><span class="pre">module-utilities</span></code></a></p></li>
+<li><p><a class="reference external" href="https://github.com/conda-forge/analphipy-feedstock"><code class="docutils literal notranslate"><span class="pre">analphipy</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> itself!</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="navigation.html">Indices and tables</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="installation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#status">Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-commit-hooks">Pre-commit hooks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-usage">Example usage</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#specify-python-version">Specify python version</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-extra-conda-dependencies-and-pip-requirements">Adding extra conda dependencies and pip requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#command-aliases">Command “aliases”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-extras">Installing extras</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-dependency-groups">Installing from <code class="docutils literal notranslate"><span class="pre">dependency-groups</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header-in-output">Header in output</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-within-python">Usage within python</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-multiple-environments-from-pyproject-toml">Creating multiple environments from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-options">CLI options</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-work">Related work</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By William P. Krekelberg
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, William P. Krekelberg.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on 2026-02-20.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

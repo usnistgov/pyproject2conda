@@ -1,0 +1,934 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Read/use config/pyproject.toml file (config) &#8212; pyproject2conda 0.22.2.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/leaveNotice/css/jquery.leaveNotice.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=0aebe9f5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/generated/pyproject2conda.config';</script>
+    <script src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+    <script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js"></script>
+    <script src="https://pages.nist.gov/leaveNotice/js/jquery.leaveNotice-nist.min.js"></script>
+    <script src="../../_static/js/leave_notice.js?v=133c5535"></script>
+    <script async="async" id="_fed_au_ua_tag" type="text/javascript" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=NIST&subagency=github&pua=UA-66610693-1&yt=true&exts=ppsx,pps,f90,sch,rtf,wrl,txz,m1v,xlsm,msi,xsd,f,tif,eps,mpg,xml,pl,xlt,c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Console script for pyproject2conda (cli)" href="pyproject2conda.cli.html" />
+    <link rel="prev" title="Requirements parsing (requirements)" href="pyproject2conda.requirements.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+    <meta name="docbuild:last-update" content="2026-02-20"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyproject2conda 0.22.2.dev0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    pyproject2conda
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cli.html">Command line interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyproject2conda.overrides.html">Override dependencies (<code class="xref py py-mod docutils literal notranslate"><span class="pre">overrides</span></code>)</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="pyproject2conda.requirements.html">Requirements parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">requirements</span></code>)</a></li>
+
+
+
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+
+
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../navigation.html">Indices and tables</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../genindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../py-modindex.html">Module Index</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda/issues/new?title=Issue%20on%20page%20%2Freference/generated/pyproject2conda.config.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/reference/generated/pyproject2conda.config.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Read/use config/pyproject.toml file (config)</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.get_in"><code class="docutils literal notranslate"><span class="pre">Config.get_in()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.overrides"><code class="docutils literal notranslate"><span class="pre">Config.overrides</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.envs"><code class="docutils literal notranslate"><span class="pre">Config.envs</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.channels"><code class="docutils literal notranslate"><span class="pre">Config.channels()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.python"><code class="docutils literal notranslate"><span class="pre">Config.python()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.pip_only"><code class="docutils literal notranslate"><span class="pre">Config.pip_only()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.extras"><code class="docutils literal notranslate"><span class="pre">Config.extras()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.groups"><code class="docutils literal notranslate"><span class="pre">Config.groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.extras_or_groups"><code class="docutils literal notranslate"><span class="pre">Config.extras_or_groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.output"><code class="docutils literal notranslate"><span class="pre">Config.output()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.sort"><code class="docutils literal notranslate"><span class="pre">Config.sort()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.skip_package"><code class="docutils literal notranslate"><span class="pre">Config.skip_package()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.name"><code class="docutils literal notranslate"><span class="pre">Config.name()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.header"><code class="docutils literal notranslate"><span class="pre">Config.header()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.custom_command"><code class="docutils literal notranslate"><span class="pre">Config.custom_command()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.style"><code class="docutils literal notranslate"><span class="pre">Config.style()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.python_include"><code class="docutils literal notranslate"><span class="pre">Config.python_include()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.python_version"><code class="docutils literal notranslate"><span class="pre">Config.python_version()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.overwrite"><code class="docutils literal notranslate"><span class="pre">Config.overwrite()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.verbose"><code class="docutils literal notranslate"><span class="pre">Config.verbose()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.template"><code class="docutils literal notranslate"><span class="pre">Config.template()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.template_python"><code class="docutils literal notranslate"><span class="pre">Config.template_python()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.reqs_ext"><code class="docutils literal notranslate"><span class="pre">Config.reqs_ext()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.yaml_ext"><code class="docutils literal notranslate"><span class="pre">Config.yaml_ext()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.deps"><code class="docutils literal notranslate"><span class="pre">Config.deps()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.reqs"><code class="docutils literal notranslate"><span class="pre">Config.reqs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.user_config"><code class="docutils literal notranslate"><span class="pre">Config.user_config()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.allow_empty"><code class="docutils literal notranslate"><span class="pre">Config.allow_empty()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.remove_whitespace"><code class="docutils literal notranslate"><span class="pre">Config.remove_whitespace()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.assign_user_config"><code class="docutils literal notranslate"><span class="pre">Config.assign_user_config()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.iter_envs"><code class="docutils literal notranslate"><span class="pre">Config.iter_envs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.from_toml_dict"><code class="docutils literal notranslate"><span class="pre">Config.from_toml_dict()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.from_string"><code class="docutils literal notranslate"><span class="pre">Config.from_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.from_file"><code class="docutils literal notranslate"><span class="pre">Config.from_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="read-use-config-pyproject-toml-file-config">
+<span id="module-pyproject2conda.config"></span><h1>Read/use config/pyproject.toml file (<a class="reference internal" href="#module-pyproject2conda.config" title="pyproject2conda.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code></a>)<a class="headerlink" href="#read-use-config-pyproject-toml-file-config" title="Link to this heading">#</a></h1>
+</section>
+<p><strong>Classes:</strong></p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config" title="pyproject2conda.config.Config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code></a>(data[, default_pythons, all_pythons])</p></td>
+<td><p>Class to parse toml file with [tool.pyproject2conda] section</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyproject2conda.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pythons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_pythons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L38-L562"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class to parse toml file with [tool.pyproject2conda] section</p>
+<p><strong>Methods:</strong></p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.get_in" title="pyproject2conda.config.Config.get_in"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_in</span></code></a>(*keys[, default])</p></td>
+<td><p>Utility to extract from nested dict.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.channels" title="pyproject2conda.config.Config.channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">channels</span></code></a>([env_name, inherit])</p></td>
+<td><p>Channels getter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.python" title="pyproject2conda.config.Config.python"><code class="xref py py-obj docutils literal notranslate"><span class="pre">python</span></code></a>(env_name, inherit, default)</p></td>
+<td><p>Python getter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.pip_only" title="pyproject2conda.config.Config.pip_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pip_only</span></code></a>([env_name, inherit, default])</p></td>
+<td><p>If True, use pip only</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.extras" title="pyproject2conda.config.Config.extras"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extras</span></code></a>(env_name[, inherit])</p></td>
+<td><p>Extras getter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.groups" title="pyproject2conda.config.Config.groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groups</span></code></a>(env_name[, inherit])</p></td>
+<td><p>Groups getter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.extras_or_groups" title="pyproject2conda.config.Config.extras_or_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extras_or_groups</span></code></a>(env_name[, inherit])</p></td>
+<td><p>Extras_or_Groups getter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.output" title="pyproject2conda.config.Config.output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output</span></code></a>([env_name])</p></td>
+<td><p>Output getter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.sort" title="pyproject2conda.config.Config.sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort</span></code></a>([env_name, inherit, default])</p></td>
+<td><p>Sort getter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.skip_package" title="pyproject2conda.config.Config.skip_package"><code class="xref py py-obj docutils literal notranslate"><span class="pre">skip_package</span></code></a>(env_name[, default])</p></td>
+<td><p>skip_package getter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.name" title="pyproject2conda.config.Config.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a>(env_name)</p></td>
+<td><p>Name option.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.header" title="pyproject2conda.config.Config.header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">header</span></code></a>(env_name)</p></td>
+<td><p>Header getter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.custom_command" title="pyproject2conda.config.Config.custom_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_command</span></code></a>(env_name)</p></td>
+<td><p>Custom command to place in the header</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.style" title="pyproject2conda.config.Config.style"><code class="xref py py-obj docutils literal notranslate"><span class="pre">style</span></code></a>([env_name, default])</p></td>
+<td><p>Style getter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.python_include" title="pyproject2conda.config.Config.python_include"><code class="xref py py-obj docutils literal notranslate"><span class="pre">python_include</span></code></a>([env_name])</p></td>
+<td><p>Flag python_include</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.python_version" title="pyproject2conda.config.Config.python_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">python_version</span></code></a>([env_name])</p></td>
+<td><p>Flag python_version</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.overwrite" title="pyproject2conda.config.Config.overwrite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overwrite</span></code></a>([env_name, default])</p></td>
+<td><p>Flag overwrite</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.verbose" title="pyproject2conda.config.Config.verbose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">verbose</span></code></a>([env_name, default])</p></td>
+<td><p>Flag verbose</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.template" title="pyproject2conda.config.Config.template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">template</span></code></a>(env_name[, default])</p></td>
+<td><p>Flag for template</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.template_python" title="pyproject2conda.config.Config.template_python"><code class="xref py py-obj docutils literal notranslate"><span class="pre">template_python</span></code></a>(env_name[, default])</p></td>
+<td><p>Flag for template_python.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.reqs_ext" title="pyproject2conda.config.Config.reqs_ext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reqs_ext</span></code></a>(env_name[, default])</p></td>
+<td><p>Requirements extension</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.yaml_ext" title="pyproject2conda.config.Config.yaml_ext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yaml_ext</span></code></a>(env_name[, default])</p></td>
+<td><p>Conda yaml extension</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.deps" title="pyproject2conda.config.Config.deps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deps</span></code></a>(env_name[, default])</p></td>
+<td><p>Conda dependencies option.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.reqs" title="pyproject2conda.config.Config.reqs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reqs</span></code></a>(env_name[, default])</p></td>
+<td><p>Pip dependencies option.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.user_config" title="pyproject2conda.config.Config.user_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_config</span></code></a>([env_name])</p></td>
+<td><p>Flag user_config</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.allow_empty" title="pyproject2conda.config.Config.allow_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">allow_empty</span></code></a>([env_name, default])</p></td>
+<td><p>Allow empty option.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.remove_whitespace" title="pyproject2conda.config.Config.remove_whitespace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_whitespace</span></code></a>([env_name, default])</p></td>
+<td><p>Remove whitespace option.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.assign_user_config" title="pyproject2conda.config.Config.assign_user_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_user_config</span></code></a>(user)</p></td>
+<td><p>Assign user_config to self.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.iter_envs" title="pyproject2conda.config.Config.iter_envs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_envs</span></code></a>([envs])</p></td>
+<td><p>Iterate over configs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.from_toml_dict" title="pyproject2conda.config.Config.from_toml_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_toml_dict</span></code></a>(data_toml[, user_config])</p></td>
+<td><p>Create from toml dictionaries.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.from_string" title="pyproject2conda.config.Config.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(s[, user_config])</p></td>
+<td><p>Create from string representation of toml file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.from_file" title="pyproject2conda.config.Config.from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code></a>(path[, user_config])</p></td>
+<td><p>Create from toml file(s).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Attributes:</strong></p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.overrides" title="pyproject2conda.config.Config.overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overrides</span></code></a></p></td>
+<td><p>All overrides sections from <cite>[[tool.pyproject2conda.overrides]]</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.config.Config.envs" title="pyproject2conda.config.Config.envs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">envs</span></code></a></p></td>
+<td><p>All environments</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.get_in">
+<span class="sig-name descname"><span class="pre">get_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L53-L55"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.get_in" title="Link to this definition">#</a></dt>
+<dd><p>Utility to extract from nested dict.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.overrides">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">overrides</span></span><a class="headerlink" href="#pyproject2conda.config.Config.overrides" title="Link to this definition">#</a></dt>
+<dd><p>All overrides sections from <cite>[[tool.pyproject2conda.overrides]]</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.envs">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">envs</span></span><a class="headerlink" href="#pyproject2conda.config.Config.envs" title="Link to this definition">#</a></dt>
+<dd><p>All environments</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.channels">
+<span class="sig-name descname"><span class="pre">channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L132-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.channels" title="Link to this definition">#</a></dt>
+<dd><p>Channels getter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.python">
+<span class="sig-name descname"><span class="pre">python</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default:</span> <span class="pre">~typing.Any</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'list'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L140-L151"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.python" title="Link to this definition">#</a></dt>
+<dd><p>Python getter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.pip_only">
+<span class="sig-name descname"><span class="pre">pip_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L153-L162"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.pip_only" title="Link to this definition">#</a></dt>
+<dd><p>If True, use pip only</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.extras">
+<span class="sig-name descname"><span class="pre">extras</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L181-L191"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.extras" title="Link to this definition">#</a></dt>
+<dd><p>Extras getter</p>
+<ul class="simple">
+<li><p>If value is <cite>True</cite> (default), then return [env_name]</p></li>
+<li><p>If value is <cite>False</cite>, return []</p></li>
+<li><p>else return list of extras</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.groups">
+<span class="sig-name descname"><span class="pre">groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L193-L201"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.groups" title="Link to this definition">#</a></dt>
+<dd><p>Groups getter.</p>
+<p>Same style as <cite>self.extras</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.extras_or_groups">
+<span class="sig-name descname"><span class="pre">extras_or_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L203-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.extras_or_groups" title="Link to this definition">#</a></dt>
+<dd><p>Extras_or_Groups getter.</p>
+<p>These will need to be resolved after the fact.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.output">
+<span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L213-L215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.output" title="Link to this definition">#</a></dt>
+<dd><p>Output getter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.sort">
+<span class="sig-name descname"><span class="pre">sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L217-L223"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.sort" title="Link to this definition">#</a></dt>
+<dd><p>Sort getter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.skip_package">
+<span class="sig-name descname"><span class="pre">skip_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L225-L227"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.skip_package" title="Link to this definition">#</a></dt>
+<dd><p>skip_package getter.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L229-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.name" title="Link to this definition">#</a></dt>
+<dd><p>Name option.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.header">
+<span class="sig-name descname"><span class="pre">header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L233-L235"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.header" title="Link to this definition">#</a></dt>
+<dd><p>Header getter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.custom_command">
+<span class="sig-name descname"><span class="pre">custom_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L237-L239"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.custom_command" title="Link to this definition">#</a></dt>
+<dd><p>Custom command to place in the header</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.style">
+<span class="sig-name descname"><span class="pre">style</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'yaml'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L241-L250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.style" title="Link to this definition">#</a></dt>
+<dd><p>Style getter.  One of <cite>yaml</cite>, <cite>requirements</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.python_include">
+<span class="sig-name descname"><span class="pre">python_include</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L252-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.python_include" title="Link to this definition">#</a></dt>
+<dd><p>Flag python_include</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.python_version">
+<span class="sig-name descname"><span class="pre">python_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L256-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.python_version" title="Link to this definition">#</a></dt>
+<dd><p>Flag python_version</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.overwrite">
+<span class="sig-name descname"><span class="pre">overwrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'check'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L260-L262"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.overwrite" title="Link to this definition">#</a></dt>
+<dd><p>Flag overwrite</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L264-L268"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.verbose" title="Link to this definition">#</a></dt>
+<dd><p>Flag verbose</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.template">
+<span class="sig-name descname"><span class="pre">template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'{env}'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L270-L272"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.template" title="Link to this definition">#</a></dt>
+<dd><p>Flag for template</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.template_python">
+<span class="sig-name descname"><span class="pre">template_python</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'py{py}-{env}'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L274-L278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.template_python" title="Link to this definition">#</a></dt>
+<dd><p>Flag for template_python.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.reqs_ext">
+<span class="sig-name descname"><span class="pre">reqs_ext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.txt'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L280-L286"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.reqs_ext" title="Link to this definition">#</a></dt>
+<dd><p>Requirements extension</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.yaml_ext">
+<span class="sig-name descname"><span class="pre">yaml_ext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.yaml'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L288-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.yaml_ext" title="Link to this definition">#</a></dt>
+<dd><p>Conda yaml extension</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.deps">
+<span class="sig-name descname"><span class="pre">deps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L296-L302"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.deps" title="Link to this definition">#</a></dt>
+<dd><p>Conda dependencies option.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.reqs">
+<span class="sig-name descname"><span class="pre">reqs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L304-L310"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.reqs" title="Link to this definition">#</a></dt>
+<dd><p>Pip dependencies option.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.user_config">
+<span class="sig-name descname"><span class="pre">user_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L312-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.user_config" title="Link to this definition">#</a></dt>
+<dd><p>Flag user_config</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.allow_empty">
+<span class="sig-name descname"><span class="pre">allow_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L316-L320"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.allow_empty" title="Link to this definition">#</a></dt>
+<dd><p>Allow empty option.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.remove_whitespace">
+<span class="sig-name descname"><span class="pre">remove_whitespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L322-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.remove_whitespace" title="Link to this definition">#</a></dt>
+<dd><p>Remove whitespace option.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.assign_user_config">
+<span class="sig-name descname"><span class="pre">assign_user_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L332-L360"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.assign_user_config" title="Link to this definition">#</a></dt>
+<dd><p>Assign user_config to self.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.iter_envs">
+<span class="sig-name descname"><span class="pre">iter_envs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">envs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">defaults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.14)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L477-L495"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.iter_envs" title="Link to this definition">#</a></dt>
+<dd><p>Iterate over configs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.from_toml_dict">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_toml_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_toml</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L497-L528"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.from_toml_dict" title="Link to this definition">#</a></dt>
+<dd><p>Create from toml dictionaries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.from_string">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L530-L540"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.from_string" title="Link to this definition">#</a></dt>
+<dd><p>Create from string representation of toml file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyproject2conda.config.Config.from_file">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'infer'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/config.py#L542-L562"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.config.Config.from_file" title="Link to this definition">#</a></dt>
+<dd><p>Create from toml file(s).</p>
+</dd></dl>
+
+</dd></dl>
+
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="pyproject2conda.requirements.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Requirements parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">requirements</span></code>)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pyproject2conda.cli.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.get_in"><code class="docutils literal notranslate"><span class="pre">Config.get_in()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.overrides"><code class="docutils literal notranslate"><span class="pre">Config.overrides</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.envs"><code class="docutils literal notranslate"><span class="pre">Config.envs</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.channels"><code class="docutils literal notranslate"><span class="pre">Config.channels()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.python"><code class="docutils literal notranslate"><span class="pre">Config.python()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.pip_only"><code class="docutils literal notranslate"><span class="pre">Config.pip_only()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.extras"><code class="docutils literal notranslate"><span class="pre">Config.extras()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.groups"><code class="docutils literal notranslate"><span class="pre">Config.groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.extras_or_groups"><code class="docutils literal notranslate"><span class="pre">Config.extras_or_groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.output"><code class="docutils literal notranslate"><span class="pre">Config.output()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.sort"><code class="docutils literal notranslate"><span class="pre">Config.sort()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.skip_package"><code class="docutils literal notranslate"><span class="pre">Config.skip_package()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.name"><code class="docutils literal notranslate"><span class="pre">Config.name()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.header"><code class="docutils literal notranslate"><span class="pre">Config.header()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.custom_command"><code class="docutils literal notranslate"><span class="pre">Config.custom_command()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.style"><code class="docutils literal notranslate"><span class="pre">Config.style()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.python_include"><code class="docutils literal notranslate"><span class="pre">Config.python_include()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.python_version"><code class="docutils literal notranslate"><span class="pre">Config.python_version()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.overwrite"><code class="docutils literal notranslate"><span class="pre">Config.overwrite()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.verbose"><code class="docutils literal notranslate"><span class="pre">Config.verbose()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.template"><code class="docutils literal notranslate"><span class="pre">Config.template()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.template_python"><code class="docutils literal notranslate"><span class="pre">Config.template_python()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.reqs_ext"><code class="docutils literal notranslate"><span class="pre">Config.reqs_ext()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.yaml_ext"><code class="docutils literal notranslate"><span class="pre">Config.yaml_ext()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.deps"><code class="docutils literal notranslate"><span class="pre">Config.deps()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.reqs"><code class="docutils literal notranslate"><span class="pre">Config.reqs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.user_config"><code class="docutils literal notranslate"><span class="pre">Config.user_config()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.allow_empty"><code class="docutils literal notranslate"><span class="pre">Config.allow_empty()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.remove_whitespace"><code class="docutils literal notranslate"><span class="pre">Config.remove_whitespace()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.assign_user_config"><code class="docutils literal notranslate"><span class="pre">Config.assign_user_config()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.iter_envs"><code class="docutils literal notranslate"><span class="pre">Config.iter_envs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.from_toml_dict"><code class="docutils literal notranslate"><span class="pre">Config.from_toml_dict()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.from_string"><code class="docutils literal notranslate"><span class="pre">Config.from_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.config.Config.from_file"><code class="docutils literal notranslate"><span class="pre">Config.from_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By William P. Krekelberg
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, William P. Krekelberg.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on 2026-02-20.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

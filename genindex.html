@@ -1,0 +1,1700 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; pyproject2conda 0.22.2.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/leaveNotice/css/jquery.leaveNotice.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=0aebe9f5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+    <script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js"></script>
+    <script src="https://pages.nist.gov/leaveNotice/js/jquery.leaveNotice-nist.min.js"></script>
+    <script src="_static/js/leave_notice.js?v=133c5535"></script>
+    <script async="async" id="_fed_au_ua_tag" type="text/javascript" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=NIST&subagency=github&pua=UA-66610693-1&yt=true&exts=ppsx,pps,f90,sch,rtf,wrl,txz,m1v,xlsm,msi,xsd,f,tif,eps,mpg,xml,pl,xlt,c"></script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+    <meta name="docbuild:last-update" content="2026-02-20"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyproject2conda 0.22.2.dev0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    pyproject2conda
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/cli.html">Command line interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.overrides.html">Override dependencies (<code class="xref py py-mod docutils literal notranslate"><span class="pre">overrides</span></code>)</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.requirements.html">Requirements parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">requirements</span></code>)</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+
+
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="navigation.html">Indices and tables</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="py-modindex.html">Module Index</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda/issues/new?title=Issue%20on%20page%20%2Fgenindex.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#Symbols"><strong>Symbols</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
+ 
+</div>
+<h2 id="Symbols">Symbols</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    --allow-empty
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-allow-empty">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-allow-empty">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-allow-empty">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --channel
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-c">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-c">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-c">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --columns
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-columns">pyproject2conda command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --custom-command
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-custom-command">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-custom-command">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-custom-command">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-custom-command">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --deps
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-d">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-d">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-d">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-d">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --dry
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-dry">pyproject2conda-project command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --envs
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-envs">pyproject2conda-project command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --extra
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-e">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-e">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-e">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-e">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --extra-or-group
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-extra-or-group">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-extra-or-group">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-extra-or-group">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-extra-or-group">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --file
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-f">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-f">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-f">pyproject2conda-list command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-f">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-f">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-f">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --group
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-g">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-g">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-g">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-g">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --header
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-header">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-header">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-header">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-header">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --install-completion
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-install-completion">pyproject2conda command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --name
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-n">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --no-allow-empty
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-allow-empty">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-allow-empty">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-allow-empty">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --no-header
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-header">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-header">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-header">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-header">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --no-remove-whitespace
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-remove-whitespace">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-remove-whitespace">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-remove-whitespace">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --no-sort
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-sort">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-sort">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-sort">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-sort">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-sort">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --output
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-o">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-o">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-o">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --overwrite
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-w">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-w">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-w">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-w">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --pip-only
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-pip-only">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-pip-only">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --prefix
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-prefix">pyproject2conda-conda-requirements command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --prepend-channel
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-prepend-channel">pyproject2conda-conda-requirements command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --pyproject-file
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-f">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-f">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-f">pyproject2conda-list command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-f">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-f">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-f">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --python
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-p">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-p">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-p">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --python-include
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-python-include">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-python-include">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-python-include">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    --python-version
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-python-version">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-python-version">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-python-version">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --remove-whitespace
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-remove-whitespace">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-remove-whitespace">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-remove-whitespace">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --reqs
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-r">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-r">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-r">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-r">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-r">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --reqs-ext
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-reqs-ext">pyproject2conda-project command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --show-completion
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-show-completion">pyproject2conda command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --skip-package
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-skip-package">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-skip-package">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-skip-package">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-skip-package">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --sort
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-sort">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-sort">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-sort">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-sort">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-sort">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --template
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-template">pyproject2conda-project command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --template-python
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-template-python">pyproject2conda-project command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --user-config
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-user-config">pyproject2conda-project command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --verbose
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-v">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-v">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-v">pyproject2conda-list command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-v">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-v">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-v">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --version
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-v">pyproject2conda command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --yaml-ext
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-yaml-ext">pyproject2conda-project command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -c
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-c">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-c">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-c">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -d
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-d">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-d">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-d">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-d">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -e
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-e">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-e">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-e">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-e">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -f
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-f">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-f">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-f">pyproject2conda-list command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-f">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-f">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-f">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -g
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-g">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-g">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-g">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-g">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -n
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-n">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -o
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-o">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-o">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-o">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -p
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-p">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-p">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-p">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -r
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-r">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-r">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-r">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-r">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-r">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -v
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-v">pyproject2conda command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-v">pyproject2conda-conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-v">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-v">pyproject2conda-list command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-v">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-v">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-v">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -w
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-w">pyproject2conda-json command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-w">pyproject2conda-project command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-w">pyproject2conda-requirements command line option</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-w">pyproject2conda-yaml command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.allow_empty">allow_empty() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.assign_user_config">assign_user_config() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.build_system_requires">build_system_requires (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.channels">channels (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.channels">channels() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.conda_and_pip_requirements">conda_and_pip_requirements() (pyproject2conda.requirements.ParseDepends method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.cli.html#pyproject2conda.cli.conda_requirements">conda_requirements() (in module pyproject2conda.cli)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config">Config (class in pyproject2conda.config)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.cli.html#pyproject2conda.cli.create_list">create_list() (in module pyproject2conda.cli)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.custom_command">custom_command() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.dependencies">dependencies (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.dependency_groups">dependency_groups (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.deps">deps() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.envs">envs (pyproject2conda.config.Config property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.extras">extras (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.extras">extras() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.extras_or_groups">extras_or_groups() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.from_file">from_file() (pyproject2conda.config.Config class method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.from_path">from_path() (pyproject2conda.requirements.ParseDepends class method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.from_string">from_string() (pyproject2conda.config.Config class method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.from_string">(pyproject2conda.requirements.ParseDepends class method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.from_toml_dict">from_toml_dict() (pyproject2conda.config.Config class method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.get_in">get_in() (pyproject2conda.config.Config method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.get_in">(pyproject2conda.requirements.ParseDepends method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.groups">groups (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.groups">groups() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.header">header() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.iter_envs">iter_envs() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.cli.html#pyproject2conda.cli.main">main() (in module pyproject2conda.cli)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="reference/generated/pyproject2conda.cli.html#module-pyproject2conda.cli">pyproject2conda.cli</a>
+</li>
+        <li><a href="reference/generated/pyproject2conda.config.html#module-pyproject2conda.config">pyproject2conda.config</a>
+</li>
+        <li><a href="reference/generated/pyproject2conda.overrides.html#module-pyproject2conda.overrides">pyproject2conda.overrides</a>
+</li>
+        <li><a href="reference/generated/pyproject2conda.requirements.html#module-pyproject2conda.requirements">pyproject2conda.requirements</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.name">name() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.optional_dependencies">optional_dependencies (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.output">output() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.override_table">override_table (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.overrides.html#pyproject2conda.overrides.OverrideDeps">OverrideDeps (class in pyproject2conda.overrides)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.overrides.html#pyproject2conda.overrides.OverrideDict">OverrideDict (class in pyproject2conda.overrides)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.overrides">overrides (pyproject2conda.config.Config property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.cli.html#pyproject2conda.cli.Overwrite">Overwrite (class in pyproject2conda.cli)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.overwrite">overwrite() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.package_name">package_name (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends">ParseDepends (class in pyproject2conda.requirements)</a>
+</li>
+      <li>
+    PATH_CONDA
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-arg-PATH_CONDA">pyproject2conda-conda-requirements command line option</a>
+</li>
+      </ul></li>
+      <li>
+    PATH_PIP
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-arg-PATH_PIP">pyproject2conda-conda-requirements command line option</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.pip_only">pip_only() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.pip_requirements">pip_requirements() (pyproject2conda.requirements.ParseDepends method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.cli.html#pyproject2conda.cli.project">project() (in module pyproject2conda.cli)</a>
+</li>
+      <li>
+    pyproject2conda command line option
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-columns">--columns</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-install-completion">--install-completion</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-show-completion">--show-completion</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-v">--version</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-v">-v</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda-conda-requirements command line option
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-c">--channel</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-custom-command">--custom-command</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-d">--deps</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-e">--extra</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-extra-or-group">--extra-or-group</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-f">--file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-g">--group</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-header">--header</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-header">--no-header</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-sort">--no-sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-prefix">--prefix</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-prepend-channel">--prepend-channel</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-f">--pyproject-file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-p">--python</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-python-include">--python-include</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-python-version">--python-version</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-r">--reqs</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-skip-package">--skip-package</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-sort">--sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-v">--verbose</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-c">-c</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-d">-d</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-e">-e</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-f">-f</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-g">-g</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-p">-p</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-r">-r</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-v">-v</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-arg-PATH_CONDA">PATH_CONDA</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-conda-requirements-arg-PATH_PIP">PATH_PIP</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda-json command line option
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-c">--channel</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-d">--deps</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-e">--extra</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-extra-or-group">--extra-or-group</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-f">--file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-g">--group</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-sort">--no-sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-o">--output</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-w">--overwrite</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-f">--pyproject-file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-p">--python</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-python-include">--python-include</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-python-version">--python-version</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-r">--reqs</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-skip-package">--skip-package</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-sort">--sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-v">--verbose</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-c">-c</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-d">-d</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-e">-e</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-f">-f</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-g">-g</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-o">-o</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-p">-p</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-r">-r</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-v">-v</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-json-w">-w</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda-list command line option
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-f">--file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-f">--pyproject-file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-v">--verbose</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-f">-f</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-list-v">-v</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda-project command line option
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-allow-empty">--allow-empty</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-custom-command">--custom-command</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-d">--deps</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-dry">--dry</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-envs">--envs</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-f">--file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-header">--header</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-allow-empty">--no-allow-empty</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-header">--no-header</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-remove-whitespace">--no-remove-whitespace</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-sort">--no-sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-w">--overwrite</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-pip-only">--pip-only</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-f">--pyproject-file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-remove-whitespace">--remove-whitespace</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-r">--reqs</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-reqs-ext">--reqs-ext</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-sort">--sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-template">--template</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-template-python">--template-python</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-user-config">--user-config</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-v">--verbose</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-yaml-ext">--yaml-ext</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-d">-d</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-f">-f</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-r">-r</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-v">-v</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-project-w">-w</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    pyproject2conda-requirements command line option
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-allow-empty">--allow-empty</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-custom-command">--custom-command</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-e">--extra</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-extra-or-group">--extra-or-group</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-f">--file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-g">--group</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-header">--header</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-allow-empty">--no-allow-empty</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-header">--no-header</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-remove-whitespace">--no-remove-whitespace</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-sort">--no-sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-o">--output</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-w">--overwrite</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-f">--pyproject-file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-remove-whitespace">--remove-whitespace</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-r">--reqs</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-skip-package">--skip-package</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-sort">--sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-v">--verbose</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-e">-e</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-f">-f</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-g">-g</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-o">-o</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-r">-r</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-v">-v</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-requirements-w">-w</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda-yaml command line option
+
+      <ul>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-allow-empty">--allow-empty</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-c">--channel</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-custom-command">--custom-command</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-d">--deps</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-e">--extra</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-extra-or-group">--extra-or-group</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-f">--file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-g">--group</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-header">--header</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-n">--name</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-allow-empty">--no-allow-empty</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-header">--no-header</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-remove-whitespace">--no-remove-whitespace</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-sort">--no-sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-o">--output</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-w">--overwrite</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-pip-only">--pip-only</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-f">--pyproject-file</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-p">--python</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-python-include">--python-include</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-python-version">--python-version</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-remove-whitespace">--remove-whitespace</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-r">--reqs</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-skip-package">--skip-package</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-sort">--sort</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-v">--verbose</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-c">-c</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-d">-d</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-e">-e</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-f">-f</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-g">-g</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-n">-n</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-o">-o</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-p">-p</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-r">-r</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-v">-v</a>
+</li>
+        <li><a href="reference/cli.html#cmdoption-pyproject2conda-yaml-w">-w</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda.cli
+
+      <ul>
+        <li><a href="reference/generated/pyproject2conda.cli.html#module-pyproject2conda.cli">module</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda.config
+
+      <ul>
+        <li><a href="reference/generated/pyproject2conda.config.html#module-pyproject2conda.config">module</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda.overrides
+
+      <ul>
+        <li><a href="reference/generated/pyproject2conda.overrides.html#module-pyproject2conda.overrides">module</a>
+</li>
+      </ul></li>
+      <li>
+    pyproject2conda.requirements
+
+      <ul>
+        <li><a href="reference/generated/pyproject2conda.requirements.html#module-pyproject2conda.requirements">module</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.python">python() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.python_include">python_include() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.python_version">python_version() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.remove_whitespace">remove_whitespace() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.reqs">reqs() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.reqs_ext">reqs_ext() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.cli.html#pyproject2conda.cli.requirements">requirements() (in module pyproject2conda.cli)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.requirements_base">requirements_base (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.requirements_extras">requirements_extras (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.requirements_groups">requirements_groups (pyproject2conda.requirements.ParseDepends property)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.resolve_extras">resolve_extras() (in module pyproject2conda.requirements)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.resolve_group">resolve_group() (in module pyproject2conda.requirements)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.skip_package">skip_package() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.sort">sort() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.style">style() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.template">template() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.template_python">template_python() (pyproject2conda.config.Config method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.to_conda_requirements">to_conda_requirements() (pyproject2conda.requirements.ParseDepends method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.to_conda_yaml">to_conda_yaml() (pyproject2conda.requirements.ParseDepends method)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.cli.html#pyproject2conda.cli.to_json">to_json() (in module pyproject2conda.cli)</a>
+</li>
+      <li><a href="reference/generated/pyproject2conda.requirements.html#pyproject2conda.requirements.ParseDepends.to_requirements">to_requirements() (pyproject2conda.requirements.ParseDepends method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.user_config">user_config() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.verbose">verbose() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.cli.html#pyproject2conda.cli.yaml">yaml() (in module pyproject2conda.cli)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pyproject2conda.config.html#pyproject2conda.config.Config.yaml_ext">yaml_ext() (pyproject2conda.config.Config method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By William P. Krekelberg
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, William P. Krekelberg.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on 2026-02-20.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

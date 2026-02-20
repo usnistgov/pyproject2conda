@@ -1,0 +1,1029 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Changelog &#8212; pyproject2conda 0.22.2.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/leaveNotice/css/jquery.leaveNotice.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=0aebe9f5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
+    <script src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+    <script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js"></script>
+    <script src="https://pages.nist.gov/leaveNotice/js/jquery.leaveNotice-nist.min.js"></script>
+    <script src="_static/js/leave_notice.js?v=133c5535"></script>
+    <script async="async" id="_fed_au_ua_tag" type="text/javascript" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=NIST&subagency=github&pua=UA-66610693-1&yt=true&exts=ppsx,pps,f90,sch,rtf,wrl,txz,m1v,xlsm,msi,xsd,f,tif,eps,mpg,xml,pl,xlt,c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Indices and tables" href="navigation.html" />
+    <link rel="prev" title="Credits" href="authors.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+    <meta name="docbuild:last-update" content="2026-02-20"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyproject2conda 0.22.2.dev0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    pyproject2conda
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/cli.html">Command line interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.overrides.html">Override dependencies (<code class="xref py py-mod docutils literal notranslate"><span class="pre">overrides</span></code>)</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.requirements.html">Requirements parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">requirements</span></code>)</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="reference/generated/pyproject2conda.cli.html">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+
+
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Changelog</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="navigation.html">Indices and tables</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="genindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="py-modindex.html">Module Index</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda/issues/new?title=Issue%20on%20page%20%2Fchangelog.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/changelog.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Changelog</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-22-0-2025-06-06">v0.22.0 — 2025-06-06</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-21-0-2025-06-05">v0.21.0 — 2025-06-05</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-20-0-2025-06-05">v0.20.0 — 2025-06-05</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-19-1-2025-02-19">v0.19.1 — 2025-02-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-19-0-2025-01-29">v0.19.0 — 2025-01-29</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-18-0-2025-01-24">v0.18.0 — 2025-01-24</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-16-0-2024-12-31">v0.16.0 — 2024-12-31</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-15-0-2024-12-17">v0.15.0 — 2024-12-17</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-14-0-2024-12-16">v0.14.0 — 2024-12-16</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-13-0-2024-11-04">v0.13.0 — 2024-11-04</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-12-0-2024-11-04">v0.12.0 — 2024-11-04</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-11-0-2023-11-28">v0.11.0 — 2023-11-28</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-10-0-2023-11-17">v0.10.0 — 2023-11-17</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-9-0-2023-11-14">v0.9.0 — 2023-11-14</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-8-0-2023-10-02">v0.8.0 — 2023-10-02</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-7-0-2023-09-26">v0.7.0 — 2023-09-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-1-2023-09-22">v0.6.1 — 2023-09-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-0-2023-09-19">v0.6.0 — 2023-09-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Changed</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!-- markdownlint-disable MD041 -->
+<!-- markdownlint-disable MD024 -->
+<!-- markdownlint-disable MD013 -->
+<!-- prettier-ignore-start -->
+<section class="tex2jax_ignore mathjax_ignore" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">#</a></h1>
+<p>Changelog for <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code></p>
+<section id="unreleased">
+<h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<p>See the fragment files in <a class="reference external" href="https://github.com/usnistgov/pyproject2conda/tree/main/changelog.d">changelog.d</a></p>
+<!-- prettier-ignore-end -->
+<!-- markdownlint-enable MD013 -->
+<!-- scriv-insert-here -->
+</section>
+<section id="v0-22-0-2025-06-06">
+<h2>v0.22.0 — 2025-06-06<a class="headerlink" href="#v0-22-0-2025-06-06" title="Link to this heading">#</a></h2>
+<section id="deprecated">
+<h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Deprecating using underscores in option names in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>. For
+example, using <code class="docutils literal notranslate"><span class="pre">template_python</span></code> under <code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda</span></code> will lead to a
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>. We’ll fully remove support for underscored names in a
+future version.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-21-0-2025-06-05">
+<h2>v0.21.0 — 2025-06-05<a class="headerlink" href="#v0-21-0-2025-06-05" title="Link to this heading">#</a></h2>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The config file version of command line options now accept either dashes or
+underscores. For example, the command line option <code class="docutils literal notranslate"><span class="pre">--template-python</span></code> now
+respects either <code class="docutils literal notranslate"><span class="pre">template-python</span></code> or <code class="docutils literal notranslate"><span class="pre">template_python</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda</span></code> table of <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>. Note that you have to use
+either all dashes or all underscores, not a mix. The parser first looks for
+options with dashes, then falls back to underscores, so if they are both
+present, the dashed version will win.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-20-0-2025-06-05">
+<h2>v0.20.0 — 2025-06-05<a class="headerlink" href="#v0-20-0-2025-06-05" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h3>Changed<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--name</span></code> option (i.e., the <code class="docutils literal notranslate"><span class="pre">name</span></code> field in an environment.yaml file) now
+accepts the follinging fields:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">{py_version}</span></code>: the full python version passed in with <code class="docutils literal notranslate"><span class="pre">--python-version</span></code>,
+or specified in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{py}</span></code>: the python version without <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code> (so, for example, if
+<code class="docutils literal notranslate"><span class="pre">--python-version=3.8</span></code>, <code class="docutils literal notranslate"><span class="pre">{py}</span></code> will expand to <code class="docutils literal notranslate"><span class="pre">&quot;38&quot;</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{env}</span></code>: the environment name. Only applicable with the <code class="docutils literal notranslate"><span class="pre">project</span></code>
+subcommand.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="v0-19-1-2025-02-19">
+<h2>v0.19.1 — 2025-02-19<a class="headerlink" href="#v0-19-1-2025-02-19" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Bugfix in pre-commit hooks. Now respects <code class="docutils literal notranslate"><span class="pre">header</span> <span class="pre">=</span> <span class="pre">false</span></code> in environments.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-19-0-2025-01-29">
+<h2>v0.19.0 — 2025-01-29<a class="headerlink" href="#v0-19-0-2025-01-29" title="Link to this heading">#</a></h2>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added pre-commit hooks <code class="docutils literal notranslate"><span class="pre">pyproject2conda-project</span></code>, <code class="docutils literal notranslate"><span class="pre">pyproject2conda-yaml</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">pyproject2conda-requirements</span></code>.</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>Changed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Changed default of <code class="docutils literal notranslate"><span class="pre">--overwrite</span></code> to <code class="docutils literal notranslate"><span class="pre">force</span></code>. This simplifies using with
+<code class="docutils literal notranslate"><span class="pre">pre-commit</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--commit-command</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> when run under pre-commit</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-18-0-2025-01-24">
+<h2>v0.18.0 — 2025-01-24<a class="headerlink" href="#v0-18-0-2025-01-24" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h3>Added<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Can now specify current package in dependency-groups like with extras. For
+example, with:</p></li>
+</ul>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;mypackage&quot;</span>
+<span class="p">...</span>
+
+<span class="n">optional-dependencies</span><span class="p">.</span><span class="n">opt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;opt1&quot;</span><span class="w"> </span><span class="p">]</span>
+
+<span class="k">[dependency-groups]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="s2">&quot;pytest&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;mypackage[opt]&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Will render optional dependencies from <code class="docutils literal notranslate"><span class="pre">opt</span></code> extra when using group <code class="docutils literal notranslate"><span class="pre">dev</span></code></p>
+<ul class="simple">
+<li><p>Added flag <code class="docutils literal notranslate"><span class="pre">--pip-only</span></code> to treat all requirements as pip requirements in
+<code class="docutils literal notranslate"><span class="pre">environment.yaml</span></code> files. Closes #8</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-16-0-2024-12-31">
+<h2>v0.16.0 — 2024-12-31<a class="headerlink" href="#v0-16-0-2024-12-31" title="Link to this heading">#</a></h2>
+<section id="id5">
+<h3>Changed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Read default version from first found file, in order,
+<code class="docutils literal notranslate"><span class="pre">.python-version-default</span></code> and <code class="docutils literal notranslate"><span class="pre">.python-version</span></code>. This allows for “default”
+version being different from pinned version specifier, as the latter can be a
+range of python values.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-15-0-2024-12-17">
+<h2>v0.15.0 — 2024-12-17<a class="headerlink" href="#v0-15-0-2024-12-17" title="Link to this heading">#</a></h2>
+<section id="id6">
+<h3>Added<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Can now pass requirements for package with <code class="docutils literal notranslate"><span class="pre">--req/-r</span> <span class="pre">&quot;-e</span> <span class="pre">.&quot;</span></code> for example.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-14-0-2024-12-16">
+<h2>v0.14.0 — 2024-12-16<a class="headerlink" href="#v0-14-0-2024-12-16" title="Link to this heading">#</a></h2>
+<section id="id7">
+<h3>Added<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--python</span></code> flag now accepts options <code class="docutils literal notranslate"><span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">all</span></code>, <code class="docutils literal notranslate"><span class="pre">lowest</span></code>, and <code class="docutils literal notranslate"><span class="pre">highest</span></code>.
+<code class="docutils literal notranslate"><span class="pre">default</span></code> sets python to value found in <code class="docutils literal notranslate"><span class="pre">.python-version</span></code> file in current
+directory. Other options extract values entries of form
+<code class="docutils literal notranslate"><span class="pre">&quot;Programming</span> <span class="pre">Language</span> <span class="pre">::</span> <span class="pre">Python</span> <span class="pre">::</span> <span class="pre">3.10&quot;'</span></code>, etc,from
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml:project.classifiers</span></code> table.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">all</span></code>: All specified python version</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lowest</span></code>: Lowest python version</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">highest</span></code>: Highest python version</p></li>
+</ul>
+</li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--reqs-ext</span></code> and <code class="docutils literal notranslate"><span class="pre">--yaml-ext</span></code> options.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-13-0-2024-11-04">
+<h2>v0.13.0 — 2024-11-04<a class="headerlink" href="#v0-13-0-2024-11-04" title="Link to this heading">#</a></h2>
+<section id="id8">
+<h3>Changed<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Allow <code class="docutils literal notranslate"><span class="pre">overrides</span></code> for all options.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">overrides</span></code> override environment options.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-12-0-2024-11-04">
+<h2>v0.12.0 — 2024-11-04<a class="headerlink" href="#v0-12-0-2024-11-04" title="Link to this heading">#</a></h2>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Removed comments based (<code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">p2c:</span> <span class="pre">...</span></code>) support. Specify changes with
+<code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.dependencies</span></code> table only. This greatly simplifies the
+code, and has become the primary way to use the <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code>.</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Added<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added <a class="reference external" href="https://peps.python.org/pep-0735/">PEP 735</a> support. This includes
+adding option <code class="docutils literal notranslate"><span class="pre">--group</span></code> to the cli, and <code class="docutils literal notranslate"><span class="pre">groups</span></code> key to
+<code class="docutils literal notranslate"><span class="pre">tools.pyproject2conda.envs....</span></code> tables. There is also an option
+<code class="docutils literal notranslate"><span class="pre">--extra-or-group</span></code> (or <code class="docutils literal notranslate"><span class="pre">extras_or_groups</span></code> in pyproject.toml) that will first
+try to find dependencies from “extras” and then from “groups”.</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3>Changed<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Passing no extras to an environment now defaults to no added extras or groups.
+Old behavior (to default to the extra with the same name as the environment)
+was lead to complications with support of <code class="docutils literal notranslate"><span class="pre">dependency-groups</span></code>. Explicitly pass
+the extra or group if to get the old behavior.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">default_envs</span></code> now passed the environment name as <code class="docutils literal notranslate"><span class="pre">extras_or_groups</span></code>.
+Therefore, if the name of the environment is an extra, it will be used.
+Otherwise, it will be from a group of that name.</p></li>
+<li><p>Removed option <code class="docutils literal notranslate"><span class="pre">--base/--no-base</span></code>. Replaced with <code class="docutils literal notranslate"><span class="pre">--skip-package</span></code>. Default is
+to include package dependencies. Pass <code class="docutils literal notranslate"><span class="pre">--skip-package</span></code> (or
+<code class="docutils literal notranslate"><span class="pre">skip_package</span> <span class="pre">=</span> <span class="pre">true</span></code> in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>) to skip package dependencies.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-11-0-2023-11-28">
+<h2>v0.11.0 — 2023-11-28<a class="headerlink" href="#v0-11-0-2023-11-28" title="Link to this heading">#</a></h2>
+<section id="id11">
+<h3>Added<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Can now access “build-system.requires” as an extra. This can be useful for
+creating isolated environments to build a package.</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3>Changed<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Can now specify <code class="docutils literal notranslate"><span class="pre">pip</span></code> as a conda dependency. This is needed for cases that
+there are no pip dependencies in the environment, but you want it there for
+installing local packages. This may be the case if using <code class="docutils literal notranslate"><span class="pre">conda-lock</span></code> on an
+environment. Note that, much like python is always first in the dependency
+list, pip is always last.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-10-0-2023-11-17">
+<h2>v0.10.0 — 2023-11-17<a class="headerlink" href="#v0-10-0-2023-11-17" title="Link to this heading">#</a></h2>
+<section id="id13">
+<h3>Added<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Can now specify conda changes using <code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.dependencies</span></code> table.
+This is an alternative to using <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">p2c:</span></code> comments.</p></li>
+<li><p>Refactored code. Split <code class="docutils literal notranslate"><span class="pre">parser</span></code> to <code class="docutils literal notranslate"><span class="pre">requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">overrides</span></code>. Also
+cleaned up the parsing logic to hopefully make future changes simpler.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-9-0-2023-11-14">
+<h2>v0.9.0 — 2023-11-14<a class="headerlink" href="#v0-9-0-2023-11-14" title="Link to this heading">#</a></h2>
+<section id="id14">
+<h3>Added<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Default is now to remove whitespace from dependencies. For example, the
+dependency <code class="docutils literal notranslate"><span class="pre">module</span> <span class="pre">&gt;</span> <span class="pre">0.1</span></code> will become <code class="docutils literal notranslate"><span class="pre">module&gt;0.1</span></code>. To override this
+behaviour, pass the option <code class="docutils literal notranslate"><span class="pre">--no-remove-whitespace</span></code>.</p></li>
+<li><p>Now supports python version <code class="docutils literal notranslate"><span class="pre">&gt;3.8,&lt;=3.12</span></code></p></li>
+<li><p>Can now specify <code class="docutils literal notranslate"><span class="pre">extras</span> <span class="pre">=</span> <span class="pre">false</span></code> in pyprojec.toml to skip any extras. The
+default (<code class="docutils literal notranslate"><span class="pre">extras</span> <span class="pre">=</span> <span class="pre">true</span></code>) is the same as <code class="docutils literal notranslate"><span class="pre">extras</span> <span class="pre">=</span> <span class="pre">[env_name]</span></code> where
+<code class="docutils literal notranslate"><span class="pre">env_name</span></code> is the name of the environment (e.g.,
+<code class="docutils literal notranslate"><span class="pre">tool.pyproject2conda.envs.env_name</span></code>).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-8-0-2023-10-02">
+<h2>v0.8.0 — 2023-10-02<a class="headerlink" href="#v0-8-0-2023-10-02" title="Link to this heading">#</a></h2>
+<section id="id15">
+<h3>Added<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added option to either raise error, or print message for environments with no
+dependencies.</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>Changed<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>pyproject2conda now works with <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> files with no dependencies.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-7-0-2023-09-26">
+<h2>v0.7.0 — 2023-09-26<a class="headerlink" href="#v0-7-0-2023-09-26" title="Link to this heading">#</a></h2>
+<section id="id17">
+<h3>Added<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Now use <code class="docutils literal notranslate"><span class="pre">logging</span></code> to print info output.</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3>Changed<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>cli now uses <code class="docutils literal notranslate"><span class="pre">typer</span></code>. Since the program was already typed, this simplifies the
+interface.</p></li>
+<li><p>Program can now be called with any of <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code>, <code class="docutils literal notranslate"><span class="pre">p2c</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pyproject2conda</span></code>.</p></li>
+<li><p>Added cli options to web documentation.</p></li>
+<li><p>Fixed small typos and typing issues.</p></li>
+<li><p>The cli option <code class="docutils literal notranslate"><span class="pre">--python-include</span></code> now requires an argument. This is due to
+<code class="docutils literal notranslate"><span class="pre">typer</span></code> not liking options with zero or one arguments. Instead of the bare
+flag <code class="docutils literal notranslate"><span class="pre">--python-include</span></code> including the python spec from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, you
+have to pass <code class="docutils literal notranslate"><span class="pre">--python-include</span> <span class="pre">infer</span></code> to get that behavior.</p></li>
+<li><p>Added extra <code class="docutils literal notranslate"><span class="pre">all</span></code> to pip install options. The default is to not include <code class="docutils literal notranslate"><span class="pre">rich</span></code>
+or <code class="docutils literal notranslate"><span class="pre">shellingham</span></code>. Using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyproject2conda[all]</span></code> includes these
+optional packages. Note that the conda-forge recipe is based on the plain
+install (i.e., no <code class="docutils literal notranslate"><span class="pre">rich</span></code> or <code class="docutils literal notranslate"><span class="pre">shellingham</span></code>). However, the conda-froge recipe
+for <code class="docutils literal notranslate"><span class="pre">typer</span></code> does include these. That means, if you want to install
+<code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code> without the optional extras, you’ll have to use pip.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-6-1-2023-09-22">
+<h2>v0.6.1 — 2023-09-22<a class="headerlink" href="#v0-6-1-2023-09-22" title="Link to this heading">#</a></h2>
+<section id="id19">
+<h3>Changed<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fixed edge case where <code class="docutils literal notranslate"><span class="pre">--overwrite=check</span></code> and have a <code class="docutils literal notranslate"><span class="pre">user_config</span></code>. Now when
+using <code class="docutils literal notranslate"><span class="pre">p2c</span> <span class="pre">project</span></code> with a <code class="docutils literal notranslate"><span class="pre">user_config</span></code> and <code class="docutils literal notranslate"><span class="pre">overwrite=check</span></code>, the timestamp
+of the output file will be compared to both the <code class="docutils literal notranslate"><span class="pre">filename=pyproject.toml</span></code> and
+<code class="docutils literal notranslate"><span class="pre">user_config</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-6-0-2023-09-19">
+<h2>v0.6.0 — 2023-09-19<a class="headerlink" href="#v0-6-0-2023-09-19" title="Link to this heading">#</a></h2>
+<section id="id20">
+<h3>Added<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">project</span></code> subcommand. This uses a configuration in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> to
+build multiple enivonments in one go.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--deps</span></code> and <code class="docutils literal notranslate"><span class="pre">--reqs</span></code> flags to include extra conda and pip requirements.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--overwrite</span></code> to check if output file exists.</p></li>
+<li><p>Now (correctly) using rich_click.</p></li>
+<li><p>Added tests for all new cases, and some edge cases.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-5-1-2023-09-09">
+<h2>v0.5.1 — 2023-09-09<a class="headerlink" href="#v0-5-1-2023-09-09" title="Link to this heading">#</a></h2>
+<section id="id21">
+<h3>Added<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">--sort/--no-sort</span></code> flag to cli. Default is to sort dependencies. This
+fixes issues with changing order in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> leading to different yaml
+files.</p></li>
+</ul>
+</section>
+<section id="id22">
+<h3>Changed<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Changed structure of the repo to better support some third party tools.</p></li>
+<li><p>Moved nox environments from <code class="docutils literal notranslate"><span class="pre">.nox</span></code> to <code class="docutils literal notranslate"><span class="pre">.nox/{project-name}/envs</span></code>. This fixes
+issues with ipykernel giving odd names for locally installed environments.</p></li>
+<li><p>Moved repo specific dot files to the <code class="docutils literal notranslate"><span class="pre">config</span></code> directory (e.g.,
+<code class="docutils literal notranslate"><span class="pre">.noxconfig.toml</span></code> to <code class="docutils literal notranslate"><span class="pre">config/userconfig.toml</span></code>). This cleans up the top level
+of the repo.</p></li>
+<li><p>added some support for using <code class="docutils literal notranslate"><span class="pre">nbqa</span></code> to run mypy/pyright on notebooks.</p></li>
+<li><p>Added ability to bootstrap development environment using pipx. This should
+simplify initial setup. See Contributing for more info.</p></li>
+<li><p>Main repo now on usnistgov.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="authors.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Credits</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="navigation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Indices and tables</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-22-0-2025-06-06">v0.22.0 — 2025-06-06</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-21-0-2025-06-05">v0.21.0 — 2025-06-05</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-20-0-2025-06-05">v0.20.0 — 2025-06-05</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-19-1-2025-02-19">v0.19.1 — 2025-02-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-19-0-2025-01-29">v0.19.0 — 2025-01-29</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-18-0-2025-01-24">v0.18.0 — 2025-01-24</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-16-0-2024-12-31">v0.16.0 — 2024-12-31</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-15-0-2024-12-17">v0.15.0 — 2024-12-17</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-14-0-2024-12-16">v0.14.0 — 2024-12-16</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-13-0-2024-11-04">v0.13.0 — 2024-11-04</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-12-0-2024-11-04">v0.12.0 — 2024-11-04</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-11-0-2023-11-28">v0.11.0 — 2023-11-28</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-10-0-2023-11-17">v0.10.0 — 2023-11-17</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-9-0-2023-11-14">v0.9.0 — 2023-11-14</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-8-0-2023-10-02">v0.8.0 — 2023-10-02</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-7-0-2023-09-26">v0.7.0 — 2023-09-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-1-2023-09-22">v0.6.1 — 2023-09-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-0-2023-09-19">v0.6.0 — 2023-09-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-1-2023-09-09">v0.5.1 — 2023-09-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Changed</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By William P. Krekelberg
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, William P. Krekelberg.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on 2026-02-20.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

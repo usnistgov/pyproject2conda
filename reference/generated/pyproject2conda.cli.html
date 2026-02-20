@@ -1,0 +1,641 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Console script for pyproject2conda (cli) &#8212; pyproject2conda 0.22.2.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css" />
+    <link rel="stylesheet" type="text/css" href="https://pages.nist.gov/leaveNotice/css/jquery.leaveNotice.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=0aebe9f5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/generated/pyproject2conda.cli';</script>
+    <script src="https://code.jquery.com/jquery-3.6.2.min.js"></script>
+    <script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js"></script>
+    <script src="https://pages.nist.gov/leaveNotice/js/jquery.leaveNotice-nist.min.js"></script>
+    <script src="../../_static/js/leave_notice.js?v=133c5535"></script>
+    <script async="async" id="_fed_au_ua_tag" type="text/javascript" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=NIST&subagency=github&pua=UA-66610693-1&yt=true&exts=ppsx,pps,f90,sch,rtf,wrl,txz,m1v,xlsm,msi,xsd,f,tif,eps,mpg,xml,pl,xlt,c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="License" href="../../license.html" />
+    <link rel="prev" title="Read/use config/pyproject.toml file (config)" href="pyproject2conda.config.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+    <meta name="docbuild:last-update" content="2026-02-20"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyproject2conda 0.22.2.dev0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    pyproject2conda
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cli.html">Command line interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyproject2conda.overrides.html">Override dependencies (<code class="xref py py-mod docutils literal notranslate"><span class="pre">overrides</span></code>)</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="pyproject2conda.requirements.html">Requirements parsing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">requirements</span></code>)</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="pyproject2conda.config.html">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</a></li>
+
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+
+
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../navigation.html">Indices and tables</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../genindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../py-modindex.html">Module Index</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/usnistgov/pyproject2conda/issues/new?title=Issue%20on%20page%20%2Freference/generated/pyproject2conda.cli.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/reference/generated/pyproject2conda.cli.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Console script for pyproject2conda (cli)</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.Overwrite"><code class="docutils literal notranslate"><span class="pre">Overwrite</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.create_list"><code class="docutils literal notranslate"><span class="pre">create_list()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.yaml"><code class="docutils literal notranslate"><span class="pre">yaml()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.requirements"><code class="docutils literal notranslate"><span class="pre">requirements()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.project"><code class="docutils literal notranslate"><span class="pre">project()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.conda_requirements"><code class="docutils literal notranslate"><span class="pre">conda_requirements()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.to_json"><code class="docutils literal notranslate"><span class="pre">to_json()</span></code></a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="console-script-for-pyproject2conda-cli">
+<span id="module-pyproject2conda.cli"></span><h1>Console script for pyproject2conda (<a class="reference internal" href="#module-pyproject2conda.cli" title="pyproject2conda.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code></a>)<a class="headerlink" href="#console-script-for-pyproject2conda-cli" title="Link to this heading">#</a></h1>
+</section>
+<p><strong>Functions:</strong></p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.cli.main" title="pyproject2conda.cli.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(version, ] = False, columns, ] = None)</p></td>
+<td><p>Extract conda <code class="docutils literal notranslate"><span class="pre">environment.yaml</span></code> and pip <code class="docutils literal notranslate"><span class="pre">requirement.txt</span></code> files from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.cli.create_list" title="pyproject2conda.cli.create_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_list</span></code></a>(pyproject_filename, ], verbose, ...)</p></td>
+<td><p>List available extras.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.cli.yaml" title="pyproject2conda.cli.yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yaml</span></code></a>(pyproject_filename, ], extras, ...)</p></td>
+<td><p>Create yaml file from dependencies and optional-dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.cli.requirements" title="pyproject2conda.cli.requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requirements</span></code></a>(pyproject_filename, ], extras, ...)</p></td>
+<td><p>Create requirements.txt for pip dependencies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.cli.project" title="pyproject2conda.cli.project"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project</span></code></a>(pyproject_filename, ], envs, ...)</p></td>
+<td><p>Create multiple environment files from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> specification.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyproject2conda.cli.conda_requirements" title="pyproject2conda.cli.conda_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conda_requirements</span></code></a>(pyproject_filename, ], ...)</p></td>
+<td><p>Create requirement files for conda and pip.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.cli.to_json" title="pyproject2conda.cli.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a>(pyproject_filename, ], extras, ...)</p></td>
+<td><p>Create json representation.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Classes:</strong></p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyproject2conda.cli.Overwrite" title="pyproject2conda.cli.Overwrite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Overwrite</span></code></a>(*values)</p></td>
+<td><p>Options for <code class="docutils literal notranslate"><span class="pre">--overwrite</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.main">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version:</span> <span class="pre">~typing.Annotated[bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16ad5590&gt;]</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns:</span> <span class="pre">~typing.Annotated[int</span> <span class="pre">|</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16ad5450&gt;]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L102-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.main" title="Link to this definition">#</a></dt>
+<dd><p>Extract conda <code class="docutils literal notranslate"><span class="pre">environment.yaml</span></code> and pip <code class="docutils literal notranslate"><span class="pre">requirement.txt</span></code> files from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p>
+<p>Note that all subcommands can be called with shortest possible match. Also, you can
+call with any of <code class="docutils literal notranslate"><span class="pre">pyproject2conda</span></code>, <code class="docutils literal notranslate"><span class="pre">p2c</span></code>, <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pyproject2conda</span></code>.
+For example,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>these<span class="w"> </span>are<span class="w"> </span>equivalent
+<span class="gp">$ </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>...
+<span class="gp">$ </span>p2c<span class="w"> </span>y<span class="w"> </span>...
+<span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>pyproject2conda<span class="w"> </span>yaml<span class="w"> </span>...
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyproject2conda.cli.Overwrite">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">Overwrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L211-L216"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.Overwrite" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Options for <code class="docutils literal notranslate"><span class="pre">--overwrite</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.create_list">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">create_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pyproject_filename:</span> <span class="pre">~typing.Annotated[~pathlib.Path,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd96d0&gt;],</span> <span class="pre">verbose:</span> <span class="pre">~typing.Annotated[int</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda350&gt;]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L512-L526"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.create_list" title="Link to this definition">#</a></dt>
+<dd><p>List available extras.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.yaml">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pyproject_filename:</span> <span class="pre">~typing.Annotated[~pathlib.Path,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd96d0&gt;],</span> <span class="pre">extras:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9810&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">groups:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9a90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">extras_or_groups:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9d10&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">channels:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9e50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">output:</span> <span class="pre">~typing.Annotated[~pathlib.Path</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda0d0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">name:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9f90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python_include:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda850&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python_version:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda990&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdaad0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">skip_package:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda490&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">pip_only:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda5d0&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">sort:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda710&gt;]</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">header:</span> <span class="pre">~typing.Annotated[bool</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdac10&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">custom_command:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdad50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">overwrite:</span> <span class="pre">~typing.Annotated[~pyproject2conda.cli.Overwrite,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda210&gt;]</span> <span class="pre">=</span> <span class="pre">Overwrite.force,</span> <span class="pre">verbose:</span> <span class="pre">~typing.Annotated[int</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda350&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">deps:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdae90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">reqs:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdafd0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">allow_empty:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdbc50&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">remove_whitespace:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdbd90&gt;]</span> <span class="pre">=</span> <span class="pre">True</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L531-L593"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.yaml" title="Link to this definition">#</a></dt>
+<dd><p>Create yaml file from dependencies and optional-dependencies.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.requirements">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pyproject_filename:</span> <span class="pre">~typing.Annotated[~pathlib.Path,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd96d0&gt;],</span> <span class="pre">extras:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9810&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">groups:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9a90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">extras_or_groups:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9d10&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">output:</span> <span class="pre">~typing.Annotated[~pathlib.Path</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda0d0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">skip_package:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda490&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">sort:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda710&gt;]</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">header:</span> <span class="pre">~typing.Annotated[bool</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdac10&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">custom_command:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdad50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">overwrite:</span> <span class="pre">~typing.Annotated[~pyproject2conda.cli.Overwrite,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda210&gt;]</span> <span class="pre">=</span> <span class="pre">Overwrite.force,</span> <span class="pre">verbose:</span> <span class="pre">~typing.Annotated[int</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda350&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">reqs:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdafd0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">allow_empty:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdbc50&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">remove_whitespace:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdbd90&gt;]</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L598-L637"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.requirements" title="Link to this definition">#</a></dt>
+<dd><p>Create requirements.txt for pip dependencies.  Note that all requirements are normalized using <code class="docutils literal notranslate"><span class="pre">packaging.requirements.Requirement</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.project">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pyproject_filename:</span> <span class="pre">~typing.Annotated[~pathlib.Path,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd96d0&gt;],</span> <span class="pre">envs:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdb110&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">template:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdb250&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">template_python:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdb390&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">reqs:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdafd0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">deps:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdae90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">reqs_ext:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdb4d0&gt;]</span> <span class="pre">=</span> <span class="pre">'.txt',</span> <span class="pre">yaml_ext:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdb610&gt;]</span> <span class="pre">=</span> <span class="pre">'.yaml',</span> <span class="pre">sort:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda710&gt;]</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">header:</span> <span class="pre">~typing.Annotated[bool</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdac10&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">custom_command:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdad50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">overwrite:</span> <span class="pre">~typing.Annotated[~pyproject2conda.cli.Overwrite,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda210&gt;]</span> <span class="pre">=</span> <span class="pre">Overwrite.force,</span> <span class="pre">verbose:</span> <span class="pre">~typing.Annotated[int</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda350&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">dry:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdb750&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">pip_only:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda5d0&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">user_config:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdb890&gt;]</span> <span class="pre">=</span> <span class="pre">'infer',</span> <span class="pre">allow_empty:</span> <span class="pre">~typing.Annotated[bool</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdbc50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">remove_whitespace:</span> <span class="pre">~typing.Annotated[bool</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdbd90&gt;]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L644-L722"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.project" title="Link to this definition">#</a></dt>
+<dd><p>Create multiple environment files from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> specification.</p>
+<p>Note that if you specify options in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, the name is usually
+the same as the command line option. For cases where the option can take multiple values, the
+config file option will be plural. For example, the command line option
+<code class="docutils literal notranslate"><span class="pre">--group</span></code> becomes the config file option <code class="docutils literal notranslate"><span class="pre">groups</span> <span class="pre">=</span> <span class="pre">...</span></code>.  Boolean options
+like <code class="docutils literal notranslate"><span class="pre">--sort/--no-sort</span></code> become <code class="docutils literal notranslate"><span class="pre">sort</span> <span class="pre">=</span> <span class="pre">true/false</span></code> in the config file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.conda_requirements">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">conda_requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pyproject_filename:</span> <span class="pre">~typing.Annotated[~pathlib.Path,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd96d0&gt;],</span> <span class="pre">path_conda:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.ArgumentInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16464f50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">path_pip:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.ArgumentInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16465bd0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">extras:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9810&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">groups:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9a90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">extras_or_groups:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9d10&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python_include:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda850&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python_version:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda990&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdaad0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">channels:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9e50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">skip_package:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda490&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">prefix:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdb9d0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">prepend_channel:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdbb10&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">sort:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda710&gt;]</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">header:</span> <span class="pre">~typing.Annotated[bool</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdac10&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">custom_command:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdad50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">deps:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdae90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">reqs:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdafd0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">verbose:</span> <span class="pre">~typing.Annotated[int</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda350&gt;]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L729-L800"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.conda_requirements" title="Link to this definition">#</a></dt>
+<dd><p>Create requirement files for conda and pip.</p>
+<p>These can be install with, for example,</p>
+<p>conda install –file {path_conda}
+pip install -r {path_pip}</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyproject2conda.cli.to_json">
+<span class="sig-prename descclassname"><span class="pre">pyproject2conda.cli.</span></span><span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pyproject_filename:</span> <span class="pre">~typing.Annotated[~pathlib.Path,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd96d0&gt;],</span> <span class="pre">extras:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9810&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">groups:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9a90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">extras_or_groups:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9d10&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python_include:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda850&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python_version:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda990&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">python:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdaad0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">channels:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bd9e50&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">sort:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda710&gt;]</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">output:</span> <span class="pre">~typing.Annotated[~pathlib.Path</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda0d0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">skip_package:</span> <span class="pre">~typing.Annotated[bool,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda490&gt;]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">deps:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdae90&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">reqs:</span> <span class="pre">~typing.Annotated[list[str]</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bdafd0&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">verbose:</span> <span class="pre">~typing.Annotated[int</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda350&gt;]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">overwrite:</span> <span class="pre">~typing.Annotated[~pyproject2conda.cli.Overwrite,</span> <span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbb16bda210&gt;]</span> <span class="pre">=</span> <span class="pre">Overwrite.force</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/usnistgov/pyproject2conda/blob/main/src/pyproject2conda/cli.py#L805-L870"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyproject2conda.cli.to_json" title="Link to this definition">#</a></dt>
+<dd><p>Create json representation.</p>
+<p>Keys are:
+“dependencies”: conda dependencies.
+“pip”: pip dependencies.
+“channels”: conda channels.</p>
+</dd></dl>
+
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="pyproject2conda.config.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Read/use config/pyproject.toml file (<code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../license.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">License</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Console script for pyproject2conda (<code class="xref py py-mod docutils literal notranslate"><span class="pre">cli</span></code>)</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.Overwrite"><code class="docutils literal notranslate"><span class="pre">Overwrite</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.create_list"><code class="docutils literal notranslate"><span class="pre">create_list()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.yaml"><code class="docutils literal notranslate"><span class="pre">yaml()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.requirements"><code class="docutils literal notranslate"><span class="pre">requirements()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.project"><code class="docutils literal notranslate"><span class="pre">project()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.conda_requirements"><code class="docutils literal notranslate"><span class="pre">conda_requirements()</span></code></a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#pyproject2conda.cli.to_json"><code class="docutils literal notranslate"><span class="pre">to_json()</span></code></a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By William P. Krekelberg
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, William P. Krekelberg.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on 2026-02-20.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
