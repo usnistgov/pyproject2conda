@@ -1,0 +1,158 @@
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Force deploy."
+        required: false
+        type: boolean
+        default: false
+  release:
+    types:
+      - published
+
+env:
+  FORCE_COLOR: "3"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    permissions:
+      contents: write
+    uses: ./.github/workflows/docs.yml
+    with:
+      deploy:
+        ${{ (github.event_name == 'release' && github.event.action ==
+        'published') || (github.event_name == 'workflow_dispatch' &&
+        inputs.deploy) }}
+
+  # would like to do this with a reusable workflow
+  # see https://github.com/pypa/gh-action-pypi-publish/issues/166
+  # dist:
+  #   permissions:
+  #     id-token: write
+  #     attestations: write
+  #   uses: ./.github/workflows/pypi-package.yml
+  #   with:
+  #     deploy:
+  #       ${{ (github.event_name == 'release' && github.event.action ==
+  #       'published') || (github.event_name == 'workflow_dispatch' &&
+  #       inputs.deploy) }}
+  #     check-package:
+  #       ${{ github.event_name == 'release' && github.event.action == 'published'
+  #       }}
+  #     smoke-test: false
+  dist:
+    name: Build and verify package
+    runs-on: ubuntu-latest
+    env:
+      DIST: "/tmp/baipp/dist"
+    permissions:
+      id-token: write
+      attestations: write
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: hynek/build-and-inspect-python-package@efb823f52190ad02594531168b7a2d5790e66516 # v2.14.0
+        with:
+          attest-build-provenance-github: "true"
+
+      - name: Check no changelog fragments
+        if: github.event_name == 'release' && github.event.action == 'published'
+        run: |
+          shopt -s nullglob
+          for _ in changelog.d/*.md ; do
+              echo "Error: changelog snippets found"
+              exit 1
+          done
+          echo "Success: no changelog snippets"
+        shell: bash
+
+      - name: Check version
+        if: github.event_name == 'release' && github.event.action == 'published'
+        env:
+          tag_name: ${{ github.event.release.tag_name }}
+        run: >-
+          uv run --script tools/check_dist_version.py --version "$tag_name" --
+          "${DIST}"/*.whl "${DIST}"/*.tar.gz
+
+  smoke-test:
+    name: Smoke test package
+    if:
+      ${{ (github.event_name == 'release' && github.event.action == 'published')
+      || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
+    needs:
+      - dist
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: Packages
+          path: dist
+      - uses: ./.github/actions/setup-cached-uv-and-python
+        with:
+          python-version-file: ".python-version"
+      - name: Smoke test wheel
+        run:
+          uv run --isolated --no-project --with dist/*.whl tests/test_smoke.py
+      - name: Smoke test source
+        run:
+          uv run --isolated --no-project --with dist/*.tar.gz
+          tests/test_smoke.py
+
+  publish-testpypi:
+    name: Publish package to testpypi
+    if:
+      ${{ (github.event_name == 'release' && github.event.action == 'published')
+      || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
+    needs:
+      - dist
+      - smoke-test
+    environment:
+      name: test-pypi
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: Packages
+          path: dist
+
+      - name: Publish to testpypi
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish-pypi:
+    name: Publish package to pypi
+    if:
+      ${{ (github.event_name == 'release' && github.event.action == 'published')
+      || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
+    needs:
+      - dist
+      - smoke-test
+      - publish-testpypi
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: Packages
+          path: dist
+
+      - name: Publish to pypi
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0

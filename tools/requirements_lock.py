@@ -51,7 +51,8 @@ def _lock_files(
     min_python_version: str,
     default_python_version: str,
     pip_compile_config_file: Path | None,
-    upgrade: bool = False,
+    upgrade: bool,
+    uv_options: Sequence[str],
 ) -> None:
     for path in paths:
         python_version = (
@@ -78,6 +79,7 @@ def _lock_files(
             "--python-version",
             python_version,
             *(["--upgrade"] if upgrade else []),
+            *uv_options,
             str(path),
             "-o",
             str(lockpath),
@@ -92,6 +94,7 @@ def _maybe_lock_or_sync(
     sync: bool,
     sync_or_lock: bool,
     upgrade: bool,
+    uv_options: Sequence[str],
 ) -> None:
     if sync_or_lock:
         if Path(".venv").exists():
@@ -105,6 +108,7 @@ def _maybe_lock_or_sync(
             ("sync" if sync else "lock"),
             *(["--no-active"] if sync else []),
             *(["--upgrade"] if upgrade else []),
+            *uv_options,
         ]
 
         logger.info(shlex.join(command))
@@ -157,6 +161,14 @@ def main(args: Sequence[str] | None = None) -> int:
         """,
     )
     _ = parser.add_argument(
+        "--uv-options",
+        default="",
+        type=shlex.split,
+        help="""
+        extra options to uv lock/sync/pip compile
+        """,
+    )
+    _ = parser.add_argument(
         "paths",
         type=Path,
         nargs="*",
@@ -169,6 +181,7 @@ def main(args: Sequence[str] | None = None) -> int:
         sync=opts.sync,
         sync_or_lock=opts.sync_or_lock,
         upgrade=opts.upgrade,
+        uv_options=opts.uv_options,
     )
 
     _lock_files(
@@ -177,6 +190,7 @@ def main(args: Sequence[str] | None = None) -> int:
         default_python_version=_get_default_version(),
         upgrade=opts.upgrade,
         pip_compile_config_file=opts.pip_compile_config_file,
+        uv_options=opts.uv_options,
     )
 
     return 0
