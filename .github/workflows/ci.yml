@@ -186,9 +186,12 @@ jobs:
           cache-dependency-path: requirements/lock/uvx-tools.txt
       - name: Run coverage
         run: |
-          $UVX_COMMAND nox -s coverage -- ++coverage combine html report markdown
+          $UVX_COMMAND nox -s coverage -- ++coverage combine html markdown
           cat coverage.md
           cat coverage.md >> "$GITHUB_STEP_SUMMARY"
+
+          # fail if under 100%
+          $UVX_COMMAND nox -s coverage -- ++coverage report ++coverage-options --fail-under=100
         shell: bash
       - name: Upload HTML report if check failed.
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
