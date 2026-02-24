@@ -2,19 +2,9 @@ version: 2
 
 updates:
   - package-ecosystem: github-actions
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:00"
-    cooldown:
-      default-days: 7
-    groups:
-      actions:
-        patterns:
-          - "*"
-  - package-ecosystem: github-actions
-    directory: ".github/actions/setup-cached-uv-and-python"
+    directories:
+      - "/"
+      - ".github/actions/setup-cached-uv-and-python"
     schedule:
       interval: "weekly"
       day: "monday"
