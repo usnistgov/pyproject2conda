@@ -24,11 +24,11 @@ jobs:
             branch: copier/update
             commit-message: "chore(template): accept new copier update"
             title: "chore(template): accept new copier update"
-          - add-paths: .copier-answers.yml
-            body: Use this to reject the changes in this repository.
-            branch: copier/reject
-            commit-message: "chore(template): reject new copier update"
-            title: "chore(template): reject new copier update"
+          # - add-paths: .copier-answers.yml
+          #   body: Use this to reject the changes to this repository.
+          #   branch: copier/reject
+          #   commit-message: "chore(template): reject new copier update"
+          #   title: "chore(template): reject new copier update"
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -69,11 +69,13 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
         with:
-          # token: ${{ secrets.PAT }}  # use when have permissions
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
           add-paths: ${{ matrix.add-paths }}
           commit-message: ${{ matrix.commit-message }}
           title: ${{ matrix.title }}
+          labels: |
+            internal
+            template_update
           branch: ${{ matrix.branch }}
           delete-branch: true
           # branch-suffix: timestamp  # If want commit per run (instead of per workflow)

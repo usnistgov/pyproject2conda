@@ -295,6 +295,13 @@ list-dist:
     unzip -vl dist/*.whl
     du -skhc dist/*
 
+# * GitHub cli -----------------------------------------------------------------
+
+# sync labels with template
+[group("tools")]
+gh-label-sync:
+    gh label clone usnistgov/cookiecutter-nist-python
+
 # * Other tools ----------------------------------------------------------------
 
 # Run ipython with ephemeral current environment
@@ -304,8 +311,11 @@ ipython *options:
 
 # update templates
 [group("tools")]
-copier-update *options="-r main --trust -A":
-    {{ UVX_WITH_OPTS }} --with copier-template-extensions copier update {{ options }}
+copier-update *options="":
+    {{ UVX_WITH_OPTS }} --with copier-template-extensions \
+    copier update --trust -A \
+    -r main \
+    {{ options }}
 
 # create changelog snippet with scriv
 [group("tools")]

@@ -46,6 +46,16 @@ def _get_default_version() -> str:
     return Path(".python-version").read_text(encoding="utf-8").strip()
 
 
+def _get_exclude_newer_option(cooldown_days: int) -> str:
+    import datetime
+
+    date = datetime.datetime.now(tz=datetime.UTC).date() - datetime.timedelta(
+        days=cooldown_days
+    )
+
+    return f"--exclude-newer={date}"
+
+
 def _lock_files(
     paths: Iterable[Path],
     min_python_version: str,
@@ -161,6 +171,14 @@ def main(args: Sequence[str] | None = None) -> int:
         """,
     )
     _ = parser.add_argument(
+        "--cooldown-days",
+        type=int,
+        default=None,
+        help="""
+        Calculate ``--exclude-newer`` options from ``today`` less ``cooldown_days``.
+        """,
+    )
+    _ = parser.add_argument(
         "--uv-options",
         default="",
         type=shlex.split,
@@ -176,12 +194,16 @@ def main(args: Sequence[str] | None = None) -> int:
 
     opts = parser.parse_args(args)
 
+    uv_options: list[str] = opts.uv_options
+    if opts.cooldown_days is not None:
+        uv_options.append(_get_exclude_newer_option(opts.cooldown_days))
+
     _maybe_lock_or_sync(
         lock=opts.lock,
         sync=opts.sync,
         sync_or_lock=opts.sync_or_lock,
         upgrade=opts.upgrade,
-        uv_options=opts.uv_options,
+        uv_options=uv_options,
     )
 
     _lock_files(
@@ -190,7 +212,7 @@ def main(args: Sequence[str] | None = None) -> int:
         default_python_version=_get_default_version(),
         upgrade=opts.upgrade,
         pip_compile_config_file=opts.pip_compile_config_file,
-        uv_options=opts.uv_options,
+        uv_options=uv_options,
     )
 
     return 0

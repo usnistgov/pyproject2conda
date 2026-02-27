@@ -3,3 +3,25 @@ changelog:
     authors:
       - dependabot[bot]
       - pre-commit-ci[bot]
+    labels:
+      - internal
+
+  categories:
+    - title: Bug fixes
+      labels:
+        - bug
+    - title: Breaking changes
+      labels:
+        - breaking
+    - title: Enhancements
+      labels:
+        - enhancement
+    - title: Documentation
+      labels:
+        - documentation
+    - title: Testing
+      labels:
+        - testing
+    - title: Other changes
+      labels:
+        - "*"
