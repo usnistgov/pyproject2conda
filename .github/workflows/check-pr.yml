@@ -1,0 +1,56 @@
+name: "PR checks"
+
+on: # zizmor: ignore[dangerous-triggers]
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+
+permissions: {}
+
+jobs:
+  validate-title:
+    runs-on: ubuntu-slim
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  label-from-title:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-slim
+    steps:
+      - uses: bcoe/conventional-release-labels@886f696738527c7be444262c327c89436dfb95a8 # v1.3.1
+        with:
+          type_labels:
+            '{"feat": "enhancement", "fix": "bug", "docs": "documentation",
+            "breaking": "breaking", "test": "testing"}'
+          ignored_types: '["build", "chore", "ci", "perf", "refactor", "style"]'
+          ignore_label: internal
+
+  label-from-files:
+    needs: label-from-title
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@634933edcd8ababfe52f92936142cc22ac488b1b # v6.0.1
+        id: label-pr
+
+      - name: Labeler info
+        env:
+          ALL_LABELS: ${{ steps.label-pr.outputs.all-labels }}
+          NEW_LABELS: ${{ steps.label-pr.outputs.new-labels }}
+        shell: bash
+        run: |
+          echo "new labels: $NEW_LABELS"
+          echo "all labels: $ALL_LABELS"

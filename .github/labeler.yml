@@ -1,0 +1,44 @@
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**/*"
+          - "examples/**/*"
+          - "README.md"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".pre-commit-config.yml"
+          - "requirements/**/*"
+          - "uv.lock"
+
+github_actions:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**/*"
+
+template_update:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".cruft.json"
+          - ".copier-answers.y*ml"
+
+testing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**/*"
+          - "noxfile.py"
+
+internal:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".editorconfig"
+          - ".git*"
+          - ".markdown*"
+          - ".prettier*"
+          - ".pylint*"
+          - ".taplo*"
+          - "justfile"
+          - "*ruff.toml"
+          - "scripts/**/*"
+          - "tools/**/*"
