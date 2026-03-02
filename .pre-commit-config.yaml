@@ -109,7 +109,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.2
+    rev: v0.15.4
     hooks:
       - id: ruff-check
         alias: ruff
@@ -117,7 +117,7 @@ repos:
       - id: ruff-format
         alias: ruff
   - repo: https://github.com/adamtheturtle/doccmd-pre-commit
-    rev: v2026.2.15
+    rev: v2026.2.27.1
     hooks:
       - id: doccmd
         name: "ruff format markdown"
@@ -129,14 +129,14 @@ repos:
           - "--command"
           - "ruff format"
         additional_dependencies:
-          - ruff==0.15.2
+          - ruff==0.15.4
 
   # * Spelling
   # ** typos
   # Revert to crate-ci/typos if https://github.com/crate-ci/typos/issues/390 is fixed.
   # - repo: https://github.com/crate-ci/typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.43.5
+    rev: v1.44.0
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -153,7 +153,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.10.6
+    rev: 0.10.7
     hooks:
       - id: uv-lock
         alias: requirements
@@ -186,7 +186,7 @@ repos:
 
   # * Actions
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.36.2
+    rev: 0.37.0
     hooks:
       - id: check-github-workflows
         alias: actions
@@ -218,3 +218,78 @@ repos:
       # Run the linter.
       - id: zizmor
         alias: actions
+<<<<<<< before updating
+=======
+
+  # * typecheck
+  # ** sync dependencies
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.3.0
+    hooks:
+      - id: fill-pre-commit-hook-deps
+        alias: typecheck
+        stages: [manual]
+        args:
+          - "--hook=typecheck-runner"
+          - "--group=type"
+          - "--exclude=pylint"
+          - "--exclude=typecheck-runner"
+          - "--requirements=requirements/lock/uvx-tools.txt"
+          - "--requirements-include=basedpyright"
+          - "--requirements-include=ty"
+  # ** typecheck-runner
+  - repo: https://github.com/wpk-nist-gov/typecheck-runner
+    rev: v0.1.6
+    hooks:
+      - id: typecheck-runner
+        alias: typecheck
+        files: ^(src/|tests/)
+        args:
+          - --no-uvx
+          - -v
+          - -cbasedpyright
+          - -cty
+        stages: [manual]
+
+  # * Notebook specific --------------------------------------------------------
+  # * Strip out metadata from notebooks
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.9.1
+    hooks:
+      - id: nbstripout
+        args:
+          - "--keep-output"
+          - "--keep-count"
+          - "--extra-keys"
+          - "metadata.kernelspec metadata.kernel_spec"
+
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+      # ** typos
+      - id: nbqa
+        name: nbqa-typos
+        alias: typos
+        additional_dependencies: &typos-deps
+          - typos==1.44.0
+        args: [typos, --nbqa-shell]
+        # this can lead to errors, so use with care
+        # args: [typos, --write-changes, --nbqa-shell]
+      - id: nbqa
+        name: nbqa-typos-markdown
+        alias: typos
+        additional_dependencies: *typos-deps
+        args: [typos, --nbqa-shell, --nbqa-md]
+        # this can lead to errors, so use with care
+        # args: [typos, --write-changes, --nbqa-shell, --nbqa-md]
+
+  # ** symlink in notebooks from example/usage to docs/example/usage
+  - repo: local
+    hooks:
+      - id: symlink-docs-examples-notebooks
+        name: symlink-docs-examples-notebooks
+        entry: python tools/symlink_docs_examples_notebooks.py
+        language: python
+        files: ^docs/examples/.*\.md$
+        pass_filenames: false
+>>>>>>> after updating
