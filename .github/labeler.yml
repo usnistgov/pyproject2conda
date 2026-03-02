@@ -1,44 +1,84 @@
-documentation:
-  - changed-files:
-      - any-glob-to-any-file:
-          - "docs/**/*"
-          - "examples/**/*"
-          - "README.md"
+version: v1
+# Labels are applied based on conventional commits standard
+# https://www.conventionalcommits.org/en/v1.0.0/
+# These labels are later used in release notes. See .github/release.yml
+labels:
+  # If the PR title has an ! before the : it will be considered a breaking change
+  # For example, `feat!: add new feature` will be considered a breaking change
+  - label: breaking
+    sync: false
+    matcher:
+      title: "^[^:]+!:.*"
+  - label: breaking
+    sync: false
+    matcher:
+      body: "BREAKING CHANGE"
+  - label: enhancement
+    sync: true
+    matcher:
+      title: "^feat(\\(.+\\))?!?:.*"
+  - label: bug
+    sync: true
+    matcher:
+      title: "^fix(\\(.+\\))?!?:.*"
+  - label: documentation
+    sync: false
+    matcher:
+      title: "^docs(\\(.+\\))?!?:.*"
+  - label: testing
+    sync: false
+    matcher:
+      title: "^test(\\(.+\\))?!?:.*"
+  - label: internal
+    sync: false
+    matcher:
+      title: "^(build|chore|ci|perf|refactor|style)(\\(.+\\))?!?:.*"
 
-dependencies:
-  - changed-files:
-      - any-glob-to-any-file:
-          - ".pre-commit-config.yml"
-          - "requirements/**/*"
-          - "uv.lock"
-
-github_actions:
-  - changed-files:
-      - any-glob-to-any-file:
-          - ".github/**/*"
-
-template_update:
-  - changed-files:
-      - any-glob-to-any-file:
-          - ".cruft.json"
-          - ".copier-answers.y*ml"
-
-testing:
-  - changed-files:
-      - any-glob-to-any-file:
-          - "tests/**/*"
+  # files
+  - label: documentation
+    sync: false
+    matcher:
+      files:
+        any:
+          - "docs/**"
+  - label: github_actions
+    sync: true
+    matcher:
+      files:
+        any:
+          - ".github/**"
+  - label: testing
+    sync: false
+    matcher:
+      files:
+        any:
+          - "tests/**"
           - "noxfile.py"
+  - label: dependencies
+    sync: false
+    matcher:
+      files:
+        any:
+          - ".pre-commit-config.y*ml"
+          - "requirements/**"
+          - "uv.lock"
+  - label: template_update
+    sync: true
+    matcher:
+      files:
+        any:
+          - ".copier-answers.y*ml"
+          - ".cruft.json$"
 
-internal:
-  - changed-files:
-      - any-glob-to-any-file:
-          - ".editorconfig"
-          - ".git*"
-          - ".markdown*"
-          - ".prettier*"
-          - ".pylint*"
-          - ".taplo*"
-          - "justfile"
-          - "*ruff.toml"
-          - "scripts/**/*"
-          - "tools/**/*"
+checks:
+  - context: "Semantic Pull Request"
+    description:
+      success: Ready for review & merge
+      failure: Missing semantic label for merge
+    labels:
+      any:
+        - enhancement
+        - bug
+        - documentation
+        - testing
+        - internal

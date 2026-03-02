@@ -3,8 +3,8 @@ changelog:
     authors:
       - dependabot[bot]
       - pre-commit-ci[bot]
-    labels:
-      - internal
+    # labels:
+    #   - internal
 
   categories:
     - title: Bug fixes
