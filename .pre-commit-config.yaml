@@ -75,14 +75,14 @@ repos:
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.02.22
+    rev: 2026.03.02
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
         stages: [manual]
   # ** repo review
   - repo: https://github.com/scientific-python/cookie
-    rev: 2025.11.21
+    rev: 2026.03.02
     hooks:
       - id: sp-repo-review
         stages: [manual]
@@ -117,7 +117,7 @@ repos:
       - id: ruff-format
         alias: ruff
   - repo: https://github.com/adamtheturtle/doccmd-pre-commit
-    rev: v2026.2.27.1
+    rev: v2026.3.2
     hooks:
       - id: doccmd
         name: "ruff format markdown"
