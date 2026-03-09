@@ -155,7 +155,7 @@ jobs:
         shell: bash
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}
           path: .nox/test-*/tmp/.coverage*
@@ -194,7 +194,7 @@ jobs:
           $UVX_COMMAND nox -s coverage -- ++coverage report ++coverage-options --fail-under=100
         shell: bash
       - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: html-report
           path: htmlcov
