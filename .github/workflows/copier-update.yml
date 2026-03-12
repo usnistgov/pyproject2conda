@@ -15,6 +15,8 @@ jobs:
   update:
     name: Update template
     runs-on: ubuntu-latest
+    environment:
+      name: pull-request
     strategy:
       fail-fast: true
       matrix:

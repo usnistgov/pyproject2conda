@@ -13,19 +13,31 @@ env:
   FORCE_COLOR: "3"
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
   UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
+  EXTRA_PYTHON_VERSIONS: "pypy-3.11"
 
 permissions: {}
 
 jobs:
+  pre_job:
+    # continue-on-error: true # Uncomment once integration is finished
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@f75f66ce1886f00957d99748a42c724f4330bdcf # v5.3.1
+        with:
+          paths_ignore: '[".cruft.json", ".copier.yml"]'
+
   build-package:
     name: Build & verify package
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-
       - uses: hynek/build-and-inspect-python-package@efb823f52190ad02594531168b7a2d5790e66516 # v2.14.0
         id: baipp
 
@@ -40,26 +52,48 @@ jobs:
           import json
           from pathlib import Path
 
-          python_versions = json.loads(os.getenv("python_classifiers"))
           default_python_version = Path(".python-version").read_text().strip()
+          python_versions = json.loads(os.getenv("python_classifiers"))
+          extra_python_versions = [_.strip() for _ in os.getenv("EXTRA_PYTHON_VERSIONS", "").split(",") if _]
 
-          # min max and default pythons
-          matrix_test_python = list({ python_versions[0], python_versions[-1], default_python_version, f"pypy-3.11" })
+          min_python_version = python_versions[0]
+          max_python_version = python_versions[-1]
+          minmax_python_versions = [min_python_version, max_python_version, *extra_python_versions]
+          minmax_default_python_versions = list({*minmax_python_versions, default_python_version})
+          all_python_versions = list({*python_versions, *extra_python_versions})
+
+          print("{default_python_version=:s}")
+          print("{min_python_version=:s}")
+          print("{max_python_version=:s}")
+          print("{minmax_python_versions=}")
+          print("{minmax_default_python_versions=}")
+          print("{all_python_version=}")
+
 
           with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
             f.write(f"{default_python_version=:s}\n")
-            f.write(f"matrix_test_python={json.dumps(matrix_test_python)}\n")
+            f.write(f"{min_python_version=:s}\n")
+            f.write(f"{max_python_version=:s}\n")
+            f.write(f"minmax_python_versions={json.dumps(minmax_python_versions)}\n")
+            f.write(f"minmax_default_python_versions={json.dumps(minmax_default_python_versions)}\n")
+            f.write(f"all_python_versions={json.dumps(all_python_versions)}\n")
 
     outputs:
-      supported-python-versions:
-        ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
       default-python-version:
         ${{ steps.versions.outputs.default_python_version }}
-      matrix-test-python: ${{ steps.versions.outputs.matrix_test_python }}
+      min-python-version: ${{ steps.versions.outputs.min_python_version }}
+      max-python-version: ${{ steps.versions.outputs.max_python_version }}
+      minmax-python-versions:
+        ${{ steps.versions.outputs.minmax_python_versions }}
+      minmax-default-python-versions:
+        ${{ steps.versions.outputs.minmax_default_python_versions }}
+      all-python-version: ${{ steps.versions.outputs.all_python_versions }}
 
   lint:
     # only run checks not covered by pre-commit.ci
     name: Lint package
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -92,8 +126,27 @@ jobs:
           prek run --show-diff-on-failure --color=always --all-files
           --hook-stage=manual -v
 
+  pinact:
+    name: Pin actions
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Pin actions
+        uses: suzuki-shunsuke/pinact-action@1081f5ad49ac904b7d977784f338145150a32112 # v1.4.0
+        with:
+          skip_push: "true"
+
   typecheck:
     name: Typecheck package
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -121,7 +174,10 @@ jobs:
 
   test:
     name: Test package across pythons
-    needs: build-package
+    needs:
+      - pre_job
+      - build-package
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -129,7 +185,9 @@ jobs:
         os:
           - ubuntu-latest
         python-version:
-          ${{ fromJson(needs.build-package.outputs.matrix-test-python) }}
+          ${{
+          fromJson(needs.build-package.outputs.minmax-default-python-versions)
+          }}
         include:
           - os: windows-latest
             python-version:
@@ -155,7 +213,7 @@ jobs:
         shell: bash
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}
           path: .nox/test-*/tmp/.coverage*
@@ -164,7 +222,10 @@ jobs:
 
   coverage:
     name: Combine coverage
-    needs: test
+    needs:
+      - pre_job
+      - test
+    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -194,47 +255,36 @@ jobs:
           $UVX_COMMAND nox -s coverage -- ++coverage report ++coverage-options --fail-under=100
         shell: bash
       - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: html-report
           path: htmlcov
         if: ${{ failure() }}
 
   docs:
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
     permissions:
       contents: write
     uses: ./.github/workflows/docs.yml
     with:
       deploy: false
 
-  pinact:
-    name: Pin actions
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Pin actions
-        uses: suzuki-shunsuke/pinact-action@1081f5ad49ac904b7d977784f338145150a32112 # v1.4.0
-        with:
-          skip_push: "true"
-
   # Ensure everything required is passing for branch protection.
   required-checks-pass:
     if: always()
     needs:
+      - pre_job
       - lint
+      - pinact
       - typecheck
       - test
       - coverage
-      - pinact
       - docs
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
+          allowed-skips: "lint,pinact,typecheck,test,coverage,docs"
           jobs: ${{ toJSON(needs) }}
