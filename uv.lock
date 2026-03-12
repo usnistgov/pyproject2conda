@@ -130,14 +130,14 @@ wheels = [
 
 [[package]]
 name = "basedpyright"
-version = "1.38.1"
+version = "1.38.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "nodejs-wheel-binaries" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/17/ea/4d45e3c66c609496f3069a7c9e5fbd1f9ba54097c41b89048af0d8021ea6/basedpyright-1.38.1.tar.gz", hash = "sha256:e4876aa3ef7c76569ffdcd908d4e260b8d1a1deaa8838f2486f91a10b60d68d6", size = 25267403, upload-time = "2026-02-18T09:20:45.563Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/a3/20aa7c4e83f2f614e0036300f3c352775dede0655c66814da16c37b661a9/basedpyright-1.38.2.tar.gz", hash = "sha256:b433b2b8ba745ed7520cdc79a29a03682f3fb00346d272ece5944e9e5e5daa92", size = 25277019, upload-time = "2026-02-26T11:18:43.594Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/28/92/42f4dc30a28c052a70c939d8dbb34102674b48c89369010442038d3c888b/basedpyright-1.38.1-py3-none-any.whl", hash = "sha256:24f21661d2754687b64f3bc35efcc78781e11b08c8b2310312ed92bf178ea627", size = 12311610, upload-time = "2026-02-18T09:20:50.09Z" },
+    { url = "https://files.pythonhosted.org/packages/ac/12/736cab83626fea3fe65cdafb3ef3d2ee9480c56723f2fd33921537289a5e/basedpyright-1.38.2-py3-none-any.whl", hash = "sha256:153481d37fd19f9e3adedc8629d1d071b10c5f5e49321fb026b74444b7c70e24", size = 12312475, upload-time = "2026-02-26T11:18:40.373Z" },
 ]
 
 [[package]]
@@ -1698,15 +1698,15 @@ wheels = [
 
 [[package]]
 name = "pytest-accept"
-version = "0.2.2"
+version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "astor" },
     { name = "pytest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/aa/33/747e2a41725d56f2f5b5740911db24c80eee6cf0a37cdd696396b13eb072/pytest_accept-0.2.2.tar.gz", hash = "sha256:dd8b8f4a43e0007913343c658f2666e176ef6502c39fdaea9177e9f82b6e5fff", size = 25366, upload-time = "2025-08-19T22:57:21.31Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/36/15/37f660ba2b40875324b41d343976962f09c8bef5ba668544236afb424bd7/pytest_accept-0.2.3.tar.gz", hash = "sha256:c747d92ef0bcac0dc20e46f3dfb73b8e9aee970de11b98985868560ca508d06e", size = 25990, upload-time = "2026-03-01T05:00:45.561Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2d/b5/c6d16467738532a1463f8747687a0066b1fec7eeb45e49ca5ed312561b19/pytest_accept-0.2.2-py3-none-any.whl", hash = "sha256:cf2b6efd14bfefbfb27d842a94a6037f62fb5257ecb1096cf080b19e388584c1", size = 34600, upload-time = "2025-08-19T22:57:19.817Z" },
+    { url = "https://files.pythonhosted.org/packages/27/29/50a8582f90c7d31a9df2ecafb345f6cd3f6a9eaad1b4a94a50ce83eb6ee2/pytest_accept-0.2.3-py3-none-any.whl", hash = "sha256:dad6934349fcd78d31d2f4e0daa372d47f2c11525c7c0802f12c3efe422c8d89", size = 35642, upload-time = "2026-03-01T05:00:44.047Z" },
 ]
 
 [[package]]
