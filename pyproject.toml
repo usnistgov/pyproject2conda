@@ -241,17 +241,6 @@ warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
 
-<<<<<<< before updating
-=======
-# [[tool.mypy.overrides]]
-# ignore_missing_imports = true
-# module = [  ]
-#
-# [[tool.mypy.overrides]]
-# ignore_errors = true
-# module = [  ]
-#
->>>>>>> after updating
 [tool.pyrefly]
 enabled-ignores = [ "pyrefly" ]
 project-includes = [ "src", "tests" ]

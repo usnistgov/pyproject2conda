@@ -13,7 +13,7 @@ env:
   FORCE_COLOR: "3"
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
   UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
-  # EXTRA_PYTHON_VERSIONS: "pypy-3.11"
+  EXTRA_PYTHON_VERSIONS: "pypy-3.11"
 
 permissions: {}
 
@@ -153,10 +153,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-<<<<<<< before updating
-=======
-          # - windows-latest
->>>>>>> after updating
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
