@@ -166,58 +166,6 @@ CPY = "CPY"
 # only check file name for notebooks.  Use nbaq for contents.
 check-file = false
 
-<<<<<<< before updating
-# * Testing --------------------------------------------------------------------
-[tool.pytest.ini_options]
-addopts = [
-    "--cov-config=pyproject.toml",
-    "--doctest-glob=*.md",
-    "--doctest-modules",
-    "--pyargs",
-    "--strict-config",
-    "--strict-markers",
-    "-ra",
-]
-testpaths = [
-    "README.md",
-    "pyproject2conda",
-    "tests",
-]
-# options
-filterwarnings = [ "error" ]
-log_cli_level = "INFO"
-log_level = "INFO"
-minversion = "8"
-strict_xfail = "true"
-
-[tool.coverage]
-run.branch = true
-run.source = [
-    "pyproject2conda",
-]
-paths.source = [
-    "src/",
-    # needed for testing source if not editable install
-    ".nox/**/site-packages/",
-    "*/.nox/**/site-packages",
-    "*/src",
-]
-report.exclude_also = [
-    "@overload",
-    "if TYPE_CHECKING:",
-]
-report.include = [
-    "src/*",
-]
-report.omit = [
-    "*/__main__.py",
-    "*/_typing.py",
-    "*/vendored/*",
-]
-report.show_missing = true
-
-=======
->>>>>>> after updating
 # * typecheck ---------------------------------------------------------------------
 [tool.mypy]
 exclude = [
@@ -306,13 +254,6 @@ reportUnusedCallResult = false
 analysis.respect-type-ignore-comments = false
 src.include = [ "src", "tests" ]
 
-<<<<<<< before updating
-[tool.pytype]
-inputs = [
-    "src",
-    "tests",
-]
-=======
 # * Testing --------------------------------------------------------------------
 [tool.pytest.ini_options]
 addopts = [
@@ -356,11 +297,11 @@ report.include = [
     "src/*",
 ]
 report.omit = [
+    "*/__main__.py",
     "*/_typing.py",
     "*/vendored/*",
 ]
 report.show_missing = true
->>>>>>> after updating
 
 # * Dependency creation --------------------------------------------------------
 [tool.pyproject2conda]
