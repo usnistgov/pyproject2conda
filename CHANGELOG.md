@@ -1,15 +1,16 @@
+<<<<<<< before updating
 <!-- markdownlint-disable MD024 -->
 <!-- markdownlint-disable MD013 -->
 <!-- prettier-ignore-start -->
 
+=======
+>>>>>>> after updating
 # Changelog
 
-Changelog for `pyproject2conda`
+<!-- markdownlint-disable-file -->
 
-## Unreleased
 
-[changelog.d]: https://github.com/usnistgov/pyproject2conda/tree/main/changelog.d
-
+<<<<<<< before updating
 See the fragment files in [changelog.d]
 
 <!-- prettier-ignore-end -->
@@ -278,3 +279,8 @@ Will render optional dependencies from `opt` extra when using group `dev`
   simplify initial setup. See Contributing for more info.
 
 - Main repo now on usnistgov.
+=======
+Changelog for `pyproject2conda`
+
+## Initial release
+>>>>>>> after updating
