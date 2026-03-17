@@ -1,0 +1,87 @@
+name: Create github release
+on:
+  pull_request:
+    types:
+      - closed
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # for debugging
+  # info:
+  #   if: github.event.pull_request.merged == true
+  #   runs-on: ubuntu-latest
+  #   permissions: {}
+  #   steps:
+  #     - name: PR info
+  #       env:
+  #         RELEASE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+  #         RELEASE_BRANCH: ${{ github.head_ref }}
+  #         OWNER: ${{ github.repository_owner }}
+  #         RELEASE: ${{ format('{0}', startsWith(github.head_ref, 'release/')) }}
+  #       run: |
+  #         echo "RELEASE_COMMIT - $RELEASE_COMMIT"
+  #         echo "RELEASE_BRANCH - $RELEASE_BRANCH"
+  #         echo "OWNER       - $OWNER"
+  #         echo "RELEASE     - $RELEASE"
+
+  create-release:
+    name: Create release
+    if:
+      # prettier-ignore
+      github.event.pull_request.merged == true && github.repository_owner == 'usnistgov' && startsWith(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+    environment:
+      name: pull-request
+    permissions:
+      contents: write
+    steps:
+      - name: PR info
+        env:
+          RELEASE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+          RELEASE_BRANCH: ${{ github.head_ref }}
+          OWNER: ${{ github.repository_owner }}
+          RELEASE: ${{ format('{0}', startsWith(github.head_ref, 'release/')) }}
+        run: |
+          echo "RELEASE_COMMIT - $RELEASE_COMMIT"
+          echo "RELEASE_BRANCH - $RELEASE_BRANCH"
+          echo "OWNER       - $OWNER"
+          echo "RELEASE     - $RELEASE"
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            pyproject.toml
+          sparse-checkout-cone-mode: false
+
+      - name: Setup python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ">=3.11"
+
+      - name: Get version
+        id: version
+        shell: python
+        run: |
+          import os
+          import tomllib
+          from pathlib import Path
+
+          version = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          tag = f"v{version}"
+
+          print("{tag=:s}")
+
+          with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
+            f.write(f"{tag=:s}\n")
+
+      - name: Create pull request
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+          RELEASE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh release create "$TAG" --generate-notes --target "$RELEASE_COMMIT"

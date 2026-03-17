@@ -4,6 +4,9 @@
 # Use pyproject-fmt for pyproject.toml
 pyproject.toml
 
+# don't format auto generated changelog
+CHANGELOG.md
+
 # Don't fix yaml files under requirements/lock.  These are created by conda-lock.
 /requirements/lock/*.y*ml
 
