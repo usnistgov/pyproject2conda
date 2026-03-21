@@ -109,7 +109,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.6
+    rev: v0.15.7
     hooks:
       - id: ruff-check
         alias: ruff
@@ -129,7 +129,7 @@ repos:
           - "--command"
           - "ruff format"
         additional_dependencies:
-          - ruff==0.15.6
+          - ruff==0.15.7
 
   # * Spelling
   # ** typos
@@ -151,7 +151,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.10.11
+    rev: 0.10.12
     hooks:
       - id: uv-lock
         alias: requirements
