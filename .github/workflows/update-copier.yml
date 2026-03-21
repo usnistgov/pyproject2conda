@@ -129,3 +129,14 @@ jobs:
           echo "Pull Request SHA       - $SHA"
           echo "Pull Request BRANCH    - $BRANCH"
           echo "Pull Request VERIFIED  - $VERIFIED"
+
+      # - name: automerge
+      #   if:
+      #     ${{ steps.cpr.outputs.pull-request-number &&
+      #     steps.check.outputs.conflict_message == '' }}
+      #   env:
+      #     NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+      #     # Need PAT if want to start other actions.  Use GITHUB_TOKEN if not.
+      #     GH_TOKEN: ${{ secrets.PAT }}
+      #   run: |
+      #     gh pr merge -m --auto "$NUMBER"

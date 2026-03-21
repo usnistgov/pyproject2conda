@@ -377,7 +377,7 @@ major-labels = [ "breaking" ]
 minor_labels = [ "enhancement" ]
 patch-labels = [ "bug", "documentation" ]
 # options
-ignore-labels = [ "internal", "testing" ]
+ignore-labels = [ "internal" ]
 require-labels = [ "breaking", "bug", "documentation", "enhancement" ]
 version_files = [
     "pyproject.toml",
