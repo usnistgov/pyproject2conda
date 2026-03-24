@@ -14,13 +14,11 @@ copier
 copier-template-extensions>=0.3.1
 grayskull>=2.5.3
 mypy[faster-cache]>=1.15.0
-nbqa>=1.8.4
 nox>=2025.5.1
 prek
 pyrefly>=0.37.0
 pyright>=1.1.396
 rooster>=0.1.1
-scriv
 twine>=5.0.0
 ty>=0.0.14
 typecheck-runner>=0.1.0; python_version > "3.9"

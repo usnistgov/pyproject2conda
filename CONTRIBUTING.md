@@ -107,17 +107,11 @@ Ready to contribute? Here's how to make a contribution.
   just test-all
   ```
 
-- Create changelog fragment. See [scriv] for more info.
-
-  ```bash
-  just scriv-create --edit
-  ```
-
 - Commit your changes and push your branch to GitHub:
 
   ```bash
   git add .
-  git commit -m "Your detailed description of your changes."
+  git commit -m "feat: detailed description of your new feature."
   git push origin name-of-your-bugfix-or-feature
   ```
 
@@ -137,9 +131,8 @@ Before you submit a pull request, check that it meets these guidelines:
 
 - The pull request should include tests.
 - If the pull request adds functionality, the docs should be updated. Put your
-  new functionality into a function with a docstring, and add the feature to the
-  list in `CHANGELOG.md`. You should use [scriv] for this.
-- The pull request should work for all supported python versions.
+  new functionality into a function with a docstring. The changelog will be
+  generated from the title of the PR, so be descriptive.
 
 <!-- start-tutorial -->
 
@@ -224,5 +217,4 @@ Versioning is handled by the `project.version` variable in `pyproject.toml`. Use
 [nox]: https://github.com/wntrblm/nox
 [pre-commit]: https://pre-commit.com/
 [prek]: https://github.com/j178/prek
-[scriv]: https://github.com/nedbat/scriv
 [uv]: https://github.com/astral-sh/uv
