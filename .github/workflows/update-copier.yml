@@ -57,6 +57,7 @@ jobs:
           changed='false'
           conflict_message=''
           commit_message="$commit_message_in"
+          automergeable='true'
 
           if [ -f .copier-answers.yml ]; then
             copier update ${{ env.COPIER_OPTIONS }}
@@ -69,11 +70,18 @@ jobs:
           fi
 
           # determine if have any merge conflicts
-          if [ "$changed" = "true" ] && ! git merge --no-commit --no-ff; then
-            conflict_message="Resolve conflicts."
-            commit_message="$commit_message [skip ci]"
+          if [ "$changed" = "true" ]; then
+            if ! git merge --no-commit --no-ff; then
+              automergeable='false'
+              conflict_message="Resolve conflicts."
+              commit_message="$commit_message [skip ci]"
+            # check for new untracked files
+            elif [ -n "$(git status --untracked-files=normal --porcelain)" ]; then
+              automergeable='false'
+            fi
           fi
 
+          echo "automergeable=$automergeable" >> "$GITHUB_OUTPUT"
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
           echo "conflict_message=$conflict_message" >> "$GITHUB_OUTPUT"
           echo "commit_message=$commit_message" >> "$GITHUB_OUTPUT"
@@ -130,13 +138,14 @@ jobs:
           echo "Pull Request BRANCH    - $BRANCH"
           echo "Pull Request VERIFIED  - $VERIFIED"
 
-      # - name: automerge
-      #   if:
-      #     ${{ steps.cpr.outputs.pull-request-number &&
-      #     steps.check.outputs.conflict_message == '' }}
-      #   env:
-      #     NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
-      #     # Need PAT if want to start other actions.  Use GITHUB_TOKEN if not.
-      #     GH_TOKEN: ${{ secrets.PAT }}
-      #   run: |
-      #     gh pr merge -m --auto "$NUMBER"
+      - name: automerge
+        if:
+          ${{ steps.cpr.outputs.pull-request-number &&
+          steps.check.outputs.conflict_message == ''  &&
+          steps.check.outputs.automergeable == 'true' }}
+        env:
+          NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+          # Need PAT if want to start other actions.  Use GITHUB_TOKEN if not.
+          GH_TOKEN: ${{ secrets.PAT }}
+        run: |
+          gh pr merge -m --auto "$NUMBER"

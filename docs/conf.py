@@ -47,6 +47,11 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.linkcode",
     "sphinx_copybutton",
+    # - redirect stuff?
+    # "sphinxext.rediraffe",
+    # - pretty things up?
+    # "sphinx_design"
+    # - myst stuff
     "myst_parser",
     "sphinx_click",
     "sphinx_autodoc_typehints",
@@ -105,20 +110,6 @@ myst_substitutions = {
 # ]
 
 myst_url_schemes = ("http", "https", "mailto")
-
-nb_execution_mode = "cache"
-# nb_execution_mode = "auto"
-
-# set the kernel name
-nb_kernel_rgx_aliases = {
-    "pyproject2conda.*": "python3",
-    "conda.*": "python3",
-}
-
-nb_execution_allow_errors = True
-
-# Whether to remove stderr
-nb_output_stderr = "remove"
 
 # - top level variables --------------------------------------------------------
 # set github_username variable to be subbed later.

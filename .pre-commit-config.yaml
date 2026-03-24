@@ -33,7 +33,7 @@ repos:
       - id: sync-uv-dependency-groups
       - id: justfile-format
         additional_dependencies:
-          - rust-just==1.46.0
+          - rust-just==1.47.1
 
   # * Forbidden files
   - repo: local
@@ -100,7 +100,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.21.0
+    rev: v0.22.0
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -151,7 +151,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.10.12
+    rev: 0.11.0
     hooks:
       - id: uv-lock
         alias: requirements
@@ -216,3 +216,5 @@ repos:
       # Run the linter.
       - id: zizmor
         alias: actions
+
+  # * Other tools --------------------------------------------------------------

@@ -1,7 +1,6 @@
 #!/usr/bin/env -S just --justfile
 
 import "tools/shared.just"
-import? "tools/notebook.just"
 
 set unstable := true
 set shell := ["bash", "-c"]
@@ -309,47 +308,9 @@ gh-label-sync:
 ipython *options:
     {{ UVRUN }} --group=ipython ipython {{ options }}
 
-# update templates
-[group("tools")]
-copier-update *options="":
-    {{ UVX_WITH_OPTS }} --with copier-template-extensions \
-    copier update --trust -A \
-    -r main \
-    {{ options }}
-
-# create changelog snippet with scriv
-[group("tools")]
-scriv-create *options="--add --edit":
-    {{ UVX_WITH_OPTS }} scriv create {{ options }}
-
-[group("tools")]
-scriv-collect version *options="--keep":
-    {{ UVX_WITH_OPTS }} scriv collect --version {{ version }} {{ options }}
-    uv run --no-project tools/remove_changelog_html_tag.py CHANGELOG.md
-    git add CHANGELOG.md
-
 [group("tools")]
 rooster-release *options="":
     {{ UVX_WITH_OPTS }} rooster release {{ options }}
-
-[group("tools")]
-auto-changelog:
-    {{ UVX_WITH_OPTS }} \
-    auto-changelog \
-    -u \
-    -r usnistgov \
-    -v unreleased \
-    --tag-prefix v \
-    --stdout \
-    --template changelog.d/templates/auto-changelog/template.jinja2
-
-[group("tools")]
-commitizen-changelog:
-    {{ UVX_WITH_OPTS }} --from=commitizen \
-    cz changelog \
-    --unreleased-version unreleased \
-    --dry-run \
-    --incremental
 
 # tuna analyze load time:
 [group("tools")]
@@ -362,3 +323,11 @@ tuna-import:
 [group("tools")]
 readme-pdf:
     pandoc -V colorlinks -V geometry:margin=0.8in README.md -o README.pdf
+
+# update templates
+[group("tools")]
+copier-update *options="":
+    {{ UVX_WITH_OPTS }} --with copier-template-extensions \
+    copier update --trust -A \
+    -r main \
+    {{ options }}
