@@ -17,9 +17,7 @@ repos:
   - repo: meta
     hooks:
       - id: check-hooks-apply
-        stages: [manual]
       - id: check-useless-excludes
-        stages: [manual]
 
   # * sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
@@ -151,7 +149,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.0
+    rev: 0.11.1
     hooks:
       - id: uv-lock
         alias: requirements

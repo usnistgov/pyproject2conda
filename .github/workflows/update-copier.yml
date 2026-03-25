@@ -3,6 +3,12 @@ on:
   schedule:
     - cron: "0 2 * * 1" # Every Monday at 2am
   workflow_dispatch:
+    inputs:
+      automerge:
+        description: "enable automerge"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,6 +20,7 @@ permissions:
 
 env:
   COPIER_OPTIONS: "--trust -A -r main -c 3"
+  AUTOMERGE: "false"
 
 jobs:
   update:
@@ -76,7 +83,7 @@ jobs:
               conflict_message="Resolve conflicts."
               commit_message="$commit_message [skip ci]"
             # check for new untracked files
-            elif [ -n "$(git status --untracked-files=normal --porcelain)" ]; then
+            elif git status --porcelain | grep -q '^??'; then
               automergeable='false'
             fi
           fi
@@ -96,7 +103,7 @@ jobs:
             git config --global user.name "github-actions[bot]"
             git restore --staged .
           fi
-        shell: bash -euxo pipefail {0}
+        shell: bash -euxo {0}
 
       - name: Create pull request
         if: steps.check.outputs.changed == 'true'
@@ -140,7 +147,8 @@ jobs:
 
       - name: automerge
         if:
-          ${{ steps.cpr.outputs.pull-request-number &&
+          ${{ (inputs.automerge || env.AUTOMERGE == 'true') &&
+          steps.cpr.outputs.pull-request-number &&
           steps.check.outputs.conflict_message == ''  &&
           steps.check.outputs.automergeable == 'true' }}
         env:
