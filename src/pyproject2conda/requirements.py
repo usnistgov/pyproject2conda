@@ -548,7 +548,7 @@ class ParseDepends:
 
         if pip_deps:
             pip_deps = [pip_deps] if isinstance(pip_deps, str) else list(pip_deps)
-            out.extend(_clean_pip_reqs(pip_deps))  # ty: ignore[invalid-argument-type]
+            out.extend(_clean_pip_reqs(pip_deps))
 
         return self._cleanup(
             out, remove_whitespace=remove_whitespace, unique=unique, sort=sort
