@@ -88,7 +88,7 @@ cog: (lint-manual "cog" "--verbose")
 [group("lint")]
 lint-upgrade:
     just pre-commit autoupdate
-    uv run --no-project --script tools/requirements_lock.py --upgrade requirements/pre-commit-additional-dependencies.txt
+    -[[ -f requirements/pre-commit-additional-dependencies.txt ]] && uv run --no-project --script tools/requirements_lock.py --upgrade requirements/pre-commit-additional-dependencies.txt
     -just pre-commit run -v sync-pre-commit-deps -a
 
 # * User setup -----------------------------------------------------------------
