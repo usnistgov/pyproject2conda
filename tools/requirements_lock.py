@@ -11,6 +11,8 @@ from pathlib import Path
 from subprocess import check_call
 from typing import TYPE_CHECKING
 
+import tomllib
+
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
@@ -105,6 +107,13 @@ def _maybe_copy_lockfile(lock_path: Path) -> Path | None:
     if not lock_path.exists():
         return None
 
+    try:
+        _ = tomllib.loads(lock_path.read_text(encoding="utf-8"))["options"][
+            "exclude-newer"
+        ]
+    except KeyError:
+        return None
+
     # copy lockfile to temp location
     import tempfile
 
@@ -116,11 +125,10 @@ def _maybe_copy_lockfile(lock_path: Path) -> Path | None:
 
 
 def _only_changed_exclude_newer_time(old_path: Path, new_path: Path) -> bool:
-    import tomllib
-
     old_data, new_data = (
         tomllib.loads(path.read_text(encoding="utf-8")) for path in (old_path, new_path)
     )
+
     old_data["options"]["exclude-newer"] = "0"
     new_data["options"]["exclude-newer"] = "0"
     return old_data == new_data
