@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import shlex
+import shutil
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
@@ -99,6 +100,32 @@ def _lock_files(
         _ = check_call(options)
 
 
+# NOTE(wpk): This will not be needed once https://github.com/astral-sh/uv/issues/18155 is closed
+def _maybe_copy_lockfile(lock_path: Path) -> Path | None:
+    if not lock_path.exists():
+        return None
+
+    # copy lockfile to temp location
+    import tempfile
+
+    with tempfile.TemporaryDirectory(delete=False) as tmp_dir:
+        new_path = Path(tmp_dir) / lock_path.name
+        logger.info("backing up current uv.lock to %s", new_path)
+        shutil.copy2(lock_path, new_path)
+    return new_path
+
+
+def _only_changed_exclude_newer_time(old_path: Path, new_path: Path) -> bool:
+    import tomllib
+
+    old_data, new_data = (
+        tomllib.loads(path.read_text(encoding="utf-8")) for path in (old_path, new_path)
+    )
+    old_data["options"]["exclude-newer"] = "0"
+    new_data["options"]["exclude-newer"] = "0"
+    return old_data == new_data
+
+
 def _maybe_lock_or_sync(
     lock: bool,
     sync: bool,
@@ -112,17 +139,29 @@ def _maybe_lock_or_sync(
         else:
             lock = True
 
-    if lock or sync:
-        command = [
-            "uv",
-            ("sync" if sync else "lock"),
-            *(["--no-active"] if sync else []),
-            *(["--upgrade"] if upgrade else []),
-            *uv_options,
-        ]
+    if not (lock or sync):
+        return
 
-        logger.info(shlex.join(command))
-        _ = check_call(command)
+    lock_path = Path("uv.lock")
+    old_lock_path = _maybe_copy_lockfile(lock_path) if upgrade else None
+
+    # update lock_path
+    command = [
+        "uv",
+        ("sync" if sync else "lock"),
+        *(["--no-active"] if sync else []),
+        *(["--upgrade"] if upgrade else []),
+        *uv_options,
+    ]
+
+    logger.info(shlex.join(command))
+    _ = check_call(command)
+
+    if old_lock_path is not None and _only_changed_exclude_newer_time(
+        old_lock_path, lock_path
+    ):
+        logger.info("only exclude-newer timestamp changed.  Keeping old file")
+        shutil.move(old_lock_path, lock_path)
 
 
 def main(args: Sequence[str] | None = None) -> int:
