@@ -61,7 +61,7 @@ Ready to contribute? Here's how to make a contribution.
   ```
 
   If the repo includes submodules, you can add them either with the initial
-  close using:
+  clone using:
 
   ```bash
   git clone --recursive-submodules git@github.com:your_name_here/pyproject2conda.git

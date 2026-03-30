@@ -1,4 +1,4 @@
-"""Utilities to wonferrk with nox"""
+"""Utilities to work with nox"""
 
 from __future__ import annotations
 
@@ -16,8 +16,6 @@ if TYPE_CHECKING:
     from typing import Any
 
     from nox import Session
-
-    PathLike = str | Path
 
 
 # * Top level installation functions ---------------------------------------------------
