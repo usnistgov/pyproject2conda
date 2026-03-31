@@ -36,8 +36,6 @@ USE_NO_DEPS = ["uvx-tools.txt", "pre-commit-additional-dependencies.txt"]
 
 def _get_min_python_version() -> str:
     with Path("pyproject.toml").open("rb") as f:
-        import tomllib
-
         return next(  # type: ignore[no-any-return]
             c.split()[-1]
             for c in tomllib.load(f)["project"]["classifiers"]
@@ -117,10 +115,10 @@ def _maybe_copy_lockfile(lock_path: Path) -> Path | None:
     # copy lockfile to temp location
     import tempfile
 
-    with tempfile.TemporaryDirectory(delete=False) as tmp_dir:
-        new_path = Path(tmp_dir) / lock_path.name
+    with tempfile.NamedTemporaryFile(delete=False, suffix=lock_path.suffix) as tmp_file:
+        new_path = Path(tmp_file.name)
         logger.info("backing up current uv.lock to %s", new_path)
-        shutil.copy2(lock_path, new_path)
+        _ = shutil.copy2(lock_path, new_path)
     return new_path
 
 
@@ -165,11 +163,12 @@ def _maybe_lock_or_sync(
     logger.info(shlex.join(command))
     _ = check_call(command)
 
-    if old_lock_path is not None and _only_changed_exclude_newer_time(
-        old_lock_path, lock_path
-    ):
-        logger.info("only exclude-newer timestamp changed.  Keeping old file")
-        shutil.move(old_lock_path, lock_path)
+    if old_lock_path is not None:
+        if _only_changed_exclude_newer_time(old_lock_path, lock_path):
+            logger.info("only exclude-newer timestamp changed.  Keeping old file")
+            _ = shutil.move(old_lock_path, lock_path)  # pylint: disable=redefined-variable-type
+        else:
+            old_lock_path.unlink()
 
 
 def main(args: Sequence[str] | None = None) -> int:

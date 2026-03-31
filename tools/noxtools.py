@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 from nox.logger import logger
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Generator, Iterable
     from typing import Any
 
     from nox import Session
@@ -23,7 +23,7 @@ def py_prefix(python_version: Any) -> str:
     """
     Get python prefix.
 
-    `python="3.8` -> "py38"
+    `python="3.8"` -> "py38"
     """
     if isinstance(python_version, str):
         return "py" + python_version.replace(".", "")
@@ -94,9 +94,9 @@ def infer_requirement_path(
 
     if lock:
         if filename.endswith(".yaml"):
-            filename = filename.rstrip(".yaml") + "-conda-lock.yml"
+            filename = filename.removesuffix(".yaml") + "-conda-lock.yml"
         elif filename.endswith(".yml"):
-            filename = filename.rstrip(".yml") + "-conda-lock.yml"
+            filename = filename.removesuffix(".yml") + "-conda-lock.yml"
         elif filename.endswith(".txt"):
             pass
         else:
@@ -170,7 +170,7 @@ def session_run_commands(
     if commands:
         kws.update(external=external)
         for opt in combine_list_list_str(commands):
-            _ = session.run(*opt, **kws)
+            _ = session.run(*opt, **kws)  # pyright: ignore[reportUnknownVariableType]
 
 
 # * Caching -------------------------------------------------------------------
@@ -180,7 +180,7 @@ def check_for_change_manager(
     hash_path: str | Path | None = None,
     target_path: str | Path | None = None,
     force_write: bool = False,
-) -> Iterator[bool]:
+) -> Generator[bool]:
     """
     Context manager to look for changes in dependencies.
 
@@ -221,8 +221,9 @@ def check_hash_path_for_change(
     """
     Checks a json file `hash_path` for hashes of `other_paths`.
 
-    if specify target_path and no hash_path, set `hash_path=target_path.parent / (target_path.name + ".hash.json")`.
-    if specify hash_path and no target, set
+    if specify target_path and no hash_path, set `hash_path=target_path.parent
+    / (target_path.name + ".hash.json")`. if specify hash_path and no target,
+    set `target_path=hash_path`
 
     Parameters
     ----------
