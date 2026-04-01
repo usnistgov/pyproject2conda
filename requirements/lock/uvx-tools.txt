@@ -12,9 +12,9 @@ conda-lock==4.0.0 \
     --hash=sha256:050305a490861baa98d6c3876ed7b394707a67587d939548aac5e20b91b41d36 \
     --hash=sha256:979aacb4f67eb375f5d84ffbc7afc93c881ab9a513558c7461ed955fe243a3f6
     # via -r requirements/uvx-tools.txt
-copier==9.14.0 \
-    --hash=sha256:4d1b6a19538a5d170f913afb7682fe745c74b35c84085890809cb8d8d4d8fe7a \
-    --hash=sha256:e12a18cfef22e67254e5229f0b4bdab85e1e3e82926e448226be0b70d0f4de53
+copier==9.14.1 \
+    --hash=sha256:98178638db62807a2d22aac851ab9c09ceaee3054884a693ca9d214c6739efe7 \
+    --hash=sha256:cec88ca48b653fc251660e7787bca893ede719d265f3e50281f4d54badb404b5
     # via -r requirements/uvx-tools.txt
 copier-template-extensions==0.3.3 \
     --hash=sha256:86bd5e2e89c94b6f9321e4078781b4456c5658b820bcae49ac60fd1e1dd23c10 \
