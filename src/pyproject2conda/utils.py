@@ -69,6 +69,7 @@ def get_in(
         return reduce(  # pyrefly: ignore[no-matching-overload]
             operator.getitem,  # pyrefly: ignore[bad-argument-type]
             keys,
+            # pyrefly: ignore [bad-argument-type]
             nested_dict,
         )
     except (KeyError, IndexError, TypeError):

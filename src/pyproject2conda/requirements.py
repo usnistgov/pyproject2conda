@@ -125,7 +125,7 @@ def _update_requirement(  # noqa: C901
         elif isinstance(extras, str):
             extras = {extras}
         else:
-            # pyrefly: ignore [no-matching-overload]
+            # pyrefly: ignore [bad-argument-type, no-matching-overload]
             extras = set(extras)
         req.extras = extras
 
