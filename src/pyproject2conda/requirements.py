@@ -96,10 +96,15 @@ def _clean_conda_strings(
 
 def _update_requirement(  # noqa: C901
     requirement: str | Requirement,
+    # pyrefly: ignore [bad-function-definition]
     name: str | MISSING_TYPE = MISSING,
+    # pyrefly: ignore [bad-function-definition]
     url: str | MISSING_TYPE | None = MISSING,
+    # pyrefly: ignore [bad-function-definition]
     extras: str | Iterable[str] | MISSING_TYPE | None = MISSING,
+    # pyrefly: ignore [bad-function-definition]
     specifier: str | SpecifierSet | MISSING_TYPE | None = MISSING,
+    # pyrefly: ignore [bad-function-definition]
     marker: str | Marker | MISSING_TYPE | None = MISSING,
 ) -> Requirement:  # pragma: no cover
     req = (
@@ -107,9 +112,11 @@ def _update_requirement(  # noqa: C901
     )
 
     if name is not MISSING:
+        # pyrefly: ignore [bad-assignment]
         req.name = name
 
     if url is not MISSING:
+        # pyrefly: ignore [bad-assignment]
         req.url = url
 
     if extras is not MISSING:
@@ -118,6 +125,7 @@ def _update_requirement(  # noqa: C901
         elif isinstance(extras, str):
             extras = {extras}
         else:
+            # pyrefly: ignore [no-matching-overload]
             extras = set(extras)
         req.extras = extras
 
@@ -126,12 +134,14 @@ def _update_requirement(  # noqa: C901
             specifier = SpecifierSet()
         elif isinstance(specifier, str):
             specifier = SpecifierSet(specifier)
+        # pyrefly: ignore [bad-assignment]
         req.specifier = specifier
 
     if marker is not MISSING:
         if isinstance(marker, str):
             marker = Marker(marker)
 
+        # pyrefly: ignore [bad-assignment]
         req.marker = marker
 
     return req

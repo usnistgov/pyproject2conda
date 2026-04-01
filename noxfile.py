@@ -755,11 +755,7 @@ def typecheck(  # noqa: PLR0912
 
     cmd = opts.typecheck or []
     if not opts.typecheck_run and not cmd:
-<<<<<<< before updating
-        cmd = ["mypy", "basedpyright", "pyrefly", "ty"]
-=======
         cmd = ["all"]
->>>>>>> after updating
 
     if "all" in cmd:
         cmd = [

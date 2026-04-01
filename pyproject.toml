@@ -63,11 +63,8 @@ test = [
     { include-group = "pytest" },
 ]
 type = [
-<<<<<<< before updating
     "types-click",
-=======
     { include-group = "nox" },
->>>>>>> after updating
     { include-group = "pylint" },
     { include-group = "pytest" },
     { include-group = "typecheck-runner" },
