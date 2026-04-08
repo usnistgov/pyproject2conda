@@ -65,6 +65,10 @@ nitpick_ignore = [
     ("py:class", "Command"),
     ("py:class", "typer.core.TyperGroup"),
     ("py:class", "Requirement"),
+    ("py:obj", "ref.obj"),
+]
+nitpick_ignore_regex = [
+    (r"py:.*", r"typing\.Annotated.*"),
 ]
 
 # -- myst stuff ---------------------------------------------------------
