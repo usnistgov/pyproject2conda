@@ -2,7 +2,7 @@
 
 import "tools/shared.just"
 
-set unstable := true
+set unstable
 set shell := ["bash", "-c"]
 
 # * Defaults
@@ -86,10 +86,13 @@ cog: (lint-manual "cog" "--verbose")
 
 # update all supported additional dependencies
 [group("lint")]
-lint-upgrade:
-    just pre-commit autoupdate
-    -[[ -f requirements/pre-commit-additional-dependencies.txt ]] && uv run --no-project --script tools/requirements_lock.py --upgrade requirements/pre-commit-additional-dependencies.txt
-    -just pre-commit run -v sync-pre-commit-deps -a
+lint-upgrade: (pre-commit "autoupdate") lint-sync-deps
+
+# sync dependencies (used primarily with lint-upgrade)
+[group("lint")]
+lint-sync-deps:
+    [[ -f requirements/pre-commit-additional-dependencies.txt ]] && uv run --no-project --script tools/requirements_lock.py --upgrade requirements/pre-commit-additional-dependencies.txt || true
+    just pre-commit run -v sync-pre-commit-deps -a || true
 
 # * User setup -----------------------------------------------------------------
 
@@ -193,12 +196,18 @@ ty *options: (_typecheck "-cty" options)
 [group("typecheck")]
 pyrefly *options: (_typecheck "-cpyrefly" options)
 
+[group("typecheck")]
+pyrefly-suppress-errors *options: (_typecheck "-c'pyrefly check --suppress-errors'")
+
+[group("typecheck")]
+pyrefly-remove-unused-ignores *options: (_typecheck "-c'pyrefly check --remove-unused-ignores'")
+
 # Run pylint (with optional args)
 [group("lint")]
 [group("typecheck")]
 pylint:
     #!/usr/bin/env sh
-    set -exu
+    set -eu
     possible=("src" "tests" "noxfile.py" "tools" "scripts")
     options=()
     for d in "${possible[@]}"; do

@@ -15,15 +15,15 @@ updates:
       actions:
         patterns:
           - "*"
-  - package-ecosystem: "uv"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:00"
-    cooldown:
-      default-days: 7
-    groups:
-      actions:
-        patterns:
-          - "*"
+  # - package-ecosystem: "uv"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "monday"
+  #     time: "06:00"
+  #   cooldown:
+  #     default-days: 7
+  #   groups:
+  #     actions:
+  #       patterns:
+  #         - "*"
