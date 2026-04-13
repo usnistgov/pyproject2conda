@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-04-06T03:04:22.780236927Z"
+exclude-newer = "2026-04-06T13:38:05.761562Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -1309,7 +1309,7 @@ basedpyright = [{ name = "basedpyright", specifier = ">=1.31.3" }]
 cog = [{ name = "cogapp", marker = "python_full_version >= '3.14'" }]
 dev = [
     { name = "cogapp", marker = "python_full_version >= '3.14'" },
-    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.15.0" },
+    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.0" },
     { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" },
     { name = "pylint", marker = "python_full_version >= '3.14'" },
     { name = "pytest", marker = "python_full_version >= '3.14'" },
@@ -1351,7 +1351,7 @@ docs-spelling = [
     { name = "sphinxcontrib-spelling", marker = "python_full_version >= '3.14'" },
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
-mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.15.0" }]
+mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.0" }]
 nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" }]
 pylint = [{ name = "pylint" }]
 pytest = [{ name = "pytest" }]
