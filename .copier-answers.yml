@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: v0.12.0-35-gc103f64
+_commit: v0.12.0-37-gbdde2ce
 _src_path: https://github.com/usnistgov/cookiecutter-nist-python.git
 command_line_interface: typer
 conda_channel: conda-forge
