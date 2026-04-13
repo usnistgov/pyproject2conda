@@ -92,7 +92,7 @@ docs-spelling = [
     { include-group = "docs" },
 ]
 ipython = [ "ipython" ]
-mypy = [ "mypy[faster-cache]>=1.15.0" ]
+mypy = [ "mypy[faster-cache]>=1.20.0" ]
 nox = [ "nox>=2025.5.1" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
