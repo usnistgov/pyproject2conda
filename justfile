@@ -152,9 +152,14 @@ sync *options: (_requirements "--sync" options)
 [group("requirements")]
 lock *options: (_requirements "--lock" options)
 
-# Rebu         ild requirements, lock requirements, and run uv sync if .venv exists or uv lock if not.  Pass --upgrade/-U to upgrade
+# Rebuild requirements, lock requirements, and run uv sync if .venv exists or uv lock if not.  Pass --upgrade/-U to upgrade
 [group("requirements")]
 requirements *options: (_requirements "--sync-or-lock" options)
+
+# Upgrade pyproject.toml dependency min versions using uv-upx
+[group("requirements")]
+pyproject-upgrade-min-versions:
+    uvx --from "uv-upx>=0.4.3" uv-upx upgrade run --no-sync
 
 # * Typecheck ---------------------------------------------------------------------
 
