@@ -5,6 +5,7 @@ Read/use config/pyproject.toml file (:mod:`~pyproject2conda.config`)
 
 from __future__ import annotations
 
+from collections import ChainMap
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -55,7 +56,7 @@ class Config:  # noqa: PLR0904
         return get_in(keys=keys, nested_dict=self.data, default=default)
 
     @cached_property
-    def overrides(self) -> list[Any]:
+    def overrides(self) -> list[dict[str, Any]]:
         """All overrides sections from `[[tool.pyproject2conda.overrides]]`"""
         out: list[dict[str, Any]] = []
         for x in self.get_in("overrides", default=[]):
@@ -70,13 +71,10 @@ class Config:  # noqa: PLR0904
         """All environments"""
         return self.get_in("envs", default={})  # type: ignore[no-any-return]
 
-    def _get_override(self, env: str) -> dict[str, Any]:
-        out: dict[str, Any] = {}
-        for override in self.overrides:
-            if env in override["envs"]:
-                out.update(**override)
-        out.pop("envs", None)
-        return out
+    def _get_override(self, env: str) -> Iterator[dict[str, Any]]:
+        return reversed([
+            override for override in self.overrides if env in override["envs"]
+        ])
 
     def _get_value(
         self,
@@ -90,23 +88,20 @@ class Config:  # noqa: PLR0904
         value: Any
         if env_name is None:
             value = self.get_in(key, default=None)
-
         else:
             # try to get from env definition
             if env_name not in self.data["envs"]:
                 msg = f"env {env_name} not in config"
                 raise ValueError(msg)
 
-            value = self.get_in("envs", env_name, key, default=None)
-
             if inherit:
-                # If have override, use it.
-                if (value_ := self._get_override(env_name).get(key)) is not None:
-                    value = value_
-
-                # finally, try to get from top level
-                if value is None:
-                    value = self.get_in(key, default=None)
+                value = ChainMap(
+                    *self._get_override(env_name),
+                    self.data["envs"][env_name],
+                    self.data,
+                ).get(key)
+            else:
+                value = self.get_in("envs", env_name, key, default=None)
 
         # For case that key contains a dash, also consider the case where
         # dashes are underscores
