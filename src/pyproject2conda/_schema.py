@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections import ChainMap
 from functools import cached_property
-from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Literal
 
 from packaging.utils import NormalizedName, canonicalize_name
@@ -26,6 +25,7 @@ from .utils import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
+    from pathlib import Path
     from typing import Any
 
     from ._typing_compat import Self
@@ -60,9 +60,6 @@ class BaseOptions(BaseModel):
     )
 
     # output
-    user_config: Path | None = Field(
-        deprecated="user_config is deprecated.  It will be ignored.", default=None
-    )
     template_python: str = r"py{py}-{env}"
     template: str = r"{env}"
     style: Annotated[

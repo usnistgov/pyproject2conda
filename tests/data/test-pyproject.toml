@@ -39,8 +39,6 @@ template = "{env}"
 style = "yaml"
 # options
 python = [ "3.10" ]
-# Note that this is relative to the location of pyproject.toml
-user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
 # dependencies from groups or extras with environment name so the below is the
 # same as

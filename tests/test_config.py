@@ -50,8 +50,6 @@ def simple_toml() -> str:
     style = "yaml"
     # options
     python = "3.10"
-    # Note that this is relative to the location of pyproject.toml
-    user-config = "config/userconfig.toml"
     default-envs = ["test", "dev", "dist-pypi"]
 
     [tool.pyproject2conda.envs.base]
@@ -957,117 +955,6 @@ def test_config_python_include_version() -> None:
     # no output:
 
 
-def test_config_user_config() -> None:
-    # test overrides env
-    s = """
-    [tool.pyproject2conda.envs.test]
-    python = "3.8"
-    extras = "test"
-
-
-    """
-
-    s_user = """
-    [tool.pyproject2conda.envs.user]
-    extras = ["a", "b"]
-    python = "3.9"
-
-    [[tool.pyproject2conda.overrides]]
-    envs = ["test"]
-    skip-package = true
-    """
-
-    c = Config.from_string(s, s_user)
-
-    expected = [
-        (
-            "yaml",
-            {
-                "extras": ["test"],
-                "groups": [],
-                "extras_or_groups": [],
-                "sort": True,
-                "skip_package": True,
-                "pip_only": False,
-                "header": None,
-                "custom_command": None,
-                "overwrite": "check",
-                "verbose": None,
-                "name": None,
-                "channels": None,
-                "python": "3.8",
-                "output": "py38-test.yaml",
-                "deps": None,
-                "reqs": None,
-                "allow_empty": False,
-            },
-        ),
-        (
-            "yaml",
-            {
-                "extras": ["a", "b"],
-                "groups": [],
-                "extras_or_groups": [],
-                "sort": True,
-                "skip_package": False,
-                "pip_only": False,
-                "header": None,
-                "custom_command": None,
-                "overwrite": "check",
-                "verbose": None,
-                "name": None,
-                "channels": None,
-                "python": "3.9",
-                "output": "py39-user.yaml",
-                "deps": None,
-                "reqs": None,
-                "allow_empty": False,
-            },
-        ),
-    ]
-
-    assert list(c.iter_envs()) == expected
-
-    # bad user
-    s_user2 = """
-    [[tool.pyproject2conda.envs]]
-    extras = ["a", "b"]
-    python = "3.9"
-
-    [[tool.pyproject2conda.overrides]]
-    envs = ["test"]
-    skip-package = true
-    """
-
-    with pytest.raises(TypeError):
-        c = Config.from_string(s, s_user2)
-
-    s_user2 = """
-    [tool.pyproject2conda.envs]
-    extras = ["a", "b"]
-    python = "3.9"
-
-    [tool.pyproject2conda.overrides]
-    envs = ["test"]
-    skip-package = true
-    """
-
-    with pytest.raises(TypeError):
-        c = Config.from_string(s, s_user2)
-
-    # blank config, only user
-    s2 = """
-    [tool.pyproject2conda]
-    """
-
-    c = Config.from_string(s2, s_user)
-
-    assert c.data == {
-        "envs": {"user": {"extras": ["a", "b"], "python": "3.9"}},
-        "overrides": [{"envs": ["test"], "skip-package": True}],
-    }
-
-
 def test_version(runner) -> None:
     result = runner.invoke(app, ["--version"])
 
@@ -1190,25 +1077,6 @@ def test_multiple(fname, opt, runner, caplog) -> None:
         runner, "r", opt, "test", "--skip-package", "-o", f"{path2}/test-extras.txt"
     )
 
-    do_run_(
-        runner,
-        "yaml",
-        opt,
-        "dev",
-        opt,
-        "dist-pypi",
-        "--name",
-        "hello",
-        "-p",
-        "3.10",
-        "-d",
-        "extra-dep",
-        "-r",
-        "extra-req",
-        "-o",
-        f"{path2}/py310-user-dev.yaml",
-    )
-
     do_run_(runner, "req", "-o", f"{path2}/base.txt")
 
     paths1 = Path(path1).glob("*")
@@ -1220,7 +1088,6 @@ def test_multiple(fname, opt, runner, caplog) -> None:
         "py310-dist-pypi.yaml",
         "py310-test-extras.yaml",
         "py310-test.yaml",
-        "py310-user-dev.yaml",
         "py311-test-extras.yaml",
         "py311-test.yaml",
         "test-extras.txt",

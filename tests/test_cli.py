@@ -921,39 +921,3 @@ def test_overwrite(filename, caplog) -> None:
                 f"Skipping requirements {path}. Pass `-w force` to force recreate output"
                 in caplog.text
             )
-
-
-@pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
-def test_userconfig(fname, runner) -> None:
-    filename = ROOT / fname
-    expected = """\
-# --------------------
-# Creating yaml py310-user-dev.yaml
-name: hello-there
-channels:
-  - conda-forge
-dependencies:
-  - python=3.10
-  - bthing-conda
-  - conda-forge::pytest
-  - conda-matplotlib
-  - pandas
-  - setuptools
-  - pip
-  - pip:
-      - athing
-      - build
-    """
-
-    results = do_run(
-        runner,
-        "p",
-        "--dry",
-        "--envs",
-        "user-dev",
-        "--user-config",
-        str(ROOT / "config" / "userconfig2.toml"),
-        filename=filename,
-    )
-
-    check_result(results, expected)

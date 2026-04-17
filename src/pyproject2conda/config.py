@@ -304,45 +304,11 @@ class Config:  # noqa: PLR0904
             default=default,
         )
 
-    def user_config(self, env_name: str | None = None) -> str | None:  # noqa: ARG002
-        """Flag user_config"""
-        return self._get_value(key="user-config", default=None)  # type: ignore[no-any-return]
-
     def allow_empty(self, env_name: str | None = None, default: bool = False) -> bool:
         """Allow empty option."""
         return self._get_value(  # type: ignore[no-any-return]
             key="allow-empty", env_name=env_name, default=default
         )
-
-    def assign_user_config(self, user: Self) -> Self:
-        """Assign user_config to self."""
-        from copy import deepcopy
-
-        data = deepcopy(self.data)
-
-        # get user envs
-
-        if "envs" not in data:
-            data["envs"] = {}
-
-        if "overrides" not in data:
-            data["overrides"] = []
-
-        for key in ("envs", "overrides"):
-            if (u := user.get_in(key)) is not None:
-                d = data[key]
-                if isinstance(d, list):
-                    if not isinstance(u, list):
-                        msg = f"expected list, got {type(u)}"
-                        raise TypeError(msg)
-                    d.extend(u)  # pyright: ignore[reportUnknownMemberType]
-                elif isinstance(d, dict):  # pragma: no cover
-                    if not isinstance(u, dict):
-                        msg = f"expected dict, got {type(u)}"
-                        raise TypeError(msg)
-                    d.update(**u)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
-
-        return type(self)(data)
 
     def _get_output_and_templates(
         self, env_name: str, **defaults: Any
@@ -472,7 +438,8 @@ class Config:  # noqa: PLR0904
 
     @classmethod
     def from_toml_dict(
-        cls, data_toml: dict[str, Any], user_config: dict[str, Any] | None = None
+        cls,
+        data_toml: dict[str, Any],
     ) -> Self:
         """Create from toml dictionaries."""
         data = get_in(["tool", "pyproject2conda"], data_toml, default={})
@@ -489,35 +456,23 @@ class Config:  # noqa: PLR0904
                 for env in default_envs:
                     data["envs"][env] = {"extras-or-groups": True}
 
-        c = cls(
+        return cls(
             data,
             default_pythons=get_default_pythons_with_fallback(),
             all_pythons=get_all_pythons(data_toml),
         )
 
-        # add in "default_envs"
-
-        if user_config:  # pragma: no cover
-            u = cls.from_toml_dict(user_config)
-            c = c.assign_user_config(user=u)
-
-        return c
-
     @classmethod
-    def from_string(cls, s: str, user_config: str | None = None) -> Self:
+    def from_string(cls, s: str) -> Self:
         """Create from string representation of toml file."""
         from ._compat import tomllib
 
-        c = cls.from_toml_dict(tomllib.loads(s))
-
-        if user_config:
-            u = cls.from_string(user_config)
-            c = c.assign_user_config(user=u)
-        return c
+        return cls.from_toml_dict(tomllib.loads(s))
 
     @classmethod
     def from_file(
-        cls, path: str | Path, user_config: str | Path | None = "infer"
+        cls,
+        path: str | Path,
     ) -> Self:
         """Create from toml file(s)."""
         from ._compat import tomllib
@@ -525,14 +480,4 @@ class Config:  # noqa: PLR0904
         with Path(path).open("rb") as f:
             data = tomllib.load(f)
 
-        c = cls.from_toml_dict(data)
-
-        if user_config == "infer" and (user_config := c.user_config()) is not None:
-            # relative path
-            user_config = Path(path).parent / Path(user_config)
-
-        if user_config and Path(user_config).exists():
-            u = cls.from_file(user_config)
-            c = c.assign_user_config(u)
-
-        return c
+        return cls.from_toml_dict(data)

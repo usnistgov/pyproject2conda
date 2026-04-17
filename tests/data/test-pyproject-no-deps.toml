@@ -16,8 +16,6 @@ template = "{env}"
 style = "yaml"
 # options
 python = [ "3.10" ]
-# Note that this is relative to the location of pyproject.toml
-user-config = "config/userconfig.toml"
 default-envs = [ "test", "dev", "dist-pypi" ]
 
 [tool.pyproject2conda.dependencies]

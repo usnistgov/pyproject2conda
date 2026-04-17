@@ -407,18 +407,6 @@ DRY_CLI = Annotated[
         help="If passed, do a dry run",
     ),
 ]
-USER_CONFIG_CLI = Annotated[
-    str | None,
-    typer.Option(
-        "--user-config",
-        help="""
-        Additional toml file to supply configuration. This can be used to
-        override/add environment files for your own use (apart from project env
-        files). The (default) value ``infer`` means to infer the configuration
-        from ``--filename``.
-        """,
-    ),
-]
 # For conda-requirements
 PREFIX_CLI = Annotated[
     str | None,
@@ -645,7 +633,6 @@ def project(
     verbose: VERBOSE_CLI = None,
     dry: DRY_CLI = False,
     pip_only: PIP_ONLY_CLI = False,
-    user_config: USER_CONFIG_CLI = "infer",
     allow_empty: Annotated[bool | None, ALLOW_EMPTY_OPTION] = None,
 ) -> None:
     """
@@ -659,10 +646,7 @@ def project(
     """
     from pyproject2conda.config import Config
 
-    c = Config.from_file(pyproject_filename, user_config=user_config)
-
-    if user_config == "infer" or user_config is None:
-        user_config = c.user_config()
+    c = Config.from_file(pyproject_filename)
 
     for style, d in c.iter_envs(
         envs=envs,
@@ -690,7 +674,6 @@ def project(
         if not update_target(
             d["output"],
             pyproject_filename,
-            *([user_config] if user_config else []),
             overwrite=d["overwrite"],
         ):
             if verbose:

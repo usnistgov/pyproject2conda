@@ -50,8 +50,6 @@ def simple_toml() -> str:
     style = "yaml"
     # options
     python = "3.10"
-    # Note that this is relative to the location of pyproject.toml
-    user-config = "config/userconfig.toml"
     default-envs = ["test", "dev", "dist-pypi"]
 
     [tool.pyproject2conda.envs.base]
@@ -177,7 +175,6 @@ def simple_env() -> mod.Env:
         template="hello-{env}",
         style="yaml",
         python="3.10",
-        user_config="config/userconfig.toml",
     )
 
 
