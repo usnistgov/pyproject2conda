@@ -147,7 +147,7 @@ dependencies:
   - pip:
       - athing
       - bthing
-      - cthing;python_version<"3.10"
+      - cthing; python_version < "3.10"
     """
 
     result = do_run(runner, "yaml", "--pip-only", filename=filename)
@@ -195,7 +195,7 @@ dependencies:
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda
   - conda-forge::cthing
   - pip
@@ -587,33 +587,6 @@ thing; python_version < "3.10"
         "thing;python_version<'3.10'",
         "-r",
         "other",
-        filename=filename,
-    )
-
-    check_result(result, expected)
-
-    # allow whitespace:
-    expected = """\
-athing
-bthing
-cthing; python_version < "3.10"
-matplotlib
-other
-pandas
-pytest
-thing; python_version < "3.10"
-    """
-
-    result = do_run(
-        runner,
-        "requirements",
-        opt,
-        "dev",
-        "-r",
-        "thing; python_version < '3.10'",
-        "-r",
-        "other",
-        "--no-remove-whitespace",
         filename=filename,
     )
 

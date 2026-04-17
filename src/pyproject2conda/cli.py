@@ -442,15 +442,6 @@ ALLOW_EMPTY_OPTION = typer.Option(
     being printed, but no environment file being created.
     """,
 )
-REMOVE_WHITESPACE_OPTION = typer.Option(
-    "--remove-whitespace/--no-remove-whitespace",
-    help="""
-    What to do with whitespace in a dependency. Passing ``--remove-whitespace``
-    will remove whitespace in a given dependency. For example, the dependency
-    ``package >= 1.0`` will be converted to ``package>=1.0``. Pass
-    ``--no-remove-whitespace`` to keep the the whitespace in the output.
-    """,
-)
 
 
 # * Utils ------------------------------------------------------------------------------
@@ -550,7 +541,6 @@ def yaml(
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
-    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
     if not update_target(output, pyproject_filename, overwrite=overwrite.value):
@@ -587,7 +577,6 @@ def yaml(
         conda_deps=deps,
         pip_deps=reqs,
         allow_empty=allow_empty,
-        remove_whitespace=remove_whitespace,
     )
     if not output:
         print(s, end="")
@@ -610,7 +599,6 @@ def requirements(
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
-    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = False,
 ) -> None:
     """Create requirements.txt for pip dependencies.  Note that all requirements are normalized using ``packaging.requirements.Requirement``"""
     if not update_target(output, pyproject_filename, overwrite=overwrite.value):
@@ -631,7 +619,6 @@ def requirements(
         sort=sort,
         pip_deps=reqs,
         allow_empty=allow_empty,
-        remove_whitespace=remove_whitespace,
     )
     if not output:
         print(s, end="")
@@ -660,7 +647,6 @@ def project(
     pip_only: PIP_ONLY_CLI = False,
     user_config: USER_CONFIG_CLI = "infer",
     allow_empty: Annotated[bool | None, ALLOW_EMPTY_OPTION] = None,
-    remove_whitespace: Annotated[bool | None, REMOVE_WHITESPACE_OPTION] = None,
 ) -> None:
     """
     Create multiple environment files from ``pyproject.toml`` specification.
@@ -692,7 +678,6 @@ def project(
         overwrite=overwrite.value,
         verbose=verbose,
         allow_empty=allow_empty,
-        remove_whitespace=remove_whitespace,
         pip_only=pip_only or None,
     ):
         if dry:

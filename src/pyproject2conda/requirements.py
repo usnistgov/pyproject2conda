@@ -20,9 +20,6 @@ from pyproject2conda.utils import (
     list_to_str,
     unique_list,
 )
-from pyproject2conda.utils import (
-    remove_whitespace_list as _remove_whitespace_list,
-)
 
 from .overrides import OverrideDeps
 
@@ -492,12 +489,9 @@ class ParseDepends:
     @staticmethod
     def _cleanup(
         values: list[str],
-        remove_whitespace: bool = True,
         unique: bool = True,
         sort: bool = True,
     ) -> list[str]:
-        if remove_whitespace:
-            values = _remove_whitespace_list(values)
 
         if unique:  # pragma: no cover
             values = unique_list(values)
@@ -539,7 +533,6 @@ class ParseDepends:
         skip_package: bool = False,
         pip_deps: str | Iterable[str] | None = None,
         unique: bool = True,
-        remove_whitespace: bool = True,
         sort: bool = True,
     ) -> list[str]:
         """Pip dependencies."""
@@ -560,9 +553,7 @@ class ParseDepends:
             pip_deps = [pip_deps] if isinstance(pip_deps, str) else list(pip_deps)
             out.extend(_clean_pip_reqs(pip_deps))
 
-        return self._cleanup(
-            out, remove_whitespace=remove_whitespace, unique=unique, sort=sort
-        )
+        return self._cleanup(out, unique=unique, sort=sort)
 
     def conda_and_pip_requirements(  # noqa: C901, PLR0912
         self,
@@ -575,7 +566,6 @@ class ParseDepends:
         pip_deps: str | Iterable[str] | None = None,
         conda_deps: str | Iterable[str] | None = None,
         unique: bool = True,
-        remove_whitespace: bool = True,
         sort: bool = True,
         python_version: str | None = None,
         python_include: str | None = None,
@@ -598,7 +588,7 @@ class ParseDepends:
             if (x := self.get_in("project", "requires-python")) is None:
                 msg = "No value for `requires-python` in pyproject.toml file"
                 raise ValueError(msg)
-            python_include = "python" + str(x)
+            python_include = str(Requirement(f"python {x}"))
 
         pip_deps = _clean_pip_reqs(_init_deps(pip_deps))
         conda_deps = _clean_conda_strings(
@@ -639,15 +629,12 @@ class ParseDepends:
                     conda_deps.append(str(r))
 
         pip_deps, conda_deps = (
-            self._cleanup(
-                x, remove_whitespace=remove_whitespace, unique=unique, sort=sort
-            )
-            for x in (pip_deps, conda_deps)
+            self._cleanup(x, unique=unique, sort=sort) for x in (pip_deps, conda_deps)
         )
 
         if python_include is not None:
             conda_deps = [
-                *self._cleanup([python_include], remove_whitespace=remove_whitespace),
+                *self._cleanup([python_include]),
                 *conda_deps,
             ]
 
@@ -678,7 +665,6 @@ class ParseDepends:
         header_cmd: str | None = None,
         output: str | Path | None = None,
         sort: bool = True,
-        remove_whitespace: bool = True,
         unique: bool = True,
         allow_empty: bool = False,
     ) -> str:
@@ -692,7 +678,6 @@ class ParseDepends:
             pip_deps=pip_deps,
             conda_deps=conda_deps,
             unique=unique,
-            remove_whitespace=remove_whitespace,
             sort=sort,
             python_include=python_include,
             python_version=python_version,
@@ -726,7 +711,6 @@ class ParseDepends:
         sort: bool = True,
         pip_deps: Sequence[str] | None = None,
         allow_empty: bool = False,
-        remove_whitespace: bool = True,
     ) -> str:
         """Create requirements string."""
         pip_deps = self.pip_requirements(
@@ -735,7 +719,6 @@ class ParseDepends:
             extras_or_groups=extras_or_groups,
             skip_package=skip_package,
             pip_deps=pip_deps,
-            remove_whitespace=remove_whitespace,
             sort=sort,
         )
 
@@ -747,7 +730,7 @@ class ParseDepends:
         _optional_write(out, output)
         return out
 
-    def to_conda_requirements(  # noqa: PLR0913
+    def to_conda_requirements(
         self,
         *,
         extras: str | Iterable[str] | None = None,
@@ -765,7 +748,6 @@ class ParseDepends:
         unique: bool = True,
         conda_deps: str | Iterable[str] | None = None,
         pip_deps: str | Iterable[str] | None = None,
-        remove_whitespace: bool = True,
     ) -> tuple[str, str]:
         """Create conda and pip requirements files."""
         conda_deps, pip_deps = self.conda_and_pip_requirements(
@@ -776,7 +758,6 @@ class ParseDepends:
             pip_deps=pip_deps,
             conda_deps=conda_deps,
             unique=unique,
-            remove_whitespace=remove_whitespace,
             sort=sort,
             python_include=python_include,
             python_version=python_version,

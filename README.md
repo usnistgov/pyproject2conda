@@ -567,7 +567,7 @@ You can customize the command in the header with the `--custom-command` option.
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda
   - conda-forge::cthing
   - pip

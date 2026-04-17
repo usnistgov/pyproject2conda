@@ -6,7 +6,6 @@ Utility methods (:mod:`pyproject2conda.utils`)
 from __future__ import annotations
 
 import enum
-import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -266,19 +265,6 @@ def conda_env_name_from_template(
     kws = _get_standard_format_dict(env_name=env_name, python_version=python_version)
 
     return name.format(**kws)
-
-
-_WHITE_SPACE_REGEX = re.compile(r"\s+")
-
-
-def remove_whitespace(s: str) -> str:
-    """Cleanup whitespace from string."""
-    return re.sub(_WHITE_SPACE_REGEX, "", s)
-
-
-def remove_whitespace_list(s: Iterable[str]) -> list[str]:
-    """Cleanup whitespace from list of strings."""
-    return [remove_whitespace(x) for x in s]
 
 
 def unique_list(values: Iterable[T]) -> list[T]:

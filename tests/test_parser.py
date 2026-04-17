@@ -207,7 +207,7 @@ def test_pip_requirements() -> None:
         """\
     athing
     bthing
-    cthing;python_version<"3.10"
+    cthing; python_version < "3.10"
     hello
     """
     )
@@ -220,7 +220,7 @@ def test_pip_requirements() -> None:
         """\
         athing
         bthing
-        cthing;python_version<"3.10"
+        cthing; python_version < "3.10"
         dev-package
         hello
         pytest
@@ -236,7 +236,7 @@ def test_pip_requirements() -> None:
         """\
         athing
         bthing
-        cthing;python_version<"3.10"
+        cthing; python_version < "3.10"
         dev-package-group
         hello
         pytest
@@ -495,7 +495,7 @@ dependencies:
   - conda-forge::cthing
   - pip
   - pip:
-      - -e.
+      - -e .
       - athing
     """
 
@@ -506,7 +506,7 @@ dependencies:
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda
   - conda-forge::cthing
   - pip
@@ -520,7 +520,7 @@ dependencies:
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8, <3.11
+  - python<3.11,>=3.8
   - bthing-conda
   - conda-forge::cthing
   - pip
@@ -528,7 +528,7 @@ dependencies:
       - athing
     """
     assert dedent(expected) == d.to_conda_yaml(
-        python_include="infer", remove_whitespace=False
+        python_include="infer",
     )
 
     expected = """\
@@ -688,7 +688,7 @@ dependencies:
   - pip
   - pip:
       - athing
-      - req;python_version<"3.10"
+      - req; python_version < "3.10"
     """
     assert dedent(expected) == d.to_conda_yaml(
         conda_deps=["dep;python_version<'3.10'"],
@@ -885,7 +885,7 @@ def test_no_optional_deps() -> None:
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda>2.0
   - conda-forge::cthing
   - pip
@@ -933,7 +933,7 @@ def test_spaces(toml) -> None:
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8, <3.11
+  - python<3.11,>=3.8
   - bthing-conda>2.0
   - conda-forge::cthing
   - pip
@@ -941,14 +941,14 @@ dependencies:
       - athing>0.5
     """
     assert dedent(expected) == d.to_conda_yaml(
-        python_include="infer", remove_whitespace=False
+        python_include="infer",
     )
 
     expected = """\
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda>2.0
   - conda-forge::cthing
   - pip
@@ -956,7 +956,7 @@ dependencies:
       - athing>0.5
     """
     assert dedent(expected) == d.to_conda_yaml(
-        python_include="infer", remove_whitespace=True
+        python_include="infer",
     )
 
     expected = """\
@@ -965,15 +965,7 @@ dependencies:
     cthing; python_version < "3.10"
     """
 
-    assert dedent(expected) == d.to_requirements(remove_whitespace=False)
-
-    expected = """\
-    athing>0.5
-    bthing>1.0
-    cthing;python_version<"3.10"
-    """
-
-    assert dedent(expected) == d.to_requirements(remove_whitespace=True)
+    assert dedent(expected) == d.to_requirements()
 
 
 def test_include_pip() -> None:

@@ -184,7 +184,6 @@ def test_option_override_base(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "hello-base.yaml",
         },
     )
@@ -211,7 +210,6 @@ def test_option_override_header0(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "hello-header0.yaml",
         },
     )
@@ -238,7 +236,6 @@ def test_option_override_header1(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "hello-header1.yaml",
         },
     )
@@ -265,7 +262,6 @@ def test_option_override_base_reqs(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "hello-base.yaml",
         },
     )
@@ -292,7 +288,6 @@ def test_option_override_base2(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py310-base2.yaml",
             "python": "3.10",
         },
@@ -320,7 +315,6 @@ def test_option_override_base_pip_only(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py310-base-pip-only.yaml",
             "python": "3.10",
         },
@@ -348,7 +342,6 @@ def test_option_override_base_name(simple_config: Config) -> None:
             "name": "py310-base_name",
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py310-base_name.yaml",
             "python": "3.10",
         },
@@ -376,7 +369,6 @@ def test_option_override_base_custom_command(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py310-base-custom-command.yaml",
             "python": "3.10",
         },
@@ -404,7 +396,6 @@ def test_option_override_both(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py310-both.yaml",
             "python": "3.10",
         },
@@ -432,7 +423,6 @@ def test_option_override_base_template(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "there-base.yaml",
         },
     )
@@ -461,7 +451,6 @@ def test_option_override_base_allow_empty(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": True,
-            "remove_whitespace": True,
             "output": "there-base.yaml",
         },
     )
@@ -472,7 +461,6 @@ def test_option_override_base_allow_empty_other(simple_config: Config) -> None:
         simple_config.iter_envs(
             envs=["base"],
             allow_empty=True,
-            remove_whitespace=False,
             template="there-{env}",
         )
     )
@@ -495,7 +483,6 @@ def test_option_override_base_allow_empty_other(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": True,
-            "remove_whitespace": False,
             "output": "there-base.yaml",
         },
     )
@@ -542,7 +529,6 @@ def test_option_override_base3_default_python(example_path, simple_toml: str) ->
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py310-base3.yaml",
             "python": "3.10",
         },
@@ -580,7 +566,6 @@ def test_option_override_all_pythons(simple_toml: str, classifiers: str) -> None
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py39-hello.yaml",
             "python": "3.9",
         },
@@ -613,7 +598,6 @@ def test_option_override_lowest_highest(simple_toml: str, classifiers: str) -> N
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py39-hello.yaml",
             "python": "3.9",
         },
@@ -637,7 +621,6 @@ def test_option_override_lowest_highest(simple_toml: str, classifiers: str) -> N
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py313-hello.yaml",
             "python": "3.13",
         },
@@ -665,7 +648,6 @@ def test_option_override_extension_yaml(simple_config: Config) -> None:
             "name": None,
             "channels": ["conda-forge"],
             "allow_empty": False,
-            "remove_whitespace": True,
             "output": "py310-extension_yaml.yml",
             "python": "3.10",
         },
@@ -689,7 +671,6 @@ def test_option_override_extension_txt(simple_config: Config) -> None:
             "verbose": None,
             "reqs": None,
             "allow_empty": False,
-            "remove_whitespace": False,
             "output": "hello-extension_txt.in",
         },
     )
@@ -758,7 +739,6 @@ def test_config_only_default() -> None:
         "deps": None,
         "reqs": None,
         "allow_empty": False,
-        "remove_whitespace": True,
     }
 
     d1 = d0.copy()
@@ -846,7 +826,6 @@ def test_config_overrides() -> None:
             "deps": None,
             "reqs": None,
             "allow_empty": False,
-            "remove_whitespace": True,
         },
     )
 
@@ -885,7 +864,6 @@ def test_config_overrides2() -> None:
             "deps": None,
             "reqs": None,
             "allow_empty": False,
-            "remove_whitespace": True,
         },
     )
 
@@ -947,7 +925,6 @@ def test_config_python_include_version() -> None:
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
-                "remove_whitespace": True,
             },
         ),
         (
@@ -971,7 +948,6 @@ def test_config_python_include_version() -> None:
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
-                "remove_whitespace": True,
             },
         ),
     ]
@@ -1024,7 +1000,6 @@ def test_config_user_config() -> None:
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
-                "remove_whitespace": True,
             },
         ),
         (
@@ -1047,7 +1022,6 @@ def test_config_user_config() -> None:
                 "deps": None,
                 "reqs": None,
                 "allow_empty": False,
-                "remove_whitespace": True,
             },
         ),
     ]

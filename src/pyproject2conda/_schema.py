@@ -71,7 +71,6 @@ class BaseOptions(BaseModel):
     python_version: str | None = None
     # config
     allow_empty: bool = False
-    remove_whitespace: bool = True
     sort: bool = True
     header: bool | None = None
     custom_command: str | None = None

@@ -314,16 +314,6 @@ class Config:  # noqa: PLR0904
             key="allow-empty", env_name=env_name, default=default
         )
 
-    def remove_whitespace(
-        self, env_name: str | None = None, default: bool = True
-    ) -> bool:
-        """Remove whitespace option."""
-        return self._get_value(  # type: ignore[no-any-return]
-            key="remove-whitespace",
-            env_name=env_name,
-            default=default,
-        )
-
     def assign_user_config(self, user: Self) -> Self:
         """Assign user_config to self."""
         from copy import deepcopy
@@ -386,7 +376,6 @@ class Config:  # noqa: PLR0904
             "name",
             "channels",
             "allow_empty",
-            "remove_whitespace",
         ]
 
         data: dict[str, Any] = {
@@ -432,7 +421,7 @@ class Config:  # noqa: PLR0904
                 yield ("yaml", dict(data, python=python, output=output, name=name))
 
     def _iter_reqs(
-        self, env_name: str, remove_whitespace: bool | None = None, **defaults: Any
+        self, env_name: str, **defaults: Any
     ) -> Iterator[tuple[str, dict[str, Any]]]:
         keys = [
             "extras",
@@ -451,13 +440,6 @@ class Config:  # noqa: PLR0904
         output, template, _ = self._get_output_and_templates(env_name, **defaults)
 
         data = {k: defaults.get(k, getattr(self, k)(env_name)) for k in keys}
-
-        # different default from yaml
-        data["remove_whitespace"] = (
-            remove_whitespace
-            if remove_whitespace is not None
-            else self.remove_whitespace(env_name, default=False)
-        )
 
         if not (output := self.output(env_name)):  # pragma: no cover
             output = filename_from_template(
