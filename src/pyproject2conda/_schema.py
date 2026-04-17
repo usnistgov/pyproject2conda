@@ -16,7 +16,13 @@ from pydantic import (
 )
 
 from ._compat import tomllib
-from .utils import select_pythons
+from .utils import (
+    conda_env_name_from_template,
+    filename_from_template,
+    get_all_pythons,
+    get_default_pythons_with_fallback,
+    select_pythons,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
@@ -172,39 +178,164 @@ class PyProject2CondaSchema(BaseOptions):
 
     def _chainmap_env(
         self,
-        env_name: NormalizedName,
+        env_name: str | None,
         *options: dict[str, Any],
     ) -> ChainMap[str, Any]:
+
+        if env_name is None:
+            env_options = []
+        else:
+            env_name = canonicalize_name(env_name)
+            env_options = [
+                *self._get_overrides_dict(env_name),
+                self._get_env_dict(env_name),
+            ]
+
         return ChainMap(
             *options,
-            *self._get_overrides_dict(env_name),
-            self._get_env_dict(env_name),
+            *env_options,
             self._base_dict,
         )
 
     def env_config(
         self,
-        env_name: str,
+        env_name: str | None,
         *options: dict[str, Any],
     ) -> Env:
-        return Env.model_validate(
-            self._chainmap_env(canonicalize_name(env_name), *options)
-        )
+        return Env.model_validate(self._chainmap_env(env_name, *options))
 
 
-class IterConfig:
+class Config:
     def __init__(
         self,
+        *options: dict[str, Any],
         config: PyProject2CondaSchema,
-        default_pythons: list[str] | None = None,
-        all_pythons: list[str] | None = None,
+        default_pythons: list[str],
+        all_pythons: list[str],
     ) -> None:
         self.config = config
-        self.default_pythons: list[str] = (
-            [] if default_pythons is None else default_pythons
-        )
-        self.all_pythons: list[str] = [] if all_pythons is None else all_pythons
+        self.default_pythons = default_pythons
+        self.all_pythons = all_pythons
+        self.options = options
+        self._cache: dict[NormalizedName | None, Env] = {}
 
-    def python(self, env_name: str) -> list[str]:
-        out = self.config.env_config(env_name).python
+    def update_options(self, *options: dict[str, Any]) -> Self:
+        return type(self)(
+            *options,
+            config=self.config,
+            default_pythons=self.default_pythons,
+            all_pythons=self.all_pythons,
+        )
+
+    def _get_env(self, env_name: NormalizedName | None) -> Env:
+        if env_name not in self._cache:
+            self._cache[env_name] = self.config.env_config(env_name, *self.options)
+        return self._cache[env_name]
+
+    def _python(self, env_name: NormalizedName) -> list[str]:
+        out = self._get_env(env_name).python
         return select_pythons(out, self.default_pythons, self.all_pythons)
+
+    @classmethod
+    def from_string(cls, s: str, *options: dict[str, Any]) -> Self:
+        pyproject = tomllib.loads(s)
+        section = pyproject.get("tool", {}).get("pyproject2conda", {})
+        config = PyProject2CondaSchema.model_validate(section)
+
+        return cls(
+            *options,
+            config=config,
+            default_pythons=get_default_pythons_with_fallback(),
+            all_pythons=get_all_pythons(pyproject),
+        )
+
+    @classmethod
+    def from_file(cls, path: Path, *options: dict[str, Any]) -> Self:
+        return cls.from_string(path.read_text(encoding="utf-8"), *options)
+
+    def _iter_reqs(self, env_name: str) -> Iterator[tuple[str, Env]]:
+        env_name = canonicalize_name(env_name)
+
+        env = self._get_env(env_name)
+        if not (output := env.output):
+            output = filename_from_template(
+                template=env.template,
+                env_name=env_name,
+                ext=env.reqs_ext,
+            )
+
+            yield (
+                "requirements",
+                env.model_validate(
+                    env.model_copy(
+                        update={"style": ["requirements"], "output": output}
+                    ).model_dump()
+                ),
+            )
+
+    def _iter_yaml(self, env_name: str) -> Iterator[tuple[str, Env]]:
+        env_name = canonicalize_name(env_name)
+        env = self._get_env(env_name)
+        pythons = self._python(env_name)
+
+        if not pythons:
+            yield (
+                "yaml",
+                env.model_validate(
+                    env.model_copy(
+                        update={
+                            "style": ["yaml"],
+                            "output": env.output
+                            or filename_from_template(
+                                template=env.template,
+                                env_name=env_name,
+                                ext=env.yaml_ext,
+                            ),
+                            "name": conda_env_name_from_template(
+                                name=env.name,
+                                python_version=env.python_version,
+                                env_name=env_name,
+                            ),
+                        }
+                    ).model_dump()
+                ),
+            )
+
+        else:
+            for python in pythons:
+                yield (
+                    "yaml",
+                    env.model_validate(
+                        env.model_copy(
+                            update={
+                                "style": ["yaml"],
+                                "output": filename_from_template(
+                                    template=env.template_python,
+                                    python_version=python,
+                                    env_name=env_name,
+                                    ext=env.yaml_ext,
+                                ),
+                                "name": conda_env_name_from_template(
+                                    name=env.name,
+                                    python_version=python,
+                                    env_name=env_name,
+                                ),
+                                "python": [python],
+                            }
+                        ).model_dump()
+                    ),
+                )
+
+    def iter_envs(self, envs: Iterable[str] | None = None) -> Iterator[tuple[str, Env]]:
+        if not envs:
+            envs = self.config.envs.keys()
+
+        for env_name in map(canonicalize_name, envs):
+            for style in self._get_env(env_name).style:
+                if style == "yaml":
+                    yield from self._iter_yaml(env_name)
+                elif style == "requirements":
+                    yield from self._iter_reqs(env_name)
+                else:  # pragma: no cover
+                    msg = f"unknown style {style}"
+                    raise ValueError(msg)

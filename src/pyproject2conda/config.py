@@ -381,7 +381,6 @@ class Config:  # noqa: PLR0904
         data: dict[str, Any] = {
             k: defaults.get(k, getattr(self, k)(env_name)) for k in keys
         }
-
         if not pythons:
             if output is None:
                 output = filename_from_template(
