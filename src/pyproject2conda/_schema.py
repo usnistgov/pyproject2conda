@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import ChainMap
+from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Annotated, Literal
 
@@ -10,6 +11,7 @@ from pydantic import (
     BeforeValidator,
     ConfigDict,
     Field,
+    ValidationError,
     field_validator,
     model_validator,
 )
@@ -31,7 +33,9 @@ if TYPE_CHECKING:
     from ._typing_compat import Self
 
 
-def _validate_list_of_str(s: str | Iterable[str]) -> list[str]:
+def _validate_list_of_str(s: str | Iterable[str] | None) -> list[str]:
+    if s is None:
+        return []
     if isinstance(s, list):
         return s
     if isinstance(s, str):
@@ -40,15 +44,29 @@ def _validate_list_of_str(s: str | Iterable[str]) -> list[str]:
 
 
 def _validate_list_of_normalizedname(s: Any) -> list[NormalizedName]:
+    if s is None:
+        return []
     if isinstance(s, str):
         s = [s]
     return [canonicalize_name(name) for name in s]
+
+
+def _dict_drop_null(d: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in d.items() if v is not None}
 
 
 ListString = Annotated[list[str], BeforeValidator(_validate_list_of_str)]
 ListNormalizedName = Annotated[
     list[NormalizedName], BeforeValidator(_validate_list_of_normalizedname)
 ]
+
+
+class Overwrite(str, Enum):
+    """Options for ``--overwrite``"""
+
+    check = "check"
+    skip = "skip"
+    force = "force"
 
 
 class BaseOptions(BaseModel):
@@ -78,7 +96,8 @@ class BaseOptions(BaseModel):
     header: bool | None = None
     custom_command: str | None = None
     skip_package: bool = False
-    overwrite: Literal["check", "skip", "force"] = "check"
+    overwrite: Overwrite = Overwrite.check
+    verbose: int = 0
     # yaml
     name: str | None = None
     channels: ListString = Field(default_factory=list)
@@ -109,15 +128,15 @@ class Env(BaseOptions):
 class OverrideEnvs(Env):
     """Override envs table"""
 
-    envs: ListNormalizedName = Field(default_factory=list)
+    envs: ListNormalizedName
 
     @field_validator("envs", mode="after")
     @classmethod
-    def validate_envs(cls, envs: ListNormalizedName) -> ListNormalizedName:
-        if not envs:
+    def validate_envs(cls, v: ListNormalizedName) -> ListNormalizedName:
+        if not v:
             msg = "must specify env in overrides"
-            raise ValueError(msg)
-        return envs
+            raise ValidationError(msg)
+        return v
 
 
 class PyProject2CondaSchema(BaseOptions):
@@ -180,6 +199,9 @@ class PyProject2CondaSchema(BaseOptions):
             env_options = []
         else:
             env_name = canonicalize_name(env_name)
+            if env_name not in self.envs:
+                msg = f"env {env_name} not in config"
+                raise ValueError(msg)
             env_options = [
                 *self._get_overrides_dict(env_name),
                 self._get_env_dict(env_name),
@@ -210,7 +232,8 @@ class Config:
         self.config = config
         self.default_pythons = default_pythons
         self.all_pythons = all_pythons
-        self.options = options
+        # only include non null options
+        self.options = [_dict_drop_null(option) for option in options]
         self._cache: dict[NormalizedName | None, Env] = {}
 
     def update_options(self, *options: dict[str, Any]) -> Self:
@@ -265,7 +288,7 @@ class Config:
                 env.model_validate(
                     env.model_copy(
                         update={"style": ["requirements"], "output": output}
-                    ).model_dump()
+                    ).model_dump(exclude_unset=True)
                 ),
             )
 
@@ -293,7 +316,7 @@ class Config:
                                 env_name=env_name,
                             ),
                         }
-                    ).model_dump()
+                    ).model_dump(exclude_unset=True)
                 ),
             )
 
@@ -318,7 +341,7 @@ class Config:
                                 ),
                                 "python": python,
                             }
-                        ).model_dump()
+                        ).model_dump(exclude_unset=True)
                     ),
                 )
 

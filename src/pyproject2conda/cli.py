@@ -9,7 +9,6 @@ from __future__ import annotations
 import locale
 import logging
 import os
-from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
@@ -18,6 +17,7 @@ import typer
 from typer.core import TyperGroup
 
 from pyproject2conda import __version__
+from pyproject2conda._schema import Overwrite
 from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
     parse_pythons,
@@ -206,14 +206,6 @@ OUTPUT_CLI = Annotated[
         help="File to output results",
     ),
 ]
-
-
-class Overwrite(str, Enum):
-    """Options for ``--overwrite``"""
-
-    check = "check"
-    skip = "skip"
-    force = "force"
 
 
 OVERWRITE_CLI = Annotated[
@@ -644,47 +636,94 @@ def project(
     ``--group`` becomes the config file option ``groups = ...``.  Boolean options
     like ``--sort/--no-sort`` become ``sort = true/false`` in the config file.
     """
-    from pyproject2conda.config import Config
+    from pyproject2conda._schema import Config
 
-    c = Config.from_file(pyproject_filename)
+    options = {
+        "reqs_ext": reqs_ext,
+        "yaml_ext": yaml_ext,
+        "template": template,
+        "template_python": template_python,
+        "reqs": reqs,
+        "deps": deps,
+        "sort": sort,
+        "header": header,
+        "custom_command": custom_command,
+        "overwrite": overwrite.value,
+        "verbose": verbose,
+        "allow_empty": allow_empty,
+        "pip_only": pip_only or None,
+    }
 
-    for style, d in c.iter_envs(
-        envs=envs,
-        reqs_ext=reqs_ext,
-        yaml_ext=yaml_ext,
-        template=template,
-        template_python=template_python,
-        reqs=reqs,
-        deps=deps,
-        sort=sort,
-        header=header,
-        custom_command=custom_command,
-        overwrite=overwrite.value,
-        verbose=verbose,
-        allow_empty=allow_empty,
-        pip_only=pip_only or None,
-    ):
+    c = Config.from_file(pyproject_filename, options)
+
+    for style, env_tmp in c.iter_envs(envs=envs):
+        env = env_tmp.model_copy(update={"output": None}) if dry else env_tmp
         if dry:
             # small header
             print("# " + "-" * 20)
-            print("# Creating {style} {output}".format(style=style, output=d["output"]))
-            d["output"] = None
+            print(f"# Creating {style} {env_tmp.output}")
 
         # Special case: have output and userconfig.  Check update
         if not update_target(
-            d["output"],
+            env.output,
             pyproject_filename,
-            overwrite=d["overwrite"],
+            env.overwrite,
         ):
             if verbose:
-                _log_skipping(logger, style, d["output"])
+                _log_skipping(logger, style, env.output)
         else:
-            d["overwrite"] = Overwrite("force")
+            env = env.model_copy(update={"overwrite": Overwrite.force})
             if style == "yaml":
-                yaml(pyproject_filename=pyproject_filename, **d)
+                yaml(
+                    pyproject_filename=pyproject_filename,
+                    verbose=verbose,
+                    **env.model_dump(
+                        include={
+                            "extras",
+                            "groups",
+                            "extras_or_groups",
+                            "output",
+                            "skip_package",
+                            "pip_only",
+                            "sort",
+                            "header",
+                            "custom_command",
+                            "overwrite",
+                            "reqs",
+                            "allow_empty",
+                            # yaml specific
+                            "channels",
+                            "name",
+                            "python_include",
+                            "python_version",
+                            "python",
+                            "deps",
+                        },
+                        exclude_unset=True,
+                    ),
+                )
 
             elif style == "requirements":
-                requirements(pyproject_filename=pyproject_filename, **d)
+                requirements(
+                    pyproject_filename=pyproject_filename,
+                    verbose=verbose,
+                    **env.model_dump(
+                        include={
+                            "extras",
+                            "groups",
+                            "extras_or_groups",
+                            "output",
+                            "skip_package",
+                            "sort",
+                            "header",
+                            "custom_command",
+                            "overwrite",
+                            "reqs",
+                            "allow_empty",
+                        },
+                        exclude_unset=True,
+                    ),
+                )
             else:  # pragma: no cover
                 msg = f"unknown style {style}"
                 raise ValueError(msg)

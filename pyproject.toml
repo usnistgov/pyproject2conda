@@ -309,7 +309,6 @@ report.show_missing = true
 
 # * Dependency creation --------------------------------------------------------
 [tool.pyproject2conda]
-user-config = "config/userconfig.toml"
 template-python = "requirements/py{py}-{env}"
 template = "requirements/{env}"
 name = "py{py}-{env}"

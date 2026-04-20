@@ -1,14 +1,19 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 # pylint: disable=duplicate-code
-# ruff: noqa: ERA001
 from __future__ import annotations
 
+import filecmp
+import logging
+import tempfile
+from functools import partial
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
 import pytest
+from pydantic import ValidationError
 
+import pyproject2conda
 from pyproject2conda import _schema as mod
 from pyproject2conda.cli import app
 
@@ -368,555 +373,343 @@ def test_option_override_lowest_highest(
     )
 
 
-# @pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
-# def test_dry(fname, runner) -> None:
-#     filename = ROOT / fname
-
-#     expected = """\
-# # --------------------
-# # Creating yaml py310-test-extras.yaml
-# channels:
-#   - conda-forge
-# dependencies:
-#   - python=3.10
-#   - conda-forge::pytest
-#   - pandas
-# # --------------------
-# # Creating yaml py311-test-extras.yaml
-# channels:
-#   - conda-forge
-# dependencies:
-#   - python=3.11
-#   - conda-forge::pytest
-#   - pandas
-# # --------------------
-# # Creating requirements test-extras.txt
-# pandas
-# pytest
-#     """
-
-#     result = do_run(
-#         runner, "project", "--dry", "--envs", "test-extras", filename=filename
-#     )
-
-#     assert result.output == dedent(expected)
-
-
-# def test_config_only_default() -> None:
-#     d0 = {
-#         "extras": [],
-#         "groups": [],
-#         "extras_or_groups": ["test"],
-#         "sort": True,
-#         "skip_package": False,
-#         "pip_only": False,
-#         "header": None,
-#         "custom_command": None,
-#         "overwrite": "check",
-#         "verbose": None,
-#         "name": None,
-#         "channels": None,
-#         "python": "3.8",
-#         "output": "py38-test.yaml",
-#         "deps": None,
-#         "reqs": None,
-#         "allow_empty": False,
-#     }
-
-#     d1 = d0.copy()
-#     d1.update(extras=["test"], extras_or_groups=[])
-
-#     s0 = """
-#     [tool.pyproject2conda]
-#     python = ["3.8"]
-#     default-envs = ["test"]
-#     """
-#     s1 = """
-#     [tool.pyproject2conda.envs.test]
-#     python = ["3.8"]
-#     extras = true
-#     """
-
-#     for s, d in zip([s0, s1], (d0, d1), strict=False):
-#         c = Config.from_string(s)
-#         assert list(c.iter_envs()) == [("yaml", d)]
-
-
-# def test_config_errors() -> None:
-#     s = """
-#     [tool.pyproject2conda]
-#     python = ["3.8"]
-
-#     [tool.pyproject2conda.envs.test]
-#     extras = true
-#     """
-
-#     # raise error for bad env
-#     c = Config.from_string(s)
-#     with pytest.raises(ValueError):
-#         c.channels(env_name="hello")
-
-#     s1 = """
-#     [tool.pyproject2conda]
-#     python = ["3.8"]
-
-#     [tool.pyproject2conda.envs.test]
-#     style = "thing"
-#     """
-
-#     # raise error for bad env
-#     c = Config.from_string(s1)
-#     with pytest.raises(ValueError):
-#         c.style(env_name="test")
-
-#     with pytest.raises(ValueError):
-#         list(c.iter_envs())
-
-
-# def test_config_overrides() -> None:
-#     # test overrides env
-#     s = """
-#     [tool.pyproject2conda]
-#     python = ["3.8"]
-#     default-envs = ["test"]
-
-#     [[tool.pyproject2conda.overrides]]
-#     envs = ["test"]
-#     skip-package = true
-#     pip-only = true
-#     """
-
-#     c = Config.from_string(s)
-
-#     expected = (
-#         "yaml",
-#         {
-#             "extras": [],
-#             "groups": [],
-#             "extras_or_groups": ["test"],
-#             "sort": True,
-#             "skip_package": True,
-#             "pip_only": True,
-#             "header": None,
-#             "custom_command": None,
-#             "overwrite": "check",
-#             "verbose": None,
-#             "name": None,
-#             "channels": None,
-#             "python": "3.8",
-#             "output": "py38-test.yaml",
-#             "deps": None,
-#             "reqs": None,
-#             "allow_empty": False,
-#         },
-#     )
-
-#     assert next(iter(c.iter_envs())) == expected
-
-
-# def test_config_overrides2() -> None:
-#     # test overrides env
-#     s = """
-#     [tool.pyproject2conda]
-#     python = ["3.8"]
-#     default-envs = ["test"]
-#     pip-only = true
-#     skip-package = true
-#     """
-
-#     c = Config.from_string(s)
-
-#     expected = (
-#         "yaml",
-#         {
-#             "extras": [],
-#             "groups": [],
-#             "extras_or_groups": ["test"],
-#             "sort": True,
-#             "skip_package": True,
-#             "pip_only": True,
-#             "header": None,
-#             "custom_command": None,
-#             "overwrite": "check",
-#             "verbose": None,
-#             "name": None,
-#             "channels": None,
-#             "python": "3.8",
-#             "output": "py38-test.yaml",
-#             "deps": None,
-#             "reqs": None,
-#             "allow_empty": False,
-#         },
-#     )
-
-#     assert next(iter(c.iter_envs())) == expected
-
-
-# def test_config_overrides_no_envs() -> None:
-#     # test overrides env
-#     s = """
-#     [tool.pyproject2conda]
-#     python = ["3.8"]
-#     default-envs = ["test"]
-
-#     [[tool.pyproject2conda.overrides]]
-#     skip-package = true
-#     """
-
-#     c = Config.from_string(s)
-
-#     with pytest.raises(ValueError):
-#         c.overrides  # pylint: disable=pointless-statement
-
-
-# def test_config_python_include_version() -> None:
-#     s = """
-#     [tool.pyproject2conda.envs.test-1]
-#     extras = ["test"]
-#     output = "py38-test.yaml"
-#     python-include = "3.8"
-#     python-version = "3.8"
-
-#     [tool.pyproject2conda.envs."py38-test"]
-#     extras = ["test"]
-#     python-include = "3.8"
-#     python-version = "3.8"
-#     """
-
-#     c = Config.from_string(s)
-
-#     expected = [
-#         (
-#             "yaml",
-#             {
-#                 "extras": ["test"],
-#                 "groups": [],
-#                 "extras_or_groups": [],
-#                 "sort": True,
-#                 "skip_package": False,
-#                 "pip_only": False,
-#                 "header": None,
-#                 "custom_command": None,
-#                 "overwrite": "check",
-#                 "verbose": None,
-#                 "name": None,
-#                 "channels": None,
-#                 "python_include": "3.8",
-#                 "python_version": "3.8",
-#                 "output": "py38-test.yaml",
-#                 "deps": None,
-#                 "reqs": None,
-#                 "allow_empty": False,
-#             },
-#         ),
-#         (
-#             "yaml",
-#             {
-#                 "extras": ["test"],
-#                 "groups": [],
-#                 "extras_or_groups": [],
-#                 "sort": True,
-#                 "skip_package": False,
-#                 "pip_only": False,
-#                 "header": None,
-#                 "custom_command": None,
-#                 "overwrite": "check",
-#                 "verbose": None,
-#                 "name": None,
-#                 "channels": None,
-#                 "python_include": "3.8",
-#                 "python_version": "3.8",
-#                 "output": "py38-test.yaml",
-#                 "deps": None,
-#                 "reqs": None,
-#                 "allow_empty": False,
-#             },
-#         ),
-#     ]
-
-#     assert list(c.iter_envs()) == expected
-
-#     # no output:
-
-
-# def test_config_user_config() -> None:
-#     # test overrides env
-#     s = """
-#     [tool.pyproject2conda.envs.test]
-#     python = "3.8"
-#     extras = "test"
-
-
-#     """
-
-#     s_user = """
-#     [tool.pyproject2conda.envs.user]
-#     extras = ["a", "b"]
-#     python = "3.9"
-
-#     [[tool.pyproject2conda.overrides]]
-#     envs = ["test"]
-#     skip-package = true
-#     """
-
-#     c = Config.from_string(s, s_user)
-
-#     expected = [
-#         (
-#             "yaml",
-#             {
-#                 "extras": ["test"],
-#                 "groups": [],
-#                 "extras_or_groups": [],
-#                 "sort": True,
-#                 "skip_package": True,
-#                 "pip_only": False,
-#                 "header": None,
-#                 "custom_command": None,
-#                 "overwrite": "check",
-#                 "verbose": None,
-#                 "name": None,
-#                 "channels": None,
-#                 "python": "3.8",
-#                 "output": "py38-test.yaml",
-#                 "deps": None,
-#                 "reqs": None,
-#                 "allow_empty": False,
-#             },
-#         ),
-#         (
-#             "yaml",
-#             {
-#                 "extras": ["a", "b"],
-#                 "groups": [],
-#                 "extras_or_groups": [],
-#                 "sort": True,
-#                 "skip_package": False,
-#                 "pip_only": False,
-#                 "header": None,
-#                 "custom_command": None,
-#                 "overwrite": "check",
-#                 "verbose": None,
-#                 "name": None,
-#                 "channels": None,
-#                 "python": "3.9",
-#                 "output": "py39-user.yaml",
-#                 "deps": None,
-#                 "reqs": None,
-#                 "allow_empty": False,
-#             },
-#         ),
-#     ]
-
-#     assert list(c.iter_envs()) == expected
-
-#     # bad user
-#     s_user2 = """
-#     [[tool.pyproject2conda.envs]]
-#     extras = ["a", "b"]
-#     python = "3.9"
-
-#     [[tool.pyproject2conda.overrides]]
-#     envs = ["test"]
-#     skip-package = true
-#     """
-
-#     with pytest.raises(TypeError):
-#         c = Config.from_string(s, s_user2)
-
-#     s_user2 = """
-#     [tool.pyproject2conda.envs]
-#     extras = ["a", "b"]
-#     python = "3.9"
-
-#     [tool.pyproject2conda.overrides]
-#     envs = ["test"]
-#     skip-package = true
-#     """
-
-#     with pytest.raises(TypeError):
-#         c = Config.from_string(s, s_user2)
-
-#     # blank config, only user
-#     s2 = """
-#     [tool.pyproject2conda]
-#     """
-
-#     c = Config.from_string(s2, s_user)
-
-#     assert c.data == {
-#         "envs": {"user": {"extras": ["a", "b"], "python": "3.9"}},
-#         "overrides": [{"envs": ["test"], "skip-package": True}],
-#     }
-
-
-# def test_version(runner) -> None:
-#     result = runner.invoke(app, ["--version"])
-
-#     assert (
-#         result.stdout.strip()
-#         == f"pyproject2conda, version {pyproject2conda.__version__}"
-#     )
-
-
-# def get_times(path: Path) -> dict[Path, float]:
-#     return {
-#         p: p.stat().st_mtime for ext in ("txt", "yaml") for p in path.glob(f"*.{ext}")
-#     }
-
-
-# @pytest.mark.parametrize(
-#     ("fname", "opt"),
-#     [
-#         ("test-pyproject.toml", "-e"),
-#         ("test-pyproject-groups.toml", "-g"),
-#     ],
-# )
-# def test_multiple(fname, opt, runner, caplog) -> None:
-#     filename = ROOT / fname
-#     do_run_ = partial(do_run, filename=filename)
-
-#     caplog.set_level(logging.INFO)
-
-#     t1 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
-#     path1 = Path(t1.name)
-
-#     do_run_(
-#         runner,
-#         "project",
-#         "--template-python",
-#         f"{path1}/" + "py{py}-{env}",
-#         "--template",
-#         f"{path1}/" + "{env}",
-#     )
-
-#     assert "Creating" in caplog.text
-
-#     orig_times = get_times(path1)
-
-#     # running this again?
-#     do_run_(
-#         runner,
-#         "project",
-#         "-v",
-#         "--overwrite=check",
-#         "--template-python",
-#         f"{path1}/" + "py{py}-{env}",
-#         "--template",
-#         f"{path1}/" + "{env}",
-#     )
-
-#     assert "Skipping requirements" in caplog.text
-
-#     assert orig_times == get_times(path1)
-
-#     # and again (without verbose)
-#     do_run_(
-#         runner,
-#         "project",
-#         "--overwrite=check",
-#         "--template-python",
-#         f"{path1}/" + "py{py}-{env}",
-#         "--template",
-#         f"{path1}/" + "{env}",
-#     )
-
-#     assert orig_times == get_times(path1)
-
-#     t2 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
-#     path2 = t2.name
-
-#     do_run_(
-#         runner, "yaml", opt, "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"
-#     )
-
-#     do_run_(
-#         runner,
-#         "yaml",
-#         opt,
-#         "dist-pypi",
-#         "--skip-package",
-#         "-p",
-#         "3.10",
-#         "-o",
-#         f"{path2}/py310-dist-pypi.yaml",
-#     )
-
-#     do_run_(runner, "yaml", opt, "test", "-p", "3.10", "-o", f"{path2}/py310-test.yaml")
-#     do_run_(runner, "yaml", opt, "test", "-p", "3.11", "-o", f"{path2}/py311-test.yaml")
-
-#     do_run_(
-#         runner,
-#         "yaml",
-#         opt,
-#         "test",
-#         "--skip-package",
-#         "-p",
-#         "3.10",
-#         "-o",
-#         f"{path2}/py310-test-extras.yaml",
-#     )
-#     do_run_(
-#         runner,
-#         "yaml",
-#         opt,
-#         "test",
-#         "--skip-package",
-#         "-p",
-#         "3.11",
-#         "-o",
-#         f"{path2}/py311-test-extras.yaml",
-#     )
-
-#     do_run_(
-#         runner, "r", opt, "test", "--skip-package", "-o", f"{path2}/test-extras.txt"
-#     )
-
-#     do_run_(
-#         runner,
-#         "yaml",
-#         opt,
-#         "dev",
-#         opt,
-#         "dist-pypi",
-#         "--name",
-#         "hello",
-#         "-p",
-#         "3.10",
-#         "-d",
-#         "extra-dep",
-#         "-r",
-#         "extra-req",
-#         "-o",
-#         f"{path2}/py310-user-dev.yaml",
-#     )
-
-#     do_run_(runner, "req", "-o", f"{path2}/base.txt")
-
-#     paths1 = Path(path1).glob("*")
-#     names1 = {x.name for x in paths1}
-
-#     expected = {
-#         "base.txt",
-#         "py310-dev.yaml",
-#         "py310-dist-pypi.yaml",
-#         "py310-test-extras.yaml",
-#         "py310-test.yaml",
-#         "py310-user-dev.yaml",
-#         "py311-test-extras.yaml",
-#         "py311-test.yaml",
-#         "test-extras.txt",
-#     }
-
-#     assert names1 == expected
-
-#     paths2 = Path(path2).glob("*")
-#     names2 = {x.name for x in paths2}
-
-#     assert expected == names2
-
-#     for x in expected:
-#         assert filecmp.cmp(f"{path1}/{x}", f"{path2}/{x}")
-
-#     t1.cleanup()
-#     t2.cleanup()
+@pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
+def test_dry(fname, runner) -> None:
+    filename = ROOT / fname
+
+    expected = """\
+# --------------------
+# Creating yaml py310-test-extras.yaml
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - conda-forge::pytest
+  - pandas
+# --------------------
+# Creating yaml py311-test-extras.yaml
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - conda-forge::pytest
+  - pandas
+# --------------------
+# Creating requirements test-extras.txt
+pandas
+pytest
+    """
+
+    result = do_run(
+        runner, "project", "--dry", "--envs", "test-extras", filename=filename
+    )
+
+    assert result.output == dedent(expected)
+
+
+def test_config_only_default() -> None:
+    d0 = {
+        "extras": [],
+        "groups": [],
+        "extras_or_groups": ["test"],
+        "sort": True,
+        "skip_package": False,
+        "pip_only": False,
+        "header": None,
+        "custom_command": None,
+        "overwrite": "check",
+        "verbose": 0,
+        "name": None,
+        "channels": None,
+        "python": "3.8",
+        "output": "py38-test.yaml",
+        "deps": None,
+        "reqs": None,
+        "allow_empty": False,
+    }
+
+    d1 = d0.copy()
+    d1.update(extras=["test"], extras_or_groups=[])
+
+    s0 = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+    default-envs = ["test"]
+    """
+    s1 = """
+    [tool.pyproject2conda.envs.test]
+    python = ["3.8"]
+    extras = "test"
+    """
+
+    for s, d in zip([s0, s1], (d0, d1), strict=False):
+        c = mod.Config.from_string(s)
+        assert list(c.iter_envs()) == [("yaml", mod.Env.model_validate(d))]
+
+
+def test_config_errors() -> None:
+    s = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+
+    [tool.pyproject2conda.envs.test]
+    extras = "test"
+    """
+
+    # raise error for bad env
+    c = mod.Config.from_string(s)
+    with pytest.raises(ValueError):
+        c.config.env_config("hello")
+
+    s1 = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+
+    [tool.pyproject2conda.envs.test]
+    style = "thing"
+    """
+
+    # raise error for bad env
+    with pytest.raises(ValidationError):
+        c = mod.Config.from_string(s1)
+
+
+@pytest.mark.parametrize(
+    "s",
+    [
+        pytest.param(
+            dedent("""
+            [tool.pyproject2conda]
+            python = ["3.8"]
+            default-envs = ["test"]
+
+            [[tool.pyproject2conda.overrides]]
+            envs = ["test"]
+            skip-package = true
+            pip-only = true
+            """),
+        ),
+        pytest.param(
+            dedent("""
+            [tool.pyproject2conda]
+            python = ["3.8"]
+            default-envs = ["test"]
+            pip-only = true
+            skip-package = true
+            """),
+        ),
+    ],
+)
+def test_config_overrides2(s: str) -> None:
+    c = mod.Config.from_string(s)
+
+    expected = (
+        "yaml",
+        mod.Env(
+            python="3.8",
+            skip_package=True,
+            pip_only=True,
+            output="py38-test.yaml",
+            extras_or_groups=["test"],
+        ),
+    )
+
+    assert next(iter(c.iter_envs())) == expected
+
+
+def test_config_overrides_no_envs() -> None:
+    # test overrides env
+    s = """
+    [tool.pyproject2conda]
+    python = ["3.8"]
+    default-envs = ["test"]
+
+    [[tool.pyproject2conda.overrides]]
+    skip-package = true
+    """
+
+    with pytest.raises(ValidationError):
+        mod.Config.from_string(s)
+
+
+def test_config_python_include_version() -> None:
+    s = """
+    [tool.pyproject2conda.envs.test-1]
+    extras = ["test"]
+    output = "py38-test.yaml"
+    python-include = "3.8"
+    python-version = "3.8"
+
+    [tool.pyproject2conda.envs."py38-test"]
+    extras = ["test"]
+    python-include = "3.8"
+    python-version = "3.8"
+    """
+
+    c = mod.Config.from_string(s)
+
+    expected = [
+        (
+            "yaml",
+            mod.Env(
+                extras=["test"],
+                python_include="3.8",
+                python_version="3.8",
+                output="py38-test.yaml",
+            ),
+        ),
+    ] * 2
+
+    assert list(c.iter_envs()) == expected
+
+
+def test_version(runner) -> None:
+    result = runner.invoke(app, ["--version"])
+
+    assert (
+        result.stdout.strip()
+        == f"pyproject2conda, version {pyproject2conda.__version__}"
+    )
+
+
+def get_times(path: Path) -> dict[Path, float]:
+    return {
+        p: p.stat().st_mtime for ext in ("txt", "yaml") for p in path.glob(f"*.{ext}")
+    }
+
+
+@pytest.mark.parametrize(
+    ("fname", "opt"),
+    [
+        ("test-pyproject.toml", "-e"),
+        ("test-pyproject-groups.toml", "-g"),
+    ],
+)
+def test_multiple(fname, opt, runner, caplog) -> None:
+    filename = ROOT / fname
+    do_run_ = partial(do_run, filename=filename)
+
+    caplog.set_level(logging.INFO)
+
+    t1 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+    path1 = Path(t1.name)
+
+    do_run_(
+        runner,
+        "project",
+        "--template-python",
+        f"{path1}/" + "py{py}-{env}",
+        "--template",
+        f"{path1}/" + "{env}",
+    )
+
+    assert "Creating" in caplog.text
+
+    orig_times = get_times(path1)
+
+    # running this again?
+    do_run_(
+        runner,
+        "project",
+        "-v",
+        "--overwrite=check",
+        "--template-python",
+        f"{path1}/" + "py{py}-{env}",
+        "--template",
+        f"{path1}/" + "{env}",
+    )
+
+    assert "Skipping requirements" in caplog.text
+
+    assert orig_times == get_times(path1)
+
+    # and again (without verbose)
+    do_run_(
+        runner,
+        "project",
+        "--overwrite=check",
+        "--template-python",
+        f"{path1}/" + "py{py}-{env}",
+        "--template",
+        f"{path1}/" + "{env}",
+    )
+
+    assert orig_times == get_times(path1)
+
+    t2 = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+    path2 = t2.name
+
+    do_run_(
+        runner, "yaml", opt, "dev", "-p", "3.10", "-o", f"{path2}/py310-dev.yaml", "-v"
+    )
+
+    do_run_(
+        runner,
+        "yaml",
+        opt,
+        "dist-pypi",
+        "--skip-package",
+        "-p",
+        "3.10",
+        "-o",
+        f"{path2}/py310-dist-pypi.yaml",
+    )
+
+    do_run_(runner, "yaml", opt, "test", "-p", "3.10", "-o", f"{path2}/py310-test.yaml")
+    do_run_(runner, "yaml", opt, "test", "-p", "3.11", "-o", f"{path2}/py311-test.yaml")
+
+    do_run_(
+        runner,
+        "yaml",
+        opt,
+        "test",
+        "--skip-package",
+        "-p",
+        "3.10",
+        "-o",
+        f"{path2}/py310-test-extras.yaml",
+    )
+    do_run_(
+        runner,
+        "yaml",
+        opt,
+        "test",
+        "--skip-package",
+        "-p",
+        "3.11",
+        "-o",
+        f"{path2}/py311-test-extras.yaml",
+    )
+
+    do_run_(
+        runner, "r", opt, "test", "--skip-package", "-o", f"{path2}/test-extras.txt"
+    )
+
+    do_run_(runner, "req", "-o", f"{path2}/base.txt")
+
+    paths1 = Path(path1).glob("*")
+    names1 = {x.name for x in paths1}
+
+    expected = {
+        "base.txt",
+        "py310-dev.yaml",
+        "py310-dist-pypi.yaml",
+        "py310-test-extras.yaml",
+        "py310-test.yaml",
+        "py311-test-extras.yaml",
+        "py311-test.yaml",
+        "test-extras.txt",
+    }
+
+    assert names1 == expected
+
+    paths2 = Path(path2).glob("*")
+    names2 = {x.name for x in paths2}
+
+    assert expected == names2
+
+    for x in expected:
+        assert filecmp.cmp(f"{path1}/{x}", f"{path2}/{x}")
+
+    t1.cleanup()
+    t2.cleanup()
