@@ -69,7 +69,7 @@ class BaseOptions(BaseModel):
     reqs_ext: str = ".txt"
     yaml_ext: str = ".yaml"
     # python info
-    python: ListString = Field(default_factory=list)
+    python: str | list[str] = Field(default_factory=list)
     python_include: str | None = None
     python_version: str | None = None
     # config
@@ -150,16 +150,13 @@ class PyProject2CondaSchema(BaseOptions):
         section = pyproject.get("tool", {}).get("pyproject2conda", {})
         return cls.model_validate(section)
 
+    # access
     @cached_property
     def _base_dict(self) -> dict[str, Any]:
         return self.model_dump(
             exclude={"default_envs", "dependencies", "envs", "overrides"},
             exclude_unset=True,
         )
-
-    @cached_property
-    def base_options(self) -> BaseOptions:
-        return BaseOptions.model_validate(self._base_dict)
 
     def _get_env_dict(self, env_name: NormalizedName) -> dict[str, Any]:
         if env_name in self.envs:
@@ -230,8 +227,10 @@ class Config:
         return self._cache[env_name]
 
     def _python(self, env_name: NormalizedName) -> list[str]:
-        out = self._get_env(env_name).python
-        return select_pythons(out, self.default_pythons, self.all_pythons)
+        pythons = self._get_env(env_name).python
+        if isinstance(pythons, str):
+            pythons = [pythons]
+        return select_pythons(pythons, self.default_pythons, self.all_pythons)
 
     @classmethod
     def from_string(cls, s: str, *options: dict[str, Any]) -> Self:
@@ -317,7 +316,7 @@ class Config:
                                     python_version=python,
                                     env_name=env_name,
                                 ),
-                                "python": [python],
+                                "python": python,
                             }
                         ).model_dump()
                     ),

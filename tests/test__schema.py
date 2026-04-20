@@ -307,9 +307,7 @@ def test_option_override_base3_default_python(
 
     assert output[0] == (
         "yaml",
-        simple_env.model_copy(
-            update={"python": ["3.10"], "output": "py310-base3.yaml"}
-        ),
+        simple_env.model_copy(update={"python": "3.10", "output": "py310-base3.yaml"}),
     )
 
 
@@ -330,7 +328,7 @@ def test_option_override_all_pythons(
         "yaml",
         simple_env.model_copy(
             update={
-                "python": ["3.9"],
+                "python": "3.9",
                 "template_python": "py{py}-hello",
                 "output": "py39-hello.yaml",
             }
@@ -351,7 +349,7 @@ def test_option_override_lowest_highest(
         "yaml",
         simple_env.model_copy(
             update={
-                "python": ["3.9"],
+                "python": "3.9",
                 "template_python": "py{py}-hello",
                 "output": "py39-hello.yaml",
             }
@@ -362,7 +360,7 @@ def test_option_override_lowest_highest(
         "yaml",
         simple_env.model_copy(
             update={
-                "python": ["3.13"],
+                "python": "3.13",
                 "template_python": "py{py}-hello",
                 "output": "py313-hello.yaml",
             }
