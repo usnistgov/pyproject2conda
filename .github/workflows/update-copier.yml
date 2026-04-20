@@ -105,10 +105,18 @@ jobs:
           fi
         shell: bash -eux {0}
 
+      - name: Install just
+        if: steps.check.outputs.changed == 'true'
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
+
+      - name: Sync requirements
+        if: steps.check.outputs.changed == 'true'
+        run: just lock || true
+
       - name: Create pull request
         if: steps.check.outputs.changed == 'true'
         id: cpr
-        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ secrets.PAT }}
           add-paths: ${{ matrix.add-paths }}

@@ -125,7 +125,7 @@ jobs:
           echo "prek_version=${prek_version}" >> "$GITHUB_ENV"
 
       - name: Setup prek
-        uses: j178/prek-action@53276d8b0d10f8b6672aa85b4588c6921d0370cc # v2.0.1
+        uses: j178/prek-action@cbc2f23eb5539cf20d82d1aabd0d0ecbcc56f4e3 # v2.0.2
         with:
           prek-version: ${{ env.prek_version }}
           install-only: true
@@ -235,7 +235,7 @@ jobs:
         shell: bash -euxo pipefail {0}
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name:
             coverage-data-${{ matrix.os }}-${{ matrix.python-version }}-${{
@@ -279,7 +279,7 @@ jobs:
           $NOX_COMMAND -s coverage -- ++coverage report ++coverage-options --fail-under=100
         shell: bash
       - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: html-report
           path: htmlcov
