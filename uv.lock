@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-04-13T03:03:56.008069725Z"
+exclude-newer = "2026-04-13T16:56:22.168301Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -1309,15 +1309,15 @@ basedpyright = [{ name = "basedpyright", specifier = ">=1.31.3" }]
 cog = [{ name = "cogapp", marker = "python_full_version >= '3.14'" }]
 dev = [
     { name = "cogapp", marker = "python_full_version >= '3.14'" },
-    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.0" },
-    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" },
+    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.1" },
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
     { name = "pylint", marker = "python_full_version >= '3.14'" },
     { name = "pytest", marker = "python_full_version >= '3.14'" },
     { name = "pytest-accept", marker = "python_full_version >= '3.14'" },
     { name = "pytest-cov", marker = "python_full_version >= '3.14'" },
     { name = "pytest-sugar", marker = "python_full_version >= '3.14'" },
     { name = "pytest-xdist", marker = "python_full_version >= '3.14'" },
-    { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.1.6" },
+    { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.2.0" },
     { name = "types-click", marker = "python_full_version >= '3.14'" },
 ]
 docs = [
@@ -1351,8 +1351,8 @@ docs-spelling = [
     { name = "sphinxcontrib-spelling", marker = "python_full_version >= '3.14'" },
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
-mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.0" }]
-nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" }]
+mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.1" }]
+nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" }]
 pylint = [{ name = "pylint" }]
 pytest = [{ name = "pytest" }]
 pytest-accept = [{ name = "pytest-accept" }]
@@ -1369,13 +1369,13 @@ test-extras = [
     { name = "pytest-xdist" },
 ]
 type = [
-    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" },
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
     { name = "pylint" },
     { name = "pytest" },
-    { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.6" },
+    { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" },
     { name = "types-click" },
 ]
-typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.6" }]
+typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" }]
 
 [[package]]
 name = "pytest"
