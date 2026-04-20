@@ -14,6 +14,7 @@ dependencies:
   - python=3.11
   - dependency-groups
   - packaging
+  - pydantic>=2.12.5
   - pytest
   - pytest-cov
   - pytest-sugar

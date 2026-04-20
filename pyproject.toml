@@ -34,6 +34,7 @@ classifiers = [
 dependencies = [
     "dependency-groups",
     "packaging",
+    "pydantic>=2.12.5",
     "tomli; python_version<'3.11'",
     "typer",
     "typing-extensions; python_version<'3.12'",

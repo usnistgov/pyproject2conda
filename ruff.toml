@@ -50,6 +50,10 @@ ignore = [
     "TID252",  # - Allow relative imports
 ]
 
+
+[lint.flake8-type-checking]
+runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
+
 [lint.isort]
 known-first-party = [
     "pyproject2conda",
@@ -65,6 +69,7 @@ max-public-methods = 30
 
 [lint.ruff]
 strictly-empty-init-modules = false
+
 
 [lint.per-file-ignores]
 "docs/conf.py" = [
