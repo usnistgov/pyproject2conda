@@ -14,15 +14,15 @@ dependencies:
   - python=3.14
   - cogapp
   - dependency-groups
-  - mypy>=1.20.0
-  - nox>=2025.5.1
+  - mypy>=1.20.1
+  - nox>=2026.4.10
   - packaging
   - pylint
   - pytest
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - typecheck-runner>=0.1.6
+  - typecheck-runner>=0.2.0
   - typer
   - types-click
   - pip
