@@ -17,10 +17,9 @@ import typer
 from typer.core import TyperGroup
 
 from pyproject2conda import __version__
-from pyproject2conda._schema import Overwrite
+from pyproject2conda._schema import Overwrite, PyProject2CondaConfig
 from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
-    parse_pythons,
     update_target,
 )
 
@@ -448,8 +447,13 @@ def _get_header_cmd(
 
 
 @lru_cache
-def _get_requirement_parser(filename: str | Path) -> ParseDepends:
-    return ParseDepends.from_path(filename)
+def _get_requirement_parser(path: Path) -> ParseDepends:
+    return ParseDepends.from_path(path)
+
+
+@lru_cache
+def _get_config(path: Path) -> PyProject2CondaConfig:
+    return PyProject2CondaConfig.from_file(path)
 
 
 def _log_skipping(
@@ -517,7 +521,7 @@ def yaml(
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
-    verbose: VERBOSE_CLI = None,  # noqa: ARG001
+    verbose: VERBOSE_CLI = None,
     deps: DEPS_CLI = None,
     reqs: REQS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
@@ -530,11 +534,33 @@ def yaml(
     if not channels:
         channels = None
 
-    python_include, python_version = parse_pythons(
+    options = {
+        "extras": extras,
+        "groups": groups,
+        "extras_or_groups": extras_or_groups,
+        "channels": channels,
+        "output": output,
+        "name": name,
+        "python_include": python_include,
+        "python_version": python_version,
+        "python": python,
+        "skip_package": skip_package,
+        "pip_only": pip_only,
+        "sort": sort,
+        "overwrite": overwrite,
+        "verbose": verbose,
+        "deps": deps,
+        "reqs": reqs,
+        "allow_empty": allow_empty,
+    }
+
+    c = _get_config(pyproject_filename).update_options(options)
+    c.get_env(None).as_yaml()
+
+    python_include, python_version = c.parse_pythons(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=pyproject_filename,
     )
 
     d = _get_requirement_parser(pyproject_filename)
@@ -636,8 +662,6 @@ def project(
     ``--group`` becomes the config file option ``groups = ...``.  Boolean options
     like ``--sort/--no-sort`` become ``sort = true/false`` in the config file.
     """
-    from pyproject2conda._schema import Config
-
     options = {
         "reqs_ext": reqs_ext,
         "yaml_ext": yaml_ext,
@@ -654,7 +678,7 @@ def project(
         "pip_only": pip_only or None,
     }
 
-    c = Config.from_file(pyproject_filename, options)
+    c = _get_config(pyproject_filename).update_options(options)
 
     for style, env_tmp in c.iter_envs(envs=envs):
         env = env_tmp.model_copy(update={"output": None}) if dry else env_tmp
@@ -677,52 +701,14 @@ def project(
                 yaml(
                     pyproject_filename=pyproject_filename,
                     verbose=verbose,
-                    **env.model_dump(
-                        include={
-                            "extras",
-                            "groups",
-                            "extras_or_groups",
-                            "output",
-                            "skip_package",
-                            "pip_only",
-                            "sort",
-                            "header",
-                            "custom_command",
-                            "overwrite",
-                            "reqs",
-                            "allow_empty",
-                            # yaml specific
-                            "channels",
-                            "name",
-                            "python_include",
-                            "python_version",
-                            "python",
-                            "deps",
-                        },
-                        exclude_unset=True,
-                    ),
+                    **env.model_dump(exclude_unset=True),
                 )
 
             elif style == "requirements":
                 requirements(
                     pyproject_filename=pyproject_filename,
                     verbose=verbose,
-                    **env.model_dump(
-                        include={
-                            "extras",
-                            "groups",
-                            "extras_or_groups",
-                            "output",
-                            "skip_package",
-                            "sort",
-                            "header",
-                            "custom_command",
-                            "overwrite",
-                            "reqs",
-                            "allow_empty",
-                        },
-                        exclude_unset=True,
-                    ),
+                    **env.model_dump(exclude_unset=True),
                 )
             else:  # pragma: no cover
                 msg = f"unknown style {style}"
@@ -764,11 +750,12 @@ def conda_requirements(
     conda install --file {path_conda}
     pip install -r {path_pip}
     """
-    python_include, python_version = parse_pythons(
+    c = _get_config(pyproject_filename)
+
+    python_include, python_version = c.parse_pythons(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=pyproject_filename,
     )
 
     if path_conda and not path_pip:
@@ -843,11 +830,12 @@ def to_json(
 
     d = _get_requirement_parser(pyproject_filename)
 
-    python_include, python_version = parse_pythons(
+    c = _get_config(pyproject_filename)
+
+    python_include, python_version = c.parse_pythons(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=pyproject_filename,
     )
 
     conda_deps, pip_deps = d.conda_and_pip_requirements(

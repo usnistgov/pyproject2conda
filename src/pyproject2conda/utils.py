@@ -177,6 +177,25 @@ def parse_pythons(
     return python_include, python_version
 
 
+def parse_pythons2(
+    python_include: str | None,
+    python_version: str | None,
+    python: str | None,
+    default_pythons: list[str],
+    all_pythons: list[str],
+) -> tuple[str | None, str | None]:
+    """Create python_include/python_version."""
+    if python:
+        python = select_pythons(
+            [python],
+            default_pythons,
+            all_pythons,
+        )[0]
+        return f"python={python}", python
+
+    return python_include, python_version
+
+
 def update_target(
     target: str | Path | None,
     *deps: str | Path,
@@ -227,12 +246,12 @@ def _get_standard_format_dict(
     return kws
 
 
-def filename_from_template(
+def path_from_template(
     template: str | None,
     python_version: str | None = None,
     env_name: str | None = None,
     ext: str | None = ".yaml",
-) -> str | None:
+) -> Path | None:
     """
     Create a filename from
 
@@ -250,7 +269,7 @@ def filename_from_template(
     if ext:  # pragma: no cover
         template += f"{ext}"
 
-    return template.format(**kws)
+    return Path(template.format(**kws))
 
 
 def conda_env_name_from_template(

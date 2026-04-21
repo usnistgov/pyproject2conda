@@ -120,9 +120,3 @@ class ResolveDependencyGroups(_Resolve):
         self, key: NormalizedName
     ) -> Iterable[NormalizedRequirement]:
         return map(canonicalize_requirement, self._resolver.resolve(key))
-
-    @override
-    def _get_resolved_package_extras(
-        self, extras: Iterable[NormalizedName]
-    ) -> Iterable[NormalizedRequirement]:
-        yield from self.optional_dependencies[extras]

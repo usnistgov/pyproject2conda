@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import nullcontext
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -9,16 +10,15 @@ from pyproject2conda import utils
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from pathlib import Path
     from typing import Any
 
 
 def test_template() -> None:
-    assert utils.filename_from_template(None) is None
+    assert utils.path_from_template(None) is None
 
-    expected = "py38-test.yaml"
+    expected = Path("py38-test.yaml")
 
-    t = utils.filename_from_template(
+    t = utils.path_from_template(
         "py{py}-{env}", env_name="test", python_version="3.8", ext=".yaml"
     )
 
@@ -106,15 +106,12 @@ def test_filename_from_template(
     expected: Any,
 ) -> None:
     with expected as e:
-        assert (
-            utils.filename_from_template(
-                template=template,
-                python_version=python_version,
-                env_name=env_name,
-                ext=ext,
-            )
-            == e
-        )
+        assert utils.path_from_template(
+            template=template,
+            python_version=python_version,
+            env_name=env_name,
+            ext=ext,
+        ) == Path(e)
 
 
 @pytest.mark.parametrize(

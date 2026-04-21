@@ -163,13 +163,15 @@ def classifiers() -> str:
 
 
 @pytest.fixture
-def simple_config(simple_toml: str) -> mod.Config:
-    return mod.Config.from_string(dedent(simple_toml))
+def simple_config(simple_toml: str) -> mod.PyProject2CondaConfig:
+    return mod.PyProject2CondaConfig.from_string(dedent(simple_toml))
 
 
 @pytest.fixture
-def simple_config_classifiers(simple_toml: str, classifiers: str) -> mod.Config:
-    return mod.Config.from_string(dedent(simple_toml + classifiers))
+def simple_config_classifiers(
+    simple_toml: str, classifiers: str
+) -> mod.PyProject2CondaConfig:
+    return mod.PyProject2CondaConfig.from_string(dedent(simple_toml + classifiers))
 
 
 @pytest.fixture
@@ -268,7 +270,7 @@ def simple_env() -> mod.Env:
     ],
 )
 def test_option_override_base(
-    simple_config: mod.Config,
+    simple_config: mod.PyProject2CondaConfig,
     simple_env: mod.Env,
     env_name: str,
     update_params: dict[str, Any],
@@ -279,15 +281,18 @@ def test_option_override_base(
     output = list(config.iter_envs(envs=[env_name]))
     env = simple_env.model_copy(update=update_params)
 
+    style = env.style[0]
+    env = env.as_yaml() if style == "yaml" else env.as_requirements()
+
     assert output[0] == (
-        env.style[0],
+        style,
         env,
     )
 
 
 def test_option_override_base3_default_python_error(
     example_path: Path,  # noqa: ARG001
-    simple_config: mod.Config,
+    simple_config: mod.PyProject2CondaConfig,
 ) -> None:
     # using default python without a version
     with pytest.raises(
@@ -307,22 +312,24 @@ def test_option_override_base3_default_python(
 
     assert get_default_pythons_with_fallback() == ["3.10"]
 
-    config = mod.Config.from_string(dedent(simple_toml))
+    config = mod.PyProject2CondaConfig.from_string(dedent(simple_toml))
     output = list(config.iter_envs(envs=["base3"]))
 
     assert output[0] == (
         "yaml",
-        simple_env.model_copy(update={"python": "3.10", "output": "py310-base3.yaml"}),
+        simple_env.as_yaml(update={"python": "3.10", "output": "py310-base3.yaml"}),
     )
 
 
-def test_option_override_all_pythons_error(simple_config: mod.Config) -> None:
+def test_option_override_all_pythons_error(
+    simple_config: mod.PyProject2CondaConfig,
+) -> None:
     with pytest.raises(ValueError, match=r"Must specify python versions .*"):
         list(simple_config.iter_envs(envs=["base5"]))
 
 
 def test_option_override_all_pythons(
-    simple_config_classifiers: mod.Config, simple_env: mod.Env
+    simple_config_classifiers: mod.PyProject2CondaConfig, simple_env: mod.Env
 ) -> None:
     a = list(simple_config_classifiers.iter_envs(envs=["base4"]))
     b = list(simple_config_classifiers.iter_envs(envs=["base5"]))
@@ -331,7 +338,7 @@ def test_option_override_all_pythons(
 
     assert a[0] == (
         "yaml",
-        simple_env.model_copy(
+        simple_env.as_yaml(
             update={
                 "python": "3.9",
                 "template_python": "py{py}-hello",
@@ -344,7 +351,7 @@ def test_option_override_all_pythons(
 
 
 def test_option_override_lowest_highest(
-    simple_config_classifiers: mod.Config, simple_env: mod.Env
+    simple_config_classifiers: mod.PyProject2CondaConfig, simple_env: mod.Env
 ) -> None:
 
     a = list(simple_config_classifiers.iter_envs(envs=["base_lowest"]))
@@ -352,7 +359,7 @@ def test_option_override_lowest_highest(
 
     assert a[0] == (
         "yaml",
-        simple_env.model_copy(
+        simple_env.as_yaml(
             update={
                 "python": "3.9",
                 "template_python": "py{py}-hello",
@@ -363,7 +370,7 @@ def test_option_override_lowest_highest(
 
     assert b[0] == (
         "yaml",
-        simple_env.model_copy(
+        simple_env.as_yaml(
             update={
                 "python": "3.13",
                 "template_python": "py{py}-hello",
@@ -443,8 +450,8 @@ def test_config_only_default() -> None:
     """
 
     for s, d in zip([s0, s1], (d0, d1), strict=False):
-        c = mod.Config.from_string(s)
-        assert list(c.iter_envs()) == [("yaml", mod.Env.model_validate(d))]
+        c = mod.PyProject2CondaConfig.from_string(s)
+        assert list(c.iter_envs()) == [("yaml", mod.EnvYaml.model_validate(d))]
 
 
 def test_config_errors() -> None:
@@ -457,9 +464,9 @@ def test_config_errors() -> None:
     """
 
     # raise error for bad env
-    c = mod.Config.from_string(s)
+    c = mod.PyProject2CondaConfig.from_string(s)
     with pytest.raises(ValueError):
-        c.config.env_config("hello")
+        c.config.get_env("hello")
 
     s1 = """
     [tool.pyproject2conda]
@@ -471,7 +478,7 @@ def test_config_errors() -> None:
 
     # raise error for bad env
     with pytest.raises(ValidationError):
-        c = mod.Config.from_string(s1)
+        c = mod.PyProject2CondaConfig.from_string(s1)
 
 
 @pytest.mark.parametrize(
@@ -501,11 +508,11 @@ def test_config_errors() -> None:
     ],
 )
 def test_config_overrides2(s: str) -> None:
-    c = mod.Config.from_string(s)
+    c = mod.PyProject2CondaConfig.from_string(s)
 
     expected = (
         "yaml",
-        mod.Env(
+        mod.EnvYaml(
             python="3.8",
             skip_package=True,
             pip_only=True,
@@ -529,7 +536,7 @@ def test_config_overrides_no_envs() -> None:
     """
 
     with pytest.raises(ValidationError):
-        mod.Config.from_string(s)
+        mod.PyProject2CondaConfig.from_string(s)
 
 
 def test_config_python_include_version() -> None:
@@ -546,12 +553,12 @@ def test_config_python_include_version() -> None:
     python-version = "3.8"
     """
 
-    c = mod.Config.from_string(s)
+    c = mod.PyProject2CondaConfig.from_string(s)
 
     expected = [
         (
             "yaml",
-            mod.Env(
+            mod.EnvYaml(
                 extras=["test"],
                 python_include="3.8",
                 python_version="3.8",
