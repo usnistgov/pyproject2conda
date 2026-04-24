@@ -185,7 +185,7 @@ class DependencyMapping(BaseModel):
     pip: bool = False
     skip: bool = False
     channel: str | None = None
-    packages: ListNormalizedName = Field(default_factory=list)
+    packages: ListString = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_model(self) -> Self:

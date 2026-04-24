@@ -63,14 +63,12 @@ def test__callback_columns(arg, expected) -> None:
             """\
             Extras
             ======
-            * build-system.requires
             * dev
             * dev-extras
             * dist-pypi
             * test
             Groups
             ======
-            * build-system.requires
             """,
         ),
         (
@@ -79,12 +77,12 @@ def test__callback_columns(arg, expected) -> None:
             Extras
             ======
             * all
-            * build-system.requires
+            * build-system-requires
             * opt1
             * opt2
             Groups
             ======
-            * build-system.requires
+            * build-system-requires
             * dev
             * dev-extras
             * dist-pypi
@@ -221,7 +219,7 @@ dependencies:
       - athing
     """
     for opts in [  # pylint: disable=consider-using-tuple
-        ("--python-include", "python=3.8"),
+        ("--python-include", "python~=3.8"),
         ("--python", "3.8"),
         ("-p", "3.8"),
     ]:

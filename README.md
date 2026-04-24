@@ -559,13 +559,11 @@ You can customize the command in the header with the `--custom-command` option.
 `pyproject2conda` can also be used within python:
 
 ```pycon
->>> from pyproject2conda.requirements import ParseDepends
->>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
+>>> from pyproject2conda.requirements import ParseRequirements
+>>> p = ParseRequirements.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
 >>> print(p.to_conda_yaml(python_include="infer").strip())
-channels:
-  - conda-forge
 dependencies:
   - python<3.11,>=3.8
   - bthing-conda
@@ -575,7 +573,7 @@ dependencies:
       - athing
 
 # Environment with extras
->>> print(p.to_conda_yaml(extras="test").strip())
+>>> print(p.to_conda_yaml(extras="test", channels="conda-forge").strip())
 channels:
   - conda-forge
 dependencies:
@@ -701,13 +699,11 @@ dependencies:
 or
 
 ```pycon
->>> from pyproject2conda.requirements import ParseDepends
->>> p = ParseDepends.from_path("./tests/data/test-pyproject.toml")
+>>> from pyproject2conda.requirements import ParseRequirements
+>>> p = ParseRequirements.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
 >>> print(p.to_conda_yaml(extras="dist-pypi", skip_package=True).strip())
-channels:
-  - conda-forge
 dependencies:
   - setuptools
   - pip

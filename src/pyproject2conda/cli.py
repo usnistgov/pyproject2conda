@@ -19,7 +19,7 @@ from typer.core import TyperGroup
 from pyproject2conda import __version__
 from pyproject2conda._config import PyProject2CondaConfig
 from pyproject2conda._schema import Overwrite
-from pyproject2conda.requirements import ParseDepends
+from pyproject2conda.requirements import ParseRequirements, conda_and_pip_reqs_to_list
 from pyproject2conda.utils import (
     update_target,
 )
@@ -390,7 +390,7 @@ DRY_CLI = Annotated[
 ]
 # For conda-requirements
 PREFIX_CLI = Annotated[
-    str | None,
+    Path | None,
     typer.Option(
         "--prefix",
         help="set conda-output=prefix + 'conda.txt', pip-output=prefix + 'pip.txt'",
@@ -437,8 +437,8 @@ def _get_header_cmd(
 
 
 @lru_cache
-def _get_requirement_parser(path: Path) -> ParseDepends:
-    return ParseDepends.from_path(path)
+def _get_requirement_parser(path: Path) -> ParseRequirements:
+    return ParseRequirements.from_path(path)
 
 
 @lru_cache
@@ -484,7 +484,10 @@ def create_list(
 
     d = _get_requirement_parser(pyproject_filename)
 
-    for name, vals in [("Extras", d.extras), ("Groups", d.groups)]:  # pylint: disable=consider-using-tuple
+    for name, vals in [
+        ("Extras", d.optional_dependencies.unresolved.keys()),
+        ("Groups", d.dependency_groups.unresolved.keys()),
+    ]:  # pylint: disable=consider-using-tuple
         print(name)
         print("======")
         for val in sorted(vals):
@@ -520,9 +523,6 @@ def yaml(
         _log_skipping(logger, "yaml", output)
         return
 
-    if not channels:
-        channels = None
-
     options = {
         "extras": extras,
         "groups": groups,
@@ -543,7 +543,7 @@ def yaml(
     }
 
     c = _get_config(pyproject_filename).update_options(options)
-    _ = c.get_env(None).as_yaml()
+    channels = channels or c.get_env(None).channels
 
     python_include, python_version = c.parse_pythons(
         python_include=python_include,
@@ -705,8 +705,8 @@ def project(
 @app_typer.command()
 def conda_requirements(
     pyproject_filename: PYPROJECT_CLI,
-    path_conda: Annotated[str | None, typer.Argument()] = None,
-    path_pip: Annotated[str | None, typer.Argument()] = None,
+    path_conda: Annotated[Path | None, typer.Argument()] = None,
+    path_pip: Annotated[Path | None, typer.Argument()] = None,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -740,8 +740,10 @@ def conda_requirements(
         python=python,
     )
 
+    channels = channels or c.get_env(None).channels
+
     if path_conda and not path_pip:
-        msg = "can only specify neither or both path_conda and path_pip"
+        msg = "can only specify both path_conda and path_pip or neither"
         raise ValueError(msg)
 
     if path_conda and path_pip and prefix is not None:
@@ -749,8 +751,8 @@ def conda_requirements(
         raise ValueError(msg)
 
     if prefix is not None:
-        path_conda = prefix + "conda.txt"
-        path_pip = prefix + "pip.txt"
+        path_conda = prefix.parent / (prefix.name + "conda.txt")
+        path_pip = prefix.parent / (prefix.name + "pip.txt")
 
     d = _get_requirement_parser(pyproject_filename)
 
@@ -818,15 +820,17 @@ def to_json(
         python=python,
     )
 
-    conda_deps, pip_deps = d.conda_and_pip_requirements(
-        extras=extras,
-        groups=groups,
-        extras_or_groups=extras_or_groups,
-        python_include=python_include,
-        python_version=python_version,
-        skip_package=skip_package,
-        conda_deps=deps,
-        pip_deps=reqs,
+    conda_deps, pip_deps = conda_and_pip_reqs_to_list(
+        *d.conda_and_pip_requirements(
+            extras=extras or (),
+            groups=groups or (),
+            extras_or_groups=extras_or_groups or (),
+            python_include=python_include,
+            python_version=python_version,
+            skip_package=skip_package,
+            conda_deps=deps or (),
+            pip_deps=reqs or (),
+        )
     )
 
     result = {
@@ -834,7 +838,7 @@ def to_json(
         "pip": pip_deps,
     }
 
-    if channels := channels or d.channels:
+    if channels := channels or c.get_env(None).channels:
         result["channels"] = channels
 
     if output:
