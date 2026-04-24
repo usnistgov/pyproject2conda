@@ -32,8 +32,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "dependency-groups",
-    "packaging",
+    "packaging>=26.1",
     "pydantic>=2.12.5",
     "tomli; python_version<'3.11'",
     "typer",

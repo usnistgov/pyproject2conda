@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, cast
 
-from dependency_groups import DependencyGroupResolver
+from packaging.dependency_groups import DependencyGroupResolver
 from packaging.utils import NormalizedName, canonicalize_name
 
 from ._normalized_requirements import NormalizedRequirement, canonicalize_requirement
