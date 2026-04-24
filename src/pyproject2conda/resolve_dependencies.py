@@ -5,12 +5,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, NewType, cast
+from typing import TYPE_CHECKING, cast
 
 from dependency_groups import DependencyGroupResolver
-from packaging.requirements import Requirement
 from packaging.utils import NormalizedName, canonicalize_name
 
+from ._normalized_requirements import NormalizedRequirement, canonicalize_requirement
 from ._typing_compat import override
 
 if TYPE_CHECKING:
@@ -22,23 +22,12 @@ if TYPE_CHECKING:
     from typing import Any
 
 
-NormalizedRequirement = NewType("NormalizedRequirement", Requirement)
-"""NewType to signal normalized requirement"""
-
-
-def canonicalize_requirement(dep: Requirement) -> NormalizedRequirement:
-    """Normalized ``Requirement``"""
-    dep.name = canonicalize_name(dep.name)
-    dep.extras = {canonicalize_name(e) for e in dep.extras}
-    return cast("NormalizedRequirement", dep)
-
-
 @dataclass
 class _Resolve(ABC):
     """Base resolver"""
 
     package_name: NormalizedName
-    unresolved: Mapping[str, Any]
+    unresolved: Mapping[NormalizedName, Any]
     resolved: dict[NormalizedName, set[NormalizedRequirement]] = field(
         init=False, default_factory=dict[NormalizedName, set[NormalizedRequirement]]
     )
@@ -74,14 +63,16 @@ class _Resolve(ABC):
         self.resolved[key] = resolved
         return resolved
 
+    def get(self, keys: Iterable[NormalizedName]) -> set[NormalizedRequirement]:
+        out: set[NormalizedRequirement] = set()
+        for k in keys:
+            out.update(self._resolve(k))
+        return out
+
     def __getitem__(self, key: str | Iterable[str]) -> set[NormalizedRequirement]:
         if isinstance(key, str):
             key = [key]
-
-        out: set[NormalizedRequirement] = set()
-        for k in map(canonicalize_name, key):
-            out.update(self._resolve(k))
-        return out
+        return self.get(map(canonicalize_name, key))
 
 
 @dataclass
@@ -89,7 +80,7 @@ class ResolveOptionalDependencies(_Resolve):
     """Resolve ``optional-dependencies``."""
 
     # pyrefly: ignore [bad-override]
-    unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]  # pyright: ignore[reportIncompatibleVariableOverride]
+    unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]
 
     @override
     def _get_unresolved_deps(
@@ -113,10 +104,18 @@ class ResolveDependencyGroups(_Resolve):
     _resolver: DependencyGroupResolver = field(init=False)
 
     def __post_init__(self) -> None:
-        self._resolver = DependencyGroupResolver(self.unresolved)
+        self._resolver = DependencyGroupResolver(
+            cast("dict[str, Any]", self.unresolved)
+        )
 
     @override
     def _get_unresolved_deps(
         self, key: NormalizedName
     ) -> Iterable[NormalizedRequirement]:
         return map(canonicalize_requirement, self._resolver.resolve(key))
+
+    @override
+    def _get_resolved_package_extras(
+        self, extras: Iterable[NormalizedName]
+    ) -> Iterable[NormalizedRequirement]:
+        yield from self.optional_dependencies[extras]

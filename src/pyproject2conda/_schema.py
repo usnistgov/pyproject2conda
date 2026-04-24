@@ -6,7 +6,6 @@ from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Literal
 
-from packaging.requirements import Requirement
 from packaging.utils import NormalizedName, canonicalize_name
 from pydantic import (
     BaseModel,
@@ -18,12 +17,11 @@ from pydantic import (
     model_validator,
 )
 
-from src.pyproject2conda.resolve_dependencies import (
-    NormalizedRequirement,
-    canonicalize_requirement,
-)
-
 from ._compat import tomllib
+from ._normalized_requirements import (
+    NormalizedRequirement,
+    canonicalize_str_requirement,
+)
 from .utils import (
     conda_env_name_from_template,
     get_all_pythons,
@@ -135,13 +133,13 @@ class _EnvMixin(BaseModel):
 class EnvRequirements(BaseOptionsRequirements, _EnvMixin):
     @cached_property
     def reqs_normalized(self) -> list[NormalizedRequirement]:
-        return [canonicalize_requirement(Requirement(req)) for req in self.reqs]
+        return [canonicalize_str_requirement(req) for req in self.reqs]
 
 
 class EnvYaml(BaseOptionsYaml, _EnvMixin):
     @cached_property
     def deps_normalized(self) -> list[NormalizedRequirement]:
-        return [canonicalize_requirement(Requirement(req)) for req in self.deps]
+        return [canonicalize_str_requirement(req) for req in self.deps]
 
 
 class Env(BaseOptions, _EnvMixin):
@@ -158,6 +156,20 @@ class Env(BaseOptions, _EnvMixin):
         return EnvYaml.model_validate(new.model_dump(exclude_unset=True))
 
 
+class OverrideEnvs(Env):
+    """Override envs table"""
+
+    envs: ListNormalizedName
+
+    @field_validator("envs", mode="after")
+    @classmethod
+    def validate_envs(cls, v: ListNormalizedName) -> ListNormalizedName:
+        if not v:
+            msg = "must specify env in overrides"
+            raise ValidationError(msg)
+        return v
+
+
 class DependencyMapping(BaseModel):
     """Dependency mapping table"""
 
@@ -172,20 +184,6 @@ class DependencyMapping(BaseModel):
             self.channel = None
             self.pip = True
         return self
-
-
-class OverrideEnvs(Env):
-    """Override envs table"""
-
-    envs: ListNormalizedName
-
-    @field_validator("envs", mode="after")
-    @classmethod
-    def validate_envs(cls, v: ListNormalizedName) -> ListNormalizedName:
-        if not v:
-            msg = "must specify env in overrides"
-            raise ValidationError(msg)
-        return v
 
 
 class Dependencies(BaseModel):
@@ -418,3 +416,50 @@ class PyProject2CondaConfig:
                 else:  # pragma: no cover
                     msg = f"unknown style {style}"
                     raise ValueError(msg)
+
+
+# * PyProject Schema
+
+
+class _PyProjectBase(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=lambda field_name: field_name.replace("_", "-"),
+        validate_by_alias=True,
+        validate_by_name=True,
+    )
+
+
+class _Project(_PyProjectBase):
+    name: Annotated[NormalizedName, BeforeValidator(canonicalize_name)]
+    classifiers: list[str] = Field(default_factory=list)
+    dependencies: list[str] = Field(default_factory=list)
+    optional_dependencies: Annotated[
+        dict[NormalizedName, list[str]],
+        BeforeValidator(_validate_dict_normalizedname),
+    ] = Field(default_factory=dict)
+
+    requires_python: str | None = None
+
+
+class _BuildSystem(_PyProjectBase):
+    requires: list[str] = Field(default_factory=list)
+
+
+class PyProjectRequirements(_PyProjectBase):
+    build_system: _BuildSystem = Field(default_factory=_BuildSystem)
+    project: _Project
+    dependency_groups: Annotated[
+        dict[NormalizedName, list[str | dict[str, str]]],
+        BeforeValidator(_validate_dict_normalizedname),
+    ] = Field(default_factory=dict)
+
+    @cached_property
+    def all_python_versions(self) -> list[str]:
+        import re
+
+        pattern = re.compile(r"Programming Language :: Python :: (\d+\.\d+)$")
+        return [
+            match.group(1)
+            for classifier in self.project.classifiers
+            if (match := pattern.match(classifier))
+        ]
