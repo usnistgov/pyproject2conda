@@ -16,7 +16,6 @@ from ._typing_compat import override
 if TYPE_CHECKING:
     from collections.abc import (
         Iterable,
-        Mapping,
         Sequence,
     )
     from typing import Any
@@ -27,7 +26,7 @@ class _Resolve(ABC):
     """Base resolver"""
 
     package_name: NormalizedName
-    unresolved: Mapping[NormalizedName, Any]
+    unresolved: dict[NormalizedName, Any]
     resolved: dict[NormalizedName, set[NormalizedRequirement]] = field(
         init=False, default_factory=dict[NormalizedName, set[NormalizedRequirement]]
     )
@@ -80,7 +79,7 @@ class ResolveOptionalDependencies(_Resolve):
     """Resolve ``optional-dependencies``."""
 
     # pyrefly: ignore [bad-override]
-    unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]
+    unresolved: dict[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]
 
     @override
     def _get_unresolved_deps(

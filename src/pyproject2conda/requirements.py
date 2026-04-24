@@ -634,7 +634,7 @@ class ParseDepends:
 
         if python_include is not None:
             conda_deps = [
-                *self._cleanup([python_include]),
+                *self._cleanup([python_include.replace("~=", "=")]),
                 *conda_deps,
             ]
 

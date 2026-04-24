@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from packaging.utils import canonicalize_name
+from packaging.utils import NormalizedName, canonicalize_name
 
 from ._normalized_requirements import (
     CondaRequirement,
@@ -13,16 +13,15 @@ from ._normalized_requirements import (
     canonicalize_pip_requirement,
     canonicalize_str_requirement,
 )
-from ._schema import PyProjectRequirementsSchema
+from ._schema import PyProjectRequirementsWith2CondaSchema
 from .resolve_dependencies import (
     ResolveDependencyGroups,
     ResolveOptionalDependencies,
 )
+from .utils import list_to_str
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from packaging.utils import NormalizedName
+    from collections.abc import Iterable, Sequence
 
     from ._schema import DependencyMapping
     from ._typing_compat import Self
@@ -38,13 +37,24 @@ def _check_allow_empty(allow_empty: bool) -> str:
     raise ValueError(msg)
 
 
+def _pip_reqs_to_list(pip_reqs: set[NormalizedRequirement]) -> list[str]:
+    return sorted(map(str, pip_reqs))
+
+
+def _conda_reqs_to_list(conda_reqs: set[CondaRequirement]) -> list[str]:
+    order = defaultdict(lambda: 1, {"python": 0, "pip": 2})
+    return [
+        str(_).replace("~=", "=")
+        for _ in sorted(conda_reqs, key=lambda x: (order[x.name], str(x)))
+    ]
+
+
 @dataclass
 class ParseRequirements:
     package_name: NormalizedName
     dependencies: list[NormalizedRequirement]
     optional_dependencies: ResolveOptionalDependencies
     dependency_groups: ResolveDependencyGroups
-    build_system_requires: list[NormalizedRequirement]
     dependency_map: dict[NormalizedName, DependencyMapping] = field(
         default_factory=dict
     )
@@ -61,21 +71,30 @@ class ParseRequirements:
 
         data = tomllib.loads(s)
 
-        pyproject = PyProjectRequirementsSchema.model_validate(data)
+        pyproject = PyProjectRequirementsWith2CondaSchema.model_validate(data)
 
+        build_system = {
+            canonicalize_name("build-system.requires"): pyproject.build_system.requires
+        }
         optional_dependencies = ResolveOptionalDependencies(
             package_name=pyproject.project.name,
             unresolved={
                 name: [canonicalize_str_requirement(req) for req in reqs]
-                for name, reqs in pyproject.project.optional_dependencies.items()
+                for name, reqs in {
+                    **build_system,
+                    **pyproject.project.optional_dependencies,
+                }.items()
             },
         )
 
         dependency_groups = ResolveDependencyGroups(
             package_name=pyproject.project.name,
-            unresolved=pyproject.dependency_groups,
+            unresolved={**build_system, **pyproject.dependency_groups},
             optional_dependencies=optional_dependencies,
         )
+
+        if dependency_map is None:
+            dependency_map = pyproject.tool.pyproject2conda.dependencies
 
         return cls(
             package_name=pyproject.project.name,
@@ -85,16 +104,12 @@ class ParseRequirements:
             ],
             optional_dependencies=optional_dependencies,
             dependency_groups=dependency_groups,
-            build_system_requires=[
-                canonicalize_str_requirement(dep)
-                for dep in pyproject.build_system.requires
-            ],
             dependency_map=dependency_map or {},
             requires_python=pyproject.project.requires_python,
         )
 
     @classmethod
-    def from_file(
+    def from_path(
         cls,
         p: Path,
         dependency_map: dict[NormalizedName, DependencyMapping] | None = None,
@@ -218,13 +233,13 @@ class ParseRequirements:
     def to_conda_yaml(
         self,
         *,
-        extras: Iterable[str] = (),
-        groups: Iterable[str] = (),
-        extras_or_groups: Iterable[str] = (),
-        pip_deps: Iterable[str] = (),
-        conda_deps: Iterable[str] = (),
+        extras: Iterable[str] | None = None,
+        groups: Iterable[str] | None = None,
+        extras_or_groups: Iterable[str] | None = None,
+        pip_deps: Iterable[str] | None = None,
+        conda_deps: Iterable[str] | None = None,
         name: str | None = None,
-        channels: Iterable[str] = (),
+        channels: Iterable[str] | None = None,
         python_include: str | None = None,
         python_version: str | None = None,
         skip_package: bool = False,
@@ -235,13 +250,13 @@ class ParseRequirements:
     ) -> str:
         """Create yaml string."""
         conda_reqs, pip_reqs = self.conda_and_pip_requirements(
-            extras=extras,
-            groups=groups,
-            extras_or_groups=extras_or_groups,
+            extras=extras or (),
+            groups=groups or (),
+            extras_or_groups=extras_or_groups or (),
             skip_package=skip_package,
             pip_only=pip_only,
-            pip_deps=pip_deps,
-            conda_deps=conda_deps,
+            pip_deps=pip_deps or (),
+            conda_deps=conda_deps or (),
             python_include=python_include,
             python_version=python_version,
         )
@@ -249,18 +264,11 @@ class ParseRequirements:
         if not conda_reqs and not pip_reqs:
             return _check_allow_empty(allow_empty)
 
-        pip_deps = sorted(map(str, pip_reqs))
-        order = defaultdict(lambda: 1, {"python": 0, "pip": 2})
-        conda_deps = [
-            str(_).replace("~=", "=")
-            for _ in sorted(conda_reqs, key=lambda x: (order[x.name], x.name))
-        ]
-
         out = _conda_yaml(
             name=name,
             channels=channels,
-            conda_deps=conda_deps,
-            pip_deps=pip_deps,
+            conda_deps=_conda_reqs_to_list(conda_reqs),
+            pip_deps=_pip_reqs_to_list(pip_reqs),
         )
 
         out = _add_header(out, header_cmd)
@@ -269,20 +277,99 @@ class ParseRequirements:
 
         return out
 
+    def to_requirements(
+        self,
+        *,
+        extras: Iterable[str] | None = None,
+        groups: Iterable[str] | None = None,
+        extras_or_groups: Iterable[str] | None = None,
+        skip_package: bool = False,
+        header_cmd: str | None = None,
+        output: str | Path | None = None,
+        pip_deps: Iterable[str] | None = None,
+        allow_empty: bool = False,
+    ) -> str:
+        """Create requirements string."""
+        pip_reqs = self.pip_requirements(
+            extras=extras or (),
+            groups=groups or (),
+            extras_or_groups=extras_or_groups or (),
+            skip_package=skip_package,
+            reqs=pip_deps or (),
+        )
+
+        if not pip_reqs:
+            return _check_allow_empty(allow_empty)
+
+        out = _add_header(list_to_str(_pip_reqs_to_list(pip_reqs)), header_cmd)
+
+        _optional_write(out, output)
+        return out
+
+    def to_conda_requirements(
+        self,
+        *,
+        extras: Iterable[str] | None = None,
+        groups: Iterable[str] | None = None,
+        extras_or_groups: Iterable[str] | None = None,
+        channels: Sequence[str] | None = None,
+        python_include: str | None = None,
+        python_version: str | None = None,
+        prepend_channel: bool = False,
+        output_conda: Path | None = None,
+        output_pip: Path | None = None,
+        skip_package: bool = False,
+        header_cmd: str | None = None,
+        conda_deps: str | Iterable[str] | None = None,
+        pip_deps: str | Iterable[str] | None = None,
+    ) -> tuple[str, str]:
+        """Create conda and pip requirements files."""
+        conda_reqs, pip_reqs = self.conda_and_pip_requirements(
+            extras=extras or (),
+            groups=groups or (),
+            extras_or_groups=extras_or_groups or (),
+            skip_package=skip_package,
+            pip_deps=pip_deps or (),
+            conda_deps=conda_deps or (),
+            python_include=python_include,
+            python_version=python_version,
+        )
+
+        conda_deps = _conda_reqs_to_list(conda_reqs)
+        pip_deps = _pip_reqs_to_list(pip_reqs)
+
+        if conda_deps and channels and prepend_channel:
+            channels = list(channels)
+            if len(channels) != 1:
+                msg = "Can only pass single channel to prepend."
+                raise ValueError(msg)
+            channel = channels[0]
+            # add in channel if none exists
+
+            conda_deps = [
+                dep if "::" in dep else f"{channel}::{dep}" for dep in conda_deps
+            ]
+
+        conda_deps_str = _add_header(list_to_str(conda_deps), header_cmd)
+        pip_deps_str = _add_header(list_to_str(pip_deps), header_cmd)
+
+        if output_conda and conda_deps_str:
+            _optional_write(conda_deps_str, output_conda)
+
+        if output_pip and pip_deps_str:
+            _optional_write(pip_deps_str, output_pip)
+
+        return conda_deps_str, pip_deps_str
+
 
 # ** output ----------------------------------------------------------------------------
 def _conda_yaml(
     name: str | None = None,
-    channels: str | Iterable[str] | None = None,
-    conda_deps: str | Iterable[str] | None = None,
-    pip_deps: str | Iterable[str] | None = None,
+    channels: Iterable[str] | None = None,
+    conda_deps: Iterable[str] | None = None,
+    pip_deps: Iterable[str] | None = None,
     add_file_eol: bool = True,
 ) -> str:
-    def _as_list(x: str | Iterable[str]) -> Iterable[str]:
-        if isinstance(x, str):
-            return [x]
-        return x
-
     if not conda_deps:
         msg = "Must have at least one conda dependency (i.e., pip)"
         raise ValueError(msg)
@@ -293,17 +380,14 @@ def _conda_yaml(
 
     if channels:
         out.append("channels:")
-        out.extend(f"  - {channel}" for channel in _as_list(channels))
+        out.extend(f"  - {channel}" for channel in channels)
 
     out.append("dependencies:")
-    out.extend(f"  - {dep}" for dep in _as_list(conda_deps))
+    out.extend(f"  - {dep}" for dep in conda_deps)
 
     if pip_deps:
-        if "pip" not in conda_deps:  # pragma: no cover
-            msg = "Must have pip in conda_deps"
-            raise ValueError(msg)
         out.append("  - pip:")
-        out.extend(f"      - {dep}" for dep in _as_list(pip_deps))
+        out.extend(f"      - {dep}" for dep in pip_deps)
 
     s = "\n".join(out)
 

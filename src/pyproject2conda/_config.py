@@ -96,7 +96,7 @@ class PyProject2CondaConfig:
                 self.default_pythons,
                 self.all_pythons,
             )[0]
-            return f"python={python}", python
+            return f"python~={python}", python
 
         return python_include, python_version
 
