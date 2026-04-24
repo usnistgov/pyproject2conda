@@ -134,7 +134,7 @@ def test_infer() -> None:
     """
     )
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
     with pytest.raises(ValueError):
         d.to_conda_yaml(python_include="infer")
 
@@ -170,7 +170,7 @@ def test_pip_requirements() -> None:
     """
     )
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     assert d.to_requirements(pip_deps=["hello"]) == expected
 
@@ -186,7 +186,7 @@ def test_pip_requirements() -> None:
         """
     )
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
     assert d.to_requirements(pip_deps=["hello"], extras="dev") == expected
     assert d.to_requirements(pip_deps=["hello"], extras_or_groups="dev") == expected
 
@@ -202,7 +202,7 @@ def test_pip_requirements() -> None:
         """
     )
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
     assert d.to_requirements(pip_deps="hello", groups="dev") == expected
 
     # build-system.requires
@@ -227,7 +227,7 @@ def test_to_conda_requirements_error() -> None:
     )
 
     with pytest.raises(ValidationError):
-        requirements.ParseRequirements.from_string(toml)
+        requirements.RequirementsConfig.from_string(toml)
 
 
 def test_package_name() -> None:
@@ -274,7 +274,7 @@ def test_package_name() -> None:
     """
     )
     with pytest.raises(ValidationError):
-        requirements.ParseRequirements.from_string(toml)
+        requirements.RequirementsConfig.from_string(toml)
 
 
 def test_conda_and_pip_simple() -> None:
@@ -290,7 +290,7 @@ def test_conda_and_pip_simple() -> None:
         """
     )
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     conda_deps, pip_deps = requirements.conda_and_pip_reqs_to_list(
         *d.conda_and_pip_requirements()
@@ -405,7 +405,7 @@ def test_conda_and_pip_simple() -> None:
     ],
 )
 def test_complete(style, toml) -> None:
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
     channels = PyProject2CondaConfig.from_string(toml).get_env(None).channels
 
     # test unknown extra
@@ -644,7 +644,7 @@ def test_missing_dependencies() -> None:
     """
     )
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     expected = """\
 dependencies:
@@ -694,7 +694,7 @@ dependencies:
     """
     )
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="test",
@@ -757,7 +757,7 @@ dependencies:
   - conda-forge::conda-matplotlib
     """
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="dev-extras",
@@ -797,7 +797,7 @@ dependencies:
       - athing>0.5
     """
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     assert d.optional_dependencies.unresolved == {}
 
@@ -831,7 +831,7 @@ dependencies:
     ],
 )
 def test_spaces(toml) -> None:
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     expected = """\
 dependencies:
@@ -896,6 +896,6 @@ def test_include_pip() -> None:
       - pip
     """
 
-    d = requirements.ParseRequirements.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     assert dedent(expected) == d.to_conda_yaml(extras="test", conda_deps="pip")

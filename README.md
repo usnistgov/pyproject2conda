@@ -559,8 +559,8 @@ You can customize the command in the header with the `--custom-command` option.
 `pyproject2conda` can also be used within python:
 
 ```pycon
->>> from pyproject2conda.requirements import ParseRequirements
->>> p = ParseRequirements.from_path("./tests/data/test-pyproject.toml")
+>>> from pyproject2conda.requirements import RequirementsConfig
+>>> p = RequirementsConfig.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
 >>> print(p.to_conda_yaml(python_include="infer").strip())
@@ -699,8 +699,8 @@ dependencies:
 or
 
 ```pycon
->>> from pyproject2conda.requirements import ParseRequirements
->>> p = ParseRequirements.from_path("./tests/data/test-pyproject.toml")
+>>> from pyproject2conda.requirements import RequirementsConfig
+>>> p = RequirementsConfig.from_path("./tests/data/test-pyproject.toml")
 
 # Basic environment
 >>> print(p.to_conda_yaml(extras="dist-pypi", skip_package=True).strip())

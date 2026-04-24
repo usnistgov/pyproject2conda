@@ -68,7 +68,7 @@ def conda_and_pip_reqs_to_list(
 
 
 @dataclass
-class ParseRequirements:
+class RequirementsConfig:
     """Parse requirements"""
 
     package_name: NormalizedName

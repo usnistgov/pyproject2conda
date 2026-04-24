@@ -22,7 +22,7 @@ from pyproject2conda._schema import Overwrite
 from pyproject2conda._utils import (
     update_target,
 )
-from pyproject2conda.requirements import ParseRequirements, conda_and_pip_reqs_to_list
+from pyproject2conda.requirements import RequirementsConfig, conda_and_pip_reqs_to_list
 
 from ._typing_compat import override
 
@@ -439,8 +439,8 @@ def _get_header_cmd(
 
 
 @lru_cache
-def _get_requirement_parser(path: Path) -> ParseRequirements:
-    return ParseRequirements.from_path(path)
+def _get_requirement_parser(path: Path) -> RequirementsConfig:
+    return RequirementsConfig.from_path(path)
 
 
 @lru_cache
