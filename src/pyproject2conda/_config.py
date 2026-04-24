@@ -13,7 +13,7 @@ from ._schema import (
     PyProject2CondaSchema,
     PyProjectRequirementsSchema,
 )
-from .utils import (
+from ._utils import (
     conda_env_name_from_template,
     get_default_pythons_with_fallback,
     path_from_template,
@@ -117,10 +117,10 @@ class PyProject2CondaConfig:
                 ext=env.reqs_ext,
             )
 
-            yield (
-                "requirements",
-                env.as_requirements(update={"output": output}),
-            )
+        yield (
+            "requirements",
+            env.as_requirements(update={"output": output}),
+        )
 
     def _iter_yaml(self, env_name: str) -> Iterator[tuple[str, EnvYaml]]:
         env_name = canonicalize_name(env_name)

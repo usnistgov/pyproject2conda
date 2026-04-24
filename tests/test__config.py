@@ -268,6 +268,15 @@ def simple_env() -> mod.Env:
             },
             {},
         ),
+        pytest.param(
+            "extension_txt",
+            {
+                "style": ["requirements"],
+                "reqs_ext": ".in",
+                "output": "an-example.txt",
+            },
+            {"output": "an-example.txt"},
+        ),
     ],
 )
 def test_option_override_base(
@@ -309,7 +318,7 @@ def test_option_override_base3_default_python(
     with (example_path / ".python-version-default").open("w") as f:
         f.write("3.10\n")
 
-    from pyproject2conda.utils import get_default_pythons_with_fallback
+    from pyproject2conda._utils import get_default_pythons_with_fallback
 
     assert get_default_pythons_with_fallback() == ["3.10"]
 

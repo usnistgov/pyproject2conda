@@ -8,7 +8,7 @@ from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 
 from pyproject2conda import _normalized_requirements as mod
-from pyproject2conda.utils import MISSING
+from pyproject2conda._utils import MISSING
 
 if TYPE_CHECKING:
     from collections.abc import Callable

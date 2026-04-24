@@ -11,23 +11,6 @@ from pydantic import ValidationError
 
 from pyproject2conda import requirements
 from pyproject2conda._config import PyProject2CondaConfig
-from pyproject2conda.utils import get_in
-
-
-def test_get_in() -> None:
-    d = {"a": {"b": {"c": 3}}}
-
-    assert get_in(["a", "b", "c"], d) == 3
-
-    assert get_in(["a", "d"], d, "hello") == "hello"
-
-
-def test_list_to_string() -> None:
-    from pyproject2conda.utils import list_to_str
-
-    assert list_to_str(["a", "b"], eol=True) == "a\nb\n"
-    assert list_to_str(["a", "b"], eol=False) == "a\nb"
-    assert list_to_str(None) == ""  # noqa: PLC1901  # pylint: disable=use-implicit-booleaness-not-comparison-to-string
 
 
 def test_header() -> None:

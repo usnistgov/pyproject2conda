@@ -6,11 +6,17 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pyproject2conda import utils
+import pyproject2conda._utils as utils
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Any
+
+
+def test_list_to_string() -> None:
+    assert utils.list_to_str(["a", "b"], eol=True) == "a\nb\n"
+    assert utils.list_to_str(["a", "b"], eol=False) == "a\nb"
+    assert utils.list_to_str(None) == ""  # noqa: PLC1901  # pylint: disable=use-implicit-booleaness-not-comparison-to-string
 
 
 def test_template() -> None:

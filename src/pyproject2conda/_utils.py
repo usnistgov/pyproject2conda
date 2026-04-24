@@ -14,8 +14,8 @@ from packaging.version import Version
 from ._typing_compat import override
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Mapping, Sequence
-    from typing import Any, TypeVar
+    from collections.abc import Iterable, Sequence
+    from typing import TypeVar
 
     T = TypeVar("T")
 
@@ -46,35 +46,6 @@ MISSING = _Missing.MISSING
 """
 Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 """
-
-
-# taken from https://github.com/conda/conda-lock/blob/main/conda_lock/common.py
-def get_in(
-    keys: Sequence[Any],
-    nested_dict: Mapping[Any, Any],
-    default: Any = None,
-    factory: Callable[[], Any] | None = None,
-) -> Any:
-    """
-    >>> foo = {"a": {"b": {"c": 1}}}
-    >>> get_in(["a", "b"], foo)
-    {'c': 1}
-
-    """
-    import operator
-    from functools import reduce
-
-    try:
-        return reduce(  # pyrefly: ignore[no-matching-overload]
-            operator.getitem,  # pyrefly: ignore[bad-argument-type]
-            keys,
-            # pyrefly: ignore [bad-argument-type]
-            nested_dict,
-        )
-    except (KeyError, IndexError, TypeError):
-        if factory is not None:
-            return factory()
-        return default
 
 
 def get_default_pythons(path: str | Path = ".python-version") -> list[str]:
@@ -228,18 +199,6 @@ def conda_env_name_from_template(
     kws = _get_standard_format_dict(env_name=env_name, python_version=python_version)
 
     return name.format(**kws)
-
-
-def unique_list(values: Iterable[T]) -> list[T]:
-    """
-    Return only unique values in list.
-    Unlike using set(values), this preserves order.
-    """
-    output: list[T] = []
-    for v in values:
-        if v not in output:
-            output.append(v)
-    return output
 
 
 def list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:

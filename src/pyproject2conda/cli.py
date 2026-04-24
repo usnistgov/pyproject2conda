@@ -19,10 +19,10 @@ from typer.core import TyperGroup
 from pyproject2conda import __version__
 from pyproject2conda._config import PyProject2CondaConfig
 from pyproject2conda._schema import Overwrite
-from pyproject2conda.requirements import ParseRequirements, conda_and_pip_reqs_to_list
-from pyproject2conda.utils import (
+from pyproject2conda._utils import (
     update_target,
 )
+from pyproject2conda.requirements import ParseRequirements, conda_and_pip_reqs_to_list
 
 from ._typing_compat import override
 

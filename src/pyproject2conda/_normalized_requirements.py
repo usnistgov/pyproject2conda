@@ -9,7 +9,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.utils import NormalizedName, canonicalize_name
 
 from ._typing_compat import override
-from .utils import MISSING
+from ._utils import MISSING
 
 if TYPE_CHECKING:
     from collections.abc import (

@@ -23,7 +23,7 @@ from ._resolve_dependencies import (
     ResolveOptionalDependencies,
 )
 from ._schema import PyProjectRequirementsWith2CondaSchema
-from .utils import list_to_str
+from ._utils import list_to_str
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
