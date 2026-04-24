@@ -20,7 +20,7 @@ from pydantic import (
 from ._compat import tomllib
 from ._normalized_requirements import (
     NormalizedRequirement,
-    canonicalize_str_requirement,
+    canonicalize_requirement,
 )
 
 if TYPE_CHECKING:
@@ -142,13 +142,13 @@ class _EnvMixin(BaseModel):
 class EnvRequirements(_BaseOptionsRequirements, _EnvMixin):
     @cached_property
     def reqs_normalized(self) -> list[NormalizedRequirement]:
-        return [canonicalize_str_requirement(req) for req in self.reqs]
+        return [canonicalize_requirement(req) for req in self.reqs]
 
 
 class EnvYaml(_BaseOptionsYaml, _EnvMixin):
     @cached_property
     def deps_normalized(self) -> list[NormalizedRequirement]:
-        return [canonicalize_str_requirement(req) for req in self.deps]
+        return [canonicalize_requirement(req) for req in self.deps]
 
 
 class Env(_BaseOptions, _EnvMixin):

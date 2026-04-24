@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from packaging.dependency_groups import DependencyGroupResolver
 from packaging.utils import NormalizedName, canonicalize_name
@@ -26,7 +26,7 @@ class _Resolve(ABC):
     """Base resolver"""
 
     package_name: NormalizedName
-    unresolved: dict[NormalizedName, Any]
+    unresolved: dict[str, Any]
     resolved: dict[NormalizedName, set[NormalizedRequirement]] = field(
         init=False, default_factory=dict[NormalizedName, set[NormalizedRequirement]]
     )
@@ -78,7 +78,7 @@ class _Resolve(ABC):
 class ResolveOptionalDependencies(_Resolve):
     """Resolve ``optional-dependencies``."""
 
-    unresolved: dict[NormalizedName, Sequence[NormalizedRequirement]]
+    unresolved: dict[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]  # pyright: ignore[reportIncompatibleVariableOverride]  # pyrefly: ignore[bad-override]
 
     @override
     def _get_unresolved_deps(
@@ -102,9 +102,7 @@ class ResolveDependencyGroups(_Resolve):
     _resolver: DependencyGroupResolver = field(init=False)
 
     def __post_init__(self) -> None:
-        self._resolver = DependencyGroupResolver(
-            cast("dict[str, Any]", self.unresolved)
-        )
+        self._resolver = DependencyGroupResolver(self.unresolved)
 
     @override
     def _get_unresolved_deps(

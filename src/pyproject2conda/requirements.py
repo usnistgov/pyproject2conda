@@ -16,13 +16,13 @@ from ._normalized_requirements import (
     CondaRequirement,
     NormalizedRequirement,
     canonicalize_pip_requirement,
-    canonicalize_str_requirement,
+    canonicalize_requirement,
 )
-from ._schema import PyProjectRequirementsWith2CondaSchema
-from .resolve_dependencies import (
+from ._resolve_dependencies import (
     ResolveDependencyGroups,
     ResolveOptionalDependencies,
 )
+from ._schema import PyProjectRequirementsWith2CondaSchema
 from .utils import list_to_str
 
 if TYPE_CHECKING:
@@ -106,7 +106,7 @@ class ParseRequirements:
         optional_dependencies = ResolveOptionalDependencies(
             package_name=pyproject.project.name,
             unresolved={
-                name: [canonicalize_str_requirement(req) for req in reqs]
+                name: [canonicalize_requirement(req) for req in reqs]
                 for name, reqs in {
                     **build_system,
                     **pyproject.project.optional_dependencies,
@@ -116,7 +116,7 @@ class ParseRequirements:
 
         dependency_groups = ResolveDependencyGroups(
             package_name=pyproject.project.name,
-            unresolved={**build_system, **pyproject.dependency_groups},
+            unresolved={**build_system, **pyproject.dependency_groups},  # type: ignore[dict-item]
             optional_dependencies=optional_dependencies,
         )
 
@@ -126,8 +126,7 @@ class ParseRequirements:
         return cls(
             package_name=pyproject.project.name,
             dependencies=[
-                canonicalize_str_requirement(dep)
-                for dep in pyproject.project.dependencies
+                canonicalize_requirement(dep) for dep in pyproject.project.dependencies
             ],
             optional_dependencies=optional_dependencies,
             dependency_groups=dependency_groups,

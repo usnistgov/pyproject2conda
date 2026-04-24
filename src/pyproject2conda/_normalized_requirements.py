@@ -84,14 +84,14 @@ class CondaRequirement(NormalizedRequirement):
             req.url = url
 
         if extras is not MISSING:
+            extras_: set[str]
             if extras is None:
-                extras = set()
+                extras_ = set()
             elif isinstance(extras, str):
-                extras = {extras}
+                extras_ = {canonicalize_name(extras)}
             else:
-                # pyrefly: ignore [bad-argument-type, no-matching-overload]
-                extras = set(extras)
-            req.extras = extras
+                extras_ = {canonicalize_name(e) for e in extras}
+            req.extras = extras_
 
         if specifier is not MISSING:
             if specifier is None:
@@ -118,14 +118,9 @@ class CondaRequirement(NormalizedRequirement):
         yield from super()._iter_parts(name)
 
 
-def canonicalize_requirement(dep: Requirement) -> NormalizedRequirement:
+def canonicalize_requirement(dep: str | Requirement) -> NormalizedRequirement:
     """Normalized Requirement from :class:`~packaging.requirements.Requirement`"""
     return NormalizedRequirement(str(dep))
-
-
-def canonicalize_str_requirement(dep: str) -> NormalizedRequirement:
-    """Normalized requirement from str requirement"""
-    return NormalizedRequirement(dep)
 
 
 def canonicalize_pip_requirement(
@@ -133,12 +128,5 @@ def canonicalize_pip_requirement(
 ) -> NormalizedRequirement | FallbackRequirement:
     try:
         return NormalizedRequirement(dep)
-    except InvalidRequirement:
-        return FallbackRequirement(dep)
-
-
-def canonicalize_conda_requirement(dep: str) -> CondaRequirement | FallbackRequirement:
-    try:
-        return CondaRequirement(dep)
     except InvalidRequirement:
         return FallbackRequirement(dep)
