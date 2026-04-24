@@ -543,7 +543,7 @@ def yaml(
     }
 
     c = _get_config(pyproject_filename).update_options(options)
-    c.get_env(None).as_yaml()
+    _ = c.get_env(None).as_yaml()
 
     python_include, python_version = c.parse_pythons(
         python_include=python_include,

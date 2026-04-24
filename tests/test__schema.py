@@ -177,13 +177,13 @@ def simple_config_classifiers(
 
 @pytest.fixture
 def simple_env() -> mod.Env:
-    return mod.Env(
-        channels=["conda-forge"],
-        template_python="py{py}-{env}",
-        template="hello-{env}",
-        style="yaml",
-        python="3.10",
-    )
+    return mod.Env.model_validate({
+        "channels": ["conda-forge"],
+        "template_python": "py{py}-{env}",
+        "template": "hello-{env}",
+        "style": "yaml",
+        "python": "3.10",
+    })
 
 
 @pytest.mark.parametrize(
@@ -283,11 +283,11 @@ def test_option_override_base(
     env = simple_env.model_copy(update=update_params)
 
     style = env.style[0]
-    env = env.as_yaml() if style == "yaml" else env.as_requirements()
+    env_ = env.as_yaml() if style == "yaml" else env.as_requirements()
 
     assert output[0] == (
         style,
-        env,
+        env_,
     )
 
 
@@ -513,13 +513,13 @@ def test_config_overrides2(s: str) -> None:
 
     expected = (
         "yaml",
-        mod.EnvYaml(
-            python="3.8",
-            skip_package=True,
-            pip_only=True,
-            output="py38-test.yaml",
-            extras_or_groups=["test"],
-        ),
+        mod.EnvYaml.model_validate({
+            "python": "3.8",
+            "skip_package": True,
+            "pip_only": True,
+            "output": "py38-test.yaml",
+            "extras_or_groups": "test",
+        }),
     )
 
     assert next(iter(c.iter_envs())) == expected
@@ -559,12 +559,12 @@ def test_config_python_include_version() -> None:
     expected = [
         (
             "yaml",
-            mod.EnvYaml(
-                extras=["test"],
-                python_include="3.8",
-                python_version="3.8",
-                output="py38-test.yaml",
-            ),
+            mod.EnvYaml.model_validate({
+                "extras": ["test"],
+                "python_include": "3.8",
+                "python_version": "3.8",
+                "output": "py38-test.yaml",
+            }),
         ),
     ] * 2
 

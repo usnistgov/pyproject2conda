@@ -78,8 +78,7 @@ class _Resolve(ABC):
 class ResolveOptionalDependencies(_Resolve):
     """Resolve ``optional-dependencies``."""
 
-    # pyrefly: ignore [bad-override]
-    unresolved: dict[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]
+    unresolved: dict[NormalizedName, Sequence[NormalizedRequirement]]
 
     @override
     def _get_unresolved_deps(

@@ -26,7 +26,7 @@ class NormalizedRequirement(Requirement):
     def __init__(self, requirement_string: str) -> None:
         super().__init__(requirement_string)
 
-        self.name: NormalizedName = canonicalize_name(self.name)
+        self.name: NormalizedName = canonicalize_name(self.name)  # pyright: ignore[reportIncompatibleVariableOverride]  # pyrefly: ignore[bad-override]
         self.extras = {canonicalize_name(e) for e in self.extras}
 
 

@@ -54,7 +54,7 @@ def _validate_list_of_str(s: str | Iterable[str] | None) -> list[str]:
     if s is None:
         return []
     if isinstance(s, list):
-        return s
+        return s  # ty: ignore[invalid-return-type]
     if isinstance(s, str):
         return [s]
     return list(s)
