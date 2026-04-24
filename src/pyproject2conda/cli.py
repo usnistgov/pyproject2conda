@@ -259,8 +259,10 @@ PYTHON_INCLUDE_CLI = Annotated[
         "--python-include",
         help="""
         If value passed, use this value (exactly) in the output. So, for
-        example, pass ``--python-include "python=3.8"``. Special case is the
-        value ``"infer"``. This infers the value of python from ``pyproject.toml``
+        example, pass ``--python-include "python~=3.8"``. Special case is the
+        value ``"infer"``. This infers the value of python from
+        ``pyproject.toml`` Note that pep-440 should be followed. Compatible
+        release specifier ``"~="`` will be converted to ``"="`` in yaml output.
         """,
     ),
 ]
