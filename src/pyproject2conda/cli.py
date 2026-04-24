@@ -17,7 +17,8 @@ import typer
 from typer.core import TyperGroup
 
 from pyproject2conda import __version__
-from pyproject2conda._schema import Overwrite, PyProject2CondaConfig
+from pyproject2conda._config import PyProject2CondaConfig
+from pyproject2conda._schema import Overwrite
 from pyproject2conda.requirements import ParseDepends
 from pyproject2conda.utils import (
     update_target,
@@ -250,17 +251,6 @@ PIP_ONLY_CLI = Annotated[
     typer.Option(
         "--pip-only",
         help="""Treat all requirements as pip requirements. Use option ``pip_only`` in pyproject.toml""",
-    ),
-]
-SORT_DEPENDENCIES_CLI = Annotated[
-    bool,
-    typer.Option(
-        "--sort/--no-sort",
-        help="""
-        Default is to sort the dependencies (excluding ``--python-include``).
-        Pass ``--no-sort`` to instead place dependencies in order they are
-        gathered.  Use option ``sort = true/false`` in pyproject.toml
-        """,
     ),
 ]
 PYTHON_INCLUDE_CLI = Annotated[
@@ -517,7 +507,6 @@ def yaml(
     python: PYTHON_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
     pip_only: PIP_ONLY_CLI = False,
-    sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
@@ -546,7 +535,6 @@ def yaml(
         "python": python,
         "skip_package": skip_package,
         "pip_only": pip_only,
-        "sort": sort,
         "overwrite": overwrite,
         "verbose": verbose,
         "deps": deps,
@@ -579,7 +567,6 @@ def yaml(
         skip_package=skip_package,
         pip_only=pip_only,
         header_cmd=_get_header_cmd(custom_command, header, output),
-        sort=sort,
         conda_deps=deps,
         pip_deps=reqs,
         allow_empty=allow_empty,
@@ -598,7 +585,6 @@ def requirements(
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     output: OUTPUT_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
-    sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
@@ -622,7 +608,6 @@ def requirements(
         output=output,
         skip_package=skip_package,
         header_cmd=_get_header_cmd(custom_command, header, output),
-        sort=sort,
         pip_deps=reqs,
         allow_empty=allow_empty,
     )
@@ -644,7 +629,6 @@ def project(
     deps: DEPS_CLI = None,
     reqs_ext: REQS_EXT_CLI = ".txt",
     yaml_ext: YAML_EXT_CLI = ".yaml",
-    sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
@@ -660,7 +644,7 @@ def project(
     the same as the command line option. For cases where the option can take multiple values, the
     config file option will be plural. For example, the command line option
     ``--group`` becomes the config file option ``groups = ...``.  Boolean options
-    like ``--sort/--no-sort`` become ``sort = true/false`` in the config file.
+    like ``--header/--no-header`` become ``header = true/false`` in the config file.
     """
     options = {
         "reqs_ext": reqs_ext,
@@ -669,7 +653,6 @@ def project(
         "template_python": template_python,
         "reqs": reqs,
         "deps": deps,
-        "sort": sort,
         "header": header,
         "custom_command": custom_command,
         "overwrite": overwrite.value,
@@ -734,7 +717,6 @@ def conda_requirements(
     skip_package: SKIP_PACKAGE_CLI = False,
     prefix: PREFIX_CLI = None,
     prepend_channel: PREPEND_CHANNEL_CLI = False,
-    sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     # paths,
@@ -784,7 +766,6 @@ def conda_requirements(
         output_pip=path_pip,
         skip_package=skip_package,
         header_cmd=_get_header_cmd(custom_command, header, path_conda),
-        sort=sort,
         conda_deps=deps,
         pip_deps=reqs,
     )
@@ -806,7 +787,6 @@ def to_json(
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
     channels: CHANNEL_CLI = None,
-    sort: SORT_DEPENDENCIES_CLI = True,
     output: OUTPUT_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
     deps: DEPS_CLI = None,
@@ -845,7 +825,6 @@ def to_json(
         python_include=python_include,
         python_version=python_version,
         skip_package=skip_package,
-        sort=sort,
         conda_deps=deps,
         pip_deps=reqs,
     )

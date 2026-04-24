@@ -100,25 +100,6 @@ def get_default_pythons_with_fallback(
     return []
 
 
-def get_all_pythons(
-    data: dict[str, Any] | None, path: str | Path | None = None
-) -> list[str]:
-    """Get python versions from pyproject:project.classifiers"""
-    if data is None:
-        assert path is not None  # noqa: S101
-
-        from ._compat import tomllib
-
-        with Path(path).open("rb") as f:
-            data = tomllib.load(f)
-
-    return [
-        c.split()[-1]
-        for c in get_in(["project", "classifiers"], data, factory=list)
-        if c.startswith("Programming Language :: Python :: 3.")
-    ]
-
-
 def get_lowest_version(versions: Iterable[str]) -> str:
     """Get lowest version"""
     return min(versions, key=Version)
@@ -157,43 +138,6 @@ def select_pythons(
             )
 
     return list(pythons)
-
-
-def parse_pythons(
-    python_include: str | None,
-    python_version: str | None,
-    python: str | None,
-    toml_path: str | Path,
-) -> tuple[str | None, str | None]:
-    """Create python_include/python_version."""
-    if python:
-        python = select_pythons(
-            [python],
-            get_default_pythons(),
-            get_all_pythons(data=None, path=toml_path),
-        )[0]
-        return f"python={python}", python
-
-    return python_include, python_version
-
-
-def parse_pythons2(
-    python_include: str | None,
-    python_version: str | None,
-    python: str | None,
-    default_pythons: list[str],
-    all_pythons: list[str],
-) -> tuple[str | None, str | None]:
-    """Create python_include/python_version."""
-    if python:
-        python = select_pythons(
-            [python],
-            default_pythons,
-            all_pythons,
-        )[0]
-        return f"python={python}", python
-
-    return python_include, python_version
 
 
 def update_target(

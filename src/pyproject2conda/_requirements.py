@@ -13,7 +13,7 @@ from ._normalized_requirements import (
     canonicalize_pip_requirement,
     canonicalize_str_requirement,
 )
-from ._schema import PyProjectRequirements
+from ._schema import PyProjectRequirementsSchema
 from .resolve_dependencies import (
     ResolveDependencyGroups,
     ResolveOptionalDependencies,
@@ -61,7 +61,7 @@ class ParseRequirements:
 
         data = tomllib.loads(s)
 
-        pyproject = PyProjectRequirements.model_validate(data)
+        pyproject = PyProjectRequirementsSchema.model_validate(data)
 
         optional_dependencies = ResolveOptionalDependencies(
             package_name=pyproject.project.name,
@@ -171,11 +171,10 @@ class ParseRequirements:
             )
 
         pip_reqs = {canonicalize_pip_requirement(req) for req in pip_deps}
-        conda_reqs = {CondaRequirement(dep) for dep in conda_deps}
         env = {"python_version": python_version} if python_version else {}
         conda_reqs = {
             dep.update(marker=None, extras=None)
-            for dep in conda_reqs
+            for dep in map(CondaRequirement, conda_deps)
             if dep.evaluate(env)
         }
 

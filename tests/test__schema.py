@@ -15,6 +15,7 @@ from pydantic import ValidationError
 
 import pyproject2conda
 from pyproject2conda import _schema as mod
+from pyproject2conda._config import PyProject2CondaConfig
 from pyproject2conda.cli import app
 
 if TYPE_CHECKING:
@@ -163,15 +164,15 @@ def classifiers() -> str:
 
 
 @pytest.fixture
-def simple_config(simple_toml: str) -> mod.PyProject2CondaConfig:
-    return mod.PyProject2CondaConfig.from_string(dedent(simple_toml))
+def simple_config(simple_toml: str) -> PyProject2CondaConfig:
+    return PyProject2CondaConfig.from_string(dedent(simple_toml))
 
 
 @pytest.fixture
 def simple_config_classifiers(
     simple_toml: str, classifiers: str
-) -> mod.PyProject2CondaConfig:
-    return mod.PyProject2CondaConfig.from_string(dedent(simple_toml + classifiers))
+) -> PyProject2CondaConfig:
+    return PyProject2CondaConfig.from_string(dedent(simple_toml + classifiers))
 
 
 @pytest.fixture
@@ -270,7 +271,7 @@ def simple_env() -> mod.Env:
     ],
 )
 def test_option_override_base(
-    simple_config: mod.PyProject2CondaConfig,
+    simple_config: PyProject2CondaConfig,
     simple_env: mod.Env,
     env_name: str,
     update_params: dict[str, Any],
@@ -292,7 +293,7 @@ def test_option_override_base(
 
 def test_option_override_base3_default_python_error(
     example_path: Path,  # noqa: ARG001
-    simple_config: mod.PyProject2CondaConfig,
+    simple_config: PyProject2CondaConfig,
 ) -> None:
     # using default python without a version
     with pytest.raises(
@@ -312,7 +313,7 @@ def test_option_override_base3_default_python(
 
     assert get_default_pythons_with_fallback() == ["3.10"]
 
-    config = mod.PyProject2CondaConfig.from_string(dedent(simple_toml))
+    config = PyProject2CondaConfig.from_string(dedent(simple_toml))
     output = list(config.iter_envs(envs=["base3"]))
 
     assert output[0] == (
@@ -322,14 +323,14 @@ def test_option_override_base3_default_python(
 
 
 def test_option_override_all_pythons_error(
-    simple_config: mod.PyProject2CondaConfig,
+    simple_config: PyProject2CondaConfig,
 ) -> None:
     with pytest.raises(ValueError, match=r"Must specify python versions .*"):
         list(simple_config.iter_envs(envs=["base5"]))
 
 
 def test_option_override_all_pythons(
-    simple_config_classifiers: mod.PyProject2CondaConfig, simple_env: mod.Env
+    simple_config_classifiers: PyProject2CondaConfig, simple_env: mod.Env
 ) -> None:
     a = list(simple_config_classifiers.iter_envs(envs=["base4"]))
     b = list(simple_config_classifiers.iter_envs(envs=["base5"]))
@@ -351,7 +352,7 @@ def test_option_override_all_pythons(
 
 
 def test_option_override_lowest_highest(
-    simple_config_classifiers: mod.PyProject2CondaConfig, simple_env: mod.Env
+    simple_config_classifiers: PyProject2CondaConfig, simple_env: mod.Env
 ) -> None:
 
     a = list(simple_config_classifiers.iter_envs(envs=["base_lowest"]))
@@ -450,7 +451,7 @@ def test_config_only_default() -> None:
     """
 
     for s, d in zip([s0, s1], (d0, d1), strict=False):
-        c = mod.PyProject2CondaConfig.from_string(s)
+        c = PyProject2CondaConfig.from_string(s)
         assert list(c.iter_envs()) == [("yaml", mod.EnvYaml.model_validate(d))]
 
 
@@ -464,7 +465,7 @@ def test_config_errors() -> None:
     """
 
     # raise error for bad env
-    c = mod.PyProject2CondaConfig.from_string(s)
+    c = PyProject2CondaConfig.from_string(s)
     with pytest.raises(ValueError):
         c.config.get_env("hello")
 
@@ -478,7 +479,7 @@ def test_config_errors() -> None:
 
     # raise error for bad env
     with pytest.raises(ValidationError):
-        c = mod.PyProject2CondaConfig.from_string(s1)
+        c = PyProject2CondaConfig.from_string(s1)
 
 
 @pytest.mark.parametrize(
@@ -508,7 +509,7 @@ def test_config_errors() -> None:
     ],
 )
 def test_config_overrides2(s: str) -> None:
-    c = mod.PyProject2CondaConfig.from_string(s)
+    c = PyProject2CondaConfig.from_string(s)
 
     expected = (
         "yaml",
@@ -536,7 +537,7 @@ def test_config_overrides_no_envs() -> None:
     """
 
     with pytest.raises(ValidationError):
-        mod.PyProject2CondaConfig.from_string(s)
+        PyProject2CondaConfig.from_string(s)
 
 
 def test_config_python_include_version() -> None:
@@ -553,7 +554,7 @@ def test_config_python_include_version() -> None:
     python-version = "3.8"
     """
 
-    c = mod.PyProject2CondaConfig.from_string(s)
+    c = PyProject2CondaConfig.from_string(s)
 
     expected = [
         (

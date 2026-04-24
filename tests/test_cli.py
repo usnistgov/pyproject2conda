@@ -233,32 +233,6 @@ dependencies:
 channels:
   - conda-forge
 dependencies:
-  - bthing-conda
-  - conda-forge::cthing
-  - pandas
-  - conda-forge::pytest
-  - additional-thing
-  - conda-matplotlib
-  - pip
-  - pip:
-      - athing
-    """
-
-    for opt in extra_or_group_opts:
-        result = do_run(runner, "yaml", opt, "dev", "--no-sort", filename=filename)
-        check_result(result, expected)
-
-    # test if add in "test" gives same answer
-    opt = extra_or_group_opts[0]
-    result = do_run(
-        runner, "yaml", opt, "dev", opt, "test", "--no-sort", filename=filename
-    )
-    check_result(result, expected)
-
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
   - additional-thing
   - bthing-conda
   - conda-forge::cthing
@@ -318,29 +292,13 @@ channels:
 dependencies:
   - bthing-conda
   - conda-forge::cthing
-  - pandas
   - conda-forge::pytest
+  - pandas
   - pip
   - pip:
       - athing
     """
-
     opt = extra_or_group_opts[0]
-    result = do_run(runner, "yaml", opt, "test", "--no-sort", filename=filename)
-    check_result(result, expected)
-
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - bthing-conda
-  - conda-forge::cthing
-  - conda-forge::pytest
-  - pandas
-  - pip
-  - pip:
-      - athing
-    """
     result = do_run(runner, "yaml", opt, "test", filename=filename)
     check_result(result, expected)
 
@@ -397,49 +355,6 @@ dependencies:
 def test_create_reorder(fname, style, runner) -> None:
     filename = ROOT / fname
     extra_or_group_opts = ["-e", "--extra"] if style == "extras" else ["-g", "--group"]
-
-    # different ordering
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - conda-forge::cthing
-  - bthing-conda
-  - conda-forge::pytest
-  - pandas
-  - conda-matplotlib
-  - additional-thing
-  - pip
-  - pip:
-      - athing
-    """
-
-    for opt in extra_or_group_opts:
-        result = do_run(
-            runner,
-            "yaml",
-            opt,
-            "dev",
-            "--no-sort",
-            filename=filename,
-            must_exist=True,
-        )
-        check_result(result, expected)
-
-    # test if add in "test" gives same answer
-    opt = extra_or_group_opts[0]
-    result = do_run(
-        runner,
-        "yaml",
-        opt,
-        "dev",
-        opt,
-        "test",
-        "--no-sort",
-        filename=filename,
-        must_exist=True,
-    )
-    check_result(result, expected)
 
     expected = """\
 channels:
@@ -506,12 +421,12 @@ cthing; python_version < "3.10"
 athing
 bthing
 cthing; python_version < "3.10"
+matplotlib
 pandas
 pytest
-matplotlib
     """
 
-    result = do_run(runner, "requirements", opt, "dev", "--no-sort", filename=filename)
+    result = do_run(runner, "requirements", opt, "dev", filename=filename)
     check_result(result, expected)
 
     result = do_run(
@@ -521,7 +436,6 @@ matplotlib
         "dev",
         opt,
         "test",
-        "--no-sort",
         filename=filename,
     )
     check_result(result, expected)
@@ -530,11 +444,11 @@ matplotlib
 athing
 bthing
 cthing; python_version < "3.10"
+matplotlib
+other
 pandas
 pytest
-matplotlib
 thing; python_version < "3.10"
-other
     """
 
     result = do_run(
@@ -542,7 +456,6 @@ other
         "requirements",
         opt,
         "dev",
-        "--no-sort",
         "-r",
         "thing;python_version<'3.10'",
         "-r",
@@ -593,8 +506,8 @@ thing; python_version < "3.10"
     check_result(result, expected)
 
     expected = """\
-setuptools
 build
+setuptools
     """
 
     result = do_run(
@@ -603,7 +516,6 @@ build
         opt,
         "dist-pypi",
         "--skip-package",
-        "--no-sort",
         filename=filename,
     )
     check_result(result, expected)
@@ -753,33 +665,6 @@ def test_json(fname, opt, runner) -> None:
         check_results_json(d / "hello.json", expected)
 
         assert path.stat().st_mtime == orig_time
-
-        expected = {
-            "dependencies": [
-                "bthing-conda",
-                "conda-forge::cthing",
-                "pandas",
-                "conda-forge::pytest",
-                "additional-thing",
-                "conda-matplotlib",
-                "pip",
-            ],
-            "pip": ["athing"],
-            "channels": ["conda-forge"],
-        }
-
-        do_run(
-            runner,
-            "json",
-            "-o",
-            str(d / "there.json"),
-            opt,
-            "dev",
-            "--no-sort",
-            filename=filename,
-        )
-
-        check_results_json(d / "there.json", expected)
 
         expected = {
             "dependencies": [
