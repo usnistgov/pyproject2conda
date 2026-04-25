@@ -153,7 +153,7 @@ class RequirementsConfig:
                 groups_out.append(extra_or_group)
             else:
                 msg = f"extra-or-group {extra_or_group} not in extras or groups"
-                raise ValueError(msg)
+                raise KeyError(msg)
 
         return extras_out, groups_out
 

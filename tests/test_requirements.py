@@ -190,6 +190,9 @@ def test_pip_requirements() -> None:
     assert d.to_requirements(pip_deps=["hello"], extras="dev") == expected
     assert d.to_requirements(pip_deps=["hello"], extras_or_groups="dev") == expected
 
+    with pytest.raises(KeyError, match=r"extra-or-group.*"):
+        d._resolve_extras_and_groups(extras_or_groups="a-dummy-group")  # noqa: SLF001
+
     expected = dedent(
         """\
         athing
@@ -228,6 +231,34 @@ def test_to_conda_requirements_error() -> None:
 
     with pytest.raises(ValidationError):
         requirements.RequirementsConfig.from_string(toml)
+
+
+def test_to_conda_requirements_simple_validate() -> None:
+    toml = dedent(
+        """\
+    [project]
+    name = "hello"
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    "athing",
+    "bthing",
+    "cthing; python_version<'3.10'",
+    "dthing; python_version>'3.10'",
+    ]
+
+        """
+    )
+    d = requirements.RequirementsConfig.from_string(toml)
+
+    conda_deps, pip_deps = requirements.conda_and_pip_reqs_to_list(
+        *d.conda_and_pip_requirements(python_version="3.11")
+    )
+
+    assert conda_deps == ["athing", "bthing", "dthing"]
+    assert pip_deps == []
+
+    with pytest.raises(ValueError, match=r"Can only.*"):
+        d.to_conda_requirements(channels=["a", "b"], prepend_channel=True)
 
 
 def test_package_name() -> None:
