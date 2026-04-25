@@ -233,7 +233,7 @@ $ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include infer
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda
   - conda-forge::cthing
   - pip
@@ -248,11 +248,11 @@ dependencies:
 To specify a specific value of python in the output, pass a value with:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include python=3.9")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include python~=3.9")]]] -->
 
 ```bash
 $ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include \
-    python=3.9
+    python~=3.9
 channels:
   - conda-forge
 dependencies:
@@ -292,11 +292,11 @@ It is common to want to specify the python version and include it in the
 resulting environment file. You could, for example use:
 
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 --python-include python=3.10")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 --python-include python~=3.10")]]] -->
 
 ```bash
 $ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 \
-    --python-include python=3.10
+    --python-include python~=3.10
 channels:
   - conda-forge
 dependencies:
@@ -606,8 +606,6 @@ template = "{env}"
 style = "yaml"
 # options
 python = [ "3.10" ]
-# Note that this is relative to the location of pyproject.toml
-user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
 # dependencies from groups or extras with environment name so the below is the
 # same as
@@ -732,8 +730,6 @@ template = "{env}"
 style = "yaml"
 # options
 python = [ "3.10" ]
-# Note that this is relative to the location of pyproject.toml
-user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
 # dependencies from groups or extras with environment name so the below is the
 # same as
@@ -888,60 +884,6 @@ overrides override previous overrides/options (last option wins).
 
 So in all, options are picked up, in order, from the overrides list, then the
 environment definition, and finally, from the default options.
-
-You can also define "user defined" configurations. This can be done through the
-option `--user-config`. This allows you to define your own environments outside
-of the (most likely source controlled) `pyproject.toml` file. For example, we
-have the option `user-config=config/userconfig.toml`.
-
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog cat_lines(path="./tests/data/config/userconfig.toml", begin=None, end=None)]]] -->
-
-```toml
-[tool.pyproject2conda.envs."user-dev"]
-extras-or-groups = [ "dev", "dist-pypi" ]
-deps = [ "extra-dep" ]
-reqs = [ "extra-req" ]
-name = "hello"
-```
-
-<!-- [[[end]]] -->
-<!-- prettier-ignore-end -->
-
-Note that the full path of this file is note that the path of the `user-config`
-file is relative to them`pyproject.toml` file. So, if the `pyproject.toml` file
-is at `a/path/pyproject.toml`, the path of user configuration files will be
-`a/path/config/userconfig.toml`. We then can run the following:
-
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev", wrapper="bash")]]] -->
-
-```bash
-$ p2c project -f tests/data/test-pyproject.toml --dry --envs user-dev
-# --------------------
-# Creating yaml py310-user-dev.yaml
-name: hello
-channels:
-  - conda-forge
-dependencies:
-  - python=3.10
-  - bthing-conda
-  - conda-forge::pytest
-  - conda-matplotlib
-  - extra-dep
-  - pandas
-  - setuptools
-  - pip
-  - pip:
-      - athing
-      - build
-      - extra-req
-```
-
-<!-- [[[end]]] -->
-<!-- prettier-ignore-end -->
 
 ### CLI options
 
