@@ -5,11 +5,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+from packaging.version import InvalidVersion
 
 import pyproject2conda._utils as utils
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable, Sequence
     from typing import Any
 
 
@@ -72,6 +73,88 @@ def test_get_lowest_highest_version(
 
 
 @pytest.mark.parametrize(
+    ("pythons", "default_pythons", "all_pythons", "expected"),
+    [
+        pytest.param(
+            ("3.10", "3.11"),
+            [],
+            [],
+            nullcontext(["3.10", "3.11"]),
+        ),
+        pytest.param(
+            ("3.9", "3.10"),
+            ["3.11"],
+            ["3.12", "3.13"],
+            nullcontext(["3.9", "3.10"]),
+        ),
+        pytest.param(
+            ("default",),
+            ["3.11"],
+            ["3.12", "3.13"],
+            nullcontext(["3.11"]),
+        ),
+        pytest.param(
+            ("default",),
+            [],
+            ["3.12", "3.13"],
+            pytest.raises(ValueError, match=r"Must include .*"),
+        ),
+        pytest.param(
+            ("low",),
+            ["3.11"],
+            ["3.12", "3.13"],
+            nullcontext(["3.12"]),
+        ),
+        pytest.param(
+            ("lowest",),
+            ["3.11"],
+            ["3.12", "3.13"],
+            nullcontext(["3.12"]),
+        ),
+        pytest.param(
+            ("high",),
+            ["3.11"],
+            ["3.12", "3.13"],
+            nullcontext(["3.13"]),
+        ),
+        pytest.param(
+            ("highest",),
+            ["3.11"],
+            ["3.12", "3.13"],
+            nullcontext(["3.13"]),
+        ),
+        pytest.param(
+            ("all",),
+            ["3.11"],
+            ["3.12", "3.13"],
+            nullcontext(["3.12", "3.13"]),
+        ),
+        pytest.param(
+            ("all",),
+            ["3.11"],
+            [],
+            pytest.raises(ValueError, match=r"Must specify .*"),
+        ),
+        pytest.param(
+            ("thing",),
+            ["3.11"],
+            [],
+            pytest.raises(InvalidVersion, match=r"Invalid version.*"),
+        ),
+    ],
+)
+def test_select_python(
+    pythons: Sequence[str],
+    default_pythons: list[str],
+    all_pythons: list[str],
+    expected: Any,
+) -> None:
+
+    with expected as e:
+        assert utils.select_pythons(pythons, default_pythons, all_pythons) == e
+
+
+@pytest.mark.parametrize(
     ("env_name", "python_version", "expected"),
     [
         (None, None, {}),
@@ -131,6 +214,7 @@ def test_filename_from_template(
             "thing",
             nullcontext("my-thing-38"),  # pyrefly: ignore
         ),
+        (None, "3.8", "thing", nullcontext(None)),
     ],
 )
 def test_conda_env_name_from_template(
@@ -146,3 +230,53 @@ def test_conda_env_name_from_template(
             )
             == e
         )
+
+
+@pytest.mark.parametrize(
+    ("func", "x", "expected", "same"),
+    [
+        (utils.validate_iterable_str, "hello", ["hello"], False),
+        (
+            utils.validate_iterable_str,
+            (_ for _ in ["hello"]),
+            (_ for _ in ["hello"]),
+            True,
+        ),
+        (utils.validate_iterable_str, ["hello"], ["hello"], True),
+        # validate_list_of_str
+        (utils.validate_list_of_str, None, [], False),
+        (utils.validate_list_of_str, ["hello"], ["hello"], True),
+        (utils.validate_list_of_str, "hello", ["hello"], False),
+        (utils.validate_list_of_str, (_ for _ in ["hello"]), ["hello"], False),
+        # validate list of normalizedname
+        (utils.validate_list_of_normalizedname, None, [], False),
+        (utils.validate_list_of_normalizedname, "hello_there", ["hello-there"], False),
+        (
+            utils.validate_list_of_normalizedname,
+            ["hello_there"],
+            ["hello-there"],
+            False,
+        ),
+        # validate dict of normalizedname
+        (utils.validate_dict_normalizedname, {}, {}, False),
+        (
+            utils.validate_dict_normalizedname,
+            {"hello_there": "thing"},
+            {"hello-there": "thing"},
+            False,
+        ),
+    ],
+)
+def test_validation(
+    func: Callable[..., Any], x: Any, expected: Any, same: bool
+) -> None:
+
+    out = func(x)
+
+    if same:
+        assert out is x
+    else:
+        assert out is not x
+
+    assert type(out) is type(expected)
+    assert list(out) == list(expected)

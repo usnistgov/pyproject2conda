@@ -23,7 +23,6 @@ from ._utils import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
-    from pathlib import Path
     from typing import Any
 
     from ._typing_compat import Self
@@ -72,9 +71,14 @@ class PyProject2CondaConfig:
         default_pythons: Sequence[str] | None = (),
         all_pythons: Sequence[str] | None = (),
         options: dict[str, Any] | None = None,
+        keys: Sequence[str] = ("tool", "pyproject2conda"),
     ) -> Self:
         pyproject = tomllib.loads(s)
-        section = pyproject.get("tool", {}).get("pyproject2conda", {})
+        section = pyproject
+        if keys:
+            for key in keys:
+                section = section.get(key, {})
+
         schema = PyProject2CondaSchema.model_validate(section)
 
         if all_pythons is None:
@@ -90,22 +94,6 @@ class PyProject2CondaConfig:
             default_pythons=default_pythons,
             all_pythons=list(all_pythons),
             options=options or {},
-        )
-
-    @classmethod
-    def from_file(
-        cls,
-        path: Path,
-        *,
-        default_pythons: Sequence[str] | None = (),
-        all_pythons: Sequence[str] | None = (),
-        options: dict[str, Any] | None = None,
-    ) -> Self:
-        return cls.from_string(
-            path.read_text(encoding="utf-8"),
-            default_pythons=default_pythons,
-            all_pythons=all_pythons,
-            options=options,
         )
 
     def update_options(self, options: dict[str, Any]) -> Self:

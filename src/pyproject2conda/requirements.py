@@ -23,7 +23,7 @@ from ._resolve_dependencies import (
     ResolveOptionalDependencies,
 )
 from ._schema import PyProjectRequirementsWith2CondaSchema
-from ._utils import list_to_str
+from ._utils import list_to_str, validate_iterable_str
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -52,12 +52,6 @@ def _conda_reqs_to_list(conda_reqs: set[CondaRequirement]) -> list[str]:
         str(_).replace("~=", "=")
         for _ in sorted(conda_reqs, key=lambda x: (order[x.name], str(x)))
     ]
-
-
-def _validate_iterable_str(x: Iterable[str]) -> Iterable[str]:
-    if isinstance(x, str):
-        return [x]
-    return x
 
 
 def conda_and_pip_reqs_to_list(
@@ -147,11 +141,11 @@ class RequirementsConfig:
         extras_or_groups: Iterable[str] = (),
     ) -> tuple[list[NormalizedName], list[NormalizedName]]:
 
-        extras_out = [canonicalize_name(x) for x in _validate_iterable_str(extras)]
-        groups_out = [canonicalize_name(x) for x in _validate_iterable_str(groups)]
+        extras_out = [canonicalize_name(x) for x in validate_iterable_str(extras)]
+        groups_out = [canonicalize_name(x) for x in validate_iterable_str(groups)]
 
         for extra_or_group in map(
-            canonicalize_name, _validate_iterable_str(extras_or_groups)
+            canonicalize_name, validate_iterable_str(extras_or_groups)
         ):
             if extra_or_group in self.optional_dependencies.unresolved:
                 extras_out.append(extra_or_group)
@@ -178,7 +172,7 @@ class RequirementsConfig:
         )
 
         out: set[NormalizedRequirement] = {
-            canonicalize_pip_requirement(req) for req in _validate_iterable_str(reqs)
+            canonicalize_pip_requirement(req) for req in validate_iterable_str(reqs)
         }
 
         if not skip_package:
@@ -212,13 +206,12 @@ class RequirementsConfig:
             )
 
         pip_reqs = {
-            canonicalize_pip_requirement(req)
-            for req in _validate_iterable_str(pip_deps)
+            canonicalize_pip_requirement(req) for req in validate_iterable_str(pip_deps)
         }
         env = {"python_version": python_version} if python_version else {}
         conda_reqs = {
             dep.update(marker=None, extras=None)
-            for dep in map(CondaRequirement, _validate_iterable_str(conda_deps))
+            for dep in map(CondaRequirement, validate_iterable_str(conda_deps))
             if dep.evaluate(env)
         }
 
@@ -408,14 +401,14 @@ def _conda_yaml(
 
     if channels:
         out.append("channels:")
-        out.extend(f"  - {channel}" for channel in _validate_iterable_str(channels))
+        out.extend(f"  - {channel}" for channel in validate_iterable_str(channels))
 
     out.append("dependencies:")
-    out.extend(f"  - {dep}" for dep in _validate_iterable_str(conda_deps))
+    out.extend(f"  - {dep}" for dep in validate_iterable_str(conda_deps))
 
     if pip_deps:
         out.append("  - pip:")
-        out.extend(f"      - {dep}" for dep in _validate_iterable_str(pip_deps))
+        out.extend(f"      - {dep}" for dep in validate_iterable_str(pip_deps))
 
     s = "\n".join(out)
 

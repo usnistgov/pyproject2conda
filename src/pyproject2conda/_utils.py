@@ -9,13 +9,16 @@ import enum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from packaging.utils import canonicalize_name
 from packaging.version import Version
 
 from ._typing_compat import override
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import TypeVar
+    from collections.abc import Iterable, Mapping, Sequence
+    from typing import Any, TypeVar
+
+    from packaging.utils import NormalizedName
 
     T = TypeVar("T")
 
@@ -96,7 +99,7 @@ def select_pythons(
                 raise ValueError(msg)
             return default_pythons
 
-        if python in {"all", "lowest", "highest"}:
+        if python in {"all", "low", "lowest", "high", "highest"}:
             if not all_pythons:
                 msg = "Must specify python versions in project.classifiers table to use `python` in `{'all', 'lowest', 'highest'}`"
                 raise ValueError(msg)
@@ -104,11 +107,11 @@ def select_pythons(
                 all_pythons
                 if python == "all"
                 else [get_lowest_version(all_pythons)]
-                if python == "lowest"
+                if python.startswith("low")
                 else [get_highest_version(all_pythons)]
             )
 
-    return list(pythons)
+    return [str(Version(p)) for p in pythons]
 
 
 def update_target(
@@ -211,3 +214,33 @@ def list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
         output = ""
 
     return output
+
+
+# * Validation ----------------------------------------------------------------
+def validate_iterable_str(x: Iterable[str]) -> Iterable[str]:
+    """Ensure Iterable of str and not str"""
+    if isinstance(x, str):
+        return [x]
+    return x
+
+
+def validate_list_of_str(s: Iterable[str] | None) -> list[str]:
+    if s is None:
+        return []
+    if isinstance(s, list):
+        return s  # ty: ignore[invalid-return-type]
+    if isinstance(s, str):
+        return [s]
+    return list(s)
+
+
+def validate_list_of_normalizedname(s: Any) -> list[NormalizedName]:
+    if s is None:
+        return []
+    if isinstance(s, str):
+        s = [s]
+    return [canonicalize_name(name) for name in s]
+
+
+def validate_dict_normalizedname(d: Mapping[Any, Any]) -> dict[NormalizedName, Any]:
+    return {canonicalize_name(name): d[name] for name in d}

@@ -12,69 +12,27 @@ from pydantic import (
     BeforeValidator,
     ConfigDict,
     Field,
-    ValidationError,
-    field_validator,
     model_validator,
 )
 
-from ._compat import tomllib
-from ._normalized_requirements import (
-    NormalizedRequirement,
-    canonicalize_requirement,
+from ._utils import (
+    validate_dict_normalizedname,
+    validate_list_of_normalizedname,
+    validate_list_of_str,
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from collections.abc import Mapping
     from typing import Any
 
     from ._typing_compat import Self
 
 
-# * Toml mixin
-class _FromTomlMixin(BaseModel):
-    @classmethod
-    def from_data(cls, data: dict[str, Any], keys: Sequence[str] | None = None) -> Self:
-        if keys:
-            for key in keys:
-                data = data.get(key, {})
-
-        return cls.model_validate(data)
-
-    @classmethod
-    def from_toml_string(cls, s: str, keys: Sequence[str] | None = None) -> Self:
-        return cls.from_data(tomllib.loads(s), keys)
-
-    @classmethod
-    def from_toml_path(cls, path: Path, keys: Sequence[str] | None = None) -> Self:
-        return cls.from_toml_string(path.read_text(encoding="utf-8"), keys)
-
-
 # * Validation ----------------------------------------------------------------
-def _validate_list_of_str(s: str | Iterable[str] | None) -> list[str]:
-    if s is None:
-        return []
-    if isinstance(s, list):
-        return s  # ty: ignore[invalid-return-type]
-    if isinstance(s, str):
-        return [s]
-    return list(s)
 
-
-def _validate_list_of_normalizedname(s: Any) -> list[NormalizedName]:
-    if s is None:
-        return []
-    if isinstance(s, str):
-        s = [s]
-    return [canonicalize_name(name) for name in s]
-
-
-def _validate_dict_normalizedname(d: Mapping[Any, Any]) -> dict[NormalizedName, Any]:
-    return {canonicalize_name(name): d[name] for name in d}
-
-
-ListString = Annotated[list[str], BeforeValidator(_validate_list_of_str)]
+ListString = Annotated[list[str], BeforeValidator(validate_list_of_str)]
 ListNormalizedName = Annotated[
-    list[NormalizedName], BeforeValidator(_validate_list_of_normalizedname)
+    list[NormalizedName], BeforeValidator(validate_list_of_normalizedname)
 ]
 
 
@@ -128,7 +86,7 @@ class _BaseOptions(_BaseOptionsYaml):
 
     style: Annotated[
         list[Literal["yaml", "requirements", "conda-requirements", "json"]],
-        BeforeValidator(_validate_list_of_str),
+        BeforeValidator(validate_list_of_str),
     ] = Field(default=["yaml"])
 
 
@@ -140,15 +98,11 @@ class _EnvMixin(BaseModel):
 
 
 class EnvRequirements(_BaseOptionsRequirements, _EnvMixin):
-    @cached_property
-    def reqs_normalized(self) -> list[NormalizedRequirement]:
-        return [canonicalize_requirement(req) for req in self.reqs]
+    pass
 
 
 class EnvYaml(_BaseOptionsYaml, _EnvMixin):
-    @cached_property
-    def deps_normalized(self) -> list[NormalizedRequirement]:
-        return [canonicalize_requirement(req) for req in self.deps]
+    pass
 
 
 class Env(_BaseOptions, _EnvMixin):
@@ -170,14 +124,6 @@ class _OverrideEnvs(Env):
 
     envs: ListNormalizedName
 
-    @field_validator("envs", mode="after")
-    @classmethod
-    def validate_envs(cls, v: ListNormalizedName) -> ListNormalizedName:
-        if not v:
-            msg = "must specify env in overrides"
-            raise ValidationError(msg)
-        return v
-
 
 class DependencyMapping(BaseModel):
     """Dependency mapping table"""
@@ -198,7 +144,7 @@ class DependencyMapping(BaseModel):
 class _Dependencies(BaseModel):
     dependencies: Annotated[
         dict[NormalizedName, DependencyMapping],
-        BeforeValidator(_validate_dict_normalizedname),
+        BeforeValidator(validate_dict_normalizedname),
     ] = Field(default_factory=dict)
 
 
@@ -208,7 +154,7 @@ class PyProject2CondaSchema(_BaseOptions, _Dependencies):
     default_envs: ListNormalizedName = Field(default_factory=list)
 
     envs: Annotated[
-        dict[NormalizedName, Env], BeforeValidator(_validate_dict_normalizedname)
+        dict[NormalizedName, Env], BeforeValidator(validate_dict_normalizedname)
     ] = Field(default_factory=dict)
     overrides: list[_OverrideEnvs] = Field(default_factory=list)
 
@@ -226,18 +172,6 @@ class PyProject2CondaSchema(_BaseOptions, _Dependencies):
             exclude_unset=True,
         )
 
-    def _get_env_dict(self, env_name: NormalizedName) -> dict[str, Any]:
-        if env_name in self.envs:
-            return self.envs[env_name].model_dump(exclude_unset=True)
-        return {}
-
-    def _get_overrides_dict(self, env_name: NormalizedName) -> Iterator[dict[str, Any]]:
-        return reversed([
-            override.model_dump(exclude={"envs"}, exclude_unset=True)
-            for override in self.overrides
-            if env_name in override.envs
-        ])
-
     def _chainmap_env(
         self,
         env_name: str | None,
@@ -252,8 +186,12 @@ class PyProject2CondaSchema(_BaseOptions, _Dependencies):
                 msg = f"env {env_name} not in config"
                 raise ValueError(msg)
             env_options = [
-                *self._get_overrides_dict(env_name),
-                self._get_env_dict(env_name),
+                *reversed([
+                    override.model_dump(exclude={"envs"}, exclude_unset=True)
+                    for override in self.overrides
+                    if env_name in override.envs
+                ]),
+                self.envs[env_name].model_dump(exclude_unset=True),
             ]
 
         return ChainMap(
@@ -287,7 +225,7 @@ class _ProjectSchema(_PyProjectBaseSchema):
     dependencies: list[str] = Field(default_factory=list)
     optional_dependencies: Annotated[
         dict[NormalizedName, list[str]],
-        BeforeValidator(_validate_dict_normalizedname),
+        BeforeValidator(validate_dict_normalizedname),
     ] = Field(default_factory=dict)
 
     requires_python: str | None = None
@@ -302,7 +240,7 @@ class PyProjectRequirementsSchema(_PyProjectBaseSchema):
     project: _ProjectSchema
     dependency_groups: Annotated[
         dict[NormalizedName, list[str | dict[str, str]]],
-        BeforeValidator(_validate_dict_normalizedname),
+        BeforeValidator(validate_dict_normalizedname),
     ] = Field(default_factory=dict)
 
     @cached_property
@@ -324,6 +262,6 @@ class _ToolSchema(BaseModel):
 
 
 class PyProjectRequirementsWith2CondaSchema(
-    PyProjectRequirementsSchema, _FromTomlMixin
+    PyProjectRequirementsSchema,
 ):
     tool: _ToolSchema = Field(default_factory=_ToolSchema)

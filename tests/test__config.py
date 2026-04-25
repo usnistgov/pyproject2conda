@@ -35,6 +35,36 @@ def do_run(runner, command, *opts, filename=None, must_exist=False):
     return runner.invoke(app, [command, "-f", str(filename), *opts])
 
 
+@pytest.mark.parametrize(
+    "a",
+    [
+        dedent("""\
+        [tool.pyproject2conda]
+        channels = ['conda-forge']
+
+        [tool.pyproject2conda.envs.base]
+        python = "3.10"
+        """),
+        dedent("""\
+        [tool.pyproject2conda]
+        channels = ['conda-forge']
+        template = "hello"
+
+        [tool.pyproject2conda.envs.base]
+        python = ["3.10", "3.11"]
+        """),
+    ],
+)
+def test_from_string_keys(a: str) -> None:
+
+    b = a.replace("[tool.pyproject2conda]", "").replace("tool.pyproject2conda.", "")
+
+    assert (
+        PyProject2CondaConfig.from_string(a).config
+        == PyProject2CondaConfig.from_string(b, keys=()).config
+    )
+
+
 @pytest.fixture
 def simple_toml() -> str:
     return """\
@@ -186,6 +216,23 @@ def simple_env() -> mod.Env:
         "style": "yaml",
         "python": "3.10",
     })
+
+
+def test_from_string(simple_toml: str, classifiers: str) -> None:
+
+    assert PyProject2CondaConfig.from_string("", all_pythons=None).all_pythons == []
+    assert (
+        PyProject2CondaConfig.from_string(simple_toml, all_pythons=None).all_pythons
+        == []
+    )
+    assert PyProject2CondaConfig.from_string(
+        simple_toml + classifiers, all_pythons=None
+    ).all_pythons == ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+
+def test_bad_override() -> None:
+    with pytest.raises(ValidationError):
+        mod.PyProject2CondaSchema.model_validate({"overrides": [{}]})
 
 
 @pytest.mark.parametrize(
