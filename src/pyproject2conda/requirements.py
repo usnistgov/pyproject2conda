@@ -81,10 +81,48 @@ class RequirementsConfig:
     requires_python: str | None = None
 
     @classmethod
+    def from_schema(cls, schema: PyProjectRequirementsWith2CondaSchema) -> Self:
+        """Build object from schema"""
+        build_system = (
+            {canonicalize_name("build-system.requires"): schema.build_system.requires}
+            if schema.build_system.requires
+            else {}
+        )
+
+        optional_dependencies = ResolveOptionalDependencies(
+            package_name=schema.project.name,
+            unresolved={
+                name: [canonicalize_requirement(req) for req in reqs]
+                for name, reqs in {
+                    **build_system,
+                    **schema.project.optional_dependencies,
+                }.items()
+            },
+        )
+
+        dependency_groups = ResolveDependencyGroups(
+            package_name=schema.project.name,
+            unresolved={**build_system, **schema.dependency_groups},  # type: ignore[dict-item]
+            optional_dependencies=optional_dependencies,
+        )
+
+        dependency_map = schema.tool.pyproject2conda.dependencies
+
+        return cls(
+            package_name=schema.project.name,
+            dependencies=[
+                canonicalize_requirement(dep) for dep in schema.project.dependencies
+            ],
+            optional_dependencies=optional_dependencies,
+            dependency_groups=dependency_groups,
+            dependency_map=dependency_map or {},
+            requires_python=schema.project.requires_python,
+        )
+
+    @classmethod
     def from_string(
         cls,
         s: str,
-        dependency_map: dict[NormalizedName, DependencyMapping] | None = None,
     ) -> Self:
         """Create from toml string."""
         from ._compat import tomllib
@@ -92,56 +130,15 @@ class RequirementsConfig:
         data = tomllib.loads(s)
 
         pyproject = PyProjectRequirementsWith2CondaSchema.model_validate(data)
-
-        build_system = (
-            {
-                canonicalize_name(
-                    "build-system.requires"
-                ): pyproject.build_system.requires
-            }
-            if pyproject.build_system.requires
-            else {}
-        )
-
-        optional_dependencies = ResolveOptionalDependencies(
-            package_name=pyproject.project.name,
-            unresolved={
-                name: [canonicalize_requirement(req) for req in reqs]
-                for name, reqs in {
-                    **build_system,
-                    **pyproject.project.optional_dependencies,
-                }.items()
-            },
-        )
-
-        dependency_groups = ResolveDependencyGroups(
-            package_name=pyproject.project.name,
-            unresolved={**build_system, **pyproject.dependency_groups},  # type: ignore[dict-item]
-            optional_dependencies=optional_dependencies,
-        )
-
-        if dependency_map is None:
-            dependency_map = pyproject.tool.pyproject2conda.dependencies
-
-        return cls(
-            package_name=pyproject.project.name,
-            dependencies=[
-                canonicalize_requirement(dep) for dep in pyproject.project.dependencies
-            ],
-            optional_dependencies=optional_dependencies,
-            dependency_groups=dependency_groups,
-            dependency_map=dependency_map or {},
-            requires_python=pyproject.project.requires_python,
-        )
+        return cls.from_schema(pyproject)
 
     @classmethod
     def from_path(
         cls,
         p: str | Path,
-        dependency_map: dict[NormalizedName, DependencyMapping] | None = None,
     ) -> Self:
         """Create from toml path."""
-        return cls.from_string(Path(p).read_text(encoding="utf-8"), dependency_map)
+        return cls.from_string(Path(p).read_text(encoding="utf-8"))
 
     def _resolve_extras_and_groups(
         self,

@@ -172,7 +172,9 @@ def simple_config(simple_toml: str) -> PyProject2CondaConfig:
 def simple_config_classifiers(
     simple_toml: str, classifiers: str
 ) -> PyProject2CondaConfig:
-    return PyProject2CondaConfig.from_string(dedent(simple_toml + classifiers))
+    return PyProject2CondaConfig.from_string(
+        dedent(simple_toml + classifiers), default_pythons=None, all_pythons=None
+    )
 
 
 @pytest.fixture
@@ -322,7 +324,9 @@ def test_option_override_base3_default_python(
 
     assert get_default_pythons_with_fallback() == ["3.10"]
 
-    config = PyProject2CondaConfig.from_string(dedent(simple_toml))
+    config = PyProject2CondaConfig.from_string(
+        dedent(simple_toml), default_pythons=None
+    )
     output = list(config.iter_envs(envs=["base3"]))
 
     assert output[0] == (

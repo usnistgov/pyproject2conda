@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from packaging.utils import NormalizedName, canonicalize_name
@@ -21,7 +22,7 @@ from ._utils import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
     from pathlib import Path
     from typing import Any
 
@@ -32,56 +33,92 @@ def _dict_drop_null(d: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in d.items() if v is not None}
 
 
+@dataclass
 class PyProject2CondaConfig:
-    def __init__(
-        self,
-        *options: dict[str, Any],
-        config: PyProject2CondaSchema,
-        default_pythons: list[str],
-        all_pythons: list[str],
-    ) -> None:
-        self.config = config
-        self.default_pythons = default_pythons
-        self.all_pythons = all_pythons
+    config: PyProject2CondaSchema
+    default_pythons: list[str] = field(default_factory=list)
+    all_pythons: list[str] = field(default_factory=list)
+    options: dict[str, Any] = field(default_factory=dict)
+    _cache: dict[NormalizedName | None, Env] = field(default_factory=dict, init=False)
+
+    def __post_init__(self) -> None:
         # only include non null options
-        self.options = [_dict_drop_null(option) for option in options]
-        self._cache: dict[NormalizedName | None, Env] = {}
+        self.options = _dict_drop_null(self.options)
 
     @classmethod
-    def from_string(cls, s: str, *options: dict[str, Any]) -> Self:
-        pyproject = tomllib.loads(s)
-        section = pyproject.get("tool", {}).get("pyproject2conda", {})
-        config = PyProject2CondaSchema.model_validate(section)
-
-        try:
-            all_pythons = PyProjectRequirementsSchema.model_validate(
-                pyproject
-            ).all_python_versions
-        except ValidationError:
-            all_pythons = []
+    def from_schema(
+        cls,
+        schema: PyProject2CondaSchema,
+        *,
+        default_pythons: Sequence[str] | None = (),
+        all_pythons: Sequence[str] = (),
+        options: dict[str, Any] | None = None,
+    ) -> Self:
+        if default_pythons is None:
+            default_pythons = get_default_pythons_with_fallback()
 
         return cls(
-            *options,
-            config=config,
-            default_pythons=get_default_pythons_with_fallback(),
-            all_pythons=all_pythons,
+            config=schema,
+            default_pythons=list(default_pythons),
+            all_pythons=list(all_pythons),
+            options=options or {},
         )
 
     @classmethod
-    def from_file(cls, path: Path, *options: dict[str, Any]) -> Self:
-        return cls.from_string(path.read_text(encoding="utf-8"), *options)
+    def from_string(
+        cls,
+        s: str,
+        *,
+        default_pythons: Sequence[str] | None = (),
+        all_pythons: Sequence[str] | None = (),
+        options: dict[str, Any] | None = None,
+    ) -> Self:
+        pyproject = tomllib.loads(s)
+        section = pyproject.get("tool", {}).get("pyproject2conda", {})
+        schema = PyProject2CondaSchema.model_validate(section)
 
-    def update_options(self, *options: dict[str, Any]) -> Self:
+        if all_pythons is None:
+            try:
+                all_pythons = PyProjectRequirementsSchema.model_validate(
+                    pyproject
+                ).all_python_versions
+            except ValidationError:
+                all_pythons = []
+
+        return cls.from_schema(
+            schema=schema,
+            default_pythons=default_pythons,
+            all_pythons=list(all_pythons),
+            options=options or {},
+        )
+
+    @classmethod
+    def from_file(
+        cls,
+        path: Path,
+        *,
+        default_pythons: Sequence[str] | None = (),
+        all_pythons: Sequence[str] | None = (),
+        options: dict[str, Any] | None = None,
+    ) -> Self:
+        return cls.from_string(
+            path.read_text(encoding="utf-8"),
+            default_pythons=default_pythons,
+            all_pythons=all_pythons,
+            options=options,
+        )
+
+    def update_options(self, options: dict[str, Any]) -> Self:
         return type(self)(
-            *options,
             config=self.config,
             default_pythons=self.default_pythons,
             all_pythons=self.all_pythons,
+            options=options,
         )
 
     def get_env(self, env_name: NormalizedName | None) -> Env:
         if env_name not in self._cache:
-            self._cache[env_name] = self.config.get_env(env_name, *self.options)
+            self._cache[env_name] = self.config.get_env(env_name, self.options)
         return self._cache[env_name]
 
     def parse_pythons(

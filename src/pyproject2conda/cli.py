@@ -18,12 +18,13 @@ from typer.core import TyperGroup
 
 from pyproject2conda import __version__
 from pyproject2conda._config import PyProject2CondaConfig
-from pyproject2conda._schema import Overwrite
+from pyproject2conda._schema import Overwrite, PyProjectRequirementsWith2CondaSchema
 from pyproject2conda._utils import (
     update_target,
 )
 from pyproject2conda.requirements import RequirementsConfig, conda_and_pip_reqs_to_list
 
+from ._compat import tomllib
 from ._typing_compat import override
 
 if TYPE_CHECKING:
@@ -439,13 +440,17 @@ def _get_header_cmd(
 
 
 @lru_cache
-def _get_requirement_parser(path: Path) -> RequirementsConfig:
-    return RequirementsConfig.from_path(path)
-
-
-@lru_cache
-def _get_config(path: Path) -> PyProject2CondaConfig:
-    return PyProject2CondaConfig.from_file(path)
+def _get_configs(path: Path) -> tuple[RequirementsConfig, PyProject2CondaConfig]:
+    schema = PyProjectRequirementsWith2CondaSchema.model_validate(
+        tomllib.loads(path.read_text(encoding="utf-8"))
+    )
+    requirements_config = RequirementsConfig.from_schema(schema)
+    tool_config = PyProject2CondaConfig.from_schema(
+        schema.tool.pyproject2conda,
+        default_pythons=None,
+        all_pythons=schema.all_python_versions,
+    )
+    return requirements_config, tool_config
 
 
 def _log_skipping(
@@ -484,7 +489,7 @@ def create_list(
     """List available extras."""
     logger.info("pyproject_filename: %s", pyproject_filename)
 
-    d = _get_requirement_parser(pyproject_filename)
+    d, _ = _get_configs(pyproject_filename)
 
     for name, vals in [
         ("Extras", d.optional_dependencies.unresolved.keys()),
@@ -544,7 +549,9 @@ def yaml(
         "allow_empty": allow_empty,
     }
 
-    c = _get_config(pyproject_filename).update_options(options)
+    d, c = _get_configs(pyproject_filename)
+
+    c = c.update_options(options)
     channels = channels or c.get_env(None).channels
 
     python_include, python_version = c.parse_pythons(
@@ -552,8 +559,6 @@ def yaml(
         python_version=python_version,
         python=python,
     )
-
-    d = _get_requirement_parser(pyproject_filename)
 
     _log_creating(logger, "yaml", output)
 
@@ -599,7 +604,7 @@ def requirements(
         _log_skipping(logger, "requirements", output)
         return
 
-    d = _get_requirement_parser(pyproject_filename)
+    d, _c = _get_configs(pyproject_filename)
 
     _log_creating(logger, "requirements", output)
 
@@ -663,7 +668,8 @@ def project(
         "pip_only": pip_only or None,
     }
 
-    c = _get_config(pyproject_filename).update_options(options)
+    _, c = _get_configs(pyproject_filename)
+    c = c.update_options(options)
 
     for style, env_tmp in c.iter_envs(envs=envs):
         env = env_tmp.model_copy(update={"output": None}) if dry else env_tmp
@@ -734,7 +740,7 @@ def conda_requirements(
     conda install --file {path_conda}
     pip install -r {path_pip}
     """
-    c = _get_config(pyproject_filename)
+    d, c = _get_configs(pyproject_filename)
 
     python_include, python_version = c.parse_pythons(
         python_include=python_include,
@@ -755,8 +761,6 @@ def conda_requirements(
     if prefix is not None:
         path_conda = prefix.parent / (prefix.name + "conda.txt")
         path_pip = prefix.parent / (prefix.name + "pip.txt")
-
-    d = _get_requirement_parser(pyproject_filename)
 
     deps_str, reqs_str = d.to_conda_requirements(
         extras=extras,
@@ -812,9 +816,7 @@ def to_json(
 
     import json
 
-    d = _get_requirement_parser(pyproject_filename)
-
-    c = _get_config(pyproject_filename)
+    d, c = _get_configs(pyproject_filename)
 
     python_include, python_version = c.parse_pythons(
         python_include=python_include,
