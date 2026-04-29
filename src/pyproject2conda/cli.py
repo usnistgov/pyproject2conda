@@ -9,7 +9,6 @@ from __future__ import annotations
 import locale
 import logging
 import os
-from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
@@ -18,12 +17,14 @@ import typer
 from typer.core import TyperGroup
 
 from pyproject2conda import __version__
-from pyproject2conda.requirements import ParseDepends
-from pyproject2conda.utils import (
-    parse_pythons,
+from pyproject2conda._config import PyProject2CondaConfig
+from pyproject2conda._schema import Overwrite, PyProjectRequirementsWith2CondaSchema
+from pyproject2conda._utils import (
     update_target,
 )
+from pyproject2conda.requirements import RequirementsConfig, conda_and_pip_reqs_to_list
 
+from ._compat import tomllib
 from ._typing_compat import override
 
 if TYPE_CHECKING:
@@ -138,9 +139,7 @@ def main(
 PYPROJECT_CLI = Annotated[
     Path,
     typer.Option(
-        "--pyproject-file",
-        "--file",
-        "-f",
+        "--pyproject",
         help="input pyproject.toml file",
         default_factory=lambda: Path("./pyproject.toml"),
         show_default="pyproject.toml",
@@ -208,14 +207,6 @@ OUTPUT_CLI = Annotated[
 ]
 
 
-class Overwrite(str, Enum):
-    """Options for ``--overwrite``"""
-
-    check = "check"
-    skip = "skip"
-    force = "force"
-
-
 OVERWRITE_CLI = Annotated[
     Overwrite,
     typer.Option(
@@ -261,25 +252,16 @@ PIP_ONLY_CLI = Annotated[
         help="""Treat all requirements as pip requirements. Use option ``pip_only`` in pyproject.toml""",
     ),
 ]
-SORT_DEPENDENCIES_CLI = Annotated[
-    bool,
-    typer.Option(
-        "--sort/--no-sort",
-        help="""
-        Default is to sort the dependencies (excluding ``--python-include``).
-        Pass ``--no-sort`` to instead place dependencies in order they are
-        gathered.  Use option ``sort = true/false`` in pyproject.toml
-        """,
-    ),
-]
 PYTHON_INCLUDE_CLI = Annotated[
     str | None,
     typer.Option(
         "--python-include",
         help="""
         If value passed, use this value (exactly) in the output. So, for
-        example, pass ``--python-include "python=3.8"``. Special case is the
-        value ``"infer"``. This infers the value of python from ``pyproject.toml``
+        example, pass ``--python-include "python~=3.8"``. Special case is the
+        value ``"infer"``. This infers the value of python from
+        ``pyproject.toml`` Note that pep-440 should be followed. Compatible
+        release specifier ``"~="`` will be converted to ``"="`` in yaml output.
         """,
     ),
 ]
@@ -337,18 +319,20 @@ CUSTOM_COMMAND_CLI = Annotated[
         """,
     ),
 ]
-DEPS_CLI = Annotated[
+CONDA_DEPS_CLI = Annotated[
     list[str] | None,
     typer.Option(
-        "--deps",
+        "--conda-dep",
+        "--dep",
         "-d",
         help="Additional conda dependencies.",
     ),
 ]
-REQS_CLI = Annotated[
+PIP_DEPS_CLI = Annotated[
     list[str] | None,
     typer.Option(
-        "--reqs",
+        "--pip-dep",
+        "--req",
         "-r",
         help="""
         Additional pip requirements. For example, pass ``-r '-e .'`` to included
@@ -385,7 +369,7 @@ TEMPLATE_PYTHON_CLI = Annotated[
 REQS_EXT_CLI = Annotated[
     str | None,
     typer.Option(
-        "--reqs-ext",
+        "--pip_deps-ext",
         help="""
         Extension to use with requirements file output created from template.  Defaults to ``".txt"``.
         """,
@@ -407,21 +391,9 @@ DRY_CLI = Annotated[
         help="If passed, do a dry run",
     ),
 ]
-USER_CONFIG_CLI = Annotated[
-    str | None,
-    typer.Option(
-        "--user-config",
-        help="""
-        Additional toml file to supply configuration. This can be used to
-        override/add environment files for your own use (apart from project env
-        files). The (default) value ``infer`` means to infer the configuration
-        from ``--filename``.
-        """,
-    ),
-]
 # For conda-requirements
 PREFIX_CLI = Annotated[
-    str | None,
+    Path | None,
     typer.Option(
         "--prefix",
         help="set conda-output=prefix + 'conda.txt', pip-output=prefix + 'pip.txt'",
@@ -440,15 +412,6 @@ ALLOW_EMPTY_OPTION = typer.Option(
     default (``--no-allow-empty``) is to raise an error if the specification
     leads to no requirements. Passing ``--allow-empty`` will lead to a message
     being printed, but no environment file being created.
-    """,
-)
-REMOVE_WHITESPACE_OPTION = typer.Option(
-    "--remove-whitespace/--no-remove-whitespace",
-    help="""
-    What to do with whitespace in a dependency. Passing ``--remove-whitespace``
-    will remove whitespace in a given dependency. For example, the dependency
-    ``package >= 1.0`` will be converted to ``package>=1.0``. Pass
-    ``--no-remove-whitespace`` to keep the the whitespace in the output.
     """,
 )
 
@@ -477,8 +440,17 @@ def _get_header_cmd(
 
 
 @lru_cache
-def _get_requirement_parser(filename: str | Path) -> ParseDepends:
-    return ParseDepends.from_path(filename)
+def _get_configs(path: Path) -> tuple[RequirementsConfig, PyProject2CondaConfig]:
+    schema = PyProjectRequirementsWith2CondaSchema.model_validate(
+        tomllib.loads(path.read_text(encoding="utf-8"))
+    )
+    requirements_config = RequirementsConfig.from_schema(schema)
+    tool_config = PyProject2CondaConfig.from_schema(
+        schema.tool.pyproject2conda,
+        default_pythons=None,
+        all_pythons=schema.all_python_versions,
+    )
+    return requirements_config, tool_config
 
 
 def _log_skipping(
@@ -517,9 +489,12 @@ def create_list(
     """List available extras."""
     logger.info("pyproject_filename: %s", pyproject_filename)
 
-    d = _get_requirement_parser(pyproject_filename)
+    d, _ = _get_configs(pyproject_filename)
 
-    for name, vals in [("Extras", d.extras), ("Groups", d.groups)]:  # pylint: disable=consider-using-tuple
+    for name, vals in (
+        ("Extras", d.optional_dependencies.unresolved.keys()),
+        ("Groups", d.dependency_groups.unresolved.keys()),
+    ):
         print(name)
         print("======")
         for val in sorted(vals):
@@ -542,32 +517,48 @@ def yaml(
     python: PYTHON_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
     pip_only: PIP_ONLY_CLI = False,
-    sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
-    verbose: VERBOSE_CLI = None,  # noqa: ARG001
-    deps: DEPS_CLI = None,
-    reqs: REQS_CLI = None,
+    verbose: VERBOSE_CLI = None,
+    conda_deps: CONDA_DEPS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
-    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = True,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
     if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "yaml", output)
         return
 
-    if not channels:
-        channels = None
+    options = {
+        "extras": extras,
+        "groups": groups,
+        "extras_or_groups": extras_or_groups,
+        "channels": channels,
+        "output": output,
+        "name": name,
+        "python_include": python_include,
+        "python_version": python_version,
+        "python": python,
+        "skip_package": skip_package,
+        "pip_only": pip_only,
+        "overwrite": overwrite,
+        "verbose": verbose,
+        "conda_deps": conda_deps,
+        "pip_deps": pip_deps,
+        "allow_empty": allow_empty,
+    }
 
-    python_include, python_version = parse_pythons(
+    d, c = _get_configs(pyproject_filename)
+
+    c = c.update_options(options)
+    channels = channels or c.get_env(None).channels
+
+    python_include, python_version = c.parse_pythons(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=pyproject_filename,
     )
-
-    d = _get_requirement_parser(pyproject_filename)
 
     _log_creating(logger, "yaml", output)
 
@@ -583,11 +574,9 @@ def yaml(
         skip_package=skip_package,
         pip_only=pip_only,
         header_cmd=_get_header_cmd(custom_command, header, output),
-        sort=sort,
-        conda_deps=deps,
-        pip_deps=reqs,
+        conda_deps=conda_deps,
+        pip_deps=pip_deps,
         allow_empty=allow_empty,
-        remove_whitespace=remove_whitespace,
     )
     if not output:
         print(s, end="")
@@ -603,21 +592,19 @@ def requirements(
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
     output: OUTPUT_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
-    sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
-    reqs: REQS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
-    remove_whitespace: Annotated[bool, REMOVE_WHITESPACE_OPTION] = False,
 ) -> None:
     """Create requirements.txt for pip dependencies.  Note that all requirements are normalized using ``packaging.requirements.Requirement``"""
     if not update_target(output, pyproject_filename, overwrite=overwrite.value):
         _log_skipping(logger, "requirements", output)
         return
 
-    d = _get_requirement_parser(pyproject_filename)
+    d, _c = _get_configs(pyproject_filename)
 
     _log_creating(logger, "requirements", output)
 
@@ -628,10 +615,8 @@ def requirements(
         output=output,
         skip_package=skip_package,
         header_cmd=_get_header_cmd(custom_command, header, output),
-        sort=sort,
-        pip_deps=reqs,
+        pip_deps=pip_deps,
         allow_empty=allow_empty,
-        remove_whitespace=remove_whitespace,
     )
     if not output:
         print(s, end="")
@@ -647,20 +632,17 @@ def project(
     envs: ENVS_CLI = None,
     template: TEMPLATE_CLI = None,
     template_python: TEMPLATE_PYTHON_CLI = None,
-    reqs: REQS_CLI = None,
-    deps: DEPS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
+    conda_deps: CONDA_DEPS_CLI = None,
     reqs_ext: REQS_EXT_CLI = ".txt",
     yaml_ext: YAML_EXT_CLI = ".yaml",
-    sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
     verbose: VERBOSE_CLI = None,
     dry: DRY_CLI = False,
     pip_only: PIP_ONLY_CLI = False,
-    user_config: USER_CONFIG_CLI = "infer",
     allow_empty: Annotated[bool | None, ALLOW_EMPTY_OPTION] = None,
-    remove_whitespace: Annotated[bool | None, REMOVE_WHITESPACE_OPTION] = None,
 ) -> None:
     """
     Create multiple environment files from ``pyproject.toml`` specification.
@@ -669,54 +651,54 @@ def project(
     the same as the command line option. For cases where the option can take multiple values, the
     config file option will be plural. For example, the command line option
     ``--group`` becomes the config file option ``groups = ...``.  Boolean options
-    like ``--sort/--no-sort`` become ``sort = true/false`` in the config file.
+    like ``--header/--no-header`` become ``header = true/false`` in the config file.
     """
-    from pyproject2conda.config import Config
+    options = {
+        "reqs_ext": reqs_ext,
+        "yaml_ext": yaml_ext,
+        "template": template,
+        "template_python": template_python,
+        "pip_deps": pip_deps,
+        "conda_deps": conda_deps,
+        "header": header,
+        "custom_command": custom_command,
+        "overwrite": overwrite.value,
+        "verbose": verbose,
+        "allow_empty": allow_empty,
+        "pip_only": pip_only or None,
+    }
 
-    c = Config.from_file(pyproject_filename, user_config=user_config)
+    _, c = _get_configs(pyproject_filename)
+    c = c.update_options(options)
 
-    if user_config == "infer" or user_config is None:
-        user_config = c.user_config()
-
-    for style, d in c.iter_envs(
-        envs=envs,
-        reqs_ext=reqs_ext,
-        yaml_ext=yaml_ext,
-        template=template,
-        template_python=template_python,
-        reqs=reqs,
-        deps=deps,
-        sort=sort,
-        header=header,
-        custom_command=custom_command,
-        overwrite=overwrite.value,
-        verbose=verbose,
-        allow_empty=allow_empty,
-        remove_whitespace=remove_whitespace,
-        pip_only=pip_only or None,
-    ):
+    for style, env_tmp in c.iter_envs(envs=envs):
+        env = env_tmp.model_copy(update={"output": None}) if dry else env_tmp
         if dry:
             # small header
             print("# " + "-" * 20)
-            print("# Creating {style} {output}".format(style=style, output=d["output"]))
-            d["output"] = None
+            print(f"# Creating {style} {env_tmp.output}")
 
         # Special case: have output and userconfig.  Check update
         if not update_target(
-            d["output"],
+            env.output,
             pyproject_filename,
-            *([user_config] if user_config else []),
-            overwrite=d["overwrite"],
+            overwrite=env.overwrite,
         ):
             if verbose:
-                _log_skipping(logger, style, d["output"])
+                _log_skipping(logger, style, env.output)
         else:
-            d["overwrite"] = Overwrite("force")
+            env = env.model_copy(update={"overwrite": Overwrite.force})
             if style == "yaml":
-                yaml(pyproject_filename=pyproject_filename, **d)
+                yaml(
+                    pyproject_filename=pyproject_filename,
+                    **env.model_dump(exclude_unset=True),
+                )
 
             elif style == "requirements":
-                requirements(pyproject_filename=pyproject_filename, **d)
+                requirements(
+                    pyproject_filename=pyproject_filename,
+                    **env.model_dump(exclude_unset=True),
+                )
             else:  # pragma: no cover
                 msg = f"unknown style {style}"
                 raise ValueError(msg)
@@ -729,8 +711,8 @@ def project(
 @app_typer.command()
 def conda_requirements(
     pyproject_filename: PYPROJECT_CLI,
-    path_conda: Annotated[str | None, typer.Argument()] = None,
-    path_pip: Annotated[str | None, typer.Argument()] = None,
+    path_conda: Annotated[Path | None, typer.Argument()] = None,
+    path_pip: Annotated[Path | None, typer.Argument()] = None,
     extras: EXTRAS_CLI = None,
     groups: GROUPS_CLI = None,
     extras_or_groups: EXTRAS_OR_GROUPS_CLI = None,
@@ -741,12 +723,11 @@ def conda_requirements(
     skip_package: SKIP_PACKAGE_CLI = False,
     prefix: PREFIX_CLI = None,
     prepend_channel: PREPEND_CHANNEL_CLI = False,
-    sort: SORT_DEPENDENCIES_CLI = True,
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     # paths,
-    deps: DEPS_CLI = None,
-    reqs: REQS_CLI = None,
+    conda_deps: CONDA_DEPS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
 ) -> None:
     """
@@ -757,15 +738,18 @@ def conda_requirements(
     conda install --file {path_conda}
     pip install -r {path_pip}
     """
-    python_include, python_version = parse_pythons(
+    d, c = _get_configs(pyproject_filename)
+
+    python_include, python_version = c.parse_pythons(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=pyproject_filename,
     )
 
+    channels = channels or c.get_env(None).channels
+
     if path_conda and not path_pip:
-        msg = "can only specify neither or both path_conda and path_pip"
+        msg = "can only specify both path_conda and path_pip or neither"
         raise ValueError(msg)
 
     if path_conda and path_pip and prefix is not None:
@@ -773,10 +757,8 @@ def conda_requirements(
         raise ValueError(msg)
 
     if prefix is not None:
-        path_conda = prefix + "conda.txt"
-        path_pip = prefix + "pip.txt"
-
-    d = _get_requirement_parser(pyproject_filename)
+        path_conda = prefix.parent / (prefix.name + "conda.txt")
+        path_pip = prefix.parent / (prefix.name + "pip.txt")
 
     deps_str, reqs_str = d.to_conda_requirements(
         extras=extras,
@@ -790,9 +772,8 @@ def conda_requirements(
         output_pip=path_pip,
         skip_package=skip_package,
         header_cmd=_get_header_cmd(custom_command, header, path_conda),
-        sort=sort,
-        conda_deps=deps,
-        pip_deps=reqs,
+        conda_deps=conda_deps,
+        pip_deps=pip_deps,
     )
 
     if not path_conda:
@@ -812,11 +793,10 @@ def to_json(
     python_version: PYTHON_VERSION_CLI = None,
     python: PYTHON_CLI = None,
     channels: CHANNEL_CLI = None,
-    sort: SORT_DEPENDENCIES_CLI = True,
     output: OUTPUT_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
-    deps: DEPS_CLI = None,
-    reqs: REQS_CLI = None,
+    conda_deps: CONDA_DEPS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
     overwrite: OVERWRITE_CLI = Overwrite.force,
 ) -> None:
@@ -834,25 +814,25 @@ def to_json(
 
     import json
 
-    d = _get_requirement_parser(pyproject_filename)
+    d, c = _get_configs(pyproject_filename)
 
-    python_include, python_version = parse_pythons(
+    python_include, python_version = c.parse_pythons(
         python_include=python_include,
         python_version=python_version,
         python=python,
-        toml_path=pyproject_filename,
     )
 
-    conda_deps, pip_deps = d.conda_and_pip_requirements(
-        extras=extras,
-        groups=groups,
-        extras_or_groups=extras_or_groups,
-        python_include=python_include,
-        python_version=python_version,
-        skip_package=skip_package,
-        sort=sort,
-        conda_deps=deps,
-        pip_deps=reqs,
+    conda_deps, pip_deps = conda_and_pip_reqs_to_list(
+        *d.conda_and_pip_requirements(
+            extras=extras or (),
+            groups=groups or (),
+            extras_or_groups=extras_or_groups or (),
+            python_include=python_include,
+            python_version=python_version,
+            skip_package=skip_package,
+            conda_deps=conda_deps or (),
+            pip_deps=pip_deps or (),
+        )
     )
 
     result = {
@@ -860,7 +840,7 @@ def to_json(
         "pip": pip_deps,
     }
 
-    if channels := channels or d.channels:
+    if channels := channels or c.get_env(None).channels:
         result["channels"] = channels
 
     if output:

@@ -11,7 +11,9 @@ from pathlib import Path
 
 
 def wrap_command(cmd: str) -> str:
-    x = textwrap.wrap(cmd.strip(), 80)
+    x = textwrap.wrap(
+        cmd.strip(), width=76, break_long_words=False, break_on_hyphens=False
+    )
 
     if len(cmd) > 1:
         x[:-1] = [c + " \\" for c in x[:-1]]

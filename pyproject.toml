@@ -32,8 +32,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "dependency-groups",
-    "packaging",
+    "packaging>=26.1",
+    "pydantic>=2.12.5",
     "tomli; python_version<'3.11'",
     "typer",
     "typing-extensions; python_version<'3.12'",
@@ -308,14 +308,13 @@ report.show_missing = true
 
 # * Dependency creation --------------------------------------------------------
 [tool.pyproject2conda]
-user-config = "config/userconfig.toml"
 template-python = "requirements/py{py}-{env}"
 template = "requirements/{env}"
 name = "py{py}-{env}"
 python = "default"
 channels = "conda-forge"
 style = "yaml"
-deps = "pip"
+deps = [ "pip" ]
 
 [tool.pyproject2conda.dependencies]
 pytest-accept = { pip = true }

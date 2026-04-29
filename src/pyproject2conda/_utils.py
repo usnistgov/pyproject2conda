@@ -6,17 +6,19 @@ Utility methods (:mod:`pyproject2conda.utils`)
 from __future__ import annotations
 
 import enum
-import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from packaging.utils import canonicalize_name
 from packaging.version import Version
 
 from ._typing_compat import override
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Mapping, Sequence
+    from collections.abc import Iterable, Mapping, Sequence
     from typing import Any, TypeVar
+
+    from packaging.utils import NormalizedName
 
     T = TypeVar("T")
 
@@ -49,35 +51,6 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 """
 
 
-# taken from https://github.com/conda/conda-lock/blob/main/conda_lock/common.py
-def get_in(
-    keys: Sequence[Any],
-    nested_dict: Mapping[Any, Any],
-    default: Any = None,
-    factory: Callable[[], Any] | None = None,
-) -> Any:
-    """
-    >>> foo = {"a": {"b": {"c": 1}}}
-    >>> get_in(["a", "b"], foo)
-    {'c': 1}
-
-    """
-    import operator
-    from functools import reduce
-
-    try:
-        return reduce(  # pyrefly: ignore[no-matching-overload]
-            operator.getitem,  # pyrefly: ignore[bad-argument-type]
-            keys,
-            # pyrefly: ignore [bad-argument-type]
-            nested_dict,
-        )
-    except (KeyError, IndexError, TypeError):
-        if factory is not None:
-            return factory()
-        return default
-
-
 def get_default_pythons(path: str | Path = ".python-version") -> list[str]:
     """Get default python value from .python-version file"""
     path = Path(path)
@@ -99,25 +72,6 @@ def get_default_pythons_with_fallback(
             return out
 
     return []
-
-
-def get_all_pythons(
-    data: dict[str, Any] | None, path: str | Path | None = None
-) -> list[str]:
-    """Get python versions from pyproject:project.classifiers"""
-    if data is None:
-        assert path is not None  # noqa: S101
-
-        from ._compat import tomllib
-
-        with Path(path).open("rb") as f:
-            data = tomllib.load(f)
-
-    return [
-        c.split()[-1]
-        for c in get_in(["project", "classifiers"], data, factory=list)
-        if c.startswith("Programming Language :: Python :: 3.")
-    ]
 
 
 def get_lowest_version(versions: Iterable[str]) -> str:
@@ -145,7 +99,7 @@ def select_pythons(
                 raise ValueError(msg)
             return default_pythons
 
-        if python in {"all", "lowest", "highest"}:
+        if python in {"all", "low", "lowest", "high", "highest"}:
             if not all_pythons:
                 msg = "Must specify python versions in project.classifiers table to use `python` in `{'all', 'lowest', 'highest'}`"
                 raise ValueError(msg)
@@ -153,35 +107,17 @@ def select_pythons(
                 all_pythons
                 if python == "all"
                 else [get_lowest_version(all_pythons)]
-                if python == "lowest"
+                if python.startswith("low")
                 else [get_highest_version(all_pythons)]
             )
 
-    return list(pythons)
-
-
-def parse_pythons(
-    python_include: str | None,
-    python_version: str | None,
-    python: str | None,
-    toml_path: str | Path,
-) -> tuple[str | None, str | None]:
-    """Create python_include/python_version."""
-    if python:
-        python = select_pythons(
-            [python],
-            get_default_pythons(),
-            get_all_pythons(data=None, path=toml_path),
-        )[0]
-        return f"python={python}", python
-
-    return python_include, python_version
+    return [str(Version(p)) for p in pythons]
 
 
 def update_target(
     target: str | Path | None,
     *deps: str | Path,
-    overwrite: str = "check",
+    overwrite: str,
 ) -> bool:
     """Check if target is older than deps:"""
     if target is None:
@@ -192,24 +128,22 @@ def update_target(
     target = Path(target)
 
     if overwrite == "force":
-        update = True
-    elif overwrite == "skip":
-        update = not target.exists()
+        return True
 
-    elif overwrite == "check":
+    if overwrite == "skip":
+        return not target.exists()
+
+    if overwrite == "check":
         if not target.exists():
-            update = True
-        else:
-            deps_filtered: list[Path] = [d for d in map(Path, deps) if d.exists()]  # pylint: disable=bad-builtin
+            return True
+        deps_filtered: list[Path] = [d for d in map(Path, deps) if d.exists()]  # pylint: disable=bad-builtin
 
-            target_time = target.stat().st_mtime
+        target_time = target.stat().st_mtime
 
-            update = any(target_time < dep.stat().st_mtime for dep in deps_filtered)
-    else:  # pragma: no cover
-        msg = f"unknown option overwrite={overwrite}"
-        raise ValueError(msg)
+        return any(target_time < dep.stat().st_mtime for dep in deps_filtered)
 
-    return update
+    msg = f"unknown option overwrite={overwrite}"  # pragma: no cover
+    raise ValueError(msg)
 
 
 # * filename from template
@@ -228,12 +162,12 @@ def _get_standard_format_dict(
     return kws
 
 
-def filename_from_template(
+def path_from_template(
     template: str | None,
     python_version: str | None = None,
     env_name: str | None = None,
     ext: str | None = ".yaml",
-) -> str | None:
+) -> Path | None:
     """
     Create a filename from
 
@@ -251,7 +185,7 @@ def filename_from_template(
     if ext:  # pragma: no cover
         template += f"{ext}"
 
-    return template.format(**kws)
+    return Path(template.format(**kws))
 
 
 def conda_env_name_from_template(
@@ -268,31 +202,6 @@ def conda_env_name_from_template(
     return name.format(**kws)
 
 
-_WHITE_SPACE_REGEX = re.compile(r"\s+")
-
-
-def remove_whitespace(s: str) -> str:
-    """Cleanup whitespace from string."""
-    return re.sub(_WHITE_SPACE_REGEX, "", s)
-
-
-def remove_whitespace_list(s: Iterable[str]) -> list[str]:
-    """Cleanup whitespace from list of strings."""
-    return [remove_whitespace(x) for x in s]
-
-
-def unique_list(values: Iterable[T]) -> list[T]:
-    """
-    Return only unique values in list.
-    Unlike using set(values), this preserves order.
-    """
-    output: list[T] = []
-    for v in values:
-        if v not in output:
-            output.append(v)
-    return output
-
-
 def list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
     """Join list of strings with newlines to single string."""
     if values:
@@ -303,3 +212,33 @@ def list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
         output = ""
 
     return output
+
+
+# * Validation ----------------------------------------------------------------
+def validate_iterable_str(x: Iterable[str]) -> Iterable[str]:
+    """Ensure Iterable of str and not str"""
+    if isinstance(x, str):
+        return [x]
+    return x
+
+
+def validate_list_of_str(s: Iterable[str] | None) -> list[str]:
+    if s is None:
+        return []
+    if isinstance(s, list):
+        return s  # ty: ignore[invalid-return-type]
+    if isinstance(s, str):
+        return [s]
+    return list(s)
+
+
+def validate_list_of_normalizedname(s: Any) -> list[NormalizedName]:
+    if s is None:
+        return []
+    if isinstance(s, str):
+        s = [s]
+    return [canonicalize_name(name) for name in s]
+
+
+def validate_dict_normalizedname(d: Mapping[Any, Any]) -> dict[NormalizedName, Any]:
+    return {canonicalize_name(name): d[name] for name in d}

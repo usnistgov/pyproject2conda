@@ -1,3 +1,9 @@
+[build-system]
+build-backend = "uv_build"
+requires = [
+    "uv-build>=0.11.7,<0.12.0",
+]
+
 [project]
 name = "hello"
 requires-python = ">=3.8,<3.11"
@@ -42,8 +48,6 @@ template = "{env}"
 style = "yaml"
 # options
 python = [ "3.10" ]
-# Note that this is relative to the location of pyproject.toml
-user-config = "config/userconfig.toml"
 # These environments will be created with the package, package dependencies, and
 # dependencies from groups or extras with environment name so the below is the
 # same as

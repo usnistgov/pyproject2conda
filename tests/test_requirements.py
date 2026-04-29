@@ -7,25 +7,10 @@ import tempfile
 from textwrap import dedent
 
 import pytest
+from pydantic import ValidationError
 
 from pyproject2conda import requirements
-from pyproject2conda.utils import get_in
-
-
-def test_get_in() -> None:
-    d = {"a": {"b": {"c": 3}}}
-
-    assert get_in(["a", "b", "c"], d) == 3
-
-    assert get_in(["a", "d"], d, "hello") == "hello"
-
-
-def test_list_to_string() -> None:
-    from pyproject2conda.utils import list_to_str
-
-    assert list_to_str(["a", "b"], eol=True) == "a\nb\n"
-    assert list_to_str(["a", "b"], eol=False) == "a\nb"
-    assert list_to_str(None) == ""  # noqa: PLC1901  # pylint: disable=use-implicit-booleaness-not-comparison-to-string
+from pyproject2conda._config import PyProject2CondaConfig
 
 
 def test_header() -> None:
@@ -149,36 +134,9 @@ def test_infer() -> None:
     """
     )
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
     with pytest.raises(ValueError):
         d.to_conda_yaml(python_include="infer")
-
-
-def test_channels() -> None:
-    toml = dedent(
-        """\
-    [project]
-    name = "hello"
-    """
-    )
-
-    d = requirements.ParseDepends.from_string(toml)
-
-    assert d.channels == []
-
-    toml = dedent(
-        """\
-    [project]
-    name = "hello"
-
-    [tool.pyproject2conda]
-    channels = 'conda-forge'
-    """
-    )
-
-    d = requirements.ParseDepends.from_string(toml)
-
-    assert d.channels == ["conda-forge"]
 
 
 def test_pip_requirements() -> None:
@@ -207,20 +165,20 @@ def test_pip_requirements() -> None:
         """\
     athing
     bthing
-    cthing;python_version<"3.10"
+    cthing; python_version < "3.10"
     hello
     """
     )
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
-    assert d.to_requirements(pip_deps="hello") == expected
+    assert d.to_requirements(pip_deps=["hello"]) == expected
 
     expected = dedent(
         """\
         athing
         bthing
-        cthing;python_version<"3.10"
+        cthing; python_version < "3.10"
         dev-package
         hello
         pytest
@@ -228,15 +186,18 @@ def test_pip_requirements() -> None:
         """
     )
 
-    d = requirements.ParseDepends.from_string(toml)
-    assert d.to_requirements(pip_deps="hello", extras="dev") == expected
-    assert d.to_requirements(pip_deps="hello", extras_or_groups="dev") == expected
+    d = requirements.RequirementsConfig.from_string(toml)
+    assert d.to_requirements(pip_deps=["hello"], extras="dev") == expected
+    assert d.to_requirements(pip_deps=["hello"], extras_or_groups="dev") == expected
+
+    with pytest.raises(KeyError, match=r"extra-or-group.*"):
+        d._resolve_extras_and_groups(extras_or_groups="a-dummy-group")  # noqa: SLF001  # pylint: disable=protected-access
 
     expected = dedent(
         """\
         athing
         bthing
-        cthing;python_version<"3.10"
+        cthing; python_version < "3.10"
         dev-package-group
         hello
         pytest
@@ -244,7 +205,7 @@ def test_pip_requirements() -> None:
         """
     )
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
     assert d.to_requirements(pip_deps="hello", groups="dev") == expected
 
     # build-system.requires
@@ -268,10 +229,36 @@ def test_to_conda_requirements_error() -> None:
         """
     )
 
-    d = requirements.ParseDepends.from_string(toml)
+    with pytest.raises(ValidationError):
+        requirements.RequirementsConfig.from_string(toml)
 
-    with pytest.raises(ValueError):
-        d.to_conda_requirements(channels=["hello", "there"], prepend_channel=True)
+
+def test_to_conda_requirements_simple_validate() -> None:
+    toml = dedent(
+        """\
+    [project]
+    name = "hello"
+    requires-python = ">=3.8,<3.11"
+    dependencies = [
+    "athing",
+    "bthing",
+    "cthing; python_version<'3.10'",
+    "dthing; python_version>'3.10'",
+    ]
+
+        """
+    )
+    d = requirements.RequirementsConfig.from_string(toml)
+
+    conda_deps, pip_deps = requirements.conda_and_pip_reqs_to_list(
+        *d.conda_and_pip_requirements(python_version="3.11")
+    )
+
+    assert conda_deps == ["athing", "bthing", "dthing"]
+    assert pip_deps == []
+
+    with pytest.raises(ValueError, match=r"Can only.*"):
+        d.to_conda_requirements(channels=["a", "b"], prepend_channel=True)
 
 
 def test_package_name() -> None:
@@ -317,9 +304,8 @@ def test_package_name() -> None:
     ] }
     """
     )
-    d = requirements.ParseDepends.from_string(toml)
-    with pytest.raises(ValueError):
-        d.conda_and_pip_requirements(extras="dev")
+    with pytest.raises(ValidationError):
+        requirements.RequirementsConfig.from_string(toml)
 
 
 def test_conda_and_pip_simple() -> None:
@@ -335,9 +321,11 @@ def test_conda_and_pip_simple() -> None:
         """
     )
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
-    conda_deps, pip_deps = d.conda_and_pip_requirements()
+    conda_deps, pip_deps = requirements.conda_and_pip_reqs_to_list(
+        *d.conda_and_pip_requirements()
+    )
 
     assert conda_deps == ["a", "b"]
 
@@ -448,25 +436,29 @@ def test_conda_and_pip_simple() -> None:
     ],
 )
 def test_complete(style, toml) -> None:
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
+    channels = PyProject2CondaConfig.from_string(toml).get_env(None).channels
 
     # test unknown extra
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         d.to_conda_yaml(extras="a-thing")
 
-    # test list:
-    assert getattr(d, style) == [
+    assert set(
+        getattr(
+            d, "optional_dependencies" if style == "extras" else "dependency_groups"
+        ).unresolved
+    ) == {
         "test",
         "dev-extras",
         "dev",
         "dist-pypi",
-        "build-system.requires",
-    ]
+        "build-system-requires",
+    }
 
     # test build-system.requires
     expected = """\
+    setuptools-scm[toml]>=8.0
     setuptools>=61.2
-    setuptools_scm[toml]>=8.0
     """
     assert dedent(expected) == d.to_requirements(
         skip_package=True,
@@ -485,17 +477,15 @@ dependencies:
       - athing
     """
 
-    assert dedent(expected) == d.to_conda_yaml()
+    assert dedent(expected) == d.to_conda_yaml(channels=channels)
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
   - bthing-conda
   - conda-forge::cthing
   - pip
   - pip:
-      - -e.
+      - -e .
       - athing
     """
 
@@ -503,10 +493,8 @@ dependencies:
 
     # test -p option
     expected = """\
-channels:
-  - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda
   - conda-forge::cthing
   - pip
@@ -520,7 +508,7 @@ dependencies:
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8, <3.11
+  - python<3.11,>=3.8
   - bthing-conda
   - conda-forge::cthing
   - pip
@@ -528,12 +516,11 @@ dependencies:
       - athing
     """
     assert dedent(expected) == d.to_conda_yaml(
-        python_include="infer", remove_whitespace=False
+        python_include="infer",
+        channels=channels,
     )
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
   - python=3.9
   - bthing-conda
@@ -542,12 +529,10 @@ dependencies:
   - pip:
       - athing
     """
-    assert dedent(expected) == d.to_conda_yaml(python_include="python=3.9")
+    assert dedent(expected) == d.to_conda_yaml(python_include="python~=3.9")
 
     # test passing python_version
     expected = """\
-channels:
-  - conda-forge
 dependencies:
   - python=3.10
   - bthing-conda
@@ -556,7 +541,7 @@ dependencies:
       - athing
     """
     assert dedent(expected) == d.to_conda_yaml(
-        python_include="python=3.10", python_version="3.10"
+        python_include="python~=3.10", python_version="3.10"
     )
 
     out = d.to_conda_yaml(channels="hello")
@@ -575,29 +560,9 @@ dependencies:
     assert dedent(expected) == out
 
     # pyrefly: ignore [bad-argument-type]
-    out = d.to_conda_yaml(**{style: "test"}, sort=False)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
+    out = d.to_conda_yaml(**{style: "test"})  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
 
     expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - bthing-conda
-  - conda-forge::cthing
-  - pandas
-  - conda-forge::pytest
-  - pip
-  - pip:
-      - athing
-    """
-
-    assert dedent(expected) == out
-
-    # pyrefly: ignore [bad-argument-type]
-    out = d.to_conda_yaml(**{style: "test"}, sort=True)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
-
-    expected = """\
-channels:
-  - conda-forge
 dependencies:
   - bthing-conda
   - conda-forge::cthing
@@ -614,8 +579,6 @@ dependencies:
     out = d.to_conda_yaml(**{style: "dist-pypi"}, skip_package=True)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
   - setuptools
   - pip
@@ -629,24 +592,6 @@ dependencies:
 channels:
   - conda-forge
 dependencies:
-  - bthing-conda
-  - conda-forge::cthing
-  - pandas
-  - conda-forge::pytest
-  - additional-thing
-  - conda-matplotlib
-  - pip
-  - pip:
-      - athing
-    """
-
-    # pyrefly: ignore [bad-argument-type]
-    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"}, sort=False)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
-
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
   - additional-thing
   - bthing-conda
   - conda-forge::cthing
@@ -659,12 +604,10 @@ dependencies:
     """
 
     # pyrefly: ignore [bad-argument-type]
-    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"})  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
+    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"}, channels=channels)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
 
     # Test deps/reqs
     expected = """\
-channels:
-  - conda-forge
 dependencies:
   - bthing-conda
   - conda-forge::cthing
@@ -680,20 +623,18 @@ dependencies:
     )
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
   - python=3.10
   - bthing-conda
   - pip
   - pip:
       - athing
-      - req;python_version<"3.10"
+      - req; python_version < "3.10"
     """
     assert dedent(expected) == d.to_conda_yaml(
         conda_deps=["dep;python_version<'3.10'"],
         pip_deps=["req;python_version<'3.10'"],
-        python_include="python=3.10",
+        python_include="python~=3.10",
         python_version="3.10",
     )
 
@@ -734,11 +675,9 @@ def test_missing_dependencies() -> None:
     """
     )
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
   - conda-forge::pytest
   - pandas
@@ -786,7 +725,7 @@ dependencies:
     """
     )
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="test",
@@ -844,14 +783,12 @@ def test_clean_conda() -> None:
     )
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
   - additional-thing
   - conda-forge::conda-matplotlib
     """
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     assert dedent(expected) == d.to_conda_yaml(
         extras="dev-extras",
@@ -882,10 +819,8 @@ def test_no_optional_deps() -> None:
     )
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda>2.0
   - conda-forge::cthing
   - pip
@@ -893,9 +828,9 @@ dependencies:
       - athing>0.5
     """
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
-    assert d.optional_dependencies == {}
+    assert not d.optional_dependencies.unresolved
 
     assert dedent(expected) == d.to_conda_yaml(python_include="infer")
 
@@ -927,13 +862,11 @@ dependencies:
     ],
 )
 def test_spaces(toml) -> None:
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
-  - python>=3.8, <3.11
+  - python<3.11,>=3.8
   - bthing-conda>2.0
   - conda-forge::cthing
   - pip
@@ -941,14 +874,12 @@ dependencies:
       - athing>0.5
     """
     assert dedent(expected) == d.to_conda_yaml(
-        python_include="infer", remove_whitespace=False
+        python_include="infer",
     )
 
     expected = """\
-channels:
-  - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda>2.0
   - conda-forge::cthing
   - pip
@@ -956,7 +887,7 @@ dependencies:
       - athing>0.5
     """
     assert dedent(expected) == d.to_conda_yaml(
-        python_include="infer", remove_whitespace=True
+        python_include="infer",
     )
 
     expected = """\
@@ -965,15 +896,7 @@ dependencies:
     cthing; python_version < "3.10"
     """
 
-    assert dedent(expected) == d.to_requirements(remove_whitespace=False)
-
-    expected = """\
-    athing>0.5
-    bthing>1.0
-    cthing;python_version<"3.10"
-    """
-
-    assert dedent(expected) == d.to_requirements(remove_whitespace=True)
+    assert dedent(expected) == d.to_requirements()
 
 
 def test_include_pip() -> None:
@@ -1004,6 +927,6 @@ def test_include_pip() -> None:
       - pip
     """
 
-    d = requirements.ParseDepends.from_string(toml)
+    d = requirements.RequirementsConfig.from_string(toml)
 
     assert dedent(expected) == d.to_conda_yaml(extras="test", conda_deps="pip")

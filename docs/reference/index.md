@@ -19,9 +19,7 @@ Modules
    :toctree: generated/
    :template: autodocsumm/module.rst
 
-   overrides
-   requirements
-   config
+   <!-- requirements -->
    cli
 
 

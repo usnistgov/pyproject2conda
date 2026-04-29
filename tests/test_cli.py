@@ -26,7 +26,7 @@ def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
         msg = f"filename {filename} does not exist"
         raise ValueError(msg)
 
-    return runner.invoke(app, [command, "-f", str(filename), *opts], **kwargs)
+    return runner.invoke(app, [command, "--pyproject", str(filename), *opts], **kwargs)
 
 
 def check_result(result, expected) -> None:
@@ -63,14 +63,12 @@ def test__callback_columns(arg, expected) -> None:
             """\
             Extras
             ======
-            * build-system.requires
             * dev
             * dev-extras
             * dist-pypi
             * test
             Groups
             ======
-            * build-system.requires
             """,
         ),
         (
@@ -79,12 +77,12 @@ def test__callback_columns(arg, expected) -> None:
             Extras
             ======
             * all
-            * build-system.requires
+            * build-system-requires
             * opt1
             * opt2
             Groups
             ======
-            * build-system.requires
+            * build-system-requires
             * dev
             * dev-extras
             * dist-pypi
@@ -147,7 +145,7 @@ dependencies:
   - pip:
       - athing
       - bthing
-      - cthing;python_version<"3.10"
+      - cthing; python_version < "3.10"
     """
 
     result = do_run(runner, "yaml", "--pip-only", filename=filename)
@@ -195,7 +193,7 @@ dependencies:
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8,<3.11
+  - python<3.11,>=3.8
   - bthing-conda
   - conda-forge::cthing
   - pip
@@ -221,7 +219,7 @@ dependencies:
       - athing
     """
     for opts in [  # pylint: disable=consider-using-tuple
-        ("--python-include", "python=3.8"),
+        ("--python-include", "python~=3.8"),
         ("--python", "3.8"),
         ("-p", "3.8"),
     ]:
@@ -229,32 +227,6 @@ dependencies:
         check_result(result, expected)
 
     # dev
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - bthing-conda
-  - conda-forge::cthing
-  - pandas
-  - conda-forge::pytest
-  - additional-thing
-  - conda-matplotlib
-  - pip
-  - pip:
-      - athing
-    """
-
-    for opt in extra_or_group_opts:
-        result = do_run(runner, "yaml", opt, "dev", "--no-sort", filename=filename)
-        check_result(result, expected)
-
-    # test if add in "test" gives same answer
-    opt = extra_or_group_opts[0]
-    result = do_run(
-        runner, "yaml", opt, "dev", opt, "test", "--no-sort", filename=filename
-    )
-    check_result(result, expected)
-
     expected = """\
 channels:
   - conda-forge
@@ -318,29 +290,13 @@ channels:
 dependencies:
   - bthing-conda
   - conda-forge::cthing
-  - pandas
   - conda-forge::pytest
+  - pandas
   - pip
   - pip:
       - athing
     """
-
     opt = extra_or_group_opts[0]
-    result = do_run(runner, "yaml", opt, "test", "--no-sort", filename=filename)
-    check_result(result, expected)
-
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - bthing-conda
-  - conda-forge::cthing
-  - conda-forge::pytest
-  - pandas
-  - pip
-  - pip:
-      - athing
-    """
     result = do_run(runner, "yaml", opt, "test", filename=filename)
     check_result(result, expected)
 
@@ -397,49 +353,6 @@ dependencies:
 def test_create_reorder(fname, style, runner) -> None:
     filename = ROOT / fname
     extra_or_group_opts = ["-e", "--extra"] if style == "extras" else ["-g", "--group"]
-
-    # different ordering
-    expected = """\
-channels:
-  - conda-forge
-dependencies:
-  - conda-forge::cthing
-  - bthing-conda
-  - conda-forge::pytest
-  - pandas
-  - conda-matplotlib
-  - additional-thing
-  - pip
-  - pip:
-      - athing
-    """
-
-    for opt in extra_or_group_opts:
-        result = do_run(
-            runner,
-            "yaml",
-            opt,
-            "dev",
-            "--no-sort",
-            filename=filename,
-            must_exist=True,
-        )
-        check_result(result, expected)
-
-    # test if add in "test" gives same answer
-    opt = extra_or_group_opts[0]
-    result = do_run(
-        runner,
-        "yaml",
-        opt,
-        "dev",
-        opt,
-        "test",
-        "--no-sort",
-        filename=filename,
-        must_exist=True,
-    )
-    check_result(result, expected)
 
     expected = """\
 channels:
@@ -506,12 +419,12 @@ cthing; python_version < "3.10"
 athing
 bthing
 cthing; python_version < "3.10"
+matplotlib
 pandas
 pytest
-matplotlib
     """
 
-    result = do_run(runner, "requirements", opt, "dev", "--no-sort", filename=filename)
+    result = do_run(runner, "requirements", opt, "dev", filename=filename)
     check_result(result, expected)
 
     result = do_run(
@@ -521,7 +434,6 @@ matplotlib
         "dev",
         opt,
         "test",
-        "--no-sort",
         filename=filename,
     )
     check_result(result, expected)
@@ -530,11 +442,11 @@ matplotlib
 athing
 bthing
 cthing; python_version < "3.10"
+matplotlib
+other
 pandas
 pytest
-matplotlib
 thing; python_version < "3.10"
-other
     """
 
     result = do_run(
@@ -542,7 +454,6 @@ other
         "requirements",
         opt,
         "dev",
-        "--no-sort",
         "-r",
         "thing;python_version<'3.10'",
         "-r",
@@ -592,36 +503,9 @@ thing; python_version < "3.10"
 
     check_result(result, expected)
 
-    # allow whitespace:
     expected = """\
-athing
-bthing
-cthing; python_version < "3.10"
-matplotlib
-other
-pandas
-pytest
-thing; python_version < "3.10"
-    """
-
-    result = do_run(
-        runner,
-        "requirements",
-        opt,
-        "dev",
-        "-r",
-        "thing; python_version < '3.10'",
-        "-r",
-        "other",
-        "--no-remove-whitespace",
-        filename=filename,
-    )
-
-    check_result(result, expected)
-
-    expected = """\
-setuptools
 build
+setuptools
     """
 
     result = do_run(
@@ -630,7 +514,6 @@ build
         opt,
         "dist-pypi",
         "--skip-package",
-        "--no-sort",
         filename=filename,
     )
     check_result(result, expected)
@@ -783,33 +666,6 @@ def test_json(fname, opt, runner) -> None:
 
         expected = {
             "dependencies": [
-                "bthing-conda",
-                "conda-forge::cthing",
-                "pandas",
-                "conda-forge::pytest",
-                "additional-thing",
-                "conda-matplotlib",
-                "pip",
-            ],
-            "pip": ["athing"],
-            "channels": ["conda-forge"],
-        }
-
-        do_run(
-            runner,
-            "json",
-            "-o",
-            str(d / "there.json"),
-            opt,
-            "dev",
-            "--no-sort",
-            filename=filename,
-        )
-
-        check_results_json(d / "there.json", expected)
-
-        expected = {
-            "dependencies": [
                 "additional-thing",
                 "bthing-conda",
                 "conda-forge::cthing",
@@ -948,39 +804,3 @@ def test_overwrite(filename, caplog) -> None:
                 f"Skipping requirements {path}. Pass `-w force` to force recreate output"
                 in caplog.text
             )
-
-
-@pytest.mark.parametrize("fname", ["test-pyproject.toml", "test-pyproject-groups.toml"])
-def test_userconfig(fname, runner) -> None:
-    filename = ROOT / fname
-    expected = """\
-# --------------------
-# Creating yaml py310-user-dev.yaml
-name: hello-there
-channels:
-  - conda-forge
-dependencies:
-  - python=3.10
-  - bthing-conda
-  - conda-forge::pytest
-  - conda-matplotlib
-  - pandas
-  - setuptools
-  - pip
-  - pip:
-      - athing
-      - build
-    """
-
-    results = do_run(
-        runner,
-        "p",
-        "--dry",
-        "--envs",
-        "user-dev",
-        "--user-config",
-        str(ROOT / "config" / "userconfig2.toml"),
-        filename=filename,
-    )
-
-    check_result(results, expected)
