@@ -6,7 +6,11 @@ requires = [
 
 [project]
 name = "pyproject2conda"
+<<<<<<< before updating
 version = "0.22.1"
+=======
+version = "0.1.0"
+>>>>>>> after updating
 description = "A script to convert a Python project declared on a pyproject.toml to a conda environment."
 readme = "README.md"
 keywords = [
@@ -334,6 +338,7 @@ skip-package = true
 
 [tool.pyproject2conda.envs.uvx-tools]
 reqs = [
+<<<<<<< before updating
     # these used solely for specking tools to be used with uvx ...
     "conda-lock>=2.5.5",
     "copier",
@@ -342,9 +347,19 @@ reqs = [
     "prek",
     "pyrefly>=0.37.0",
     "pyright>=1.1.396",
+=======
+    # these used solely for specking tools to be run via uvx ...
+    "conda-lock>=4.0.0",
+    "copier-template-extensions>=0.3.3",
+    "copier>=9.14.3",
+    "grayskull>=3.1.0",
+    "prek>=0.3.10",
+    "pyrefly>=0.61.1",
+    "pyright>=1.1.408",
+>>>>>>> after updating
     "rooster>=0.1.1",
-    "twine>=5.0.0",
-    "ty>=0.0.14",
+    "twine>=6.2.0",
+    "ty>=0.0.31",
 ]
 groups = [
     "basedpyright",
