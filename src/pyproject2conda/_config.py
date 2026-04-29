@@ -150,9 +150,7 @@ class PyProject2CondaConfig:
     def _iter_yaml(self, env_name: str) -> Iterator[tuple[str, EnvYaml]]:
         env_name = canonicalize_name(env_name)
         env = self.get_env(env_name)
-        pythons = self._python(env_name)
-
-        if not pythons:
+        if not (pythons := self._python(env_name)):
             yield (
                 "yaml",
                 env.as_yaml(
@@ -198,9 +196,9 @@ class PyProject2CondaConfig:
         self, envs: Iterable[str] | None = None
     ) -> Iterator[tuple[str, EnvRequirements | EnvYaml]]:
         if not envs:
-            envs = self.schema.envs.keys()
+            envs = self.schema.envs.keys()  # pylint: disable=no-member
 
-        for env_name in map(canonicalize_name, envs):
+        for env_name in (canonicalize_name(e) for e in envs):
             for style in self.get_env(env_name).style:
                 if style == "yaml":
                     yield from self._iter_yaml(env_name)

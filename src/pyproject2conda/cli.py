@@ -491,10 +491,10 @@ def create_list(
 
     d, _ = _get_configs(pyproject_filename)
 
-    for name, vals in [
+    for name, vals in (
         ("Extras", d.optional_dependencies.unresolved.keys()),
         ("Groups", d.dependency_groups.unresolved.keys()),
-    ]:  # pylint: disable=consider-using-tuple
+    ):
         print(name)
         print("======")
         for val in sorted(vals):

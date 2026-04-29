@@ -220,11 +220,10 @@ def simple_env() -> mod.Env:
 
 def test_from_string(simple_toml: str, classifiers: str) -> None:
 
-    assert PyProject2CondaConfig.from_string("", all_pythons=None).all_pythons == []
-    assert (
-        PyProject2CondaConfig.from_string(simple_toml, all_pythons=None).all_pythons
-        == []
-    )
+    assert not PyProject2CondaConfig.from_string("", all_pythons=None).all_pythons
+    assert not PyProject2CondaConfig.from_string(
+        simple_toml, all_pythons=None
+    ).all_pythons
     assert PyProject2CondaConfig.from_string(
         simple_toml + classifiers, all_pythons=None
     ).all_pythons == ["3.9", "3.10", "3.11", "3.12", "3.13"]

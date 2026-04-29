@@ -191,7 +191,7 @@ def test_pip_requirements() -> None:
     assert d.to_requirements(pip_deps=["hello"], extras_or_groups="dev") == expected
 
     with pytest.raises(KeyError, match=r"extra-or-group.*"):
-        d._resolve_extras_and_groups(extras_or_groups="a-dummy-group")  # noqa: SLF001
+        d._resolve_extras_and_groups(extras_or_groups="a-dummy-group")  # noqa: SLF001  # pylint: disable=protected-access
 
     expected = dedent(
         """\
@@ -830,7 +830,7 @@ dependencies:
 
     d = requirements.RequirementsConfig.from_string(toml)
 
-    assert d.optional_dependencies.unresolved == {}
+    assert not d.optional_dependencies.unresolved
 
     assert dedent(expected) == d.to_conda_yaml(python_include="infer")
 

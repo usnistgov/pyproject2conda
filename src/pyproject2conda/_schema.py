@@ -190,8 +190,7 @@ class PyProject2CondaSchema(_BaseOptions, _Dependencies):
         if env_name is None:
             env_options = []
         else:
-            env_name = canonicalize_name(env_name)
-            if env_name not in self.envs:
+            if (env_name := canonicalize_name(env_name)) not in self.envs:
                 msg = f"env {env_name} not in config"
                 raise ValueError(msg)
             env_options = [

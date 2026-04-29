@@ -59,6 +59,7 @@ disable = [
     # Messages that are noisy for now, eventually maybe we'll turn them on:
     "consider-using-f-string",
     "invalid-name",
+    "missing-class-docstring",
     "unspecified-encoding",
     # "protected-access",
     # "duplicate-code",

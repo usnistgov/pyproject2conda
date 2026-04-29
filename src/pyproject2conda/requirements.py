@@ -43,7 +43,7 @@ def _check_allow_empty(allow_empty: bool) -> str:
 
 
 def _pip_reqs_to_list(pip_reqs: set[NormalizedRequirement]) -> list[str]:
-    return sorted(map(str, pip_reqs))
+    return sorted(str(p) for p in pip_reqs)
 
 
 def _conda_reqs_to_list(conda_reqs: set[CondaRequirement]) -> list[str]:
@@ -144,8 +144,8 @@ class RequirementsConfig:
         extras_out = [canonicalize_name(x) for x in validate_iterable_str(extras)]
         groups_out = [canonicalize_name(x) for x in validate_iterable_str(groups)]
 
-        for extra_or_group in map(
-            canonicalize_name, validate_iterable_str(extras_or_groups)
+        for extra_or_group in (
+            canonicalize_name(e) for e in validate_iterable_str(extras_or_groups)
         ):
             if extra_or_group in self.optional_dependencies.unresolved:
                 extras_out.append(extra_or_group)
@@ -211,7 +211,7 @@ class RequirementsConfig:
         env = {"python_version": python_version} if python_version else {}
         conda_reqs = {
             dep.update(marker=None, extras=None)
-            for dep in map(CondaRequirement, validate_iterable_str(conda_deps))
+            for dep in (CondaRequirement(c) for c in validate_iterable_str(conda_deps))
             if dep.evaluate(env)
         }
 

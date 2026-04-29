@@ -1,3 +1,5 @@
+# pylint: disable=consider-using-tuple
+
 from __future__ import annotations
 
 from contextlib import nullcontext
@@ -280,3 +282,22 @@ def test_validation(
 
     assert type(out) is type(expected)
     assert list(out) == list(expected)
+
+
+def test_update_target(tmp_path: Path) -> None:
+
+    first_file = tmp_path / "a.txt"
+    second_file = tmp_path / "b.txt"
+
+    first_file.write_text("hello", encoding="utf-8")
+    second_file.write_text("there", encoding="utf-8")
+
+    assert utils.update_target(None, overwrite="skip")
+    assert utils.update_target(first_file, second_file, overwrite="force")
+    assert utils.update_target(tmp_path / "hello", overwrite="skip")
+    assert utils.update_target(tmp_path / "hello", overwrite="check")
+    assert not utils.update_target(first_file, first_file, overwrite="check")
+    assert utils.update_target(first_file, second_file, overwrite="check")
+
+    with pytest.raises(ValueError, match=r"unknown option .*"):
+        utils.update_target(first_file, second_file, overwrite="thing")
