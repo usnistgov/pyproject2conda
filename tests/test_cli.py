@@ -26,7 +26,7 @@ def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
         msg = f"filename {filename} does not exist"
         raise ValueError(msg)
 
-    return runner.invoke(app, [command, "-f", str(filename), *opts], **kwargs)
+    return runner.invoke(app, [command, "--pyproject", str(filename), *opts], **kwargs)
 
 
 def check_result(result, expected) -> None:

@@ -139,9 +139,7 @@ def main(
 PYPROJECT_CLI = Annotated[
     Path,
     typer.Option(
-        "--pyproject-file",
-        "--file",
-        "-f",
+        "--pyproject",
         help="input pyproject.toml file",
         default_factory=lambda: Path("./pyproject.toml"),
         show_default="pyproject.toml",

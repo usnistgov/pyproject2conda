@@ -205,10 +205,10 @@ the dependency names from `project.dependencies` or
 So, if we run the following, we get:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml
 channels:
   - conda-forge
 dependencies:
@@ -226,10 +226,11 @@ include the specification from `pyproject.toml`, use `--python-include infer`
 option:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include infer")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --python-include infer")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include infer
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml \
+    --python-include infer
 channels:
   - conda-forge
 dependencies:
@@ -248,11 +249,11 @@ dependencies:
 To specify a specific value of python in the output, pass a value with:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include python~=3.9")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --python-include python~=3.9")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-include \
-    python~=3.9
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml \
+    --python-include python~=3.9
 channels:
   - conda-forge
 dependencies:
@@ -273,10 +274,11 @@ You can also constrain packages by the python version using the standard
 parsed for both the pip packages and conda packages:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --python-version 3.10")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml \
+    --python-version 3.10
 channels:
   - conda-forge
 dependencies:
@@ -292,11 +294,11 @@ It is common to want to specify the python version and include it in the
 resulting environment file. You could, for example use:
 
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 --python-include python~=3.10")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --python-version 3.10 --python-include python~=3.10")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python-version 3.10 \
-    --python-include python~=3.10
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml \
+    --python-version 3.10 --python-include python~=3.10
 channels:
   - conda-forge
 dependencies:
@@ -313,10 +315,11 @@ dependencies:
 Because this is common, you can also just pass the option `-p/--python`:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --python 3.10")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --python 3.10")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --python 3.10
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --python \
+    3.10
 channels:
   - conda-forge
 dependencies:
@@ -342,10 +345,11 @@ You can also add additional conda and pip dependencies with the flags
 `-d/--deps` and `-r/--reqs`, respectively. Adding the last example:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -d dep -r req")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml -d dep -r req")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml -d dep -r req
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml -d dep -r \
+    req
 channels:
   - conda-forge
 dependencies:
@@ -370,10 +374,10 @@ package also ships with the alias `p2c`, which has the exact same functionality.
 Additionally, the subcommands can be shortened to a unique match:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("p2c y -f tests/data/test-pyproject.toml --python 3.10")]]] -->
+<!-- [[[cog run_command("p2c y --pyproject tests/data/test-pyproject.toml --python 3.10")]]] -->
 
 ```bash
-$ p2c y -f tests/data/test-pyproject.toml --python 3.10
+$ p2c y --pyproject tests/data/test-pyproject.toml --python 3.10
 channels:
   - conda-forge
 dependencies:
@@ -421,10 +425,10 @@ dist-pypi = [
 and running the following gives:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e test")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml -e test")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml -e test
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml -e test
 channels:
   - conda-forge
 dependencies:
@@ -442,10 +446,10 @@ dependencies:
 `pyproject2conda` also works with self referenced dependencies:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dev")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml -e dev")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml -e dev
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml -e dev
 channels:
   - conda-forge
 dependencies:
@@ -496,10 +500,11 @@ optional-all = [ "hello[all]" ]
 Then, we can build a requirement file, specifying groups with `-g/--group` flag.
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject-groups.toml --group dev")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject-groups.toml --group dev
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject-groups.toml \
+    --group dev
 channels:
   - conda-forge
 dependencies:
@@ -527,15 +532,15 @@ that the files are auto generated. No header is included by default when writing
 to standard output. To override this behavior, pass `--header/--noheader`:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml --header")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --header")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml --header
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --header
 #
 # This file is autogenerated by pyproject2conda
 # with the following command:
 #
-#     $ pyproject2conda yaml -f tests/data/test-pyproject.toml --header
+#     $ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml --header
 #
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
@@ -678,11 +683,11 @@ build = { channel = "pip" }
 These can be accessed using either of the following:
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --skip-package")]]] -->
+<!-- [[[cog run_command("pyproject2conda yaml --pyproject tests/data/test-pyproject.toml -e dist-pypi --skip-package")]]] -->
 
 ```bash
-$ pyproject2conda yaml -f tests/data/test-pyproject.toml -e dist-pypi --skip- \
-    package
+$ pyproject2conda yaml --pyproject tests/data/test-pyproject.toml -e dist-pypi \
+    --skip-package
 channels:
   - conda-forge
 dependencies:
@@ -765,10 +770,10 @@ python = [ "3.10", "3.11" ]
 run through the command `pyproject2conda project` (or `p2c project`):
 
 <!-- markdownlint-disable-next-line MD013 -->
-<!-- [[[cog run_command("p2c project -f tests/data/test-pyproject.toml --dry ", wrapper="bash", bounds=(None, 45))]]] -->
+<!-- [[[cog run_command("p2c project --pyproject tests/data/test-pyproject.toml --dry ", wrapper="bash", bounds=(None, 45))]]] -->
 
 ```bash
-$ p2c project -f tests/data/test-pyproject.toml --dry
+$ p2c project --pyproject tests/data/test-pyproject.toml --dry
 # --------------------
 # Creating requirements base.txt
 athing

@@ -32,7 +32,7 @@ def do_run(runner, command, *opts, filename=None, must_exist=False):
         msg = f"filename {filename} does not exist"
         raise ValueError(msg)
 
-    return runner.invoke(app, [command, "-f", str(filename), *opts])
+    return runner.invoke(app, [command, "--pyproject", str(filename), *opts])
 
 
 @pytest.mark.parametrize(
