@@ -56,7 +56,8 @@ class _BaseOptionsRequirements(BaseModel):
     verbose: int = 0
     # dependencies
     pip_deps: ListString = Field(
-        default_factory=list, alias=AliasChoices("reqs", "pip-deps")
+        default_factory=list,
+        validation_alias=AliasChoices("reqs", "pip-deps"),
     )
 
 
@@ -71,7 +72,8 @@ class _BaseOptionsYaml(_BaseOptionsRequirements):
     pip_only: bool = False
     # dependencies
     conda_deps: ListString = Field(
-        default_factory=list, alias=AliasChoices("deps", "conda-deps")
+        default_factory=list,
+        validation_alias=AliasChoices("deps", "conda-deps"),
     )
 
 
@@ -87,7 +89,7 @@ class _BaseOptions(_BaseOptionsYaml):
     template: str = r"{env}"
     template_python: str = r"py{py}-{env}"
     requirements_ext: str = Field(
-        default=".txt", alias=AliasChoices("reqs_ext", "reqs-ext")
+        default=".txt", validation_alias=AliasChoices("reqs_ext", "reqs-ext")
     )
     yaml_ext: str = ".yaml"
 
