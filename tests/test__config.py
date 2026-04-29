@@ -60,8 +60,8 @@ def test_from_string_keys(a: str) -> None:
     b = a.replace("[tool.pyproject2conda]", "").replace("tool.pyproject2conda.", "")
 
     assert (
-        PyProject2CondaConfig.from_string(a).config
-        == PyProject2CondaConfig.from_string(b, keys=()).config
+        PyProject2CondaConfig.from_string(a).schema
+        == PyProject2CondaConfig.from_string(b, keys=()).schema
     )
 
 
@@ -294,6 +294,16 @@ def test_bad_override() -> None:
         ),
         pytest.param(
             "base",
+            {"python": [], "pip-deps": ["-e ."], "output": "hello-base.yaml"},
+            {"reqs": ["-e ."]},
+        ),
+        pytest.param(
+            "base",
+            {"python": [], "pip-deps": ["-e ."], "output": "hello-base.yaml"},
+            {"pip_deps": ["-e ."]},
+        ),
+        pytest.param(
+            "base",
             {"python": [], "template": "there-{env}", "output": "there-base.yaml"},
             {"template": "there-{env}"},
         ),
@@ -491,7 +501,7 @@ def test_config_only_default() -> None:
         "channels": None,
         "python": "3.8",
         "output": "py38-test.yaml",
-        "deps": None,
+        "conda_deps": None,
         "reqs": None,
         "allow_empty": False,
     }
@@ -527,7 +537,7 @@ def test_config_errors() -> None:
     # raise error for bad env
     c = PyProject2CondaConfig.from_string(s)
     with pytest.raises(ValueError):
-        c.config.get_env("hello")
+        c.schema.get_env("hello")
 
     s1 = """
     [tool.pyproject2conda]

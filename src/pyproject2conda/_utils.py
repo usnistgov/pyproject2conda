@@ -117,7 +117,7 @@ def select_pythons(
 def update_target(
     target: str | Path | None,
     *deps: str | Path,
-    overwrite: str = "check",
+    overwrite: str,
 ) -> bool:
     """Check if target is older than deps:"""
     if target is None:
@@ -128,24 +128,22 @@ def update_target(
     target = Path(target)
 
     if overwrite == "force":
-        update = True
-    elif overwrite == "skip":
-        update = not target.exists()
+        return True
 
-    elif overwrite == "check":
+    if overwrite == "skip":
+        return not target.exists()
+
+    if overwrite == "check":
         if not target.exists():
-            update = True
-        else:
-            deps_filtered: list[Path] = [d for d in map(Path, deps) if d.exists()]  # pylint: disable=bad-builtin
+            return True
+        deps_filtered: list[Path] = [d for d in map(Path, deps) if d.exists()]  # pylint: disable=bad-builtin
 
-            target_time = target.stat().st_mtime
+        target_time = target.stat().st_mtime
 
-            update = any(target_time < dep.stat().st_mtime for dep in deps_filtered)
-    else:  # pragma: no cover
-        msg = f"unknown option overwrite={overwrite}"
-        raise ValueError(msg)
+        return any(target_time < dep.stat().st_mtime for dep in deps_filtered)
 
-    return update
+    msg = f"unknown option overwrite={overwrite}"
+    raise ValueError(msg)
 
 
 # * filename from template

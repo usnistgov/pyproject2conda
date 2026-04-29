@@ -34,7 +34,7 @@ def _dict_drop_null(d: dict[str, Any]) -> dict[str, Any]:
 
 @dataclass
 class PyProject2CondaConfig:
-    config: PyProject2CondaSchema
+    schema: PyProject2CondaSchema
     default_pythons: list[str] = field(default_factory=list)
     all_pythons: list[str] = field(default_factory=list)
     options: dict[str, Any] = field(default_factory=dict)
@@ -57,7 +57,7 @@ class PyProject2CondaConfig:
             default_pythons = get_default_pythons_with_fallback()
 
         return cls(
-            config=schema,
+            schema=schema,
             default_pythons=list(default_pythons),
             all_pythons=list(all_pythons),
             options=options or {},
@@ -98,7 +98,7 @@ class PyProject2CondaConfig:
 
     def update_options(self, options: dict[str, Any]) -> Self:
         return type(self)(
-            config=self.config,
+            schema=self.schema,
             default_pythons=self.default_pythons,
             all_pythons=self.all_pythons,
             options=options,
@@ -106,7 +106,7 @@ class PyProject2CondaConfig:
 
     def get_env(self, env_name: NormalizedName | None) -> Env:
         if env_name not in self._cache:
-            self._cache[env_name] = self.config.get_env(env_name, self.options)
+            self._cache[env_name] = self.schema.get_env(env_name, self.options)
         return self._cache[env_name]
 
     def parse_pythons(
@@ -139,7 +139,7 @@ class PyProject2CondaConfig:
             output = path_from_template(
                 template=env.template,
                 env_name=env_name,
-                ext=env.reqs_ext,
+                ext=env.requirements_ext,
             )
 
         yield (
@@ -198,7 +198,7 @@ class PyProject2CondaConfig:
         self, envs: Iterable[str] | None = None
     ) -> Iterator[tuple[str, EnvRequirements | EnvYaml]]:
         if not envs:
-            envs = self.config.envs.keys()
+            envs = self.schema.envs.keys()
 
         for env_name in map(canonicalize_name, envs):
             for style in self.get_env(env_name).style:

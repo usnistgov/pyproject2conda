@@ -314,7 +314,7 @@ name = "py{py}-{env}"
 python = "default"
 channels = "conda-forge"
 style = "yaml"
-deps = "pip"
+deps = [ "pip" ]
 
 [tool.pyproject2conda.dependencies]
 pytest-accept = { pip = true }

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Annotated, Literal
 
 from packaging.utils import NormalizedName, canonicalize_name
 from pydantic import (
+    AliasChoices,
     BaseModel,
     BeforeValidator,
     ConfigDict,
@@ -54,7 +55,9 @@ class _BaseOptionsRequirements(BaseModel):
     overwrite: Overwrite = Overwrite.check
     verbose: int = 0
     # dependencies
-    reqs: ListString = Field(default_factory=list)
+    pip_deps: ListString = Field(
+        default_factory=list, alias=AliasChoices("reqs", "pip-deps")
+    )
 
 
 class _BaseOptionsYaml(_BaseOptionsRequirements):
@@ -67,7 +70,9 @@ class _BaseOptionsYaml(_BaseOptionsRequirements):
     channels: ListString = Field(default_factory=list)
     pip_only: bool = False
     # dependencies
-    deps: ListString = Field(default_factory=list)
+    conda_deps: ListString = Field(
+        default_factory=list, alias=AliasChoices("deps", "conda-deps")
+    )
 
 
 class _BaseOptions(_BaseOptionsYaml):
@@ -81,7 +86,9 @@ class _BaseOptions(_BaseOptionsYaml):
     # output
     template: str = r"{env}"
     template_python: str = r"py{py}-{env}"
-    reqs_ext: str = ".txt"
+    requirements_ext: str = Field(
+        default=".txt", alias=AliasChoices("reqs_ext", "reqs-ext")
+    )
     yaml_ext: str = ".yaml"
 
     style: Annotated[

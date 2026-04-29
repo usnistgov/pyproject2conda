@@ -319,18 +319,20 @@ CUSTOM_COMMAND_CLI = Annotated[
         """,
     ),
 ]
-DEPS_CLI = Annotated[
+CONDA_DEPS_CLI = Annotated[
     list[str] | None,
     typer.Option(
-        "--deps",
+        "--conda-dep",
+        "--dep",
         "-d",
         help="Additional conda dependencies.",
     ),
 ]
-REQS_CLI = Annotated[
+PIP_DEPS_CLI = Annotated[
     list[str] | None,
     typer.Option(
-        "--reqs",
+        "--pip-dep",
+        "--req",
         "-r",
         help="""
         Additional pip requirements. For example, pass ``-r '-e .'`` to included
@@ -367,7 +369,7 @@ TEMPLATE_PYTHON_CLI = Annotated[
 REQS_EXT_CLI = Annotated[
     str | None,
     typer.Option(
-        "--reqs-ext",
+        "--pip_deps-ext",
         help="""
         Extension to use with requirements file output created from template.  Defaults to ``".txt"``.
         """,
@@ -519,8 +521,8 @@ def yaml(
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
     verbose: VERBOSE_CLI = None,
-    deps: DEPS_CLI = None,
-    reqs: REQS_CLI = None,
+    conda_deps: CONDA_DEPS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
 ) -> None:
     """Create yaml file from dependencies and optional-dependencies."""
@@ -542,8 +544,8 @@ def yaml(
         "pip_only": pip_only,
         "overwrite": overwrite,
         "verbose": verbose,
-        "deps": deps,
-        "reqs": reqs,
+        "conda_deps": conda_deps,
+        "pip_deps": pip_deps,
         "allow_empty": allow_empty,
     }
 
@@ -572,8 +574,8 @@ def yaml(
         skip_package=skip_package,
         pip_only=pip_only,
         header_cmd=_get_header_cmd(custom_command, header, output),
-        conda_deps=deps,
-        pip_deps=reqs,
+        conda_deps=conda_deps,
+        pip_deps=pip_deps,
         allow_empty=allow_empty,
     )
     if not output:
@@ -594,7 +596,7 @@ def requirements(
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
-    reqs: REQS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
 ) -> None:
     """Create requirements.txt for pip dependencies.  Note that all requirements are normalized using ``packaging.requirements.Requirement``"""
@@ -613,7 +615,7 @@ def requirements(
         output=output,
         skip_package=skip_package,
         header_cmd=_get_header_cmd(custom_command, header, output),
-        pip_deps=reqs,
+        pip_deps=pip_deps,
         allow_empty=allow_empty,
     )
     if not output:
@@ -630,8 +632,8 @@ def project(
     envs: ENVS_CLI = None,
     template: TEMPLATE_CLI = None,
     template_python: TEMPLATE_PYTHON_CLI = None,
-    reqs: REQS_CLI = None,
-    deps: DEPS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
+    conda_deps: CONDA_DEPS_CLI = None,
     reqs_ext: REQS_EXT_CLI = ".txt",
     yaml_ext: YAML_EXT_CLI = ".yaml",
     header: HEADER_CLI = None,
@@ -656,8 +658,8 @@ def project(
         "yaml_ext": yaml_ext,
         "template": template,
         "template_python": template_python,
-        "reqs": reqs,
-        "deps": deps,
+        "pip_deps": pip_deps,
+        "conda_deps": conda_deps,
         "header": header,
         "custom_command": custom_command,
         "overwrite": overwrite.value,
@@ -680,7 +682,7 @@ def project(
         if not update_target(
             env.output,
             pyproject_filename,
-            env.overwrite,
+            overwrite=env.overwrite,
         ):
             if verbose:
                 _log_skipping(logger, style, env.output)
@@ -689,14 +691,12 @@ def project(
             if style == "yaml":
                 yaml(
                     pyproject_filename=pyproject_filename,
-                    verbose=verbose,
                     **env.model_dump(exclude_unset=True),
                 )
 
             elif style == "requirements":
                 requirements(
                     pyproject_filename=pyproject_filename,
-                    verbose=verbose,
                     **env.model_dump(exclude_unset=True),
                 )
             else:  # pragma: no cover
@@ -726,8 +726,8 @@ def conda_requirements(
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     # paths,
-    deps: DEPS_CLI = None,
-    reqs: REQS_CLI = None,
+    conda_deps: CONDA_DEPS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
 ) -> None:
     """
@@ -772,8 +772,8 @@ def conda_requirements(
         output_pip=path_pip,
         skip_package=skip_package,
         header_cmd=_get_header_cmd(custom_command, header, path_conda),
-        conda_deps=deps,
-        pip_deps=reqs,
+        conda_deps=conda_deps,
+        pip_deps=pip_deps,
     )
 
     if not path_conda:
@@ -795,8 +795,8 @@ def to_json(
     channels: CHANNEL_CLI = None,
     output: OUTPUT_CLI = None,
     skip_package: SKIP_PACKAGE_CLI = False,
-    deps: DEPS_CLI = None,
-    reqs: REQS_CLI = None,
+    conda_deps: CONDA_DEPS_CLI = None,
+    pip_deps: PIP_DEPS_CLI = None,
     verbose: VERBOSE_CLI = None,  # noqa: ARG001
     overwrite: OVERWRITE_CLI = Overwrite.force,
 ) -> None:
@@ -830,8 +830,8 @@ def to_json(
             python_include=python_include,
             python_version=python_version,
             skip_package=skip_package,
-            conda_deps=deps or (),
-            pip_deps=reqs or (),
+            conda_deps=conda_deps or (),
+            pip_deps=pip_deps or (),
         )
     )
 
