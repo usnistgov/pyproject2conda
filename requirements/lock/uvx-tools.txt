@@ -105,9 +105,9 @@ pyrefly==0.62.0 \
     --hash=sha256:9d78ec4f126dee1fa76215b193b964490ce10e62a32d2787a72c51623658b803 \
     --hash=sha256:da1fbe1075dc1e6c8e3134e9370b0a0e7a296061d782cca5bf83dbb8e4c10d7c
     # via -r requirements/uvx-tools.txt
-pyright==1.1.408 \
-    --hash=sha256:090b32865f4fdb1e0e6cd82bf5618480d48eecd2eb2e70f960982a3d9a4c17c1 \
-    --hash=sha256:f28f2321f96852fa50b5829ea492f6adb0e6954568d1caa3f3af3a5f555eb684
+pyright==1.1.409 \
+    --hash=sha256:986ee05beca9e077c165758ad123667c679e050059a2546aa02473930394bc93 \
+    --hash=sha256:aa3ea228cab90c845c7a60d28db7a844c04315356392aa09fafcee98c8c22fb3
     # via -r requirements/uvx-tools.txt
 rooster==0.1.1 \
     --hash=sha256:c9823122f0c2b035985e70384323cdd353477af988e0f065bc302646a49da482 \
