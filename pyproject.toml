@@ -80,7 +80,7 @@ docs = [
     "sphinx-copybutton",
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.31.3" ]
+basedpyright = [ "basedpyright>=1.39.3" ]
 cog = [ "cogapp" ]
 docs-live = [
     "sphinx-autobuild",
@@ -338,12 +338,12 @@ reqs = [
     "copier-template-extensions>=0.3.3",
     "copier>=9.14.3",
     "grayskull>=3.1.0",
-    "prek>=0.3.10",
-    "pyrefly>=0.61.1",
-    "pyright>=1.1.408",
+    "prek>=0.3.11",
+    "pyrefly>=0.62.0",
+    "pyright>=1.1.409",
     "rooster>=0.1.1",
     "twine>=6.2.0",
-    "ty>=0.0.31",
+    "ty>=0.0.32",
 ]
 groups = [
     "basedpyright",
