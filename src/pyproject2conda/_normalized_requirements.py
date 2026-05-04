@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from copy import copy
 from typing import TYPE_CHECKING, cast
 
 from packaging.markers import Marker
@@ -70,7 +69,7 @@ class CondaRequirement(NormalizedRequirement):
         inplace: bool = False,
     ) -> Self:
         """Remove unused components"""
-        req = self if inplace else copy(self)
+        req = self if inplace else type(self)(str(self))
 
         if channel is not None:
             req.channel = channel
