@@ -31,3 +31,13 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       - uses: fuxingloh/multi-labeler@b15a54460c38f54043fa75f7b08a0e2aa5b94b5b # v4.0.0
+
+  validate-branch-name:
+    name: Validate branch name
+    runs-on: ubuntu-slim
+    steps:
+      - if: github.head_ref == 'main' || github.head_ref == 'master'
+        run: |
+          echo "Error: Pull requests from branch $GITHUB_HEAD_REF not allowed"
+          exit 1
+        shell: bash

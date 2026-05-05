@@ -111,7 +111,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.45.1
+    rev: v1.45.2
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -128,7 +128,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.7
+    rev: 0.11.8
     hooks:
       - id: uv-lock
         alias: requirements
