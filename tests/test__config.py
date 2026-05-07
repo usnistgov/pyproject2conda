@@ -16,6 +16,7 @@ from pydantic import ValidationError
 import pyproject2conda
 from pyproject2conda import _schema as mod
 from pyproject2conda._config import PyProject2CondaConfig
+from pyproject2conda._schema import PyProject2CondaSchema
 from pyproject2conda.cli import app
 
 if TYPE_CHECKING:
@@ -234,6 +235,14 @@ def test_bad_override() -> None:
         mod.PyProject2CondaSchema.model_validate({"overrides": [{}]})
 
 
+def test_bad_options() -> None:
+    config = PyProject2CondaConfig(PyProject2CondaSchema(), ["3.8"], ["3.8"])
+    assert config.get_env(None).pip_deps == []
+
+    config = config.update_options({"reqs": ["-e ."]})
+    assert config.get_env(None).pip_deps == ["-e ."]
+
+
 @pytest.mark.parametrize(
     ("env_name", "update_params", "kws"),
     [
@@ -288,18 +297,33 @@ def test_bad_override() -> None:
         # kws
         pytest.param(
             "base",
-            {"python": [], "reqs": ["-e ."], "output": "hello-base.yaml"},
+            {"python": [], "pip_deps": ["-e ."], "output": "hello-base.yaml"},
             {"reqs": ["-e ."]},
         ),
         pytest.param(
             "base",
-            {"python": [], "pip-deps": ["-e ."], "output": "hello-base.yaml"},
-            {"reqs": ["-e ."]},
+            {"python": [], "pip_deps": ["-e ."], "output": "hello-base.yaml"},
+            {"pip-deps": ["-e ."]},
         ),
         pytest.param(
             "base",
-            {"python": [], "pip-deps": ["-e ."], "output": "hello-base.yaml"},
+            {"python": [], "pip_deps": ["-e ."], "output": "hello-base.yaml"},
             {"pip_deps": ["-e ."]},
+        ),
+        pytest.param(
+            "base",
+            {"python": [], "conda_deps": ["hello"], "output": "hello-base.yaml"},
+            {"deps": ["hello"]},
+        ),
+        pytest.param(
+            "base",
+            {"python": [], "conda_deps": ["hello"], "output": "hello-base.yaml"},
+            {"conda-deps": ["hello"]},
+        ),
+        pytest.param(
+            "base",
+            {"python": [], "conda_deps": ["hello"], "output": "hello-base.yaml"},
+            {"conda_deps": ["hello"]},
         ),
         pytest.param(
             "base",
@@ -351,6 +375,12 @@ def test_option_override_base(
 
     style = env.style[0]
     env_ = env.as_yaml() if style == "yaml" else env.as_requirements()
+
+    for k, v in update_params.items():
+        if hasattr(env_, k):
+            vv = getattr(env_, k)
+            vcheck = Path(v) if isinstance(vv, Path) else v
+            assert vv == vcheck
 
     assert output[0] == (
         style,
