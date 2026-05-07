@@ -7,6 +7,18 @@ Changelog for `pyproject2conda`
 
 See the fragment files in [changelog.d]
 
+## 0.23.1
+
+Released on 2026-05-07.
+
+### Bug fixes
+
+- fix: fix bug with deps/reqs aliases ([#103](https://github.com/usnistgov/pyproject2conda/pull/103))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.23.0
 
 Released on 2026-04-29.
