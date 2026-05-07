@@ -57,7 +57,7 @@ class _BaseOptionsRequirements(BaseModel):
     # dependencies
     pip_deps: ListString = Field(
         default_factory=list,
-        validation_alias=AliasChoices("reqs", "pip-deps"),
+        validation_alias=AliasChoices("reqs", "pip-deps", "pip_deps"),
     )
 
 
@@ -73,7 +73,7 @@ class _BaseOptionsYaml(_BaseOptionsRequirements):
     # dependencies
     conda_deps: ListString = Field(
         default_factory=list,
-        validation_alias=AliasChoices("deps", "conda-deps"),
+        validation_alias=AliasChoices("deps", "conda-deps", "conda_deps"),
     )
 
 
