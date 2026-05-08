@@ -1,7 +1,5 @@
-# pre-commit install
-# pre-commit run --all-files
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
+auto_update:
+  cooldown_days: 7
 ci:
   autoupdate_commit_msg: "chore(deps): update pre-commit hooks"
   autofix_commit_msg: "style: pre-commit fixes"
@@ -111,7 +109,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.45.2
+    rev: v1.46.0
     hooks:
       - id: typos
         exclude_types: [jupyter]
