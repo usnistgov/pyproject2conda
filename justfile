@@ -86,7 +86,7 @@ cog: (lint-manual "cog" "--verbose")
 
 # update all supported additional dependencies
 [group("lint")]
-lint-upgrade: (pre-commit "autoupdate" "--cooldown-days=7") lint-sync-deps
+lint-upgrade: (pre-commit "autoupdate") lint-sync-deps
 
 # sync dependencies (used primarily with lint-upgrade)
 [group("lint")]

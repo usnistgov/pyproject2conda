@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format=FORMAT)
 logger = logging.getLogger("requirements_lock")
 
 if sys.version_info < (3, 11):
-    msg = "python>3.11 required"  # pyright: ignore[reportUnreachable]
+    msg = "Python >=3.11 required"  # pyright: ignore[reportUnreachable]
     raise RuntimeError(msg)
 
 
@@ -34,12 +34,27 @@ USE_NO_DEPS = ["uvx-tools.txt", "pre-commit-additional-dependencies.txt"]
 
 
 def _get_min_python_version() -> str:
-    with Path("pyproject.toml").open("rb") as f:
-        return next(  # type: ignore[no-any-return]
+    data: list[str] = (
+        tomllib
+        .loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+        .get("project", {})
+        .get("classifiers", [])
+    )
+    version: str | None = next(
+        (
             c.split()[-1]
-            for c in tomllib.load(f)["project"]["classifiers"]
+            for c in data
             if c.startswith("Programming Language :: Python :: 3.")
+        ),
+        None,
+    )
+    if version is None:
+        msg = (
+            "Could not determine minimum Python version: no "
+            "'Programming Language :: Python :: 3.x' classifier found in pyproject.toml."
         )
+        raise RuntimeError(msg)
+    return version
 
 
 def _get_default_version() -> str:
@@ -115,7 +130,7 @@ def _maybe_lock_or_sync(
     if not (lock or sync):
         return
 
-    # update lock_path
+    # Execute uv lock or sync command.
     command = [
         "uv",
         ("sync" if sync else "lock"),
