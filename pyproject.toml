@@ -336,7 +336,7 @@ reqs = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.0",
     "copier-template-extensions>=0.3.3",
-    "copier>=9.14.3",
+    "copier>=9.15.0",
     "grayskull>=3.1.1",
     "prek>=0.3.11",
     "pyrefly>=0.63.1",
