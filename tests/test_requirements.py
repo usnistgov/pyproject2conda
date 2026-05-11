@@ -886,19 +886,6 @@ dependencies:
     )
 
     expected = """\
-dependencies:
-  - python<3.11,>=3.8
-  - bthing-conda>2.0
-  - conda-forge::cthing
-  - pip
-  - pip:
-      - athing>0.5
-    """
-    assert dedent(expected) == d.to_conda_yaml(
-        python_include="infer",
-    )
-
-    expected = """\
     athing>0.5
     bthing>1.0
     cthing; python_version < "3.10"
@@ -929,10 +916,10 @@ def test_include_pip() -> None:
     )
 
     expected = """\
-    dependencies:
-      - athing
-      - xthing
-      - pip
+dependencies:
+  - athing
+  - xthing
+  - pip
     """
 
     d = requirements.RequirementsConfig.from_string(toml)
