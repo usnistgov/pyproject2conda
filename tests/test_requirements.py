@@ -5,12 +5,16 @@ from __future__ import annotations
 import locale
 import tempfile
 from textwrap import dedent
+from typing import TYPE_CHECKING, TypedDict, cast
 
 import pytest
 from pydantic import ValidationError
 
 from pyproject2conda import requirements
 from pyproject2conda._config import PyProject2CondaConfig
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def test_header() -> None:
@@ -44,6 +48,12 @@ def test_header() -> None:
     )
 
     assert out == header
+
+
+class StyleDict(TypedDict, total=False):
+    extras: Iterable[str]
+    groups: Iterable[str]
+    extras_or_groups: Iterable[str]
 
 
 def test_optional_write() -> None:
@@ -462,8 +472,7 @@ def test_complete(style, toml) -> None:
     """
     assert dedent(expected) == d.to_requirements(
         skip_package=True,
-        # pyrefly: ignore [bad-argument-type]
-        **{style: "build-system.requires"},  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
+        **cast("StyleDict", {style: "build-system.requires"}),
     )
 
     expected = """\
@@ -559,8 +568,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    # pyrefly: ignore [bad-argument-type]
-    out = d.to_conda_yaml(**{style: "test"})  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
+    out = d.to_conda_yaml(**cast("StyleDict", {style: "test"}))
 
     expected = """\
 dependencies:
@@ -575,8 +583,7 @@ dependencies:
 
     assert dedent(expected) == out
 
-    # pyrefly: ignore [bad-argument-type]
-    out = d.to_conda_yaml(**{style: "dist-pypi"}, skip_package=True)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
+    out = d.to_conda_yaml(**cast("StyleDict", {style: "dist-pypi"}), skip_package=True)
 
     expected = """\
 dependencies:
@@ -603,8 +610,9 @@ dependencies:
       - athing
     """
 
-    # pyrefly: ignore [bad-argument-type]
-    assert dedent(expected) == d.to_conda_yaml(**{style: "dev"}, channels=channels)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
+    assert dedent(expected) == d.to_conda_yaml(
+        **cast("StyleDict", {style: "dev"}), channels=channels
+    )
 
     # Test deps/reqs
     expected = """\
