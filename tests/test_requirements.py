@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
-# pylint: disable=duplicate-code,empty-comment
+# pylint: disable=duplicate-code,empty-comment,protected-access
+# ruff: noqa: SLF001
 from __future__ import annotations
 
 import locale
@@ -164,10 +165,12 @@ def test_pip_requirements() -> None:
     [project.optional-dependencies]
     test = ["pytest", "test-optional"]
     dev = ["hello[test]", "dev-package"]
+    an-extra = ["a", "b"]
 
     [dependency-groups]
     test = ["pytest", "test-optional-group"]
     dev = [{include-group= "test"}, "dev-package-group"]
+    a-group = ["c", "d"]
         """
     )
 
@@ -200,8 +203,16 @@ def test_pip_requirements() -> None:
     assert d.to_requirements(pip_deps=["hello"], extras="dev") == expected
     assert d.to_requirements(pip_deps=["hello"], extras_or_groups="dev") == expected
 
+    # by design, if key in both extra and groups, return extra
+    assert d._resolve_extras_and_groups(extras_or_groups="dev") == (["dev"], [])
+    assert d._resolve_extras_and_groups(extras_or_groups="an-extra") == (
+        ["an-extra"],
+        [],
+    )
+    assert d._resolve_extras_and_groups(extras_or_groups="a_group") == ([], ["a-group"])
+
     with pytest.raises(KeyError, match=r"extra-or-group.*"):
-        d._resolve_extras_and_groups(extras_or_groups="a-dummy-group")  # noqa: SLF001  # pylint: disable=protected-access
+        d._resolve_extras_and_groups(extras_or_groups="a-dummy-group")
 
     expected = dedent(
         """\
@@ -269,6 +280,19 @@ def test_to_conda_requirements_simple_validate() -> None:
 
     with pytest.raises(ValueError, match=r"Can only.*"):
         d.to_conda_requirements(channels=["a", "b"], prepend_channel=True)
+
+    # just ignores channels
+    conda_str, pip_str = d.to_conda_requirements(
+        channels=["a", "b"], prepend_channel=False
+    )
+    expected_conda = dedent("""
+    athing
+    bthing
+    cthing
+    dthing
+    """)
+    assert conda_str.strip() == expected_conda.strip()
+    assert not pip_str.strip()
 
 
 def test_package_name() -> None:
@@ -450,7 +474,7 @@ def test_complete(style, toml) -> None:
     channels = PyProject2CondaConfig.from_string(toml).get_env(None).channels
 
     # test unknown extra
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError, match=r"a-thing"):
         d.to_conda_yaml(extras="a-thing")
 
     assert set(
@@ -748,7 +772,7 @@ dependencies:
     # check output has no dependencies:
     for attr in ("to_conda_yaml", "to_requirements"):
         f = getattr(d, attr)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"No dependencies for this environment"):
             f()
 
         assert f(allow_empty=True) == "No dependencies for this environment\n"
