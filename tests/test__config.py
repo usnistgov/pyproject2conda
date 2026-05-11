@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 import pytest
 from pydantic import ValidationError
 
-import pyproject2conda
+from pyproject2conda import __version__
 from pyproject2conda import _schema as mod
 from pyproject2conda._config import PyProject2CondaConfig
 from pyproject2conda._schema import PyProject2CondaSchema
@@ -578,7 +578,7 @@ def test_config_errors() -> None:
 
     # raise error for bad env
     with pytest.raises(ValidationError):
-        c = PyProject2CondaConfig.from_string(s1)
+        _ = PyProject2CondaConfig.from_string(s1)
 
 
 @pytest.mark.parametrize(
@@ -673,10 +673,7 @@ def test_config_python_include_version() -> None:
 def test_version(runner) -> None:
     result = runner.invoke(app, ["--version"])
 
-    assert (
-        result.stdout.strip()
-        == f"pyproject2conda, version {pyproject2conda.__version__}"
-    )
+    assert result.stdout.strip() == f"pyproject2conda, version {__version__}"
 
 
 def get_times(path: Path) -> dict[Path, float]:

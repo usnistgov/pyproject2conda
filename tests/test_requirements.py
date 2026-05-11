@@ -66,7 +66,7 @@ def test_output_to_yaml() -> None:
     from pyproject2conda.requirements import _conda_yaml
 
     with pytest.raises(ValueError):
-        s = _conda_yaml()
+        _ = _conda_yaml()
 
     s = _conda_yaml(
         conda_deps=["a", "pip"],
