@@ -1,5 +1,5 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
-# pylint: disable=duplicate-code,empty-comment
+# pylint: disable=duplicate-code,empty-comment,protected-access
 # ruff: noqa: SLF001
 from __future__ import annotations
 
@@ -212,7 +212,7 @@ def test_pip_requirements() -> None:
     assert d._resolve_extras_and_groups(extras_or_groups="a_group") == ([], ["a-group"])
 
     with pytest.raises(KeyError, match=r"extra-or-group.*"):
-        d._resolve_extras_and_groups(extras_or_groups="a-dummy-group")  # pylint: disable=protected-access
+        d._resolve_extras_and_groups(extras_or_groups="a-dummy-group")
 
     expected = dedent(
         """\
