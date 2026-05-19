@@ -80,7 +80,7 @@ docs = [
     "sphinx-copybutton",
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.39.3" ]
+basedpyright = [ "basedpyright>=1.39.4" ]
 cog = [ "cogapp" ]
 docs-live = [
     "sphinx-autobuild",
@@ -92,7 +92,7 @@ docs-spelling = [
     { include-group = "docs" },
 ]
 ipython = [ "ipython" ]
-mypy = [ "mypy[faster-cache]>=1.20.2" ]
+mypy = [ "mypy[faster-cache]>=2.1.0" ]
 nox = [ "nox>=2026.4.10" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
@@ -314,7 +314,11 @@ name = "py{py}-{env}"
 python = "default"
 channels = "conda-forge"
 style = "yaml"
+<<<<<<< before updating
 deps = [ "pip" ]
+=======
+conda-deps = "pip"
+>>>>>>> after updating
 
 [tool.pyproject2conda.dependencies]
 pytest-accept = { pip = true }
@@ -332,18 +336,18 @@ python = "all"
 skip-package = true
 
 [tool.pyproject2conda.envs.uvx-tools]
-reqs = [
+pip-deps = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.0",
     "copier-template-extensions>=0.3.3",
     "copier>=9.15.0",
     "grayskull>=3.1.1",
-    "prek>=0.3.11",
-    "pyrefly>=0.63.1",
+    "prek>=0.3.13",
+    "pyrefly>=0.64.1",
     "pyright>=1.1.409",
     "rooster>=0.1.1",
     "twine>=6.2.0",
-    "ty>=0.0.34",
+    "ty>=0.0.35",
 ]
 groups = [
     "basedpyright",
