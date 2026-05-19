@@ -57,7 +57,7 @@ repos:
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.05.06
+    rev: 2026.05.12
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -90,7 +90,7 @@ repos:
 
   # Just
   - repo: https://github.com/wpk-nist-gov/just-pre-commit
-    rev: v1.50.0
+    rev: v1.51.0
     hooks:
       - id: justfile-format
 
@@ -126,7 +126,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.12
+    rev: 0.11.13
     hooks:
       - id: uv-lock
         alias: requirements
@@ -139,7 +139,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.15.1
+    rev: v4.16.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
