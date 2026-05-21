@@ -336,7 +336,7 @@ pip-deps = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.0",
     "copier-template-extensions>=0.3.3",
-    "copier>=9.15.0",
+    "copier>=9.15.1",
     "grayskull>=3.1.1",
     "prek>=0.3.13",
     "pyrefly>=0.64.1",
