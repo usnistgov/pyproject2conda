@@ -139,7 +139,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.16.0
+    rev: v4.16.2
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -186,7 +186,7 @@ repos:
         priority: 0
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     # Zizmor version.
-    rev: v1.24.1
+    rev: v1.25.0
     hooks:
       # Run the linter.
       - id: zizmor
