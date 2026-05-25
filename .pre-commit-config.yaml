@@ -57,7 +57,7 @@ repos:
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.05.13
+    rev: 2026.05.15
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -109,7 +109,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.46.1
+    rev: v1.46.2
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -186,7 +186,7 @@ repos:
         priority: 0
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     # Zizmor version.
-    rev: v1.25.0
+    rev: v1.25.2
     hooks:
       # Run the linter.
       - id: zizmor
