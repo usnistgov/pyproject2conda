@@ -11,7 +11,7 @@ from typing import cast
 from unittest.mock import patch
 
 import pytest
-from click.testing import CliRunner
+from typer.testing import CliRunner
 
 from pyproject2conda.cli import app
 

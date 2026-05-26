@@ -54,8 +54,8 @@ extensions = [
     # "sphinx_design"
     # - myst stuff
     "myst_parser",
-    "sphinx_click",
     "sphinx_autodoc_typehints",
+    "sphinxcontrib.typer",
 ]
 
 autosectionlabel_prefix_document = True
@@ -410,14 +410,7 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
-    "click": ("https://click.palletsprojects.com/en/stable/", None),
     "packaging": ("https://packaging.pypa.io/en/stable/", None),
-    # "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
-    # "numpy": ("https://numpy.org/doc/stable", None),
-    # "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    # "numba": ("https://numba.readthedocs.io/en/stable/", None),
-    # "matplotlib": ("https://matplotlib.org/stable/", None),
-    # "xarray": ("https://docs.xarray.dev/en/stable/", None),
 }
 
 linkcheck_ignore = ["https://doi.org/"]
