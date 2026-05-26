@@ -1432,7 +1432,6 @@ dev = [
     { name = "pytest-sugar", marker = "python_full_version >= '3.14'" },
     { name = "pytest-xdist", marker = "python_full_version >= '3.14'" },
     { name = "typecheck-runner", marker = "python_full_version >= '3.14'" },
-    { name = "types-click", marker = "python_full_version >= '3.14'" },
 ]
 docs = [
     { name = "autodocsumm", marker = "python_full_version >= '3.14'" },
@@ -1440,8 +1439,8 @@ docs = [
     { name = "sphinx", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-autodoc-typehints", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-book-theme", marker = "python_full_version >= '3.14'" },
-    { name = "sphinx-click", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-copybutton", marker = "python_full_version >= '3.14'" },
+    { name = "sphinxcontrib-typer", marker = "python_full_version >= '3.14'" },
 ]
 docs-live = [
     { name = "autodocsumm", marker = "python_full_version >= '3.14'" },
@@ -1450,8 +1449,8 @@ docs-live = [
     { name = "sphinx-autobuild", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-autodoc-typehints", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-book-theme", marker = "python_full_version >= '3.14'" },
-    { name = "sphinx-click", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-copybutton", marker = "python_full_version >= '3.14'" },
+    { name = "sphinxcontrib-typer", marker = "python_full_version >= '3.14'" },
 ]
 docs-spelling = [
     { name = "autodocsumm", marker = "python_full_version >= '3.14'" },
@@ -1460,9 +1459,9 @@ docs-spelling = [
     { name = "sphinx", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-autodoc-typehints", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-book-theme", marker = "python_full_version >= '3.14'" },
-    { name = "sphinx-click", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-copybutton", marker = "python_full_version >= '3.14'" },
     { name = "sphinxcontrib-spelling", marker = "python_full_version >= '3.14'" },
+    { name = "sphinxcontrib-typer", marker = "python_full_version >= '3.14'" },
 ]
 ipython = [
     { name = "ipython", marker = "python_full_version >= '3.14'" },
@@ -1499,7 +1498,6 @@ type = [
     { name = "pylint" },
     { name = "pytest" },
     { name = "typecheck-runner" },
-    { name = "types-click" },
 ]
 typecheck-runner = [
     { name = "typecheck-runner" },
@@ -1528,7 +1526,6 @@ dev = [
     { name = "pytest-sugar", marker = "python_full_version >= '3.14'" },
     { name = "pytest-xdist", marker = "python_full_version >= '3.14'" },
     { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.2.0" },
-    { name = "types-click", marker = "python_full_version >= '3.14'" },
 ]
 docs = [
     { name = "autodocsumm", marker = "python_full_version >= '3.14'" },
@@ -1536,8 +1533,8 @@ docs = [
     { name = "sphinx", marker = "python_full_version >= '3.14'", specifier = ">=5.3.0" },
     { name = "sphinx-autodoc-typehints", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-book-theme", marker = "python_full_version >= '3.14'" },
-    { name = "sphinx-click", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-copybutton", marker = "python_full_version >= '3.14'" },
+    { name = "sphinxcontrib-typer", marker = "python_full_version >= '3.14'" },
 ]
 docs-live = [
     { name = "autodocsumm", marker = "python_full_version >= '3.14'" },
@@ -1546,8 +1543,8 @@ docs-live = [
     { name = "sphinx-autobuild", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-autodoc-typehints", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-book-theme", marker = "python_full_version >= '3.14'" },
-    { name = "sphinx-click", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-copybutton", marker = "python_full_version >= '3.14'" },
+    { name = "sphinxcontrib-typer", marker = "python_full_version >= '3.14'" },
 ]
 docs-spelling = [
     { name = "autodocsumm", marker = "python_full_version >= '3.14'" },
@@ -1556,9 +1553,9 @@ docs-spelling = [
     { name = "sphinx", marker = "python_full_version >= '3.14'", specifier = ">=5.3.0" },
     { name = "sphinx-autodoc-typehints", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-book-theme", marker = "python_full_version >= '3.14'" },
-    { name = "sphinx-click", marker = "python_full_version >= '3.14'" },
     { name = "sphinx-copybutton", marker = "python_full_version >= '3.14'" },
     { name = "sphinxcontrib-spelling", marker = "python_full_version >= '3.14'" },
+    { name = "sphinxcontrib-typer", marker = "python_full_version >= '3.14'" },
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
 mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=2.1.0" }]
@@ -1583,7 +1580,6 @@ type = [
     { name = "pylint" },
     { name = "pytest" },
     { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" },
-    { name = "types-click" },
 ]
 typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" }]
 
@@ -1870,20 +1866,6 @@ wheels = [
 ]
 
 [[package]]
-name = "sphinx-click"
-version = "6.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "click", marker = "python_full_version >= '3.14'" },
-    { name = "docutils", marker = "python_full_version >= '3.14'" },
-    { name = "sphinx", marker = "python_full_version >= '3.14'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/ed/a9767cd1b8b7fbdf260a89d5c8c86e20e3536b9878579e5ab7965a291e55/sphinx_click-6.2.0.tar.gz", hash = "sha256:fc78b4154a4e5159462e36de55b8643747da6cda86b3b52a8bb62289e603776c", size = 27035, upload-time = "2025-12-04T19:33:05.437Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/bd/cb244695f67f77b0a36200ce1670fc42a6fe2770847e870daab99cc2b177/sphinx_click-6.2.0-py3-none-any.whl", hash = "sha256:1fb1851cb4f2c286d43cbcd57f55db6ef5a8d208bfc3370f19adde232e5803d7", size = 8939, upload-time = "2025-12-04T19:33:04.037Z" },
-]
-
-[[package]]
 name = "sphinx-copybutton"
 version = "0.5.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1961,6 +1943,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/4b/cd/fa8039cedce6295644ff5f03367742d21e7922da426e8c666b7f5a213682/sphinxcontrib_spelling-8.0.2.tar.gz", hash = "sha256:afbc7b8e93721ab88f12bdd39d848b92017b3763b9ed6226b4b0e54b06664fea", size = 30955, upload-time = "2025-11-28T15:31:50.235Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6e/c5/bcd32aa919c9e1652cca5bed6478202656a320c407793b547f8c16c179e3/sphinxcontrib_spelling-8.0.2-py3-none-any.whl", hash = "sha256:db8b3b2945683d49e87a8a5133d2b8ed4206cb593038b986ca8686a485f9980d", size = 14587, upload-time = "2025-11-28T15:31:48.957Z" },
+]
+
+[[package]]
+name = "sphinxcontrib-typer"
+version = "0.8.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "sphinx", marker = "python_full_version >= '3.14'" },
+    { name = "typer", marker = "python_full_version >= '3.14'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ff/17/7e07799e1df369c170e747f8866b80563ff88d385f14304f8891a9f0fe4e/sphinxcontrib_typer-0.8.1.tar.gz", hash = "sha256:223016757b3ab1995971fce048ed5e939b4fd45ca0c255e320e0f87d04dbf9ef", size = 228669, upload-time = "2026-03-06T00:43:01.459Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ed/30/715e975d6e0b47979d37dab9fca05d8a178e45384d6f44fbf7ec76368220/sphinxcontrib_typer-0.8.1-py3-none-any.whl", hash = "sha256:869a69caf367af94e4acf2cfd62ce8b87faa02831c3d68c5fb1c96cc6b5dac2a", size = 14711, upload-time = "2026-03-06T00:42:59.781Z" },
 ]
 
 [[package]]
@@ -2095,15 +2090,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e4/51/9aed62104cea109b820bbd6c14245af756112017d309da813ef107d42e7e/typer-0.25.1.tar.gz", hash = "sha256:9616eb8853a09ffeabab1698952f33c6f29ffdbceb4eaeecf571880e8d7664cc", size = 122276, upload-time = "2026-04-30T19:32:16.964Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3f/f9/2b3ff4e56e5fa7debfaf9eb135d0da96f3e9a1d5b27222223c7296336e5f/typer-0.25.1-py3-none-any.whl", hash = "sha256:75caa44ed46a03fb2dab8808753ffacdbfea88495e74c85a28c5eefcf5f39c89", size = 58409, upload-time = "2026-04-30T19:32:18.271Z" },
-]
-
-[[package]]
-name = "types-click"
-version = "7.1.8"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/00/ff/0e6a56108d45c80c61cdd4743312d0304d8192482aea4cce96c554aaa90d/types-click-7.1.8.tar.gz", hash = "sha256:b6604968be6401dc516311ca50708a0a28baa7a0cb840efd7412f0dbbff4e092", size = 10015, upload-time = "2021-11-23T12:28:01.701Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ee/ad/607454a5f991c5b3e14693a7113926758f889138371058a5f72f567fa131/types_click-7.1.8-py3-none-any.whl", hash = "sha256:8cb030a669e2e927461be9827375f83c16b8178c365852c060a34e24871e7e81", size = 12929, upload-time = "2021-11-23T12:27:59.493Z" },
 ]
 
 [[package]]

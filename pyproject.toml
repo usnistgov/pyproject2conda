@@ -63,7 +63,6 @@ test = [
     { include-group = "pytest" },
 ]
 type = [
-    "types-click",
     { include-group = "nox" },
     { include-group = "pylint" },
     { include-group = "pytest" },
@@ -76,8 +75,8 @@ docs = [
     # other
     "sphinx-autodoc-typehints",
     "sphinx-book-theme",
-    "sphinx-click",
     "sphinx-copybutton",
+    "sphinxcontrib-typer",
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.4" ]

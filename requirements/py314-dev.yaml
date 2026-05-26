@@ -24,7 +24,6 @@ dependencies:
   - pytest-xdist
   - typecheck-runner>=0.2.0
   - typer
-  - types-click
   - pip
   - pip:
       - pytest-accept

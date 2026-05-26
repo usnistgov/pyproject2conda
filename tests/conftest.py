@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
-from click.testing import CliRunner
+from typer.testing import CliRunner
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
