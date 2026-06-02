@@ -13,6 +13,10 @@ resolution-markers = [
 exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
+[options.exclude-newer-package]
+sphinxcontrib-typer = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
+typer = { timestamp = "0001-01-01T00:00:00Z", span = "P6D" }
+
 [[package]]
 name = "accessible-pygments"
 version = "0.0.5"
@@ -1508,7 +1512,7 @@ requires-dist = [
     { name = "packaging", specifier = ">=26.1" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
-    { name = "typer" },
+    { name = "typer", specifier = ">=0.26.2" },
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
 
@@ -1947,15 +1951,15 @@ wheels = [
 
 [[package]]
 name = "sphinxcontrib-typer"
-version = "0.8.1"
+version = "0.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sphinx", marker = "python_full_version >= '3.14'" },
     { name = "typer", marker = "python_full_version >= '3.14'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/17/7e07799e1df369c170e747f8866b80563ff88d385f14304f8891a9f0fe4e/sphinxcontrib_typer-0.8.1.tar.gz", hash = "sha256:223016757b3ab1995971fce048ed5e939b4fd45ca0c255e320e0f87d04dbf9ef", size = 228669, upload-time = "2026-03-06T00:43:01.459Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/98/e5/a3463123d69ae431ce8708cab92de0434012bd3d1f4d8e3ea82fc1a5ed82/sphinxcontrib_typer-0.9.0.tar.gz", hash = "sha256:480175de4f0ee280cde438f830996cbc7f1f5d8838157bbe9f5dc7894615a002", size = 168792, upload-time = "2026-06-02T00:01:04.857Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ed/30/715e975d6e0b47979d37dab9fca05d8a178e45384d6f44fbf7ec76368220/sphinxcontrib_typer-0.8.1-py3-none-any.whl", hash = "sha256:869a69caf367af94e4acf2cfd62ce8b87faa02831c3d68c5fb1c96cc6b5dac2a", size = 14711, upload-time = "2026-03-06T00:42:59.781Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/1e/eca6d5b3bc072a8c02cd1ccdd558e75aec7f19f70e91d87fdd93a46ab904/sphinxcontrib_typer-0.9.0-py3-none-any.whl", hash = "sha256:f171000b4000f392517735855e5915ffc08afaf6b6d127116f239c4715a75f5c", size = 14821, upload-time = "2026-06-02T00:01:03.431Z" },
 ]
 
 [[package]]
@@ -2079,7 +2083,7 @@ wheels = [
 
 [[package]]
 name = "typer"
-version = "0.26.0"
+version = "0.26.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-doc" },
@@ -2087,9 +2091,9 @@ dependencies = [
     { name = "rich" },
     { name = "shellingham" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/81/db/25a5e308af68fda1cc49a4423eded2a7cad1381fbc1f7a4d5502d6fe26c6/typer-0.26.0.tar.gz", hash = "sha256:08177aa85fd81ceb6e8f7cb879cf22dbaa81f98c02b7d570acf112513d2aa66f", size = 198809, upload-time = "2026-05-26T14:37:09.446Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/67/a5/756f2e6bc81a7dd79aa3c625dd01b74cabc4516628cace2caaec09ca6ff2/typer-0.26.2.tar.gz", hash = "sha256:9b4f19e08fcc9427a822d1ef467b1fe76737a2f65c7926bdeba2337d73569b68", size = 198991, upload-time = "2026-05-27T10:41:39.166Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/64/e1/01faefdf98e3a05ca5f3487caabab033fda84c5bd1bae7f73b8bb5dd553e/typer-0.26.0-py3-none-any.whl", hash = "sha256:859d520a4dc91c075cb370195462b6f7024fceb5d6de5c204bb8b1d51a60ad66", size = 123093, upload-time = "2026-05-26T14:37:07.783Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/a5/6ffd702beda8798b2b82ff70805ed4a66d963557e43a5d1823ab456251a4/typer-0.26.2-py3-none-any.whl", hash = "sha256:39beff72ffbb31978a5b545f677d57edb97c6f980f433b38556deb0af25f094d", size = 123123, upload-time = "2026-05-27T10:41:40.504Z" },
 ]
 
 [[package]]
