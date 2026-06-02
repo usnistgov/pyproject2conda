@@ -23,7 +23,7 @@ dependencies:
   - pytest-sugar
   - pytest-xdist
   - typecheck-runner>=0.2.0
-  - typer
+  - typer>=0.26.2
   - pip
   - pip:
       - pytest-accept

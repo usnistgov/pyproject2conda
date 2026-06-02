@@ -18,6 +18,6 @@ dependencies:
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - typer
+  - typer>=0.26.2
   - typing-extensions
   - pip
