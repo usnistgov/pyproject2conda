@@ -54,11 +54,8 @@ extensions = [
     # "sphinx_design"
     # - myst stuff
     "myst_parser",
-<<<<<<< before updating
-    "sphinx_autodoc_typehints",
-=======
->>>>>>> after updating
     "sphinxcontrib.typer",
+    "sphinx_autodoc_typehints",
 ]
 
 autosectionlabel_prefix_document = True
