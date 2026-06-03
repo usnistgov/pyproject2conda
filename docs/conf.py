@@ -54,8 +54,8 @@ extensions = [
     # "sphinx_design"
     # - myst stuff
     "myst_parser",
-    "sphinx_autodoc_typehints",
     "sphinxcontrib.typer",
+    "sphinx_autodoc_typehints",
 ]
 
 autosectionlabel_prefix_document = True
@@ -211,7 +211,7 @@ napoleon_type_aliases = {
     "Series": "~pandas.Series",
     "DataFrame": "~pandas.DataFrame",
     "Categorical": "~pandas.Categorical",
-    "Path": "~~pathlib.Path",
+    "Path": "~pathlib.Path",
     # objects with abbreviated namespace (from pandas)
     "pd.Index": "~pandas.Index",
     "pd.NaT": "~pandas.NaT",
