@@ -78,7 +78,7 @@ jobs:
           with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
             f.write(f"{tag=:s}\n")
 
-      - name: Create pull request
+      - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.PAT }}
           RELEASE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
