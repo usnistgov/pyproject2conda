@@ -54,7 +54,10 @@ extensions = [
     # "sphinx_design"
     # - myst stuff
     "myst_parser",
+<<<<<<< before updating
     "sphinx_autodoc_typehints",
+=======
+>>>>>>> after updating
     "sphinxcontrib.typer",
 ]
 
@@ -211,7 +214,7 @@ napoleon_type_aliases = {
     "Series": "~pandas.Series",
     "DataFrame": "~pandas.DataFrame",
     "Categorical": "~pandas.Categorical",
-    "Path": "~~pathlib.Path",
+    "Path": "~pathlib.Path",
     # objects with abbreviated namespace (from pandas)
     "pd.Index": "~pandas.Index",
     "pd.NaT": "~pandas.NaT",

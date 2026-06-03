@@ -477,6 +477,10 @@ def _log_creating(
 
     logger.info(s)
 
+<<<<<<< before updating
+=======
+main = typer.Typer()
+>>>>>>> after updating
 
 # * Commands ---------------------------------------------------------------------------
 # ** List
@@ -489,6 +493,7 @@ def create_list(
     """List available extras."""
     logger.info("pyproject_filename: %s", pyproject_filename)
 
+<<<<<<< before updating
     d, _ = _get_configs(pyproject_filename)
 
     for name, vals in (
@@ -821,6 +826,14 @@ def to_json(
         python_version=python_version,
         python=python,
     )
+=======
+@main.command()
+def func() -> int:
+    """Console script for pyproject2conda."""
+    print(f"Replace this message by putting your code into {PACKAGE}.cli.main")  # noqa: T201
+    print("See click documentation at https://typer.tiangolo.com/")  # noqa: T201
+    return 0
+>>>>>>> after updating
 
     conda_deps, pip_deps = conda_and_pip_reqs_to_list(
         *d.conda_and_pip_requirements(
@@ -835,6 +848,7 @@ def to_json(
         )
     )
 
+<<<<<<< before updating
     result = {
         "dependencies": conda_deps,
         "pip": pip_deps,
@@ -848,3 +862,7 @@ def to_json(
             json.dump(result, f)
     else:
         print(json.dumps(result))  # , indent=2))
+=======
+if __name__ == "__main__":
+    sys.exit(main())  # pragma: no cover
+>>>>>>> after updating

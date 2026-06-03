@@ -23,5 +23,14 @@ Modules
    cli
 
 
+<<<<<<< before updating
 
+=======
+```{eval-rst}
+.. typer:: pyproject2conda.cli:main
+    :prog: pyproject2conda
+    :width: 80
+    :show-nested:
+    :make-sections:
+>>>>>>> after updating
 ```
