@@ -34,12 +34,12 @@ jobs:
         include:
           - add-paths: .
             body: Use this to merge the changes to this repository.
-            branch: copier/update
+            branch: update/copier
             commit-message: "chore(template): accept new copier update"
             title: "chore(template): accept new copier update"
           # - add-paths: .copier-answers.yml
           #   body: Use this to reject the changes to this repository.
-          #   branch: copier/reject
+          #   branch: update/copier/reject
           #   commit-message: "chore(template): reject new copier update"
           #   title: "chore(template): reject new copier update"
     steps:

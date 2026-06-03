@@ -72,7 +72,7 @@ jobs:
         run: |
           # rooster bump version
           if [ "$version" != "" ]; then
-            options"--version=${version}"
+            options="--version=${version}"
           elif [ "$bump" != "" ]; then
             options="--bump=${bump}"
           else
