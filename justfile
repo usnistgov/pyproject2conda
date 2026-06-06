@@ -162,6 +162,17 @@ requirements *options: (_requirements "--sync-or-lock" options)
 pyproject-upgrade-min-versions:
     uvx --from "uv-upx>=0.4.3" uv-upx upgrade run --no-sync
 
+# Sync min versions in pyproject.toml with using tools/sync_uvx_tool_min_version.py
+sync-pyproject-min-versions: && lock
+    # sync with pyprojects
+    # NOTE: replace tools/sync_pyproject_min_versions.py when add sync-pyproject-min-versions to pre-commit hooks
+    uv run tools/sync_pyproject_min_versions.py \
+    -r requirements/lock/uvx-tools.txt \
+    pyproject.toml
+
+# Update/Upgrade all dependencies
+update-deps: (lock "--upgrade") sync-pyproject-min-versions lint-upgrade
+
 # * Typecheck ---------------------------------------------------------------------
 
 TYPECHECK_UVRUN_OPTS := "--only-group=type"
