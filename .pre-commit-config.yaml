@@ -51,7 +51,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.21.2
+    rev: v2.23.0
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
@@ -109,7 +109,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.46.3
+    rev: v1.47.0
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -139,7 +139,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.16.2
+    rev: v4.16.3
     hooks:
       - id: commitizen
         stages: [commit-msg]

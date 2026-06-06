@@ -166,37 +166,54 @@ CPY = "CPY"
 # * typecheck ---------------------------------------------------------------------
 [tool.mypy]
 files = [
+    "noxfile.py",
     "src",
     "tests",
-    # tools
-    "noxfile.py",
     "tools",
 ]
-strict = true
 # options
 check_untyped_defs = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
 enable_error_code = [
     "ignore-without-code",
     "redundant-expr",
     "truthy-bool",
 ]
-warn_return_any = true
-warn_unreachable = true
+strict = true
 warn_unused_configs = true
-warn_unused_ignores = true
 
+<<<<<<< before updating
+=======
+# [[tool.mypy.overrides]]
+# module = [  ]
+# ignore_missing_imports = true
+#
+# [[tool.mypy.overrides]]
+# module = [  ]
+# ignore_errors = true
+#
+>>>>>>> after updating
 [tool.pyrefly]
 enabled-ignores = [ "pyrefly" ]
 project-includes = [
+    "noxfile.py",
     "src",
     "tests",
-    # tools
-    "noxfile.py",
     "tools",
 ]
 search-path = [ "." ]
 
 [tool.pyright]
+typeCheckingMode = "strict"
+# typeCheckingMode= "standard"
+include = [
+    "noxfile.py",
+    "src",
+    "tests",
+    "tools",
+]
 exclude = [
     "**/.mypy_cache",
     "**/.mypy_cache",
@@ -208,6 +225,7 @@ exclude = [
     ".tox/**",
     ".venv/**",
 ]
+<<<<<<< before updating
 include = [
     "src",
     "tests",
@@ -221,15 +239,25 @@ strict = [
     "tools/*.py",
 ]
 typeCheckingMode = "standard"
+=======
+enableTypeIgnoreComments = false
+# strict = [
+#     "src",
+#     "tests",
+#     "noxfile.py",
+#     "tools/*.py",
+# ]
+>>>>>>> after updating
 # options
 # reportMissingSuperCall = true
 deprecateTypingAliases = true
-enableReachabilityAnalysis = false
-enableTypeIgnoreComments = false
 reportCallInDefaultInitializer = true
 reportImplicitOverride = true
+reportImplicitStringConcatenation = false
 reportImportCycles = true
 reportOverlappingOverload = true
+reportPrivateImportUsage = false
+reportPrivateUsage = false
 reportPropertyTypeMismatch = true
 reportUninitializedInstanceVariable = true
 reportUnnecessaryTypeIgnoreComment = true
@@ -237,12 +265,9 @@ reportUnreachable = "warning"
 reportUntypedClassDecorator = true
 reportUntypedFunctionDecorator = true
 reportUnusedCallResult = true
-# type-checkers should type-check; linters should lint
-reportImplicitStringConcatenation = false
-reportPrivateImportUsage = false
-reportPrivateUsage = false
 reportUnusedImport = false
 reportUnusedVariable = false
+enableReachabilityAnalysis = false
 
 [[tool.pyright.executionEnvironments]]
 root = "tests"
@@ -252,15 +277,13 @@ root = "tests"
 reportUnusedCallResult = false
 
 [tool.ty]
-# Disable support for `type: ignore` comments
-analysis.respect-type-ignore-comments = false
 src.include = [
+    "noxfile.py",
     "src",
     "tests",
-    # tools
-    "noxfile.py",
     "tools",
 ]
+analysis.respect-type-ignore-comments = false
 
 # * Testing --------------------------------------------------------------------
 [tool.pytest.ini_options]
@@ -310,6 +333,9 @@ report.omit = [
     "*/vendored/*",
 ]
 report.show_missing = true
+
+[tool.commitizen]
+use_shortcuts = true
 
 # * Dependency creation --------------------------------------------------------
 [tool.pyproject2conda]
@@ -361,9 +387,6 @@ skip-package = true
 style = "requirements"
 
 # * Other tools ----------------------------------------------------------------
-[tool.commitizen]
-use_shortcuts = true
-
 [tool.rooster]
 changelog_contributors = true
 major-labels = [ "breaking" ]
