@@ -8,7 +8,7 @@ reorder_keys = true
 
 [[rule]]
 include = [ "**/pyproject.toml" ]
-keys = [ "project", "tool.coverage" ]
+keys = [ "project", "tool.coverage", "tool.mypy.overrides" ]
 
 [rule.formatting]
 reorder_arrays = false
