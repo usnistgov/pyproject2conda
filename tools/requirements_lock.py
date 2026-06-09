@@ -33,6 +33,10 @@ USE_PYTHON_MIN_VERSION = [
 ]
 USE_NO_DEPS = ["uvx-tools.txt", "pre-commit-additional-dependencies.txt"]
 
+LOCK_SCRIPTS = [
+    "tools/sync_pyproject_min_versions.py",
+]
+
 
 def _get_min_python_version() -> str:
     data: list[str] = (
@@ -142,6 +146,23 @@ def _maybe_lock_or_sync(
     _ = check_call(command)
 
 
+def _lock_scripts(
+    scripts: Iterable[str],
+    upgrade: bool,
+    uv_options: Sequence[str],
+) -> None:
+    for script in scripts:
+        command = [
+            "uv",
+            "lock",
+            f"--script={script}",
+            *(["--upgrade"] if upgrade else []),
+            *uv_options,
+        ]
+        logger.info(shlex.join(command))
+        _ = check_call(command)
+
+
 def _path_or_none(x: str) -> Path | None:
     path = Path(x)
     return path if path.exists() else None
@@ -210,6 +231,15 @@ def main(args: Sequence[str] | None = None) -> int:
         """,
     )
     _ = parser.add_argument(
+        "--script",
+        dest="scripts",
+        default=LOCK_SCRIPTS,
+        action="append",
+        help="""
+        Scripts to lock.
+        """,
+    )
+    _ = parser.add_argument(
         "paths",
         type=Path,
         nargs="*",
@@ -225,6 +255,12 @@ def main(args: Sequence[str] | None = None) -> int:
         lock=opts.lock,
         sync=opts.sync,
         sync_or_lock=opts.sync_or_lock,
+        upgrade=opts.upgrade,
+        uv_options=uv_options,
+    )
+
+    _lock_scripts(
+        scripts=opts.scripts,
         upgrade=opts.upgrade,
         uv_options=uv_options,
     )
