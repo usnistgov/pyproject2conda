@@ -358,7 +358,6 @@ skip-package = true
 style = "requirements"
 
 [tool.uv-locker]
-pip-compile-config-file = "requirements/uv.toml"
 requirements = [
     { path = "requirements/uvx-tools.txt", python = "min", output-file = "requirements/lock/uvx-tools.txt", options = [
         "--no-deps",
