@@ -26,6 +26,7 @@ keys = [
     "tool.pyright",
     "tool.ty",
     "tool.uv",
+    "tool.uv-locker.requirements",
 ]
 
 [rule.formatting]

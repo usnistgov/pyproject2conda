@@ -358,6 +358,7 @@ skip-package = true
 style = "requirements"
 
 [tool.uv-locker]
+<<<<<<< before updating
 requirements = [
     { path = "requirements/uvx-tools.txt", python = "min", output-file = "requirements/lock/uvx-tools.txt", options = [
         "--no-deps",
@@ -365,9 +366,22 @@ requirements = [
         "--universal",
     ] },
 ]
+=======
+pip-compile-config-file = "requirements/uv.toml"
+>>>>>>> after updating
 scripts = [
     "tools/check_dist_version.py",
     "tools/sync_pyproject_min_versions.py",
+]
+
+[[tool.uv-locker.requirements]]
+path = "requirements/uvx-tools.txt"
+output-file = "requirements/lock/uvx-tools.txt"
+python = "min"
+options = [
+    "--no-deps",
+    "--no-strip-extras",
+    "--universal",
 ]
 
 # * Other tools ----------------------------------------------------------------
