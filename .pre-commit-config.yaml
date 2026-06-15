@@ -19,7 +19,7 @@ repos:
 
   # * sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.5.1
+    rev: v0.6.1
     hooks:
       - id: forbidden-files
       - id: sync-pre-commit-deps

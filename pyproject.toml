@@ -79,7 +79,7 @@ docs = [
     "sphinxcontrib-typer",
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.39.6" ]
+basedpyright = [ "basedpyright>=1.39.7" ]
 cog = [ "cogapp" ]
 docs-live = [
     "sphinx-autobuild",
@@ -345,7 +345,7 @@ pip-deps = [
     "pyright>=1.1.410",
     "rooster>=0.1.1",
     "twine>=6.2.0",
-    "ty>=0.0.43",
+    "ty>=0.0.44",
 ]
 groups = [
     "basedpyright",
