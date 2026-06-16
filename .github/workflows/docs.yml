@@ -47,9 +47,7 @@ jobs:
           cache-dependency-path: uv.lock
 
       - name: Build docs
-        run:
-          uvx -crequirements/lock/uvx-tools.txt nox -s docs -- ++docs-options -W
-          -T
+        run: uv run --script noxfile.py -s docs -- ++docs-options -W -T
 
       - name: Deploy docs
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0

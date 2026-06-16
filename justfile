@@ -168,7 +168,9 @@ sync-pyproject-min-versions: && lock
     # NOTE: replace tools/sync_pyproject_min_versions.py when add sync-pyproject-min-versions to pre-commit hooks
     uv run tools/sync_pyproject_min_versions.py \
     -r requirements/lock/uvx-tools.txt \
-    pyproject.toml
+    pyproject.toml \
+    noxfile.py \
+    tools/*.py
 
 # Update/Upgrade all dependencies
 update-deps: (lock "--upgrade") sync-pyproject-min-versions lint-upgrade
