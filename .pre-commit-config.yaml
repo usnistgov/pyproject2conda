@@ -150,9 +150,16 @@ repos:
       - id: cog-readme
         name: cog-readme
         alias: cog
+<<<<<<< before updating
         entry:
           python tools/cog_runner.py --group=cog --no-dev --no-active
           --format=prettier --lint=markdownlint -- README.md
+=======
+        entry: >-
+          uv run tools/cog_runner.py --format=prettier --lint=markdownlint-cli2
+          --
+        # if need package, prefix with uv run --no-dev --isolated
+>>>>>>> after updating
         language: python
         pass_filenames: false
         stages: [manual]

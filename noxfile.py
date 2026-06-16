@@ -1,6 +1,7 @@
 #!/usr/bin/env -S uv run --script
 
 # /// script
+# requires-python = ">=3.12"
 # dependencies = [
 #     "nox>=2026.4.10",
 # ]

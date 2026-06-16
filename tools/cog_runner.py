@@ -1,3 +1,9 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "cogapp>=3.6.0",
+# ]
+# ///
 """Script to run cog on files with optional linters/formatters."""
 
 from __future__ import annotations
@@ -21,38 +27,30 @@ def _run_cog(
     *,
     files: Iterable[str],
     extras: Iterable[str],
-    use_uvx: bool = False,
     env: Mapping[str, str] | None = None,
-    constraints: str,
-    constraints_locked: str,
 ) -> None:
     import os
 
     env = dict(os.environ, **({} if env is None else env))
+<<<<<<< before updating
 
     # unset PRE_COMMIT
     _ = env.pop("PRE_COMMIT")
+=======
+    # unset PRE_COMMIT
+    if "PRE_COMMIT" in env:
+        _ = env.pop("PRE_COMMIT")
+>>>>>>> after updating
 
     command: list[str]
-    if use_uvx:
-        command = ["uvx", "--from=cogapp"]
-        if constraints_locked:
-            constraints = constraints_locked
-        if constraints:
-            command.append(f"--constraints={constraints}")
-    else:
-        command = ["uv", "run"]
-
     command = [
-        *command,
-        *extras,
         "cog",
         "-rP",
+        *extras,
         *files,
     ]
 
     logger.info(shlex.join(command))
-
     from subprocess import check_call
 
     _ = check_call(command, env=env)
@@ -85,11 +83,6 @@ def main(args: Sequence[str] | None = None) -> int:
     """Main script."""
     parser = ArgumentParser(description="run cog and linters")
     _ = parser.add_argument(
-        "--use-uvx",
-        action="store_true",
-        help="use uvx instead of uv run",
-    )
-    _ = parser.add_argument(
         "--lint",
         dest="linters",
         action="append",
@@ -109,11 +102,6 @@ def main(args: Sequence[str] | None = None) -> int:
         help="Constraints used with ``uv run``. Pass '' for no constraints",
     )
     _ = parser.add_argument(
-        "--constraints-locked",
-        default="requirements/lock/uvx-tools.txt",
-        help="Constraints used with ``uvx cog``. Pass '' for no constraints",
-    )
-    _ = parser.add_argument(
         "files",
         nargs="+",
     )
@@ -131,10 +119,7 @@ def main(args: Sequence[str] | None = None) -> int:
     _run_cog(
         files=opts.files,
         extras=extras,
-        use_uvx=opts.use_uvx,
         env={"COLUMNS": "90", "NO_COLOR": "1"},
-        constraints=opts.constraints,
-        constraints_locked=opts.constraints_locked,
     )
 
     _run_linters(
