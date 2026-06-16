@@ -8,7 +8,6 @@
 # Instead edit the corresponding pyproject.toml file.
 #
 basedpyright>=1.39.7
-cogapp
 conda-lock>=4.0.0
 copier-template-extensions>=0.3.3
 copier>=9.15.1
@@ -19,5 +18,5 @@ pyrefly>=1.0.0
 pyright>=1.1.410
 rooster>=0.1.1
 twine>=6.2.0
-ty>=0.0.44
+ty>=0.0.46
 typecheck-runner>=0.2.0; python_version > "3.9"

@@ -32,15 +32,9 @@ def _run_cog(
     import os
 
     env = dict(os.environ, **({} if env is None else env))
-<<<<<<< before updating
-
-    # unset PRE_COMMIT
-    _ = env.pop("PRE_COMMIT")
-=======
     # unset PRE_COMMIT
     if "PRE_COMMIT" in env:
         _ = env.pop("PRE_COMMIT")
->>>>>>> after updating
 
     command: list[str]
     command = [

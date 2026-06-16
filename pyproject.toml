@@ -49,7 +49,6 @@ Homepage = "https://github.com/usnistgov/pyproject2conda"
 
 [dependency-groups]
 dev = [
-    { include-group = "cog" },
     { include-group = "mypy" },
     { include-group = "nox" },
     { include-group = "pytest-accept" },
@@ -117,7 +116,6 @@ docs.requires-python = ">=3.14"
 docs-live.requires-python = ">=3.14"
 docs-spelling.requires-python = ">=3.14"
 # other tools
-cog.requires-python = ">=3.14"
 ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
