@@ -49,7 +49,6 @@ Homepage = "https://github.com/usnistgov/pyproject2conda"
 
 [dependency-groups]
 dev = [
-    { include-group = "cog" },
     { include-group = "mypy" },
     { include-group = "nox" },
     { include-group = "pytest-accept" },
@@ -80,7 +79,6 @@ docs = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.7" ]
-cog = [ "cogapp" ]
 docs-live = [
     "sphinx-autobuild",
     { include-group = "docs" },
@@ -118,7 +116,6 @@ docs.requires-python = ">=3.14"
 docs-live.requires-python = ">=3.14"
 docs-spelling.requires-python = ">=3.14"
 # other tools
-cog.requires-python = ">=3.14"
 ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
@@ -345,11 +342,10 @@ pip-deps = [
     "pyright>=1.1.410",
     "rooster>=0.1.1",
     "twine>=6.2.0",
-    "ty>=0.0.44",
+    "ty>=0.0.46",
 ]
 groups = [
     "basedpyright",
-    "cog",
     "mypy",
     "typecheck-runner",
 ]
@@ -360,6 +356,7 @@ style = "requirements"
 scripts = [
     "noxfile.py",
     "tools/check_dist_version.py",
+    "tools/cog_runner.py",
     "tools/sync_pyproject_min_versions.py",
 ]
 
