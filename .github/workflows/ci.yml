@@ -18,7 +18,7 @@ env:
   FORCE_COLOR: "3"
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
   UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
-  NOX_COMMAND: uvx -crequirements/lock/uvx-tools.txt nox
+  NOX_COMMAND: uv run --script noxfile.py
   EXTRA_PYTHON_VERSIONS: "pypy-3.11"
 
 permissions: {}
