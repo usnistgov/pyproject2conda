@@ -90,7 +90,7 @@ repos:
 
   # Just
   - repo: https://github.com/wpk-nist-gov/just-pre-commit
-    rev: v1.51.0
+    rev: v1.52.0
     hooks:
       - id: justfile-format
 
