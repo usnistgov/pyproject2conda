@@ -275,7 +275,7 @@ class Options:
             choices=("requirements", "infer", "force"),
             default="infer",
             help="""
-            How to detemermine locked dependencies for scripts.
+            How to determine locked dependencies for scripts.
 
             * infer (default): Use ``uv export --script script.py`` if ``script.py.lock`` exists or fallback to ``requirements``
             * force: Use output of ``uv export --script script.py`` always.

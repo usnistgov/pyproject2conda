@@ -104,7 +104,7 @@ def main(args: Sequence[str] | None = None) -> int:
 
     for path in opts.files:
         if not Path(path).exists():
-            msg = f"{path} does not exist.  Remember that options should passed with --name=value and not --name value"
+            msg = f"{path} does not exist.  Remember that options should be passed with --name=value and not --name value"
             raise ValueError(msg)
 
     logger.debug("opts: %s", opts)

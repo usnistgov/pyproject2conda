@@ -95,7 +95,7 @@ class _Script:
 class _Requirement:
     path: Path
     options: list[str]
-    python: str | None
+    python: str | None  # `--python-version`.  {"min", "default", python_version}
     output_file: Path
 
     @classmethod
@@ -138,7 +138,7 @@ class _Config:
     scripts: list[_Script]
     requirements: list[_Requirement]
     pip_compile_config_file: Path | None
-    quiet: bool = True
+    quiet: bool = True  # If true, include `--quiet` in uv pip compile
 
     @classmethod
     def from_data(cls, data: dict[str, Any]) -> _Config:
