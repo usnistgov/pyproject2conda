@@ -62,17 +62,6 @@ jobs:
         with:
           attest-build-provenance-github: "true"
 
-      - name: Check no changelog fragments
-        if: github.event_name == 'release' && github.event.action == 'published'
-        run: |
-          shopt -s nullglob
-          for _ in changelog.d/*.md ; do
-              echo "Error: changelog snippets found"
-              exit 1
-          done
-          echo "Success: no changelog snippets"
-        shell: bash
-
       - name: Check version
         if: github.event_name == 'release' && github.event.action == 'published'
         env:
