@@ -4,9 +4,9 @@ basedpyright==1.39.8 \
     --hash=sha256:a79d89928064bd9023d429b50c625d87d023bacc2fe3932ef6c7bd13b5426048 \
     --hash=sha256:bb1a86d4d71425d52d1501b317fe23d45527baed06bd5d5e1a07cd4b60d07b55
     # via -r requirements/uvx-tools.txt
-conda-lock==4.0.0 \
-    --hash=sha256:050305a490861baa98d6c3876ed7b394707a67587d939548aac5e20b91b41d36 \
-    --hash=sha256:979aacb4f67eb375f5d84ffbc7afc93c881ab9a513558c7461ed955fe243a3f6
+conda-lock==4.0.1 \
+    --hash=sha256:6dca87b262cfb6712256575d06c66b92e3d7b36ae3d96eeab8c193663e74cdc7 \
+    --hash=sha256:b0dea35c2d10ad9fe07bacfcb79c090e4817aa148aa493a9faff55415899bd30
     # via -r requirements/uvx-tools.txt
 copier==9.15.2 \
     --hash=sha256:50a39142d6493f2261762309374a7a7462dbab654c5d22fd9aa17b6a69b84a95 \
