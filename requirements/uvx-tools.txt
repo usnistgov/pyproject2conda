@@ -8,7 +8,7 @@
 # Instead edit the corresponding pyproject.toml file.
 #
 basedpyright>=1.39.8
-conda-lock>=4.0.0
+conda-lock>=4.0.1
 copier-template-extensions>=0.3.3
 copier>=9.15.2
 grayskull>=3.1.1

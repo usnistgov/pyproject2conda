@@ -333,7 +333,7 @@ skip-package = true
 [tool.pyproject2conda.envs.uvx-tools]
 pip-deps = [
     # these used solely for specking tools to be run via uvx ...
-    "conda-lock>=4.0.0",
+    "conda-lock>=4.0.1",
     "copier-template-extensions>=0.3.3",
     "copier>=9.15.2",
     "grayskull>=3.1.1",
