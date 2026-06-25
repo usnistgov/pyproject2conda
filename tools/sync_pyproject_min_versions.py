@@ -5,7 +5,7 @@
 # requires-python = ">=3.12"
 # dependencies = [
 #     "packaging>=26.2",
-#     "requirements-parser>=0.13.0",
+#     "requirements-parser>=0.13.1",
 # ]
 # ///
 

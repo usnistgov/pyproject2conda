@@ -51,7 +51,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.24.1
+    rev: v2.25.0
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
@@ -90,7 +90,7 @@ repos:
 
   # Just
   - repo: https://github.com/wpk-nist-gov/just-pre-commit
-    rev: v1.52.0
+    rev: v1.53.0
     hooks:
       - id: justfile-format
 
