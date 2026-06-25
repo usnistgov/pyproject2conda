@@ -45,8 +45,8 @@ def test_template() -> None:
 )
 def test_default_pythons(
     example_path: Path,
-    python_version_default: str,
-    python_version: str,
+    python_version_default: str | None,
+    python_version: str | None,
     expected: list[str],
 ) -> None:
     for name, version in zip(

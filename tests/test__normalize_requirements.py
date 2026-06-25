@@ -92,6 +92,6 @@ def test_condarequirement_evaluate(
 )
 def test_condarequirement_update(dep: str, kws: dict[str, Any], expected: str) -> None:
     assert (
-        str(mod.CondaRequirement(dep).update(**{"extras": None, "marker": None, **kws}))  # ty: ignore[invalid-argument-type]  # pyrefly: ignore[bad-argument-type]
+        str(mod.CondaRequirement(dep).update(**{"extras": None, "marker": None, **kws}))  # ty: ignore[invalid-argument-type]  # pyrefly: ignore[bad-argument-type]  # pyright: ignore[reportArgumentType]
         == expected
     )
