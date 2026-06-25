@@ -181,6 +181,13 @@ enable_error_code = [
 strict = true
 warn_unused_configs = true
 
+<<<<<<< before updating
+=======
+## [[tool.mypy.overrides]]
+## module = [ "module.submodule.*" ]
+## ignore_missing_imports = true
+## ignore_errors = true
+>>>>>>> after updating
 [tool.pyrefly]
 enabled-ignores = [ "pyrefly" ]
 project-includes = [
@@ -192,12 +199,16 @@ project-includes = [
 search-path = [ "." ]
 
 [tool.pyright]
+<<<<<<< before updating
 typeCheckingMode = "standard"
 strict = [
     "noxfile.py",
     "src",
     "tools/*.py",
 ]
+=======
+typeCheckingMode = "strict"
+>>>>>>> after updating
 include = [
     "noxfile.py",
     "src",
@@ -216,13 +227,18 @@ exclude = [
     ".venv/**",
 ]
 enableTypeIgnoreComments = false
+<<<<<<< before updating
 # options
 # reportMissingSuperCall = true
+=======
+>>>>>>> after updating
 deprecateTypingAliases = true
 reportCallInDefaultInitializer = true
 reportImplicitOverride = true
 reportImplicitStringConcatenation = false
 reportImportCycles = true
+# options
+# reportMissingSuperCall = true
 reportOverlappingOverload = true
 reportPrivateImportUsage = false
 reportPrivateUsage = false
@@ -237,6 +253,12 @@ reportUnusedImport = false
 reportUnusedVariable = false
 enableReachabilityAnalysis = false
 
+# strict = [
+#     "src",
+#     "tests",
+#     "noxfile.py",
+#     "tools/*.py",
+# ]
 [[tool.pyright.executionEnvironments]]
 root = "tests"
 # reportCallIssue = false
@@ -338,11 +360,15 @@ pip-deps = [
     "copier>=9.15.2",
     "grayskull>=3.1.1",
     "prek>=0.4.5",
+<<<<<<< before updating
     "pyrefly>=1.0.0",
+=======
+    "pyrefly>=1.1.0",
+>>>>>>> after updating
     "pyright>=1.1.410",
     "rooster>=0.1.1",
     "twine>=6.2.0",
-    "ty>=0.0.49",
+    "ty>=0.0.50",
 ]
 groups = [
     "basedpyright",
