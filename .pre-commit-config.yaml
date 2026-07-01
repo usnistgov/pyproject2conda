@@ -19,7 +19,7 @@ repos:
 
   # * sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.8.0
+    rev: v0.8.1
     hooks:
       - id: forbidden-files
       - id: sync-pre-commit-deps
@@ -57,7 +57,7 @@ repos:
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.06.14
+    rev: 2026.06.23
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -96,7 +96,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.18
+    rev: v0.15.19
     hooks:
       - id: ruff-check
         alias: ruff
@@ -126,7 +126,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.23
+    rev: 0.11.24
     hooks:
       - id: uv-lock
         alias: requirements
@@ -139,7 +139,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.16.3
+    rev: v4.16.4
     hooks:
       - id: commitizen
         stages: [commit-msg]
