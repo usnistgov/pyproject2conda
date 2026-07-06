@@ -196,6 +196,7 @@ typeCheckingMode = "strict"
 # strict = [
 #     "noxfile.py",
 #     "src",
+#     "tests",
 #     "tools/*.py",
 # ]
 include = [
