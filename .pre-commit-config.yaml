@@ -51,13 +51,13 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.25.1
+    rev: v2.25.2
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.07.06
+    rev: 2026.07.08
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -96,7 +96,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.20
+    rev: v0.15.21
     hooks:
       - id: ruff-check
         alias: ruff
