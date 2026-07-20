@@ -3,7 +3,7 @@
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
-#     "nox>=2026.4.10",
+#     "nox>=2026.7.11",
 # ]
 # ///
 
