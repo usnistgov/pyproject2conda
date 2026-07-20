@@ -71,7 +71,7 @@ repos:
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.4
+    rev: v3.9.5
     hooks:
       - id: prettier
         alias: markdownlint
@@ -90,7 +90,7 @@ repos:
 
   # Just
   - repo: https://github.com/wpk-nist-gov/just-pre-commit
-    rev: v1.55.1
+    rev: v1.56.0
     hooks:
       - id: justfile-format
 
