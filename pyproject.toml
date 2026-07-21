@@ -89,7 +89,7 @@ docs-spelling = [
     { include-group = "docs" },
 ]
 ipython = [ "ipython" ]
-mypy = [ "mypy[faster-cache]>=2.2.0" ]
+mypy = [ "mypy[faster-cache]>=2.3.0" ]
 nox = [ "nox>=2026.4.10" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
@@ -340,7 +340,7 @@ pip-deps = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.2",
     "copier-template-extensions>=0.3.3",
-    "copier>=9.16.0",
+    "copier>=9.17.0",
     "grayskull>=3.1.1",
     "prek>=0.4.9",
     "pyrefly>=1.1.1",

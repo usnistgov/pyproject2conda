@@ -51,7 +51,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.25.2
+    rev: v2.25.3
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
@@ -186,7 +186,7 @@ repos:
         priority: 0
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     # Zizmor version.
-    rev: v1.26.1
+    rev: v1.27.0
     hooks:
       # Run the linter.
       - id: zizmor
