@@ -835,10 +835,19 @@ def to_json(
         )
     )
 
+<<<<<<< before updating
     result = {
         "dependencies": conda_deps,
         "pip": pip_deps,
     }
+=======
+@main.command()
+def func() -> int:
+    """Console script for pyproject2conda."""
+    print(f"Replace this message by putting your code into {PACKAGE}.cli.main")  # ruff:ignore[print]
+    print("See click documentation at https://typer.tiangolo.com/")  # ruff:ignore[print]
+    return 0
+>>>>>>> after updating
 
     if channels := channels or c.get_env(None).channels:
         result["channels"] = channels

@@ -191,26 +191,25 @@ def check_for_change_manager(
     If exit normally, write hashes to hash_path file
 
     """
-    # pylint: disable=try-except-raise,no-else-raise, too-many-try-statements
-    try:
-        changed, hashes, hash_path = check_hash_path_for_change(
-            *deps,
-            target_path=target_path,
-            hash_path=hash_path,
-        )
+    changed, hashes, hash_path = check_hash_path_for_change(
+        *deps,
+        target_path=target_path,
+        hash_path=hash_path,
+    )
 
-        yield changed
-
+<<<<<<< before updating
     except Exception:  # ruff:ignore[useless-try-except]
         raise
+=======
+    yield changed  # ruff:ignore[fallible-context-manager]
+>>>>>>> after updating
 
-    else:
-        if force_write or changed:
-            logger.info(f"Writing {hash_path}")
+    if force_write or changed:
+        logger.info(f"Writing {hash_path}")
 
-            # make sure the parent directory exists:
-            hash_path.parent.mkdir(parents=True, exist_ok=True)
-            write_hashes(hash_path=hash_path, hashes=hashes)
+        # make sure the parent directory exists:
+        hash_path.parent.mkdir(parents=True, exist_ok=True)
+        write_hashes(hash_path=hash_path, hashes=hashes)
 
 
 def check_hash_path_for_change(
