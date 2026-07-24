@@ -197,12 +197,7 @@ def check_for_change_manager(
         hash_path=hash_path,
     )
 
-<<<<<<< before updating
-    except Exception:  # ruff:ignore[useless-try-except]
-        raise
-=======
     yield changed  # ruff:ignore[fallible-context-manager]
->>>>>>> after updating
 
     if force_write or changed:
         logger.info(f"Writing {hash_path}")
