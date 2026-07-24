@@ -93,7 +93,7 @@ class _AliasedGroup(TyperGroup):
         return None  # pragma: no cover
 
     @override
-    def list_commands(self, ctx: Any) -> list[str]:  # noqa: ARG002
+    def list_commands(self, ctx: Any) -> list[str]:  # ruff:ignore[unused-method-argument]
         return list(self.commands)
 
 
@@ -102,11 +102,11 @@ app: typer.Typer = typer.Typer(cls=_AliasedGroup, no_args_is_help=True)
 
 @app.callback()
 def main(
-    version: Annotated[  # noqa: ARG001
+    version: Annotated[  # ruff:ignore[unused-function-argument]
         bool,
         typer.Option("--version", "-v", callback=_callback_version, is_eager=True),
     ] = False,
-    columns: Annotated[  # noqa: ARG001
+    columns: Annotated[  # ruff:ignore[unused-function-argument]
         int | None,
         typer.Option(
             "--columns",
@@ -484,7 +484,7 @@ def _log_creating(
 @app.command("list")
 def create_list(
     pyproject_filename: PYPROJECT_CLI,
-    verbose: VERBOSE_CLI = None,  # noqa: ARG001
+    verbose: VERBOSE_CLI = None,  # ruff:ignore[unused-function-argument]
 ) -> None:
     """List available extras."""
     logger.info("pyproject_filename: %s", pyproject_filename)
@@ -595,7 +595,7 @@ def requirements(
     header: HEADER_CLI = None,
     custom_command: CUSTOM_COMMAND_CLI = None,
     overwrite: OVERWRITE_CLI = Overwrite.force,
-    verbose: VERBOSE_CLI = None,  # noqa: ARG001
+    verbose: VERBOSE_CLI = None,  # ruff:ignore[unused-function-argument]
     pip_deps: PIP_DEPS_CLI = None,
     allow_empty: Annotated[bool, ALLOW_EMPTY_OPTION] = False,
 ) -> None:
@@ -728,7 +728,7 @@ def conda_requirements(
     # paths,
     conda_deps: CONDA_DEPS_CLI = None,
     pip_deps: PIP_DEPS_CLI = None,
-    verbose: VERBOSE_CLI = None,  # noqa: ARG001
+    verbose: VERBOSE_CLI = None,  # ruff:ignore[unused-function-argument]
 ) -> None:
     """
     Create requirement files for conda and pip.
@@ -797,7 +797,7 @@ def to_json(
     skip_package: SKIP_PACKAGE_CLI = False,
     conda_deps: CONDA_DEPS_CLI = None,
     pip_deps: PIP_DEPS_CLI = None,
-    verbose: VERBOSE_CLI = None,  # noqa: ARG001
+    verbose: VERBOSE_CLI = None,  # ruff:ignore[unused-function-argument]
     overwrite: OVERWRITE_CLI = Overwrite.force,
 ) -> None:
     """

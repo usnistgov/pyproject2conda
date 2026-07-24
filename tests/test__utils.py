@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 def test_list_to_string() -> None:
     assert utils.list_to_str(["a", "b"], eol=True) == "a\nb\n"
     assert utils.list_to_str(["a", "b"], eol=False) == "a\nb"
-    assert utils.list_to_str(None) == ""  # noqa: PLC1901  # pylint: disable=use-implicit-booleaness-not-comparison-to-string
+    assert utils.list_to_str(None) == ""  # ruff:ignore[compare-to-empty-string]  # pylint: disable=use-implicit-booleaness-not-comparison-to-string
 
 
 def test_template() -> None:
@@ -169,7 +169,7 @@ def test__get_standard_format_dict(
     env_name: str | None, python_version: str | None, expected: dict[str, str]
 ) -> None:
     assert (
-        utils._get_standard_format_dict(  # noqa: SLF001  # pylint: disable=protected-access
+        utils._get_standard_format_dict(  # ruff:ignore[private-member-access]  # pylint: disable=protected-access
             env_name=env_name, python_version=python_version
         )
         == expected

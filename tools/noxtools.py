@@ -201,7 +201,7 @@ def check_for_change_manager(
 
         yield changed
 
-    except Exception:  # noqa: TRY203
+    except Exception:  # ruff:ignore[useless-try-except]
         raise
 
     else:
@@ -295,7 +295,7 @@ def write_hashes(hash_path: str | Path, hashes: dict[str, Any]) -> None:
 def _get_file_hash(path: str | Path, buff_size: int = 65536) -> str:
     import hashlib
 
-    md5 = hashlib.md5()  # noqa: S324
+    md5 = hashlib.md5()  # ruff:ignore[hashlib-insecure-hash-function]
     with Path(path).open("rb") as f:
         while data := f.read(buff_size):  # pylint: disable=while-used
             md5.update(data)

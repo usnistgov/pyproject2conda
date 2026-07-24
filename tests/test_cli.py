@@ -51,7 +51,7 @@ def test__callback_columns(arg, expected) -> None:
 
     from pyproject2conda import cli
 
-    cli._callback_columns(arg)  # noqa: SLF001  # pylint: disable=protected-access
+    cli._callback_columns(arg)  # ruff:ignore[private-member-access]  # pylint: disable=protected-access
     assert os.environ == expected
 
 

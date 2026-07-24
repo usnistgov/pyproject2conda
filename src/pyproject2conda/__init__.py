@@ -2,7 +2,7 @@
 Top level API (:mod:`pyproject2conda`)
 ======================================
 """
-# ruff: noqa: RUF067
+# ruff:file-ignore[non-empty-init-module]
 
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _version

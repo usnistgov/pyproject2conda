@@ -67,7 +67,7 @@ _NoneType = type(None)
 
 UNDEFINED = cast(
     "Any",
-    type("Undefined", (), {"__repr__": lambda self: "UNDEFINED"})(),  # pyright: ignore[reportUnknownLambdaType]  # noqa: ARG005
+    type("Undefined", (), {"__repr__": lambda self: "UNDEFINED"})(),  # pyright: ignore[reportUnknownLambdaType]  # ruff:ignore[unused-lambda-argument]
 )
 
 
@@ -151,11 +151,11 @@ class Option:
         const: Any = UNDEFINED,
         default: Any | None = UNDEFINED,
         dest: str = UNDEFINED,
-        help: str = UNDEFINED,  # noqa: A002
+        help: str = UNDEFINED,  # ruff:ignore[builtin-argument-shadowing]
         metavar: str = UNDEFINED,
         nargs: str | int | None = UNDEFINED,
         required: bool = UNDEFINED,
-        type: Callable[[Any], Any] = UNDEFINED,  # noqa: A002
+        type: Callable[[Any], Any] = UNDEFINED,  # ruff:ignore[builtin-argument-shadowing]
     ) -> Self:
         """Factory method."""
         return cls(
@@ -183,12 +183,12 @@ def add_option(
     choices: Container[Any] = UNDEFINED,
     const: Any = UNDEFINED,
     dest: str = UNDEFINED,
-    help: str = UNDEFINED,  # noqa: A002
+    help: str = UNDEFINED,  # ruff:ignore[builtin-argument-shadowing]
     metavar: str = UNDEFINED,
     nargs: str | int | None = UNDEFINED,
     required: bool = UNDEFINED,
-    type: Callable[[Any], Any] = UNDEFINED,  # noqa: A002
-    **field_kws: Any,  # noqa: ARG001
+    type: Callable[[Any], Any] = UNDEFINED,  # ruff:ignore[builtin-argument-shadowing]
+    **field_kws: Any,  # ruff:ignore[unused-function-argument]
 ) -> Any:
     """Add option."""
     return field(  # pylint: disable=invalid-field-call
@@ -264,7 +264,7 @@ def _get_dataclass_annotations_and_options(
 ) -> dict[str, tuple[Any, Option]]:
     annotations = get_type_hints(cls, include_extras=True)
 
-    assert is_dataclass(cls)  # noqa: S101
+    assert is_dataclass(cls)  # ruff:ignore[assert]
     cls_fields = fields(cls)
 
     out: dict[str, tuple[Any, Any]] = {}
@@ -375,7 +375,7 @@ def _get_underlying_type(
 def _get_underlying_if_optional(t: Any, pass_through: bool = False) -> Any:
     if _is_union_type(t):
         args = get_args(t)
-        if len(args) == 2 and _NoneType in args:  # noqa: PLR2004
+        if len(args) == 2 and _NoneType in args:  # ruff:ignore[magic-value-comparison]
             for arg in args:
                 if arg != _NoneType:
                     return arg

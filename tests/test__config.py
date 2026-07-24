@@ -389,7 +389,7 @@ def test_option_override_base(
 
 
 def test_option_override_base3_default_python_error(
-    example_path: Path,  # noqa: ARG001
+    example_path: Path,  # ruff:ignore[unused-function-argument]
     simple_config: PyProject2CondaConfig,
 ) -> None:
     # using default python without a version
