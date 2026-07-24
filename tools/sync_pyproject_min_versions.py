@@ -1,5 +1,5 @@
 """Sync minimum versions of dependencies in pyproject.toml or pep723 section of python scripts to locked requirement file."""
-# ruff: noqa: D101, D102, D103
+# ruff:file-ignore[undocumented-public-class, undocumented-public-method, undocumented-public-function]
 # pylint: disable=missing-class-docstring
 # /// script
 # requires-python = ">=3.12"

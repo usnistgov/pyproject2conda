@@ -183,7 +183,7 @@ class RequirementsConfig:
 
         return out
 
-    def conda_and_pip_requirements(  # noqa: C901
+    def conda_and_pip_requirements(  # ruff:ignore[complex-structure]
         self,
         *,
         extras: Iterable[str] = (),

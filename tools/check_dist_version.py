@@ -1,6 +1,6 @@
 """Check distribution versions."""
 # pyright: reportUnknownMemberType=false,reportUnknownVariableType=false
-# ruff: noqa: T201
+# ruff:file-ignore[print]
 
 # /// script
 # requires-python = ">=3.12"

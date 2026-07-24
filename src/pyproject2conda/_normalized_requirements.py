@@ -54,7 +54,7 @@ class CondaRequirement(NormalizedRequirement):
             return self.marker.evaluate(env)
         return True
 
-    def update(  # noqa: C901
+    def update(  # ruff:ignore[complex-structure]
         self,
         channel: str | None = None,
         name: str | MISSING_TYPE = MISSING,

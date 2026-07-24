@@ -1,6 +1,6 @@
 # mypy: disable-error-code="no-untyped-def, no-untyped-call"
 # pylint: disable=duplicate-code,empty-comment,protected-access
-# ruff: noqa: SLF001
+# ruff:file-ignore[private-member-access]
 from __future__ import annotations
 
 import locale
