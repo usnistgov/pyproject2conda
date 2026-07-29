@@ -165,12 +165,7 @@ pyproject-upgrade-min-versions:
 # Sync min versions in pyproject.toml with using tools/sync_uvx_tool_min_version.py
 sync-pyproject-min-versions: && lock
     # sync with pyprojects
-    # NOTE: replace tools/sync_pyproject_min_versions.py when add sync-pyproject-min-versions to pre-commit hooks
-    uv run tools/sync_pyproject_min_versions.py \
-    -r requirements/lock/uvx-tools.txt \
-    pyproject.toml \
-    noxfile.py \
-    tools/*.py
+    just lint sync-pyproject-min-versions -v || true
 
 # Update/Upgrade all dependencies
 update-deps: (lock "--upgrade") sync-pyproject-min-versions lint-upgrade
@@ -211,15 +206,25 @@ basedpyright-verifytypes:
 [group("typecheck")]
 ty *options: (_typecheck "-cty" options)
 
+# Run ty with `--add-ignore` option to add ty: ignore statements
+[group("typecheck")]
+ty-add-ignores *options: (_typecheck "-c'ty check --add-ignore'" options)
+
+# Run ty with `--fix` option to fix errors
+[group("typecheck")]
+ty-fix *options: (_typecheck "-c'ty check --fix'" options)
+
 # Run pyrefly (Note: in alpha)
 [group("typecheck")]
 pyrefly *options: (_typecheck "-cpyrefly" options)
 
+# Run pyrefly suppress
 [group("typecheck")]
-pyrefly-suppress-errors *options: (_typecheck "-c'pyrefly check --suppress-errors'")
+pyrefly-suppress *options: (_typecheck "-c'pyrefly suppress --comment-location=same-line'" options)
 
+# Run pyrefly suppress --remove-unused
 [group("typecheck")]
-pyrefly-remove-unused-ignores *options: (_typecheck "-c'pyrefly check --remove-unused-ignores'")
+pyrefly-remove-unused *options: (_typecheck "-c'pyrefly suppress --remove-unused'" options)
 
 # Run pylint (with optional args)
 [group("lint")]
