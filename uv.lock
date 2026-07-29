@@ -1479,7 +1479,7 @@ requires-dist = [
 basedpyright = [{ name = "basedpyright", specifier = ">=1.39.9" }]
 dev = [
     { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=2.3.0" },
-    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.7.11" },
     { name = "pylint", marker = "python_full_version >= '3.14'" },
     { name = "pytest", marker = "python_full_version >= '3.14'" },
     { name = "pytest-accept", marker = "python_full_version >= '3.14'" },
@@ -1520,7 +1520,7 @@ docs-spelling = [
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
 mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=2.3.0" }]
-nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" }]
+nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.7.11" }]
 pylint = [{ name = "pylint" }]
 pytest = [{ name = "pytest" }]
 pytest-accept = [{ name = "pytest-accept" }]
@@ -1537,7 +1537,7 @@ test-extras = [
     { name = "pytest-xdist" },
 ]
 type = [
-    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.7.11" },
     { name = "pylint" },
     { name = "pytest" },
     { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" },

@@ -90,7 +90,7 @@ docs-spelling = [
 ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.0" ]
-nox = [ "nox>=2026.4.10" ]
+nox = [ "nox>=2026.7.11" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 pytest-accept = [ "pytest-accept" ]
@@ -362,7 +362,6 @@ scripts = [
     "noxfile.py",
     "tools/check_dist_version.py",
     "tools/cog_runner.py",
-    "tools/sync_pyproject_min_versions.py",
 ]
 
 [[tool.uv-locker.requirements]]
