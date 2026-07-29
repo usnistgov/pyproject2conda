@@ -352,6 +352,7 @@ pip-deps = [
 groups = [
     "basedpyright",
     "mypy",
+    "nox",
     "typecheck-runner",
 ]
 skip-package = true

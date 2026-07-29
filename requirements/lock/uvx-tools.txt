@@ -67,6 +67,10 @@ mypy[faster-cache]==2.3.0 \
     --hash=sha256:f4ed18f111bfe2d599bca7468e7f9251042c1c2118f762c8de2766a56d773c60 \
     --hash=sha256:fbc00cee7bdbb9291979ddc9d08034a29dfcda4932628c9bbc28c1edd589df0c
     # via -r requirements/uvx-tools.txt
+nox==2026.7.11 \
+    --hash=sha256:dec9bd2c854540a2d5c0b841eaaf1d23a7c26cd90af36d9f1f1668b34524bfd9 \
+    --hash=sha256:f5e811693ee8374d269396204eb39990d2084da67ed968239f94301805c9a169
+    # via -r requirements/uvx-tools.txt
 prek==0.4.10 \
     --hash=sha256:023f302741d79301346c3088ba43a9592aff0ecdbe5ddc3019fa9b1183319c5e \
     --hash=sha256:04c9321957e1b32e1fc7cf60bb4f90bba3761f8659d5551ed04f96e25596de49 \
