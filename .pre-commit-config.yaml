@@ -137,7 +137,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.30
+    rev: 0.11.31
     hooks:
       - id: uv-lock
         alias: requirements
@@ -197,7 +197,7 @@ repos:
         priority: 0
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     # Zizmor version.
-    rev: v1.27.0
+    rev: v1.28.0
     hooks:
       # Run the linter.
       - id: zizmor
