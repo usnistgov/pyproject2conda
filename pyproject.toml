@@ -140,6 +140,8 @@ src_dir = [ "src" ]
 toplevel = [ "pyproject2conda" ]
 
 [tool.pyproject-fmt]
+indent = 4
+keep_full_version = true
 # max_supported_python = "3.13"
 expand_tables = [
     "project.entry-points",
@@ -154,8 +156,6 @@ expand_tables = [
     "tool.uv.dependency-groups",
     "tool.uv.exclude-newer-package",
 ]
-indent = 4
-keep_full_version = true
 
 [tool.typos.default.extend-identifiers]
 CPY = "CPY"
