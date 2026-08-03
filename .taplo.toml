@@ -21,6 +21,7 @@ keys = [
     "project",
     "tool.coverage",
     "tool.mypy",
+    "tool.pyproject-fmt",
     "tool.pyproject2conda",
     "tool.pyrefly",
     "tool.pyright",
