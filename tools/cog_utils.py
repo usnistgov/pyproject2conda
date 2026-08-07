@@ -1,4 +1,5 @@
 """Utilities to use with cog"""
+# ruff:file-ignore[undocumented-public-function]
 
 from __future__ import annotations
 

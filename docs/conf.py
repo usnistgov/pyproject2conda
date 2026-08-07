@@ -17,6 +17,7 @@
 # absolute, like shown here.
 #
 """Build docs."""
+# ruff:file-ignore[implicit-namespace-package, commented-out-code]
 
 from __future__ import annotations
 
