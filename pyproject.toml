@@ -106,6 +106,7 @@ default-groups = [ "dev" ]
 fork-strategy = "requires-python"
 exclude-newer = "7 days"
 managed = true
+build-backend.source-exclude = [ ".*cache" ]
 build-backend.source-include = [ "tests/**" ]
 pip.annotation-style = "line"
 pip.generate-hashes = true
@@ -170,6 +171,9 @@ ignore = [
     "S603",    # - subprocess-without-shell-equals-true
     "S607",    # - start-process-with-partial-path
     "TID252",  # - Allow relative imports
+    # numpy/pandas
+    "NPY",     # - not using numpy?
+    "PD",      # - not using pandas?
 ]
 isort.known-first-party = [
     "pyproject2conda",
@@ -182,11 +186,14 @@ ruff.strictly-empty-init-modules = false
 flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
 
 # Project specific ignores
-# Note use tests/.ruff.toml or examples/.ruff.toml for specific ignores
 [tool.ruff.lint.per-file-ignores]
-"src/**/*.py" = [
-    "NPY", # - not using numpy?
-    "PD",  # - not using pandas?
+"tests/**/*.py" = [
+    "ANN",
+    "D",       # - Don't need to document tests
+    "PLC2701",
+    "PLR2004",
+    "PT011",
+    "S101",    # - Assert is fine with tests
 ]
 
 # * Checks ---------------------------------------------------------------------
