@@ -3,6 +3,7 @@
 Console script for pyproject2conda (:mod:`~pyproject2conda.cli`)
 ================================================================
 """
+# ruff:file-ignore[print,too-many-positional-arguments,too-many-arguments]
 
 from __future__ import annotations
 
