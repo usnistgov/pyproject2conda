@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import ChainMap
 from enum import Enum
 from functools import cached_property
+from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Literal
 
 from packaging.utils import NormalizedName, canonicalize_name
@@ -23,7 +24,6 @@ from ._utils import (
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from pathlib import Path
     from typing import Any
 
     from ._typing_compat import Self

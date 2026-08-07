@@ -179,6 +179,7 @@ pylint.max-args = 15
 pylint.max-positional-args = 15
 pylint.max-public-methods = 30
 ruff.strictly-empty-init-modules = false
+flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
 
 # Project specific ignores
 # Note use tests/.ruff.toml or examples/.ruff.toml for specific ignores
