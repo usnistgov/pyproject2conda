@@ -187,15 +187,13 @@ flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
 
 # Project specific ignores
 [tool.ruff.lint.per-file-ignores]
-<<<<<<< before updating
-"src/**/*.py" = [
-    "NPY", # - not using numpy?
-    "PD",  # - not using pandas?
-=======
 "tests/**/*.py" = [
-    "D",    # - Don't need to document tests
-    "S101", # - Assert is fine with tests
->>>>>>> after updating
+    "ANN",
+    "D",       # - Don't need to document tests
+    "PLC2701",
+    "PLR2004",
+    "PT011",
+    "S101",    # - Assert is fine with tests
 ]
 
 # * Checks ---------------------------------------------------------------------
