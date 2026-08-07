@@ -6,6 +6,8 @@ indent_string = "    "
 reorder_arrays = true
 reorder_keys = true
 
+# NOTE(wpk): removed taplo from formatting pyproject.toml in `.pre-commit-config`.
+# Keep this here incase want to run taplo separately from time to time.
 [[rule]]
 include = [ "**/pyproject.toml" ]
 keys = [ "project", "tool.coverage", "tool.mypy.overrides" ]
@@ -25,6 +27,7 @@ keys = [
     "tool.pyproject2conda",
     "tool.pyrefly",
     "tool.pyright",
+    "tool.ruff",
     "tool.ty",
     "tool.uv",
     "tool.uv-locker.requirements",
