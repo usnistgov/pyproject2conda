@@ -434,7 +434,7 @@ def test_option_override_all_pythons(
     a = list(simple_config_classifiers.iter_envs(envs=["base4"]))
     b = list(simple_config_classifiers.iter_envs(envs=["base5"]))
 
-    assert len(a) == len(b) == 5
+    assert len(a) == len(b) == 5  # ruff: ignore[magic-value-comparison]
 
     assert a[0] == (
         "yaml",
@@ -565,7 +565,7 @@ def test_config_errors() -> None:
 
     # raise error for bad env
     c = PyProject2CondaConfig.from_string(s)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=r"env hello not in config"):
         c.schema.get_env("hello")
 
     s1 = """

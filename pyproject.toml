@@ -192,8 +192,6 @@ flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
     "S101",    # - Assert is fine with tests
     "ANN",
     "PLC2701",
-    "PLR2004",
-    "PT011",
 ]
 
 # * Checks ---------------------------------------------------------------------
