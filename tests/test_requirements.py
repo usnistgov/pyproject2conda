@@ -76,7 +76,7 @@ def test_optional_write() -> None:
 def test_output_to_yaml() -> None:
     from pyproject2conda.requirements import _conda_yaml
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=r"Must have at least one conda dependency.*"):
         _ = _conda_yaml()
 
     s = _conda_yaml(
@@ -146,7 +146,7 @@ def test_infer() -> None:
     )
 
     d = requirements.RequirementsConfig.from_string(toml)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=r"No value for `requires-python`.*"):
         d.to_conda_yaml(python_include="infer")
 
 
