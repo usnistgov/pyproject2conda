@@ -171,9 +171,6 @@ ignore = [
     "S603",    # - subprocess-without-shell-equals-true
     "S607",    # - start-process-with-partial-path
     "TID252",  # - Allow relative imports
-    # numpy/pandas
-    "NPY",     # - not using numpy?
-    "PD",      # - not using pandas?
 ]
 isort.known-first-party = [
     "pyproject2conda",
@@ -185,8 +182,8 @@ pylint.max-public-methods = 30
 ruff.strictly-empty-init-modules = false
 flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
 
-# Project specific ignores
 [tool.ruff.lint.per-file-ignores]
+<<<<<<< before updating
 "tests/**/*.py" = [
     "ANN",
     "D",       # - Don't need to document tests
@@ -194,6 +191,15 @@ flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
     "PLR2004",
     "PT011",
     "S101",    # - Assert is fine with tests
+=======
+"src/**" = [
+    "NPY", # - not using numpy?
+    "PD",  # - not using pandas?
+]
+"tests/**" = [
+    "D",    # - Don't need to document tests
+    "S101", # - Assert is fine with tests
+>>>>>>> after updating
 ]
 
 # * Checks ---------------------------------------------------------------------
@@ -226,6 +232,7 @@ expand_tables = [
     "tool.ruff.format",
     "tool.ruff.lint",
     "tool.ruff.lint.per-file-ignores",
+    "tool.ty.overrides",
     "tool.typos",
     "tool.uv.dependency-groups",
     "tool.uv.exclude-newer-package",
