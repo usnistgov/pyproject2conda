@@ -183,23 +183,17 @@ ruff.strictly-empty-init-modules = false
 flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
 
 [tool.ruff.lint.per-file-ignores]
-<<<<<<< before updating
-"tests/**/*.py" = [
-    "ANN",
-    "D",       # - Don't need to document tests
-    "PLC2701",
-    "PLR2004",
-    "PT011",
-    "S101",    # - Assert is fine with tests
-=======
 "src/**" = [
     "NPY", # - not using numpy?
     "PD",  # - not using pandas?
 ]
 "tests/**" = [
-    "D",    # - Don't need to document tests
-    "S101", # - Assert is fine with tests
->>>>>>> after updating
+    "D",       # - Don't need to document tests
+    "S101",    # - Assert is fine with tests
+    "ANN",
+    "PLC2701",
+    "PLR2004",
+    "PT011",
 ]
 
 # * Checks ---------------------------------------------------------------------
