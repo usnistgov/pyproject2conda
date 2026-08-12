@@ -413,14 +413,14 @@ pip-deps = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.2",
     "copier-template-extensions>=0.3.3",
-    "copier>=9.17.0",
+    "copier>=9.17.1",
     "grayskull>=3.1.1",
     "prek>=0.4.12",
     "pyrefly>=1.2.0",
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-    "ty>=0.0.65",
+    "ty>=0.0.66",
 ]
 groups = [
     "basedpyright",
