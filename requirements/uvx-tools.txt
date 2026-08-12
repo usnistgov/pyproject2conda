@@ -10,7 +10,7 @@
 basedpyright>=1.39.9
 conda-lock>=4.0.2
 copier-template-extensions>=0.3.3
-copier>=9.17.0
+copier>=9.17.1
 grayskull>=3.1.1
 mypy[faster-cache]>=2.3.0
 nox>=2026.7.11
@@ -19,5 +19,5 @@ pyrefly>=1.2.0
 pyright>=1.1.411
 rooster>=0.1.1
 twine>=7.0.0
-ty>=0.0.65
+ty>=0.0.66
 typecheck-runner>=0.2.0; python_version > "3.9"
