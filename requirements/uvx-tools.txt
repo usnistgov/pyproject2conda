@@ -19,5 +19,5 @@ pyrefly>=1.2.0
 pyright>=1.1.411
 rooster>=0.1.1
 twine>=7.0.0
-ty>=0.0.66
+ty>=0.0.69
 typecheck-runner>=0.2.0; python_version > "3.9"
