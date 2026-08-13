@@ -226,7 +226,7 @@ def validate_list_of_str(s: Iterable[str] | None) -> list[str]:
     if s is None:
         return []
     if isinstance(s, list):
-        return s  # ty: ignore[invalid-return-type]
+        return s
     if isinstance(s, str):
         return [s]
     return list(s)

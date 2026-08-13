@@ -20,7 +20,7 @@ repos:
 
   # * sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.8.1
+    rev: v0.9.1
     hooks:
       - id: forbidden-files
       - id: sync-pre-commit-deps
@@ -68,7 +68,7 @@ repos:
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.08.01
+    rev: 2026.08.05
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -137,7 +137,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.1
+    rev: 0.12.2
     hooks:
       - id: uv-lock
         alias: requirements
