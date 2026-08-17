@@ -56,8 +56,9 @@ def get_default_pythons(path: str | Path = ".python-version") -> list[str]:
     path = Path(path)
     if path.exists():
         out = path.read_text().split()
-        # only keep major.minor
-        out[0] = ".".join(out[0].split(".")[:2])
+        if out:
+            # only keep major.minor
+            out[0] = ".".join(out[0].split(".")[:2])
         return out
     return []
 

@@ -41,6 +41,10 @@ def test_template() -> None:
         (None, "3.10", ["3.10"]),
         ("3.12", "3.11", ["3.12"]),
         ("3.11", None, ["3.11"]),
+        # an empty file exists but holds nothing, so it should be skipped
+        # rather than indexed
+        (None, "", []),
+        ("", "3.11", ["3.11"]),
     ],
 )
 def test_default_pythons(
