@@ -7,6 +7,18 @@ Changelog for `pyproject2conda`
 
 See the fragment files in [changelog.d]
 
+## 0.23.2
+
+Released on 2026-08-19.
+
+### Bug fixes
+
+- fix: Handle an empty .python-version file ([#225](https://github.com/usnistgov/pyproject2conda/pull/225))
+
+### Contributors
+
+- [@arpitjain099](https://github.com/arpitjain099)
+
 ## 0.23.1
 
 Released on 2026-05-07.
