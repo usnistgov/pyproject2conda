@@ -90,7 +90,7 @@ docs-spelling = [
 ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.0" ]
-nox = [ "nox>=2026.7.11" ]
+nox = [ "nox>=2026.8.10" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 pytest-accept = [ "pytest-accept" ]
@@ -415,12 +415,12 @@ pip-deps = [
     "copier-template-extensions>=0.3.3",
     "copier>=9.17.1",
     "grayskull>=3.1.1",
-    "prek>=0.4.12",
+    "prek>=0.4.13",
     "pyrefly>=1.2.0",
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-    "ty>=0.0.69",
+    "ty>=0.0.70",
 ]
 groups = [
     "basedpyright",
