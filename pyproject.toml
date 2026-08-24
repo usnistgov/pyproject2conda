@@ -1,11 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-<<<<<<< before updating
-    "uv-build>=0.12.4,<0.13.0",
-=======
     "uv-build>=0.12.5,<0.13.0",
->>>>>>> after updating
 ]
 
 [project]
@@ -43,19 +39,13 @@ dependencies = [
     "typing-extensions; python_version<'3.12'",
 ]
 
-<<<<<<< before updating
-[project.scripts]
-p2c = "pyproject2conda.cli:app"
-pyproject2conda = "pyproject2conda.cli:app"
-
-=======
->>>>>>> after updating
 [project.urls]
 Documentation = "https://pages.nist.gov/pyproject2conda/"
 Homepage = "https://github.com/usnistgov/pyproject2conda"
 
 [project.scripts]
-pyproject2conda = "pyproject2conda.cli:main"
+p2c = "pyproject2conda.cli:app"
+pyproject2conda = "pyproject2conda.cli:app"
 
 [dependency-groups]
 dev = [
@@ -430,11 +420,7 @@ pip-deps = [
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-<<<<<<< before updating
-    "ty>=0.0.71",
-=======
     "ty>=0.0.72",
->>>>>>> after updating
 ]
 groups = [
     "basedpyright",
