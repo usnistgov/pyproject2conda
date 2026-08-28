@@ -113,6 +113,12 @@ repos:
         alias: ruff
         args: [--fix, --show-fixes]
         types_or: &ruff_types [python, pyi, jupyter, markdown]
+      - id: ruff-check
+        alias: ruff-check-config
+        name: ruff check config
+        args: [--fix, --show-fixes]
+        types_or: [file]
+        files: ^pyproject\.toml$|^\.?ruff\.toml$
       - id: ruff-format
         alias: ruff
         types_or: *ruff_types

@@ -148,31 +148,31 @@ select = [
 ]
 # fixable = [ "ALL" ]
 unfixable = [
-    "PLR6104",
+    "non-augmented-assignment",
     "ERA",
     "T",
 ]
 ignore = [
-    "ANN401",  # - Any ok sometimes
-    "COM",     # - flake8-commas, formatter should take care of this?
-    "CPY",     # - Don't require copyright
-    "D105",    # - Missing magic method docstring
-    "D107",    # - Missing docstring in __init__
-    "D203",    # - 1 blank line required before class docstring
-    "D205",    # - blank line after summary
-    "D212",    # - Multi-line docstring summary should start at the first line
-    "D400",    # - First line should end with a period
-    "D401",    # - First line of docstring should be in imperative mood: "{first_line}"
-    "DOC201",  # - Missing return from documentation
-    "DOC501",  # - Missing raises from documentation
-    "E501",    # - line too long - let formatter fix this
-    "E731",    # - do not assign a lambda expression, use a def
-    "FBT",     # - bools are ok
-    "PLC0415", # - import should be at top level (leads to issues with imports in func?)
-    "S404",    # - Want to use subprocess sometimes
-    "S603",    # - subprocess-without-shell-equals-true
-    "S607",    # - start-process-with-partial-path
-    "TID252",  # - Allow relative imports
+    "any-type",                             # - Any ok sometimes
+    "COM",                                  # - flake8-commas, formatter should take care of this?
+    "CPY",                                  # - Don't require copyright
+    "undocumented-magic-method",            # - Missing magic method docstring
+    "undocumented-public-init",             # - Missing docstring in __init__
+    "incorrect-blank-line-before-class",    # - 1 blank line required before class docstring
+    "missing-blank-line-after-summary",     # - blank line after summary
+    "multi-line-summary-first-line",        # - Multi-line docstring summary should start at the first line
+    "missing-trailing-period",              # - First line should end with a period
+    "non-imperative-mood",                  # - First line of docstring should be in imperative mood: "{first_line}"
+    "docstring-missing-returns",            # - Missing return from documentation
+    "docstring-missing-exception",          # - Missing raises from documentation
+    "line-too-long",                        # - line too long - let formatter fix this
+    "lambda-assignment",                    # - do not assign a lambda expression, use a def
+    "FBT",                                  # - bools are ok
+    "import-outside-top-level",             # - import should be at top level (leads to issues with imports in func?)
+    "suspicious-subprocess-import",         # - Want to use subprocess sometimes
+    "subprocess-without-shell-equals-true", # - subprocess-without-shell-equals-true
+    "start-process-with-partial-path",      # - start-process-with-partial-path
+    "relative-imports",                     # - Allow relative imports
 ]
 isort.known-first-party = [
     "pyproject2conda",
@@ -190,10 +190,10 @@ flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
     "PD",  # - not using pandas?
 ]
 "tests/**" = [
-    "D",       # - Don't need to document tests
-    "S101",    # - Assert is fine with tests
+    "D",                   # - Don't need to document tests
+    "assert",              # - Assert is fine with tests
     "ANN",
-    "PLC2701",
+    "import-private-name",
 ]
 
 # * Checks ---------------------------------------------------------------------
