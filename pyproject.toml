@@ -190,15 +190,10 @@ flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
     "PD",  # - not using pandas?
 ]
 "tests/**" = [
-<<<<<<< before updating
-    "D",       # - Don't need to document tests
-    "S101",    # - Assert is fine with tests
+    "D",                   # - Don't need to document tests
+    "assert",              # - Assert is fine with tests
     "ANN",
-    "PLC2701",
-=======
-    "D",      # - Don't need to document tests
-    "assert", # - Assert is fine with tests
->>>>>>> after updating
+    "import-private-name",
 ]
 
 # * Checks ---------------------------------------------------------------------
