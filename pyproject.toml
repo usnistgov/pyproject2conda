@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.12.5,<0.13.0",
+    "uv-build>=0.12.7,<0.13.0",
 ]
 
 [project]
@@ -413,14 +413,14 @@ pip-deps = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.2",
     "copier-template-extensions>=0.3.3",
-    "copier>=9.17.1",
+    "copier>=9.17.2",
     "grayskull>=3.1.1",
     "prek>=0.4.14",
     "pyrefly>=1.2.0",
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-    "ty>=0.0.72",
+    "ty>=0.0.73",
 ]
 groups = [
     "basedpyright",
