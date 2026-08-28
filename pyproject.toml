@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.12.7,<0.13.0",
+    "uv-build>=0.12.5,<0.13.0",
 ]
 
 [project]
@@ -105,6 +105,8 @@ required-version = ">=0.11.8"
 default-groups = [ "dev" ]
 fork-strategy = "requires-python"
 exclude-newer = "7 days"
+# Needed until prek>=0.5.0 is 7 days old
+exclude-newer-package = { prek = "0 days" }
 managed = true
 build-backend.source-exclude = [ ".*cache" ]
 build-backend.source-include = [ "tests/**" ]
@@ -415,7 +417,7 @@ pip-deps = [
     "copier-template-extensions>=0.3.3",
     "copier>=9.17.2",
     "grayskull>=3.1.1",
-    "prek>=0.4.14",
+    "prek>=0.5.0",
     "pyrefly>=1.2.0",
     "pyright>=1.1.411",
     "rooster>=0.1.1",
