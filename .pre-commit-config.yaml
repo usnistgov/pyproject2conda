@@ -1,4 +1,4 @@
-auto_update:
+update:
   cooldown_days: 7
 ci:
   autoupdate_commit_msg: "chore(deps): update pre-commit hooks"
@@ -107,7 +107,11 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
+<<<<<<< before updating
     rev: v0.16.5
+=======
+    rev: v0.16.4
+>>>>>>> after updating
     hooks:
       - id: ruff-check
         alias: ruff
