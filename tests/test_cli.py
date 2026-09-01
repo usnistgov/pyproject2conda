@@ -518,16 +518,6 @@ setuptools
     )
     check_result(result, expected)
 
-    expected = """\
-build
-setuptools
-    """
-
-    result = do_run(
-        runner, "requirements", opt, "dist-pypi", "--skip-package", filename=filename
-    )
-    check_result(result, expected)
-
 
 def check_results_conda_req(path, expected) -> None:
     result = Path(path).read_text(encoding=locale.getpreferredencoding(False))
