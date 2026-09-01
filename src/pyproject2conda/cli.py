@@ -810,7 +810,7 @@ def to_json(
     "channels": conda channels.
     """
     if not update_target(output, pyproject_filename, overwrite=overwrite.value):
-        _log_skipping(logger, "yaml", output)
+        _log_skipping(logger, "json", output)
         return
 
     import json
