@@ -95,7 +95,9 @@ class _Script:
 class _Requirement:
     path: Path
     options: list[str]
-    python: str | None  # `--python-version`.  {"min", "default", python_version}
+    python: (
+        str | None
+    )  # --python-version option. Options: "min", "default", or a specific Python version string.
     output_file: Path
 
     @classmethod
@@ -138,7 +140,9 @@ class _Config:
     scripts: list[_Script]
     requirements: list[_Requirement]
     pip_compile_config_file: Path | None
-    quiet: bool = True  # If true, include `--quiet` in uv pip compile
+    quiet: bool = (
+        True  # If true, include `--quiet` in uv operations using extra options
+    )
 
     @classmethod
     def from_data(cls, data: dict[str, Any]) -> _Config:
@@ -205,7 +209,10 @@ def _path_or_none(x: str | None) -> Path | None:
     if x is None:
         return x
     path = Path(x)
-    return path if path.exists() else None
+    if not path.exists():
+        logger.info("Path %s does not exist", path)
+        return None
+    return path
 
 
 def main(args: Sequence[str] | None = None) -> int:
