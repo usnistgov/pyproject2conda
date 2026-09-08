@@ -1,11 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-<<<<<<< before updating
-    "uv-build>=0.12.7,<0.13.0",
-=======
     "uv-build>=0.12.8,<0.13.0",
->>>>>>> after updating
 ]
 
 [project]
@@ -151,8 +147,10 @@ docstring-code-format = true
     "PD",  # - not using pandas?
 ]
 "tests/**" = [
-    "assert", # - Assert is fine with tests
-    "D",      # - Don't need to document tests
+    "ANN",
+    "assert",              # - Assert is fine with tests
+    "D",                   # - Don't need to document tests
+    "import-private-name",
 ]
 
 [tool.ruff.lint]
@@ -187,6 +185,7 @@ unfixable = [
     "non-augmented-assignment",
     "T",
 ]
+flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
 isort.known-first-party = [
     "pyproject2conda",
 ]
@@ -196,23 +195,7 @@ pylint.max-positional-args = 15
 pylint.max-public-methods = 30
 preview = true
 ruff.strictly-empty-init-modules = false
-flake8-type-checking.runtime-evaluated-base-classes = [ "pydantic.BaseModel" ]
 
-<<<<<<< before updating
-[tool.ruff.lint.per-file-ignores]
-"src/**" = [
-    "NPY", # - not using numpy?
-    "PD",  # - not using pandas?
-]
-"tests/**" = [
-    "D",                   # - Don't need to document tests
-    "assert",              # - Assert is fine with tests
-    "ANN",
-    "import-private-name",
-]
-
-=======
->>>>>>> after updating
 # * Checks ---------------------------------------------------------------------
 [tool.repo-review]
 ignore = [
@@ -432,18 +415,14 @@ pip-deps = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.2",
     "copier-template-extensions>=0.3.3",
-    "copier>=9.18.1",
+    "copier>=9.17.2",
     "grayskull>=3.1.1",
     "prek>=0.5.2",
     "pyrefly>=1.2.0",
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-<<<<<<< before updating
     "ty>=0.0.75",
-=======
-    "ty>=0.0.77",
->>>>>>> after updating
 ]
 groups = [
     "basedpyright",

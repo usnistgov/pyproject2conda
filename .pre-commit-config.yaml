@@ -62,11 +62,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-<<<<<<< before updating
-    rev: v2.28.1
-=======
     rev: v2.29.3
->>>>>>> after updating
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
@@ -147,11 +143,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-<<<<<<< before updating
-    rev: 0.12.7
-=======
     rev: 0.12.8
->>>>>>> after updating
     hooks:
       - id: uv-lock
         alias: requirements
