@@ -23,7 +23,7 @@ jobs:
   docs:
     permissions:
       contents: write
-    uses: ./.github/workflows/docs.yml
+    uses: $/.github/workflows/docs.yml
     with:
       deploy:
         ${{ (github.event_name == 'release' && github.event.action ==
@@ -36,7 +36,7 @@ jobs:
   #   permissions:
   #     id-token: write
   #     attestations: write
-  #   uses: ./.github/workflows/pypi-package.yml
+  #   uses: $/.github/workflows/pypi-package.yml
   #   with:
   #     deploy:
   #       ${{ (github.event_name == 'release' && github.event.action ==
@@ -87,7 +87,7 @@ jobs:
         with:
           name: Packages
           path: dist
-      - uses: ./.github/actions/setup-cached-uv-and-python
+      - uses: $/.github/actions/setup-cached-uv-and-python
         with:
           python-version-file: ".python-version"
       - name: Smoke test wheel

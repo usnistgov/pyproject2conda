@@ -112,7 +112,7 @@ jobs:
           persist-credentials: false
 
       # Not always needed but some hooks use it...
-      - uses: ./.github/actions/setup-cached-uv-and-python
+      - uses: $/.github/actions/setup-cached-uv-and-python
         with:
           python-version-file: ".python-version"
           cache-dependency-path: uv.lock
@@ -171,7 +171,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-cached-uv-and-python
+      - uses: $/.github/actions/setup-cached-uv-and-python
         with:
           python-version-file: ".python-version"
           cache-dependency-path: uv.lock
@@ -219,7 +219,7 @@ jobs:
         with:
           name: Packages
           path: dist
-      - uses: ./.github/actions/setup-cached-uv-and-python
+      - uses: $/.github/actions/setup-cached-uv-and-python
         with:
           python-version: ${{ matrix.python-version }}
           cache-dependency-path: uv.lock
@@ -265,7 +265,7 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -aR
 
-      - uses: ./.github/actions/setup-cached-uv-and-python
+      - uses: $/.github/actions/setup-cached-uv-and-python
         with:
           python-version-file: ".python-version"
           cache-dependency-path: requirements/lock/uvx-tools.txt
@@ -290,7 +290,7 @@ jobs:
     if: needs.pre_job.outputs.should_skip != 'true'
     permissions:
       contents: write
-    uses: ./.github/workflows/docs.yml
+    uses: $/.github/workflows/docs.yml
     with:
       deploy: false
 

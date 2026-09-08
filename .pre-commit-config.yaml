@@ -62,13 +62,13 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.28.1
+    rev: v2.29.3
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.08.15
+    rev: 2026.08.29
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -126,7 +126,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.49.0
+    rev: v1.50.0
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -143,7 +143,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.7
+    rev: 0.12.8
     hooks:
       - id: uv-lock
         alias: requirements
@@ -192,6 +192,12 @@ repos:
         args:
           - "-ignore=SC2129" # ignorable stylistic lint from shellcheck
           - "-ignore=SC2016" # another shellcheck lint: seems to have false positives?
+          # NOTE: Ignore these until https://github.com/rhysd/actionlint/issues/711 resolved
+          - "-ignore"
+          - 'specifying action "\$/.+" in invalid format because ref is missing'
+          - "-ignore"
+          - 'reusable workflow call "\$/.+" at "uses" is not following the
+            format'
         language: golang # means renovate will also update `additional_dependencies`
         additional_dependencies:
           # actionlint has a shellcheck integration which extracts shell scripts in `run:` steps from GitHub Actions
@@ -203,7 +209,7 @@ repos:
         priority: 0
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     # Zizmor version.
-    rev: v1.29.0
+    rev: v1.30.0
     hooks:
       # Run the linter.
       - id: zizmor

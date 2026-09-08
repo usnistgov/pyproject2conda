@@ -47,7 +47,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - uses: ./.github/actions/setup-cached-uv-and-python
+      - uses: $/.github/actions/setup-cached-uv-and-python
         with:
           python-version-file: ".python-version"
           cache-dependency-path: requirements/lock/uvx-tools.txt
@@ -105,9 +105,19 @@ jobs:
           fi
         shell: bash -eux {0}
 
+      - name: Get just version
+        if: steps.check.outputs.changed == 'true'
+        shell: bash
+        run: |
+          just_version=$(uv run tools/get_version_from_pre_commit_config.py https://github.com/wpk-nist-gov/just-pre-commit)
+          echo "just_version: ${just_version}"
+          echo "just_version=${just_version}" >> "$GITHUB_ENV"
+
       - name: Install just
         if: steps.check.outputs.changed == 'true'
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
+        with:
+          just-version: ${{ env.just_version}} # zizmor: ignore[unpinned-tools] # False positive
 
       - name: Sync requirements
         if: steps.check.outputs.changed == 'true'
