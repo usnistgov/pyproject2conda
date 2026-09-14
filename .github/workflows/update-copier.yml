@@ -51,6 +51,12 @@ jobs:
         with:
           python-version-file: ".python-version"
           cache-dependency-path: requirements/lock/uvx-tools.txt
+      - name: Get just version # NOTE: do this before potential update to .pre-commit-config.yaml
+        shell: bash
+        run: |
+          just_version=$(uv run tools/get_version_from_pre_commit_config.py https://github.com/wpk-nist-gov/just-pre-commit)
+          echo "just_version: ${just_version}"
+          echo "just_version=${just_version}" >> "$GITHUB_ENV"
       - name: Install copier
         run:
           uv tool install -crequirements/lock/uvx-tools.txt --with
@@ -104,14 +110,6 @@ jobs:
             git restore --staged .
           fi
         shell: bash -eux {0}
-
-      - name: Get just version
-        if: steps.check.outputs.changed == 'true'
-        shell: bash
-        run: |
-          just_version=$(uv run tools/get_version_from_pre_commit_config.py https://github.com/wpk-nist-gov/just-pre-commit)
-          echo "just_version: ${just_version}"
-          echo "just_version=${just_version}" >> "$GITHUB_ENV"
 
       - name: Install just
         if: steps.check.outputs.changed == 'true'
