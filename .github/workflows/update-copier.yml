@@ -21,6 +21,7 @@ permissions:
 env:
   COPIER_OPTIONS: "--trust -A -r main -c 3"
   AUTOMERGE: "false"
+  UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
 
 jobs:
   update:
@@ -51,16 +52,6 @@ jobs:
         with:
           python-version-file: ".python-version"
           cache-dependency-path: requirements/lock/uvx-tools.txt
-      - name: Get just version # NOTE: do this before potential update to .pre-commit-config.yaml
-        shell: bash
-        run: |
-          just_version=$(uv run tools/get_version_from_pre_commit_config.py https://github.com/wpk-nist-gov/just-pre-commit)
-          echo "just_version: ${just_version}"
-          echo "just_version=${just_version}" >> "$GITHUB_ENV"
-      - name: Install copier
-        run:
-          uv tool install -crequirements/lock/uvx-tools.txt --with
-          copier-template-extensions copier
       - name: Copier update
         continue-on-error: false
         id: check
@@ -73,7 +64,7 @@ jobs:
           automergeable='true'
 
           if [ -f .copier-answers.yml ]; then
-            copier update ${{ env.COPIER_OPTIONS }}
+            $UVX_COMMAND --with copier-template-extensions copier update ${{ env.COPIER_OPTIONS }}
             if ! git diff --quiet -- .copier-answers.yml; then
               changed='true'
             fi
@@ -111,15 +102,9 @@ jobs:
           fi
         shell: bash -eux {0}
 
-      - name: Install just
-        if: steps.check.outputs.changed == 'true'
-        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
-        with:
-          just-version: ${{ env.just_version}} # zizmor: ignore[unpinned-tools] # False positive
-
       - name: Sync requirements
         if: steps.check.outputs.changed == 'true'
-        run: just lock || true
+        run: $UVX_COMMAND --from rust-just just lock || true
 
       - name: Create pull request
         if: steps.check.outputs.changed == 'true'

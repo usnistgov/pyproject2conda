@@ -7,7 +7,7 @@ import sys
 import tempfile
 from pathlib import Path
 from textwrap import dedent
-from typing import cast
+from typing import Any, cast
 from unittest.mock import patch
 
 import pytest
@@ -18,7 +18,7 @@ from pyproject2conda.cli import app
 ROOT = Path(__file__).resolve().parent / "data"
 
 
-def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs):
+def do_run(runner, command, *opts, filename=None, must_exist=False, **kwargs) -> Any:
     if filename is None:
         raise ValueError
     filename = Path(filename)

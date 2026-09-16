@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 ROOT = Path(__file__).resolve().parent / "data"
 
 
-def do_run(runner, command, *opts, filename=None, must_exist=False):
+def do_run(runner, command, *opts, filename=None, must_exist=False) -> Any:
     if filename is None:
         filename = ROOT / "test-pyproject.toml"
     filename = Path(filename)
