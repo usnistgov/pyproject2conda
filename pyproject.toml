@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.12.10,<0.13.0",
+    "uv-build>=0.12.11,<0.13.0",
 ]
 
 [project]
@@ -213,7 +213,7 @@ toplevel = [ "pyproject2conda" ]
 [tool.pyproject-fmt]
 indent = 4
 keep_full_version = true
-# max_supported_python = "3.13"
+max_supported_python = "3.14"
 expand_tables = [
     "project.entry-points",
     "project.optional-dependencies",
