@@ -48,10 +48,11 @@ def _pip_reqs_to_list(pip_reqs: set[NormalizedRequirement]) -> list[str]:
 
 def _conda_reqs_to_list(conda_reqs: set[CondaRequirement]) -> list[str]:
     order = defaultdict(lambda: 1, {"python": 0, "pip": 2})
-    return [
-        str(_).replace("~=", "=")
-        for _ in sorted(conda_reqs, key=lambda x: (order[x.name], str(x)))
-    ]
+
+    def _key_func(x: CondaRequirement) -> tuple[int, str]:
+        return (order[x.name], str(x))
+
+    return [str(_).replace("~=", "=") for _ in sorted(conda_reqs, key=_key_func)]
 
 
 def conda_and_pip_reqs_to_list(
@@ -77,7 +78,7 @@ class RequirementsConfig:
     @classmethod
     def from_schema(cls, schema: PyProjectRequirementsWith2CondaSchema) -> Self:
         """Build object from schema"""
-        build_system = (
+        build_system: dict[NormalizedName, list[str]] = (
             {canonicalize_name("build-system.requires"): schema.build_system.requires}
             if schema.build_system.requires
             else {}
@@ -208,7 +209,9 @@ class RequirementsConfig:
         pip_reqs = {
             canonicalize_pip_requirement(req) for req in validate_iterable_str(pip_deps)
         }
-        env = {"python_version": python_version} if python_version else {}
+        env: dict[str, str] = (
+            {"python_version": python_version} if python_version else {}
+        )
         conda_reqs = {
             dep.update(marker=None, extras=None)
             for dep in (CondaRequirement(c) for c in validate_iterable_str(conda_deps))

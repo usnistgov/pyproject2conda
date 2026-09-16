@@ -37,6 +37,10 @@ ListNormalizedName = Annotated[
 ]
 
 
+def _snake_case(field_name: str) -> str:
+    return field_name.replace("_", "-")
+
+
 # * PyProject2Conda -----------------------------------------------------------
 class Overwrite(str, Enum):
     """Options for ``--overwrite``"""
@@ -79,7 +83,7 @@ class _BaseOptionsYaml(_BaseOptionsRequirements):
 
 class _BaseOptions(_BaseOptionsYaml):
     model_config = ConfigDict(
-        alias_generator=lambda field_name: field_name.replace("_", "-"),
+        alias_generator=_snake_case,
         validate_by_name=True,
         validate_by_alias=True,
         extra="forbid",
@@ -187,6 +191,7 @@ class PyProject2CondaSchema(_BaseOptions, _Dependencies):
         *options: dict[str, Any],
     ) -> ChainMap[str, Any]:
 
+        env_options: list[Any]
         if env_name is None:
             env_options = []
         else:
@@ -221,7 +226,7 @@ class PyProject2CondaSchema(_BaseOptions, _Dependencies):
 
 class _PyProjectBaseSchema(BaseModel):
     model_config = ConfigDict(
-        alias_generator=lambda field_name: field_name.replace("_", "-"),
+        alias_generator=_snake_case,
         validate_by_alias=True,
         validate_by_name=True,
     )
