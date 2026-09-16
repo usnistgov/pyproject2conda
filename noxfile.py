@@ -889,6 +889,8 @@ def conda_recipe(
 def conda_build(session: nox.Session, opts: SessionParams) -> None:
     """Run `conda mambabuild`."""
     session.conda_install("boa", "anaconda-client")
+
+    cmds: list[Literal["build", "clean"]] | None
     cmds, run = opts.conda_build, opts.conda_build_run
 
     session_run_commands(session, run)
@@ -896,10 +898,7 @@ def conda_build(session: nox.Session, opts: SessionParams) -> None:
     if not run and not cmds:
         cmds = ["build", "clean"]
 
-    if cmds is None:
-        cmds = []
-
-    cmds = list(cmds)
+    cmds = [] if cmds is None else list(cmds)
     if "clean" in cmds:
         cmds.remove("clean")
         session.log("removing directory dist-conda/build")

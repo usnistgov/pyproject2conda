@@ -268,9 +268,17 @@ project-includes = [
 search-path = [ "." ]
 enabled-ignores = [ "pyrefly" ]
 min-severity = "warn"
+preset = "strict"
 
 [tool.pyrefly.errors]
 unused-ignore = "error"
+
+[[tool.pyrefly.sub-config]]
+matches = "tests/**"
+errors.implicit-any-parameter = "ignore"
+errors.implicit-any-lambda = "ignore"
+errors.missing-override-decorator = "ignore"
+errors.implicit-any-empty-container = "ignore"
 
 [tool.pyright]
 typeCheckingMode = "strict"
