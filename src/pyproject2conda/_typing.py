@@ -8,4 +8,4 @@ if TYPE_CHECKING:
     from ._typing_compat import TypeAlias
     from ._utils import _Missing  # ruff:ignore[unused-import]
 
-MISSING_TYPE: TypeAlias = "Literal[_Missing.MISSING]"  # pyrefly: ignore[type-alias-error]
+MISSING_TYPE: TypeAlias = "Literal[_Missing.MISSING]"

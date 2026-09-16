@@ -188,7 +188,7 @@ def test__get_standard_format_dict(
             "3.8",
             "there",
             ".txt",
-            nullcontext("thing-there.txt"),  # pyrefly: ignore
+            nullcontext("thing-there.txt"),
         ),
         ("thing-{py}", None, "there", ".yaml", pytest.raises(KeyError)),
     ],
@@ -212,13 +212,13 @@ def test_filename_from_template(
 @pytest.mark.parametrize(
     ("name", "python_version", "env_name", "expected"),
     [
-        ("my-env", "3.8", "thing", nullcontext("my-env")),  # pyrefly: ignore
+        ("my-env", "3.8", "thing", nullcontext("my-env")),
         ("my-env-{py}", None, "thing", pytest.raises(KeyError)),
         (
             "my-{env}-{py}",
             "3.8",
             "thing",
-            nullcontext("my-thing-38"),  # pyrefly: ignore
+            nullcontext("my-thing-38"),
         ),
         (None, "3.8", "thing", nullcontext(None)),
     ],

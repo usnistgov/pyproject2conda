@@ -875,7 +875,7 @@ def conda_recipe(
                     "pypi",
                     sdist_path,
                     "-o",
-                    str(d),
+                    d,
                 )
                 path = Path(d) / PACKAGE_NAME / "meta.yaml"
                 session.log(f"cat {path}:")
