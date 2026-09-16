@@ -58,13 +58,9 @@ class CondaRequirement(NormalizedRequirement):
         self,
         channel: str | None = None,
         name: str | MISSING_TYPE = MISSING,
-        # pyrefly: ignore [bad-function-definition]
         url: str | MISSING_TYPE | None = MISSING,
-        # pyrefly: ignore [bad-function-definition]
         extras: str | Iterable[str] | MISSING_TYPE | None = MISSING,
-        # pyrefly: ignore [bad-function-definition]
         specifier: str | SpecifierSet | MISSING_TYPE | None = MISSING,
-        # pyrefly: ignore [bad-function-definition]
         marker: str | Marker | MISSING_TYPE | None = MISSING,
         inplace: bool = False,
     ) -> Self:
@@ -75,11 +71,9 @@ class CondaRequirement(NormalizedRequirement):
             req.channel = channel
 
         if name is not MISSING:
-            # pyrefly: ignore [bad-assignment]
             req.name = canonicalize_name(name)
 
         if url is not MISSING:
-            # pyrefly: ignore [bad-assignment]
             req.url = url
 
         if extras is not MISSING:
@@ -97,14 +91,12 @@ class CondaRequirement(NormalizedRequirement):
                 specifier = SpecifierSet()
             elif isinstance(specifier, str):
                 specifier = SpecifierSet(specifier)
-            # pyrefly: ignore [bad-assignment]
             req.specifier = specifier
 
         if marker is not MISSING:
             if isinstance(marker, str):
                 marker = Marker(marker)
 
-            # pyrefly: ignore [bad-assignment]
             req.marker = marker
 
         return req
