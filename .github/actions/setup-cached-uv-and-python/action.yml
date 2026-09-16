@@ -12,6 +12,14 @@ inputs:
     description: "Passed to hynek/setup-cached-uv"
     required: false
     default: "pyproject.toml"
+  allow-prereleases:
+    description: "Allow python pre-releases"
+    required: false
+    default: "true"
+  check-latest:
+    description: "Check for latest python version"
+    required: false
+    default: "true"
 
 outputs:
   python-version:
@@ -35,6 +43,8 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
         python-version-file: ${{ inputs.python-version-file }}
+        allow-prereleases: ${{ inputs.allow-prereleases }}
+        check-latest: ${{ inputs.check-latest }}
     - name: Setup cached uv
       id: setup-cached-uv
       uses: hynek/setup-cached-uv@34e35d30f1ebc7421a5cc733bca38dcc62603960 # v2.6.0
