@@ -9,16 +9,17 @@ import tempfile
 from textwrap import dedent
 from typing import TYPE_CHECKING, cast
 
-if sys.version_info >= (3, 15):
-    from typing import TypedDict  # pyright: ignore[reportUnreachable]
-else:
-    from typing_extensions import TypedDict
-
 import pytest
 from pydantic import ValidationError
 
 from pyproject2conda import requirements
 from pyproject2conda._config import PyProject2CondaConfig
+
+if sys.version_info >= (3, 15):
+    from typing import TypedDict  # pyright: ignore[reportUnreachable]
+else:
+    from typing_extensions import TypedDict
+
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
