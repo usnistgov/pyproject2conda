@@ -4,9 +4,15 @@
 from __future__ import annotations
 
 import locale
+import sys
 import tempfile
 from textwrap import dedent
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, cast
+
+if sys.version_info >= (3, 15):
+    from typing import TypedDict  # pyright: ignore[reportUnreachable]
+else:
+    from typing_extensions import TypedDict
 
 import pytest
 from pydantic import ValidationError
@@ -51,7 +57,7 @@ def test_header() -> None:
     assert out == header
 
 
-class StyleDict(TypedDict, total=False):
+class StyleDict(TypedDict, total=False, closed=True):
     extras: Iterable[str]
     groups: Iterable[str]
     extras_or_groups: Iterable[str]

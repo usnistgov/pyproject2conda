@@ -60,6 +60,7 @@ test = [
     "pytest-cov",
     "pytest-sugar",
     "pytest-xdist",
+    "typing-extensions; python_version<'3.15'",
     { include-group = "pytest" },
 ]
 type = [
@@ -288,16 +289,15 @@ unused-ignore = "error"
 variance-mismatch = "error"
 
 [[tool.pyrefly.sub-config]]
-<<<<<<< before updating
+matches = "noxfile.py"
+errors.open-unpacking = "ignore"
+
+[[tool.pyrefly.sub-config]]
 matches = "tests/**"
 errors.implicit-any-parameter = "ignore"
 errors.implicit-any-lambda = "ignore"
 errors.missing-override-decorator = "ignore"
 errors.implicit-any-empty-container = "ignore"
-=======
-matches = "noxfile.py"
-errors.open-unpacking = "ignore"
->>>>>>> after updating
 
 [tool.pyright]
 typeCheckingMode = "strict"
