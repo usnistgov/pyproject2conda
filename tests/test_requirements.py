@@ -4,15 +4,22 @@
 from __future__ import annotations
 
 import locale
+import sys
 import tempfile
 from textwrap import dedent
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from pydantic import ValidationError
 
 from pyproject2conda import requirements
 from pyproject2conda._config import PyProject2CondaConfig
+
+if sys.version_info >= (3, 15):
+    from typing import TypedDict  # pyright: ignore[reportUnreachable]
+else:
+    from typing_extensions import TypedDict
+
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -51,7 +58,7 @@ def test_header() -> None:
     assert out == header
 
 
-class StyleDict(TypedDict, total=False):
+class StyleDict(TypedDict, total=False, closed=True):
     extras: Iterable[str]
     groups: Iterable[str]
     extras_or_groups: Iterable[str]

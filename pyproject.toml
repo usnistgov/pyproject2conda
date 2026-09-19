@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.12.11,<0.13.0",
+    "uv-build>=0.12.13,<0.13.0",
 ]
 
 [project]
@@ -60,6 +60,7 @@ test = [
     "pytest-cov",
     "pytest-sugar",
     "pytest-xdist",
+    "typing-extensions; python_version<'3.15'",
     { include-group = "pytest" },
 ]
 type = [
@@ -79,7 +80,7 @@ docs = [
     "sphinxcontrib-typer",
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.40.0" ]
+basedpyright = [ "basedpyright>=1.40.1" ]
 docs-live = [
     "sphinx-autobuild",
     { include-group = "docs" },
@@ -288,6 +289,10 @@ unused-ignore = "error"
 variance-mismatch = "error"
 
 [[tool.pyrefly.sub-config]]
+matches = "noxfile.py"
+errors.open-unpacking = "ignore"
+
+[[tool.pyrefly.sub-config]]
 matches = "tests/**"
 errors.implicit-any-parameter = "ignore"
 errors.implicit-any-lambda = "ignore"
@@ -453,12 +458,12 @@ pip-deps = [
     "copier>=9.18.2",
     "grayskull>=3.2.0",
     "prek>=0.5.3",
-    "pyrefly>=1.2.0",
-    "pyright>=1.1.411",
+    "pyrefly>=1.3.0",
+    "pyright>=1.1.414",
     "rooster>=0.1.1",
     "rust-just>=1.58.0",
     "twine>=7.0.0",
-    "ty>=0.0.79",
+    "ty>=0.0.80",
 ]
 groups = [
     "basedpyright",
