@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.12.15,<0.13.0",
+    "uv-build>=0.12.16,<0.13.0",
 ]
 
 [project]
@@ -463,7 +463,7 @@ pip-deps = [
     "rooster>=0.1.1",
     "rust-just>=1.58.0",
     "twine>=7.0.0",
-    "ty>=0.0.81",
+    "ty>=0.0.82",
 ]
 groups = [
     "basedpyright",
