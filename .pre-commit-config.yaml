@@ -68,11 +68,7 @@ repos:
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-<<<<<<< before updating
     rev: "2026.09.19"
-=======
-    rev: 2026.09.19
->>>>>>> after updating
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -147,11 +143,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-<<<<<<< before updating
     rev: "0.12.17"
-=======
-    rev: 0.12.17
->>>>>>> after updating
     hooks:
       - id: uv-lock
         alias: requirements
