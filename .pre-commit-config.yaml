@@ -20,7 +20,7 @@ repos:
 
   # * sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.10.0
+    rev: "v0.10.0"
     hooks:
       - id: forbidden-files
       - id: sync-pre-commit-deps
@@ -39,7 +39,7 @@ repos:
 
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: "v6.0.0"
     hooks:
       - id: check-added-large-files
         exclude: ^uv[.]lock
@@ -55,14 +55,14 @@ repos:
   # * toml/pyproject.toml
   # ** format
   - repo: https://github.com/ComPWA/taplo-pre-commit
-    rev: v0.9.3
+    rev: "v0.9.3"
     hooks:
       - id: taplo-format
         exclude: (^|/)pyproject\.toml$
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.29.4
+    rev: "v2.29.4"
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
@@ -75,14 +75,14 @@ repos:
         stages: [manual]
   # ** repo review
   - repo: https://github.com/scientific-python/cookie
-    rev: 2026.08.14
+    rev: "2026.08.14"
     hooks:
       - id: sp-repo-review
         stages: [manual]
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.8
+    rev: "v3.9.8"
     hooks:
       - id: prettier
         alias: markdownlint
@@ -93,7 +93,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.23.3
+    rev: "v0.23.3"
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -101,13 +101,13 @@ repos:
 
   # Just
   - repo: https://github.com/wpk-nist-gov/just-pre-commit
-    rev: v1.58.0
+    rev: "v1.58.0"
     hooks:
       - id: justfile-format
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.8
+    rev: "v0.16.8"
     hooks:
       - id: ruff-check
         alias: ruff
@@ -126,7 +126,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.50.2
+    rev: "v1.50.2"
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -135,7 +135,7 @@ repos:
   # * Dependencies
   # ** pyproject2conda
   - repo: https://github.com/usnistgov/pyproject2conda
-    rev: v0.23.2
+    rev: "v0.23.2"
     hooks:
       - id: pyproject2conda-project
         alias: requirements
@@ -156,7 +156,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.18.1
+    rev: "v4.18.1"
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -176,7 +176,7 @@ repos:
 
   # * Actions
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.38.0
+    rev: "0.38.0"
     hooks:
       - id: check-github-workflows
         alias: actions
@@ -184,7 +184,7 @@ repos:
       - id: check-github-actions
         alias: actions
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.12
+    rev: "v1.7.12"
     hooks:
       - id: actionlint
         alias: actions
@@ -209,7 +209,7 @@ repos:
         priority: 0
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     # Zizmor version.
-    rev: v1.30.1
+    rev: "v1.30.1"
     hooks:
       # Run the linter.
       - id: zizmor
