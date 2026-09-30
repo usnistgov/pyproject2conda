@@ -132,9 +132,6 @@ def get_python_full_path(session: Session) -> str:
 # * Utilities --------------------------------------------------------------------------
 def combine_list_str(opts: str | Iterable[str]) -> list[str]:
     """Cleanup str/list[str] to list[str]"""
-    if not opts:
-        return []
-
     if isinstance(opts, str):
         opts = [opts]
     return shlex.split(" ".join(opts))
