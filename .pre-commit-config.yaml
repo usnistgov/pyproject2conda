@@ -143,7 +143,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.12.17"
+    rev: "0.12.18"
     hooks:
       - id: uv-lock
         alias: requirements
@@ -156,7 +156,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: "v4.18.1"
+    rev: "v4.19.0"
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -176,7 +176,7 @@ repos:
 
   # * Actions
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: "0.38.0"
+    rev: "0.38.1"
     hooks:
       - id: check-github-workflows
         alias: actions
