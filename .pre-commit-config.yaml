@@ -79,6 +79,12 @@ repos:
     hooks:
       - id: sp-repo-review
         stages: [manual]
+  # ** deptry (dependency analysis)
+  - repo: https://github.com/francescorubbo/deptry-pre-commit
+    rev: "v0.25.1"
+    hooks:
+      - id: deptry
+        stages: [manual]
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier

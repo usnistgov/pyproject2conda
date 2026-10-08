@@ -212,6 +212,12 @@ ignore = [
 src_dir = [ "src" ]
 toplevel = [ "pyproject2conda" ]
 
+[tool.deptry]
+known_first_party = [ "pyproject2conda" ]
+# Group: ignores
+per_rule_ignores.DEP001 = [ "pkginfo" ]
+per_rule_ignores.DEP004 = [ "nox", "pytest" ]
+
 [tool.pyproject-fmt]
 indent = 4
 keep_full_version = true
