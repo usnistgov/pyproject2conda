@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.12.21,<0.13.0",
+    "uv-build>=0.12.22,<0.13.0",
 ]
 
 [project]
@@ -91,7 +91,7 @@ docs-spelling = [
     { include-group = "docs" },
 ]
 ipython = [ "ipython" ]
-mypy = [ "mypy[faster-cache]>=2.3.1" ]
+mypy = [ "mypy[faster-cache]>=2.4.0" ]
 nox = [ "nox>=2026.8.17" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
