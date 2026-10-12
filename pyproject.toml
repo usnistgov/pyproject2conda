@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.12.22,<0.13.0",
+    "uv-build>=0.12.23,<0.13.0",
 ]
 
 [project]
@@ -80,7 +80,7 @@ docs = [
     "sphinxcontrib-typer",
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.40.1" ]
+basedpyright = [ "basedpyright>=1.40.2" ]
 docs-live = [
     "sphinx-autobuild",
     { include-group = "docs" },
