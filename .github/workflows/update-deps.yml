@@ -46,8 +46,7 @@ jobs:
         with:
           token: ${{ secrets.PAT }}
           add-paths: .
-          commit-message:
-            "chore(deps): update dependencies and pre-commit hooks"
+          commit-message: "chore(deps): update dependencies and pre-commit hooks"
           title: "chore(deps): update dependencies and pre-commit hooks"
           labels: dependencies
           branch: update/deps
@@ -73,9 +72,7 @@ jobs:
           echo "Pull Request VERIFIED  - $VERIFIED"
 
       - name: automerge
-        if:
-          ${{ (inputs.automerge || env.AUTOMERGE == 'true') &&
-          steps.cpr.outputs.pull-request-number }}
+        if: ${{ (inputs.automerge || env.AUTOMERGE == 'true') && steps.cpr.outputs.pull-request-number }}
         env:
           NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
           # Need PAT if want to start other actions.  Use GITHUB_TOKEN if not.

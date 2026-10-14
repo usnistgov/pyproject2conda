@@ -170,7 +170,7 @@ def session_run_commands(
             _ = session.run(*opt, **kws)  # pyright: ignore[reportUnknownVariableType]
 
 
-# * Caching -------------------------------------------------------------------
+# * Caching ----------------------------------------------------------------------------
 @contextmanager
 def check_for_change_manager(
     *deps: str | Path,

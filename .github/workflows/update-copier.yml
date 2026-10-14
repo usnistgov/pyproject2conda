@@ -148,9 +148,7 @@ jobs:
 
       - name: automerge
         if:
-          ${{ (inputs.automerge || env.AUTOMERGE == 'true') &&
-          steps.cpr.outputs.pull-request-number &&
-          steps.check.outputs.conflict_message == ''  &&
+          ${{ (inputs.automerge || env.AUTOMERGE == 'true') && steps.cpr.outputs.pull-request-number && steps.check.outputs.conflict_message == ''  &&
           steps.check.outputs.automergeable == 'true' }}
         env:
           NUMBER: ${{ steps.cpr.outputs.pull-request-number }}

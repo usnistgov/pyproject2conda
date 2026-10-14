@@ -1,4 +1,4 @@
-# * Variables ------------------------------------------------------------------
+# * Variables --------------------------------------------------------------------------
 
 PACKAGE_NAME := "pyproject2conda"
 IMPORT_NAME := "pyproject2conda"
@@ -12,7 +12,7 @@ UVRUN_OPTS := ""
 UVRUN := trim("uv run " + UVRUN_OPTS)
 TYPECHECK := "-m typecheck_runner -v"
 
-# * Functions ------------------------------------------------------------------
+# * Functions --------------------------------------------------------------------------
 
 # run nox
 [group("tools")]
