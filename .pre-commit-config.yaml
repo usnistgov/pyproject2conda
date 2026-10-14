@@ -137,7 +137,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: "v1.50.3"
+    rev: "v1.51.1"
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -167,7 +167,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: "v4.19.1"
+    rev: "v4.19.2"
     hooks:
       - id: commitizen
         stages: [commit-msg]
