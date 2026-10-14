@@ -25,6 +25,10 @@ indent_style = tab
 
 [*.{yaml,yml}]
 indent_size = 2
+max_line_length = 120
+
+[.github/**/*.{yaml,yml}]
+max_line_length = 180
 
 [*.ini]
 indent_size = 4
@@ -32,11 +36,21 @@ indent_size = 4
 [*.json]
 indent_size = 2
 
-
 [*.txt]
 indent_size = 4
 trim_trailing_whitespace = false
 
+[*.py]
+max_line_length = 88
+
+[pyproject.toml]
+max_line_length = 120
+
+[{Jj}ustfile]
+max_line_length = 88
+
+[*.just]
+max_line_length = 88
 
 [*.md]
 indent_size = 2

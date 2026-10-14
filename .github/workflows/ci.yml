@@ -31,9 +31,7 @@ jobs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
       - name: Don't run CI on draft PR
-        if:
-          github.event_name == 'pull_request' && github.event.pull_request.draft
-          == true
+        if: github.event_name == 'pull_request' && github.event.pull_request.draft == true
         run: exit 1
 
       - id: skip_check
@@ -57,8 +55,7 @@ jobs:
         id: versions
         shell: python
         env:
-          python_classifiers:
-            ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+          python_classifiers: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
         run: |
           import os
           import json
@@ -90,14 +87,11 @@ jobs:
             f.write(f"all_python_versions={json.dumps(all_python_versions)}\n")
 
     outputs:
-      default-python-version:
-        ${{ steps.versions.outputs.default_python_version }}
+      default-python-version: ${{ steps.versions.outputs.default_python_version }}
       min-python-version: ${{ steps.versions.outputs.min_python_version }}
       max-python-version: ${{ steps.versions.outputs.max_python_version }}
-      minmax-python-versions:
-        ${{ steps.versions.outputs.minmax_python_versions }}
-      minmax-default-python-versions:
-        ${{ steps.versions.outputs.minmax_default_python_versions }}
+      minmax-python-versions: ${{ steps.versions.outputs.minmax_python_versions }}
+      minmax-default-python-versions: ${{ steps.versions.outputs.minmax_default_python_versions }}
       all-python-version: ${{ steps.versions.outputs.all_python_versions }}
 
   lint:
@@ -125,7 +119,7 @@ jobs:
           echo "prek_version=${prek_version}" >> "$GITHUB_ENV"
 
       - name: Setup prek
-        uses: j178/prek-action@4e14d07f9231acabce116ccfca13b13dd9755ece # v3.0.0
+        uses: j178/prek-action@1382ad72dea72f9d53832f2bcb65b3e87a947204 # v3.0.1
         with:
           prek-version: ${{ env.prek_version }}
           install-only: true
@@ -134,8 +128,7 @@ jobs:
         env:
           SKIP: "typecheck"
         run: >-
-          prek run --show-diff-on-failure --color=always --all-files
-          --hook-stage=manual -v
+          prek run --show-diff-on-failure --color=always --all-files --hook-stage=manual -v
 
   pinact:
     name: Pin actions
@@ -200,16 +193,12 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-        python-version:
-          ${{
-          fromJson(needs.build-package.outputs.minmax-default-python-versions)
-          }}
+        python-version: ${{ fromJson(needs.build-package.outputs.minmax-default-python-versions) }}
         session:
           - test
         include:
           - os: windows-latest
-            python-version:
-              ${{ needs.build-package.outputs.default-python-version }}
+            python-version: ${{ needs.build-package.outputs.default-python-version }}
             session: test
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -237,9 +226,7 @@ jobs:
       - name: Upload coverage data
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name:
-            coverage-data-${{ matrix.os }}-${{ matrix.python-version }}-${{
-            matrix.session }}
+          name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.session }}
           path: .nox/test-*/tmp/.coverage*
           include-hidden-files: true
           if-no-files-found: ignore

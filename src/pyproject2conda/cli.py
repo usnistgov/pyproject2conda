@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.WARNING, format=FORMAT)
 logger: logging.Logger = logging.getLogger("pyproject2conda")
 
 
-# * Callbacks -----------------------------------------------------------------
+# * Callbacks --------------------------------------------------------------------------
 def _callback_verbose(
     verbose: int | None,
 ) -> int | None:

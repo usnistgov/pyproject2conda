@@ -5,11 +5,11 @@ import "tools/shared.just"
 set unstable
 set shell := ["bash", "-c"]
 
-# * Defaults
+# * Defaults ---------------------------------------------------------------------------
 _default:
     @just --list --unsorted
 
-# * Clean ----------------------------------------------------------------------
+# * Clean ------------------------------------------------------------------------------
 
 # find and remove files from `path` with `name`
 find_and_clean path name *other_names:
@@ -62,7 +62,7 @@ clean-artifacts: (_clean ".numba_cache/*") (find_and_clean "." "__pycache__") (f
 sterilize +options="-n":
     git clean -x -d {{ options }}
 
-# * Pre-commit -----------------------------------------------------------------
+# * Pre-commit -------------------------------------------------------------------------
 
 # run pre-commit on all files
 [group("lint")]
@@ -95,14 +95,14 @@ lint-sync-deps:
     just lint -v sync-pre-commit-deps || true
     just lint -v sync-uv-build-deps || true
 
-# * User setup -----------------------------------------------------------------
+# * User setup -------------------------------------------------------------------------
 
 # Create .autoenv.zsh files
 user-all:
     echo source ./.venv/bin/activate > .autoenv.zsh
     echo deactivate > .autoenv_leave.zsh
 
-# * Testing --------------------------------------------------------------------
+# * Testing ----------------------------------------------------------------------------
 
 # run tests quickly with the default Python
 [group("test")]
@@ -124,7 +124,7 @@ test-accept *options:
 [group("test")]
 coverage *options: (nox "-s coverage -- ++coverage" options)
 
-# * Versioning -----------------------------------------------------------------
+# * Versioning -------------------------------------------------------------------------
 
 # check/update version of package from scm
 [group("version")]
@@ -139,7 +139,7 @@ version-import:
 [group("version")]
 version: version-scm version-import
 
-# * Requirements/Environment files ---------------------------------------------
+# * Requirements/Environment files -----------------------------------------------------
 
 _requirements *options:
     just lint pyproject2conda-project --verbose || true
@@ -170,7 +170,7 @@ sync-pyproject-min-versions: && lock
 # Update/Upgrade all dependencies
 update-deps: (lock "--upgrade") sync-pyproject-min-versions lint-upgrade
 
-# * Typecheck ---------------------------------------------------------------------
+# * Typecheck --------------------------------------------------------------------------
 
 TYPECHECK_UVRUN_OPTS := "--no-dev --group=type"
 
@@ -259,7 +259,7 @@ typecheck *options: (_typecheck "-cmypy[faster-cache] -cbasedpyright -cpyrefly -
 [group("typecheck")]
 typecheck-all *checkers="mypy basedpyright": (nox "-s typecheck -- +m" checkers)
 
-# * docs -----------------------------------------------------------------------
+# * docs -------------------------------------------------------------------------------
 
 # build docs.  Options {html, spelling, livehtml, linkcheck, open}.
 [group("docs")]
@@ -287,7 +287,7 @@ docs-open: (docs "open")
 [group("docs")]
 docs-livehtml: (docs "livehtml")
 
-# * dist ----------------------------------------------------------------------
+# * dist -------------------------------------------------------------------------------
 
 [group("dist")]
 build:
@@ -335,14 +335,14 @@ list-dist:
     unzip -vl dist/*.whl
     du -skhc dist/*
 
-# * GitHub cli -----------------------------------------------------------------
+# * GitHub cli -------------------------------------------------------------------------
 
 # sync labels with template
 [group("tools")]
 gh-label-sync:
     gh label clone usnistgov/cookiecutter-nist-python
 
-# * Other tools ----------------------------------------------------------------
+# * Other tools ------------------------------------------------------------------------
 
 # Run ipython with ephemeral current environment
 [group("tools")]

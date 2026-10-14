@@ -25,10 +25,7 @@ jobs:
       contents: write
     uses: $/.github/workflows/docs.yml
     with:
-      deploy:
-        ${{ (github.event_name == 'release' && github.event.action ==
-        'published') || (github.event_name == 'workflow_dispatch' &&
-        inputs.deploy) }}
+      deploy: ${{ (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
 
   # would like to do this with a reusable workflow
   # see https://github.com/pypa/gh-action-pypi-publish/issues/166
@@ -67,14 +64,11 @@ jobs:
         env:
           tag_name: ${{ github.event.release.tag_name }}
         run: >-
-          uv run --script tools/check_dist_version.py --version "$tag_name" --
-          "${DIST}"/*.whl "${DIST}"/*.tar.gz
+          uv run --script tools/check_dist_version.py --version "$tag_name" -- "${DIST}"/*.whl "${DIST}"/*.tar.gz
 
   smoke-test:
     name: Smoke test package
-    if:
-      (github.event_name == 'release' && github.event.action == 'published') ||
-      (github.event_name == 'workflow_dispatch' && inputs.deploy)
+    if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.deploy)
     needs:
       - dist
     runs-on: ubuntu-latest
@@ -91,18 +85,15 @@ jobs:
         with:
           python-version-file: ".python-version"
       - name: Smoke test wheel
-        run:
+        run: >-
           uv run --isolated --no-project --with dist/*.whl tests/test_smoke.py
       - name: Smoke test source
-        run:
-          uv run --isolated --no-project --with dist/*.tar.gz
-          tests/test_smoke.py
+        run: >-
+          uv run --isolated --no-project --with dist/*.tar.gz tests/test_smoke.py
 
   publish-testpypi:
     name: Publish package to testpypi
-    if:
-      (github.event_name == 'release' && github.event.action == 'published') ||
-      (github.event_name == 'workflow_dispatch' && inputs.deploy)
+    if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.deploy)
     needs:
       - dist
       - smoke-test
@@ -124,9 +115,7 @@ jobs:
 
   publish-pypi:
     name: Publish package to pypi
-    if:
-      (github.event_name == 'release' && github.event.action == 'published') ||
-      (github.event_name == 'workflow_dispatch' && inputs.deploy)
+    if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.deploy)
     needs:
       - dist
       - smoke-test

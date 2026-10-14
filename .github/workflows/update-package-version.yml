@@ -58,9 +58,7 @@ jobs:
           path: |
             ${{ github.workspace }}/.cache
             ${{ github.workspace }}\.cache
-          key:
-            rooster-cache|${{ runner.os }}|${{ runner.arch }}|${{
-            steps.version.outputs.current_version }}
+          key: rooster-cache|${{ runner.os }}|${{ runner.arch }}|${{ steps.version.outputs.current_version }}
 
       - name: Bump version with rooster
         id: changed
