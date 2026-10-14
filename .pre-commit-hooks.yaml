@@ -1,7 +1,6 @@
 - id: pyproject2conda-project
   name: pyproject2conda-project
-  description:
-    "Automatically run 'pyproject2conda project' on project dependencies"
+  description: "Automatically run 'pyproject2conda project' on project dependencies"
   entry: pyproject2conda project
   language: python
   files: ^pyproject\.toml$
@@ -11,8 +10,7 @@
   minimum_pre_commit_version: "2.9.2"
 - id: pyproject2conda-yaml
   name: pyproject2conda-yaml
-  description:
-    "Automatically run 'pyproject2conda yaml' on project dependencies"
+  description: "Automatically run 'pyproject2conda yaml' on project dependencies"
   entry: pyproject2conda yaml
   language: python
   files: ^pyproject\.toml$
@@ -22,8 +20,7 @@
   minimum_pre_commit_version: "2.9.2"
 - id: pyproject2conda-requirements
   name: pyproject2conda-requirements
-  description:
-    "Automatically run 'pyproject2conda yaml' on project dependencies"
+  description: "Automatically run 'pyproject2conda yaml' on project dependencies"
   entry: pyproject2conda requirements
   language: python
   files: ^pyproject\.toml$

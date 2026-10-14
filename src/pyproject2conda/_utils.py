@@ -214,7 +214,7 @@ def list_to_str(values: Iterable[str] | None, eol: bool = True) -> str:
     return output
 
 
-# * Validation ----------------------------------------------------------------
+# * Validation -------------------------------------------------------------------------
 def validate_iterable_str(x: Iterable[str]) -> Iterable[str]:
     """Ensure Iterable of str and not str"""
     if isinstance(x, str):

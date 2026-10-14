@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from ._typing_compat import Self
 
 
-# * Validation ----------------------------------------------------------------
+# * Validation -------------------------------------------------------------------------
 
 ListString = Annotated[list[str], BeforeValidator(validate_list_of_str)]
 ListNormalizedName = Annotated[
@@ -41,7 +41,7 @@ def _snake_case(field_name: str) -> str:
     return field_name.replace("_", "-")
 
 
-# * PyProject2Conda -----------------------------------------------------------
+# * PyProject2Conda --------------------------------------------------------------------
 class Overwrite(str, Enum):
     """Options for ``--overwrite``"""
 
@@ -221,7 +221,7 @@ class PyProject2CondaSchema(_BaseOptions, _Dependencies):
         return Env.model_validate(self._chainmap_env(env_name, *options))
 
 
-# * PyProject Schema ----------------------------------------------------------
+# * PyProject Schema -------------------------------------------------------------------
 
 
 class _PyProjectBaseSchema(BaseModel):
