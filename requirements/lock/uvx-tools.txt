@@ -12,9 +12,13 @@ copier==9.18.2 \
     --hash=sha256:0f97902fee79374551c9391fb1132f5a038079f3b497f4dad673295489fc032e \
     --hash=sha256:ef0e1b09dece031b09085f2aa637bdc3d5952b98d96b986feaa45a8f3a00d2c6
     # via -r requirements/uvx-tools.txt
-copier-template-extensions==0.3.3 \
+copier-template-extensions==0.3.3 ; python_full_version < '3.11' \
     --hash=sha256:86bd5e2e89c94b6f9321e4078781b4456c5658b820bcae49ac60fd1e1dd23c10 \
     --hash=sha256:bf6bbdebada26132640d6e1128723fa1ff7eb59d008de07a7543c51e0facb0ea
+    # via -r requirements/uvx-tools.txt
+copier-template-extensions==0.3.4 ; python_full_version >= '3.11' \
+    --hash=sha256:81c66adf2dbf77bedf8caf86d4494548b294671cdb276f6370eb111f40f38b39 \
+    --hash=sha256:ec9d2c50c6d6cdd54f11d1bedffcc01ca40cf74cc3035e171cb4d3fef38bb3ea
     # via -r requirements/uvx-tools.txt
 grayskull==3.2.0 \
     --hash=sha256:467bb43a7de610fc8719e520c9e9049f597a28d9e72c0ff047127b5340569ddb \
