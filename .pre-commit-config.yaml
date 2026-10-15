@@ -158,7 +158,6 @@ repos:
     hooks:
       - id: uv-lock
         alias: requirements
-        args: [--locked]
       - id: pip-compile
         alias: requirements
         entry: uv run tools/uv_locker.py

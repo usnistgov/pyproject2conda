@@ -25,19 +25,7 @@ permissions: {}
 
 jobs:
   pre_job:
-    # continue-on-error: true # Uncomment once integration is finished
-    runs-on: ubuntu-latest
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - name: Don't run CI on draft PR
-        if: github.event_name == 'pull_request' && github.event.pull_request.draft == true
-        run: exit 1
-
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@b974a9395958c231af965b70070979a577efa578 # v5.3.2
-        with:
-          paths_ignore: '[".cruft.json", ".copier.yml"]'
+    uses: $/.github/workflows/skip_duplicate_actions.yml
 
   build-package:
     name: Build & verify package
@@ -93,42 +81,6 @@ jobs:
       minmax-python-versions: ${{ steps.versions.outputs.minmax_python_versions }}
       minmax-default-python-versions: ${{ steps.versions.outputs.minmax_default_python_versions }}
       all-python-version: ${{ steps.versions.outputs.all_python_versions }}
-
-  lint:
-    # only run checks not covered by pre-commit.ci
-    name: Lint package
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      # Not always needed but some hooks use it...
-      - uses: $/.github/actions/setup-cached-uv-and-python
-        with:
-          python-version-file: ".python-version"
-          cache-dependency-path: uv.lock
-
-      - name: Get prek version
-        shell: bash
-        run: |
-          prek_version=$(grep prek "$UVX_CONSTRAINT" | cut -d " " -f1 | sed "s/prek==//")
-          echo "prek_version: ${prek_version}"
-          echo "prek_version=${prek_version}" >> "$GITHUB_ENV"
-
-      - name: Setup prek
-        uses: j178/prek-action@1382ad72dea72f9d53832f2bcb65b3e87a947204 # v3.0.1
-        with:
-          prek-version: ${{ env.prek_version }}
-          install-only: true
-
-      - name: Run prek
-        env:
-          SKIP: "typecheck"
-        run: >-
-          prek run --show-diff-on-failure --color=always --all-files --hook-stage=manual -v
 
   pinact:
     name: Pin actions
@@ -286,7 +238,6 @@ jobs:
     if: always()
     needs:
       - pre_job
-      - lint
       - pinact
       - typecheck
       - test
@@ -297,5 +248,5 @@ jobs:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
-          allowed-skips: "lint,pinact,typecheck,test,coverage,docs"
+          allowed-skips: "pinact,typecheck,test,coverage,docs"
           jobs: ${{ toJSON(needs) }}

@@ -1,0 +1,88 @@
+name: autofix.ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FORCE_COLOR: "3"
+  UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
+
+jobs:
+  pre_job:
+    uses: $/.github/workflows/skip_duplicate_actions.yml
+
+  lint:
+    name: Lint
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
+    runs-on: ubuntu-latest
+    env:
+      SKIP: "typecheck"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Not always needed but some hooks use it...
+      - uses: $/.github/actions/setup-cached-uv-and-python
+        with:
+          python-version-file: ".python-version"
+          cache-dependency-path: uv.lock
+
+      - name: Get prek version
+        shell: bash
+        run: |
+          prek_version=$(grep prek "$UVX_CONSTRAINT" | cut -d " " -f1 | sed "s/prek==//")
+          echo "prek_version: ${prek_version}"
+          echo "prek_version=${prek_version}" >> "$GITHUB_ENV"
+
+      - name: Setup prek
+        uses: j178/prek-action@1382ad72dea72f9d53832f2bcb65b3e87a947204 # v3.0.1
+        with:
+          prek-version: ${{ env.prek_version }}
+          install-only: true
+
+      - name: Run prek
+        id: prek
+        shell: bash
+        run: |
+          # Fixers exit non-zero when they change files. Some fixers' output feeds
+          # another fixer, so a single pass may not reach a stable tree.
+          # Re-run on the fixed tree until prek exits clean or we hit the cap.
+          set -x
+          for attempt in 1 2 3; do
+            echo "::notice title=Prek run attempt::attempt=$attempt"
+            echo "--------------------------------------------------"
+            status=0
+            prek run --show-diff-on-failure --color=always --all-files --hook-stage=manual -v || status=$?
+            if [ "$status" -eq 0 ]; then
+              break
+            # check for unstaged or untracked changes
+            elif ! git status --porcelain | grep -E '^.[MD] |^\?\? ' >/dev/null; then
+              echo "::notice::Non zero status, but clean state."
+              break
+            fi
+            # otherwise, stage changes before next run
+            git add .
+          done
+          echo "::notice title=Prek exit status::status=$status"
+          exit "$status"
+
+      - name: Commit fixes
+        if: always() && !cancelled()
+        uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a # v1.3.4
