@@ -154,7 +154,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.12.23"
+    rev: "0.12.24"
     hooks:
       - id: uv-lock
         alias: requirements
