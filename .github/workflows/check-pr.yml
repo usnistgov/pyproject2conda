@@ -8,13 +8,18 @@ on: # zizmor: ignore[dangerous-triggers]
       - edited
       - synchronize
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
   validate-title:
+    name: Validate title
     runs-on: ubuntu-slim
     permissions:
-      pull-requests: read
+      pull-requests: read # required for action
     steps:
       - name: Validate PR title
         uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
@@ -25,9 +30,9 @@ jobs:
     name: Auto-label PR
     permissions:
       contents: read
-      pull-requests: write
-      statuses: write
-      checks: write
+      pull-requests: write # required for action
+      statuses: write # required for action
+      checks: write # required for action
     runs-on: ubuntu-slim
     steps:
       - uses: fuxingloh/multi-labeler@bcd50af464202999e57f556b4aefcf05a34abf85 # v5.0.0

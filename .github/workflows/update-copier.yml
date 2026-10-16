@@ -11,15 +11,12 @@ on:
         default: false
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 env:
-  COPIER_OPTIONS: "--trust -A -r main -c 3"
   AUTOMERGE: "false"
   UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
 
@@ -29,6 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pull-request
+    permissions:
+      contents: write # required for pr
+      pull-requests: write # required for pr
     strategy:
       fail-fast: true
       matrix:
@@ -64,7 +64,7 @@ jobs:
           automergeable='true'
 
           if [ -f .copier-answers.yml ]; then
-            $UVX_COMMAND --with copier-template-extensions copier update ${{ env.COPIER_OPTIONS }}
+            $UVX_COMMAND --with copier-template-extensions copier update --trust -A -r main -c 3
             if ! git diff --quiet -- .copier-answers.yml; then
               changed='true'
             fi
@@ -109,7 +109,7 @@ jobs:
       - name: Create pull request
         if: steps.check.outputs.changed == 'true'
         id: cpr
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1  # zizmor: ignore[superfluous-actions]
         with:
           token: ${{ secrets.PAT }}
           add-paths: ${{ matrix.add-paths }}

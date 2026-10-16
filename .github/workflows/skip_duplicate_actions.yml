@@ -7,11 +7,14 @@ on:
         description: "Skip duplicate actions"
         value: ${{ jobs.skip-duplicate-actions.outputs.should_skip }}
 
+permissions: {}
+
 env:
   FORCE_COLOR: "3"
 
 jobs:
   skip-duplicate-actions:
+    name: Skip duplicate actions
     runs-on: ubuntu-latest
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}

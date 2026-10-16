@@ -5,8 +5,10 @@ on:
       - closed
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
+
+permissions: {}
 
 jobs:
   # for debugging
@@ -36,7 +38,7 @@ jobs:
     environment:
       name: pull-request
     permissions:
-      contents: write
+      contents: write # required for action
     steps:
       - name: PR info
         env:
