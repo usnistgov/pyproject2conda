@@ -27,6 +27,12 @@ on:
         type: boolean
         default: true
 
+concurrency:
+  group: ${{ github.workflow }}-docs-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
 env:
   FORCE_COLOR: "3"
 
@@ -35,7 +41,7 @@ jobs:
     name: Build/deploy docs
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # required for action
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

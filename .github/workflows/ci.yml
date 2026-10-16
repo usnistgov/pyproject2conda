@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -88,7 +88,7 @@ jobs:
     if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # required for action
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -228,13 +228,14 @@ jobs:
     needs: pre_job
     if: needs.pre_job.outputs.should_skip != 'true'
     permissions:
-      contents: write
+      contents: write # required for action
     uses: $/.github/workflows/docs.yml
     with:
       deploy: false
 
   # Ensure everything required is passing for branch protection.
   required-checks-pass:
+    name: required-checks-pass
     if: always()
     needs:
       - pre_job
