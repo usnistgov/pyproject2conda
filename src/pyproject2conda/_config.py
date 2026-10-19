@@ -196,7 +196,7 @@ class PyProject2CondaConfig:
         self, envs: Iterable[str] | None = None
     ) -> Iterator[tuple[str, EnvRequirements | EnvYaml]]:
         if not envs:
-            envs = self.schema.envs.keys()  # pylint: disable=no-member
+            envs = self.schema.envs.keys()
 
         for env_name in (canonicalize_name(e) for e in envs):
             for style in self.get_env(env_name).style:
