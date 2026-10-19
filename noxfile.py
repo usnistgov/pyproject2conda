@@ -454,14 +454,31 @@ def get_uvx_constraint_args(locked: bool = True) -> tuple[str, ...]:
 
 
 def uvx_run(
-    session: Session, *args: str | PathLike[str], locked: bool = True, **kwargs: Any
+    session: Session,
+    *args: str | PathLike[str],
+    locked: bool = True,
+    python_version: str | None = "default",
+    **kwargs: Any,
 ) -> Any:
     """Run command using uvx"""
-    return session.run("uvx", *get_uvx_constraint_args(locked), *args, **kwargs)  # pyright: ignore[reportUnknownVariableType]
+    if python_version == "default":
+        python_version = PYTHON_DEFAULT_VERSION
+
+    return session.run(  # pyright: ignore[reportUnknownVariableType]
+        "uvx",
+        *([] if python_version is None else [f"--python={python_version}"]),
+        *get_uvx_constraint_args(locked),
+        *args,
+        **kwargs,
+    )
 
 
 def pre_commit_run(
-    session: Session, *args: str | PathLike[str], use_prek: bool = True, **kwargs: Any
+    session: Session,
+    *args: str | PathLike[str],
+    use_prek: bool = True,
+    python_version: str | None = "default",
+    **kwargs: Any,
 ) -> Any:
     """Run pre-commit via uvx."""
     pre_commit_args = (
@@ -474,6 +491,7 @@ def pre_commit_run(
         *pre_commit_args,
         *args,
         **kwargs,
+        python_version=python_version,
         locked=False,
     )
 
@@ -834,7 +852,9 @@ def conda_recipe(
     """Run grayskull to create recipe."""
     commands = opts.conda_recipe or ["recipe"]
 
-    run = partial(uvx_run, session, external=True)
+    run = partial(
+        uvx_run, session, external=True, python_version=PYTHON_DEFAULT_VERSION
+    )
 
     if not (sdist_path := opts.conda_recipe_sdist_path):
         sdist_path = PACKAGE_NAME
