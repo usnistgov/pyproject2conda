@@ -11,6 +11,8 @@ ci:
 default_install_hook_types:
   - pre-commit
   - commit-msg
+default_language_version:
+  python: "3.14"
 repos:
   # * meta hooks
   - repo: meta
@@ -20,7 +22,7 @@ repos:
 
   # * sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: "v0.12.2"
+    rev: "v0.13.0"
     hooks:
       - id: forbidden-files
       - id: format-code-section-headers
@@ -31,6 +33,10 @@ repos:
       - id: sync-pre-commit-deps
       - id: sync-uv-build-deps
       - id: sync-uv-dependency-groups
+      - id: sync-pre-commit-language-version
+        args:
+          - "--language-version-file=.python-version"
+          - "--language-name=python"
       - id: sync-pyproject-min-versions
         files: |
           (?x)^(
