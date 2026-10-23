@@ -32,7 +32,7 @@ repos:
           - "--max-line-length=100"
       - id: sync-pre-commit-deps
       - id: sync-uv-build-deps
-        files: '^pyproject\.toml$'
+        exclude: ^tests
       - id: sync-uv-dependency-groups
       - id: sync-pre-commit-language-version
         args:
