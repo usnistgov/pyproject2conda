@@ -22,7 +22,7 @@ repos:
 
   # * sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: "v0.13.1"
+    rev: "v0.13.2"
     hooks:
       - id: forbidden-files
       - id: format-code-section-headers
