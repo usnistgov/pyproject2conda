@@ -8,6 +8,7 @@
     :maxdepth: 1
 
     cli
+    schema
 
 
 Modules
@@ -19,6 +20,5 @@ Modules
    :toctree: generated/
    :template: autodocsumm/module.rst
 
-   <!-- requirements -->
    cli
 ```
