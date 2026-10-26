@@ -1798,7 +1798,7 @@ dev = [
     { name = "pytest-cov", marker = "python_full_version >= '3.14'" },
     { name = "pytest-sugar", marker = "python_full_version >= '3.14'" },
     { name = "pytest-xdist", marker = "python_full_version >= '3.14'" },
-    { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.2.0" },
+    { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.2.2" },
     { name = "typing-extensions", marker = "python_full_version == '3.14.*'" },
 ]
 docs = [
@@ -1855,9 +1855,9 @@ type = [
     { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.8.17" },
     { name = "pylint" },
     { name = "pytest" },
-    { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" },
+    { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.2" },
 ]
-typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" }]
+typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.2" }]
 
 [[package]]
 name = "pytest"
@@ -2360,14 +2360,14 @@ wheels = [
 
 [[package]]
 name = "typecheck-runner"
-version = "0.2.0"
+version = "0.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "packaging" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/64/fe/62eea0a51e08e0c0ee72f350eadf377c081556bf79a497c86f0657f55266/typecheck_runner-0.2.0.tar.gz", hash = "sha256:5efc8fdd9a99584af2e2953eb5b7ff99c45d8d07ddf0765c7e12bb3db8622b11", size = 14303, upload-time = "2026-04-09T00:35:24.068Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/51/59145426bf16a218dc0e06c89f1caeb3dfef8296c1e726f1a8258da46d52/typecheck_runner-0.2.2.tar.gz", hash = "sha256:471352e416c419c23c6f0949f3d138ecb92b095ae6b81e416705fe1d476029a6", size = 19385, upload-time = "2026-10-16T15:02:05.425Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7d/f8/ec60f803e54385b118f653c118e8a64893c15024c48e71bba076fec20262/typecheck_runner-0.2.0-py3-none-any.whl", hash = "sha256:5467c5b0ef02a07ce84e18eed0eae88ba14266dff954244490eac17f5f7ef172", size = 10750, upload-time = "2026-04-09T00:35:22.32Z" },
+    { url = "https://files.pythonhosted.org/packages/11/bc/852e38dbc43ca6b32b241fa6267c6fb94992f59186781de06215cab59b33/typecheck_runner-0.2.2-py3-none-any.whl", hash = "sha256:fec8549de0f423f29b4b750b0defcc2276955c6d488667bfe6ffa1e69b45f70a", size = 10790, upload-time = "2026-10-16T15:02:04.274Z" },
 ]
 
 [[package]]

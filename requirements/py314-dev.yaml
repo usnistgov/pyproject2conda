@@ -21,7 +21,7 @@ dependencies:
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
-  - typecheck-runner>=0.2.0
+  - typecheck-runner>=0.2.2
   - typer>=0.26.2
   - typing-extensions
   - pip
