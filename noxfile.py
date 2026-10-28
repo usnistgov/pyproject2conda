@@ -4,7 +4,7 @@
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
-#     "nox>=2026.8.17",
+#     "nox>=2026.10.20",
 # ]
 #
 # [tool.ty]
