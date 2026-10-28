@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.13.1,<0.14.0",
+    "uv-build>=0.13.4,<0.14.0",
 ]
 
 [project]
@@ -92,7 +92,7 @@ docs-spelling = [
 ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.4.0" ]
-nox = [ "nox>=2026.8.17" ]
+nox = [ "nox>=2026.10.20" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 pytest-accept = [ "pytest-accept" ]
@@ -469,7 +469,7 @@ pip-deps = [
     "rooster>=0.1.1",
     "rust-just>=1.59.0",
     "twine>=7.0.0",
-    "ty>=0.0.89",
+    "ty>=0.0.90",
 ]
 groups = [
     "basedpyright",
