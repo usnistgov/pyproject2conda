@@ -80,7 +80,7 @@ repos:
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: "2026.10.22"
+    rev: "2026.10.23"
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
