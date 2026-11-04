@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.13.5,<0.14.0",
+    "uv-build>=0.13.6,<0.14.0",
 ]
 
 [project]
@@ -463,13 +463,13 @@ pip-deps = [
     "copier-template-extensions>=0.3.3", #  sync-pyproject-min-versions: ignore
     "copier>=9.19.1",
     "grayskull>=3.2.0",
-    "prek>=0.5.9",
+    "prek>=0.5.10",
     "pyrefly>=1.4.0",
     "pyright>=1.1.414",
     "rooster>=0.1.1",
     "rust-just>=1.59.0",
     "twine>=7.0.0",
-    "ty>=0.0.92",
+    "ty>=0.0.93",
 ]
 groups = [
     "basedpyright",
