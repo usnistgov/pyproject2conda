@@ -14,9 +14,9 @@ requirements = [{ name = "pkginfo" }]
 
 [[package]]
 name = "pkginfo"
-version = "1.13.3"
+version = "2.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/3e/25/5ebd69526479b3684e210f441b05d2d68ce38a4a8c26788bd238cbb0ef54/pkginfo-1.13.3.tar.gz", hash = "sha256:ad74cc8184b28b77b06cccc49361fd0fdc56fd87e307425ce1c2b7596dbe3185", size = 456355, upload-time = "2026-10-16T23:15:07.012Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/30/37/7580f0accc77d450a53ff7856fe142a89fc11467c2f22105dd06e088a5d1/pkginfo-2.0.tar.gz", hash = "sha256:f7b4f267881785582c923631a0fa7e275b0d390a5cbab54aa4ec0ecc7eddb375", size = 449188, upload-time = "2026-10-28T15:36:42.469Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f3/8f/3e29b55ad92de525931a5683ca245af58d50d5756f35cd74555aaf859427/pkginfo-1.13.3-py3-none-any.whl", hash = "sha256:66520cd19fddf3faa9554d68dcc0e6801944275bf612e8b581dfba968a9b4cc9", size = 35615, upload-time = "2026-10-16T23:15:05.874Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/1b/08f1ee028bff827941c5f9a53e5160bb1c67b20f0c49dcc55d2287397c24/pkginfo-2.0-py3-none-any.whl", hash = "sha256:98c7aaa804dfe017b0de65d4b41a2f4649a656f43d3c21525b13e8075716fa1b", size = 16881, upload-time = "2026-10-28T15:36:41.096Z" },
 ]

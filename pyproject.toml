@@ -91,7 +91,7 @@ docs-spelling = [
     { include-group = "docs" },
 ]
 ipython = [ "ipython" ]
-mypy = [ "mypy[faster-cache]>=2.4.0" ]
+mypy = [ "mypy[faster-cache]>=2.4.1" ]
 nox = [ "nox>=2026.10.20" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
@@ -459,7 +459,7 @@ skip-package = true
 [tool.pyproject2conda.envs.uvx-tools]
 pip-deps = [
     # these used solely for specking tools to be run via uvx ...
-    "conda-lock>=4.0.3",
+    "conda-lock>=4.0.4",
     "copier-template-extensions>=0.3.3", #  sync-pyproject-min-versions: ignore
     "copier>=9.19.1",
     "grayskull>=3.2.0",
@@ -469,7 +469,7 @@ pip-deps = [
     "rooster>=0.1.1",
     "rust-just>=1.59.0",
     "twine>=7.0.0",
-    "ty>=0.0.93",
+    "ty>=0.0.95",
 ]
 groups = [
     "basedpyright",
