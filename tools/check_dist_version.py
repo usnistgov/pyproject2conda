@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import pkginfo  # type: ignore[import-not-found] # pyright: ignore[reportMissingImports]  # pylint: disable=import-error # pyrefly: ignore[missing-import] # ty: ignore[unresolved-import]
+import pkginfo  # type: ignore[import-not-found] # pyright: ignore[reportMissingImports]  # pylint: disable=import-error # pyrefly: ignore[missing-import] # ty: ignore[import-not-found]
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
