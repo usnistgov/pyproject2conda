@@ -74,13 +74,13 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.30.3"
+    rev: "v2.30.6"
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: "2026.10.30"
+    rev: "2026.11.05"
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -125,7 +125,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.17.3"
+    rev: "v0.17.4"
     hooks:
       - id: ruff-check
         alias: ruff
@@ -144,7 +144,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: "v1.51.1"
+    rev: "v1.52.0"
     hooks:
       - id: typos
         exclude_types: [jupyter]
