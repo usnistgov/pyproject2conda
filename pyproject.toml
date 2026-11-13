@@ -464,12 +464,12 @@ pip-deps = [
     "copier>=9.19.1",
     "grayskull>=3.2.0",
     "prek>=0.5.10",
-    "pyrefly>=1.4.0",
+    "pyrefly>=1.4.1",
     "pyright>=1.1.414",
     "rooster>=0.1.1",
     "rust-just>=1.59.0",
     "twine>=7.0.0",
-    "ty>=0.0.96",
+    "ty>=0.0.98",
 ]
 groups = [
     "basedpyright",
