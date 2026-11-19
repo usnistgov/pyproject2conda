@@ -80,7 +80,7 @@ repos:
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: "2026.11.07"
+    rev: "2026.11.12"
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -100,7 +100,7 @@ repos:
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: "v3.9.10"
+    rev: "v3.10.1"
     hooks:
       - id: prettier
         alias: markdownlint
@@ -111,7 +111,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: "v0.24.0"
+    rev: "v0.24.1"
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -144,7 +144,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: "v1.52.0"
+    rev: "v1.52.2"
     hooks:
       - id: typos
         exclude_types: [jupyter]

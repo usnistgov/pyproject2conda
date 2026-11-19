@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import ChainMap
-from enum import Enum
+from enum import StrEnum
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Literal
@@ -42,7 +42,7 @@ def _snake_case(field_name: str) -> str:
 
 
 # * PyProject2Conda --------------------------------------------------------------------
-class Overwrite(str, Enum):
+class Overwrite(StrEnum):
     """Options for ``--overwrite``"""
 
     check = "check"
