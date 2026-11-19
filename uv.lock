@@ -1662,7 +1662,6 @@ type = ">=3.14"
 requires-dist = [
     { name = "packaging", specifier = ">=26.1" },
     { name = "pydantic", specifier = ">=2.12.5" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "typer", specifier = ">=0.26.2" },
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]

@@ -78,7 +78,7 @@ class _Resolve(ABC):
 class ResolveOptionalDependencies(_Resolve):
     """Resolve ``optional-dependencies``."""
 
-    unresolved: dict[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]  # pyright: ignore[reportIncompatibleVariableOverride]  # pyrefly: ignore[bad-override]  # ty: ignore[invalid-attribute-override]
+    unresolved: dict[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]  # pyright: ignore[reportIncompatibleVariableOverride]  # pyrefly: ignore[bad-override]  # ty: ignore[incompatible-attribute-override]
 
     @override
     def _get_unresolved_deps(
