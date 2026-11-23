@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
-#     "cogapp>=3.6.0",
+#     "cogapp>=3.6.1",
 # ]
 # ///
 """Script to run cog on files with optional linters/formatters."""
