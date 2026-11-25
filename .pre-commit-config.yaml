@@ -74,13 +74,13 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.30.6"
+    rev: "v2.31.1"
     hooks:
       - id: pyproject-fmt
         files: ^pyproject\.toml$
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: "2026.11.14"
+    rev: "2026.11.17"
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -161,7 +161,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.13.8"
+    rev: "0.13.9"
     hooks:
       - id: uv-lock
         alias: requirements
